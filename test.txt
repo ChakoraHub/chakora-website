@@ -1,2 +1,6 @@
 "Hello from Bhavishya" 
+<<<<<<< HEAD
 "welcome to github" 
+=======
+"More updates" 
+>>>>>>> a229176 (Update test.txt with new line)
