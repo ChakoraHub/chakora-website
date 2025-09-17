@@ -1,0 +1,61 @@
+ScreenManager:
+    EnquiryScreen:
+        name: "enquiry"
+
+<EnquiryScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 15
+
+        Label:
+            text: "Enquiry Form"
+            font_size: 28
+            size_hint_y: None
+            height: 50
+            color: 0, 0.5, 1, 1  # Light blue heading
+
+        TextInput:
+            id: name
+            hint_text: "Name"
+            multiline: False
+            font_size: 18
+            padding: [10, 10]
+
+        TextInput:
+            id: email
+            hint_text: "Email"
+            multiline: False
+            font_size: 18
+            padding: [10, 10]
+
+        TextInput:
+            id: phone
+            hint_text: "Phone"
+            multiline: False
+            input_filter: "int"
+            font_size: 18
+            padding: [10, 10]
+
+        TextInput:
+            id: enquiry
+            hint_text: "Your Enquiry"
+            multiline: True
+            font_size: 18
+            padding: [10, 10]
+
+        Button:
+            text: "Submit"
+            size_hint_y: None
+            height: 50
+            background_color: (0, 0.6, 0, 1)
+            font_size: 18
+            on_release: root.submit_form()
+
+        Button:
+            text: "⬅ Back to Resources"
+            size_hint_y: None
+            height: 50
+            background_color: (0.1, 0.3, 0.9, 1)
+            font_size: 18
+            on_release: root.go_back()
