@@ -1,0 +1,74 @@
+<FeedbackScreen>:
+    orientation: "vertical"
+    padding: "20dp"
+    spacing: "20dp"
+
+    canvas.before:
+        Color:
+            rgba: 0.97, 0.98, 0.99, 1  # light background (#f7f9fb)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    Label:
+        text: "What Our Students Say"
+        font_size: "24sp"
+        bold: True
+        color: 0.17, 0.23, 0.31, 1  # #2c3e50
+        size_hint_y: None
+        height: self.texture_size[1]
+
+    ScrollView:
+        size_hint: (1, None)
+        height: "300dp"
+        bar_width: "8dp"
+        scroll_type: ['bars', 'content']
+
+        do_scroll_y: False  # only horizontal scroll
+
+        BoxLayout:
+            id: feedback_box
+            orientation: "horizontal"
+            size_hint_x: None
+            height: self.minimum_height
+            width: self.minimum_width
+            spacing: "20dp"
+
+            # Auto-create feedback items
+            on_parent:
+                if not self.children: \
+                [self.add_widget(Factory.FeedbackItem(msg=fb["feedback_message"], name=fb["name"])) for fb in root.feedbacks]
+
+
+<FeedbackItem@BoxLayout>:
+    msg: ""
+    name: ""
+    orientation: "vertical"
+    size_hint: (None, None)
+    width: "250dp"
+    height: "200dp"
+    padding: "15dp"
+    spacing: "10dp"
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1  # card background
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [12]
+
+    Label:
+        text: "“" + root.msg + "”"
+        text_size: self.width*0.9, None
+        halign: "left"
+        valign: "top"
+        font_size: "16sp"
+        color: 0.2, 0.2, 0.2, 1
+        italic: True
+
+    Label:
+        text: root.name
+        halign: "right"
+        font_size: "14sp"
+        bold: True
+        color: 0.0, 0.48, 1, 1   # #007BFF
