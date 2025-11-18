@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Performance & Career - ChakoraHub</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+    }
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: #2c3e50;
+      color: #fff;
+      height: 100vh;
+      padding-top: 20px;
+      position: fixed;
+    }
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 20px;
+      border-bottom: 1px solid #444;
+      padding-bottom: 10px;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    .sidebar ul li {
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .sidebar ul li:hover {
+      background: #34495e;
+    }
+    .sidebar ul li a {
+      color: #fff;
+      text-decoration: none;
+      display: block;
+    }
+    /* Submenu */
+    .submenu {
+      display: none;
+      background: #3d566e;
+    }
+    .submenu li {
+      padding: 10px 40px;
+    }
+    .submenu li:hover {
+      background: #4a6a89;
+    }
+    /* Content area */
+    .content {
+      margin-left: 250px;
+      padding: 20px;
+      flex: 1;
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #f4f4f4;
+    }
+  </style>
+  <script>
+    function toggleSubmenu() {
+      const submenu = document.getElementById("careerSubmenu");
+      submenu.style.display = submenu.style.display === "block" ? "none" : "block";
+    }
+  </script>
+</head>
+<body>
+
+  <div class="sidebar">
+    <h2>ChakoraHub</h2>
+    <ul>
+      <li onclick="toggleSubmenu()">Performance & Career ▸</li>
+      <ul id="careerSubmenu" class="submenu">
+        <li><a href="{{ url_for('goal_setting') }}">Goal Setting & Reviews</a></li>
+        <li><a href="{{ url_for('skill_matrix') }}">Skill Matrix / Certifications</a></li>
+        <li><a href="{{ url_for('training_history') }}">Training & Learning History</a></li>
+      </ul>
+    </ul>
+  </div>
+
+  <div class="content">
+    <h1>Performance & Career</h1>
+
+    {% if not section %}
+      <p>Welcome! Please select a module from the sidebar to view details.</p>
+    {% endif %}
+
+    {% if section == "goals" %}
+    <div class="section">
+      <h2>Goals</h2>
+      <table>
+        <tr>
+          <th>Title</th>
+          <th>Deadline</th>
+          <th>Status</th>
+          <th>Description</th>
+        </tr>
+        {% for g in goals %}
+        <tr>
+          <td>{{ g.title }}</td>
+          <td>{{ g.deadline }}</td>
+          <td>{{ g.status }}</td>
+          <td>{{ g.description }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endif %}
+
+    {% if section == "skills" %}
+    <div class="section">
+      <h2>Skills</h2>
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Level</th>
+          <th>Certified</th>
+          <th>Last Updated</th>
+        </tr>
+        {% for s in skills %}
+        <tr>
+          <td>{{ s.name }}</td>
+          <td>{{ s.level }}</td>
+          <td>{{ "Yes" if s.certified else "No" }}</td>
+          <td>{{ s.updated }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endif %}
+
+    {% if section == "trainings" %}
+    <div class="section">
+      <h2>Trainings</h2>
+      <table>
+        <tr>
+          <th>Title</th>
+          <th>Date</th>
+          <th>Instructor</th>
+          <th>Summary</th>
+        </tr>
+        {% for t in trainings %}
+        <tr>
+          <td>{{ t.title }}</td>
+          <td>{{ t.date }}</td>
+          <td>{{ t.instructor }}</td>
+          <td>{{ t.summary }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endif %}
+
+  </div>
+
+</body>
+</html>
+

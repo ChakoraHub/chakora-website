@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Positions Management</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --pending: #f39c12;
+            --resume: #9b59b6;
+            --processed: #e74c3c;
+            --mail-sent: #3498db;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header Styles from Resources */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 30px;
+            background: linear-gradient(to right, #64b5f6, #9575cd);
+            height: 100px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        .logo img { height: 80px; }
+        .center-text {
+            flex: 1;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .profile-wrapper { position: relative; cursor: pointer; transition: transform 0.3s ease; }
+        .profile-pic { width: 50px; height: 50px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
+        .profile-wrapper:hover { transform: scale(1.05); }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            z-index: 1000;
+            min-width: 140px;
+        }
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 15px;
+            color: #444;
+            font-weight: 500;
+            text-decoration: none;
+            border-bottom: 1px solid #eee;
+        }
+        .dropdown-menu a:last-child { border-bottom: none; }
+        .dropdown-menu a:hover { background-color: #f0f0f0; }
+        
+        /* Main Content Styles */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #d5dbdb;
+        }
+        
+        .workflow-container {
+            display: flex;
+            margin: 30px 0;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .workflow-column {
+            flex: 1;
+            min-width: 250px;
+            margin: 0 10px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px;
+        }
+        
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--light);
+        }
+        
+        .column-title {
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .column-count {
+            background-color: var(--light);
+            color: var(--dark);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .pending .column-title { color: var(--pending); }
+        .resume .column-title { color: var(--resume); }
+        .processed .column-title { color: var(--processed); }
+        .mail-sent .column-title { color: var(--mail-sent); }
+        
+        .position-card {
+            background-color: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--light);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .position-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+        
+        .pending .position-card { border-left-color: var(--pending); }
+        .resume .position-card { border-left-color: var(--resume); }
+        .processed .position-card { border-left-color: var(--processed); }
+        .mail-sent .position-card { border-left-color: var(--mail-sent); }
+        
+        .position-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .position-department {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+        }
+        
+        .position-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .position-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .action-btn {
+            padding: 4px 8px;
+            font-size: 11px;
+            border-radius: 3px;
+            background-color: var(--light);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background-color: white;
+            padding: 10px 0;
+            z-index: 10;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            position: sticky;
+            bottom: 0;
+            background-color: white;
+            padding: 15px 0;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .status-pending { background-color: rgba(243, 156, 18, 0.1); color: var(--pending); }
+        .status-resume { background-color: rgba(155, 89, 182, 0.1); color: var(--resume); }
+        .status-processed { background-color: rgba(231, 76, 60, 0.1); color: var(--processed); }
+        .status-mail-sent { background-color: rgba(52, 152, 219, 0.1); color: var(--mail-sent); }
+        
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        
+        .error-message {
+            background-color: #ffeaa7;
+            color: #d63031;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .success-message {
+            background-color: #a8e6cf;
+            color: #2d6a4f;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        /* Footer Styles from Resources */
+        footer { 
+            text-align: center; 
+            padding: 20px; 
+            background: linear-gradient(to right, #9575cd, #7986cb); 
+            color: #fff; 
+            font-size: 13px; 
+            margin-top: 20px; 
+        }
+        
+        /* 🔹 Modal for Logout */
+        .logout-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .logout-modal-content {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+            width: 320px;
+        }
+        .logout-modal-content h3 { margin-bottom: 20px; color: #3949ab; }
+        .logout-modal-actions button {
+            margin: 8px;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .confirm-btn { background: #3949ab; color: white; }
+        .cancel-btn { background: #f0f0f0; color: #333; }
+        .confirm-btn:hover { background: #303f9f; }
+        .cancel-btn:hover { background: #ddd; }
+        
+        /* Drag and drop styles */
+        .dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+        
+        .drag-over {
+            background-color: rgba(52, 152, 219, 0.1);
+            border: 2px dashed #3498db;
+        }
+        
+        @media (max-width: 768px) {
+            .workflow-container {
+                flex-direction: column;
+            }
+            
+            .workflow-column {
+                margin-bottom: 20px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 10px 15px;
+            }
+            
+            .center-text {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header from Resources -->
+    <div class="header">
+        <div class="logo">
+            <a href="/"><img src="/static/logo.png" alt="Logo"></a>
+        </div>
+        <div class="center-text">
+            Open Positions Management
+        </div>
+        <div class="profile-section">
+            <div class="profile-wrapper" onclick="toggleDropdown()">
+                <img class="profile-pic" src="/static/profile_photo/defaultpicture.jpg" alt="Profile" />
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="/profile">Profile</a>
+                    <a href="/settings">Settings</a>
+                    <a href="#" onclick="openLogoutModal()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="controls">
+            <button class="btn-secondary" id="refreshBtn">Refresh</button>
+            <button class="btn-primary" id="addPositionBtn">Add Position</button>
+        </div>
+        
+        <div id="messageContainer"></div>
+        <div id="errorContainer"></div>
+        
+        <div class="workflow-container">
+            <div class="workflow-column pending">
+                <div class="column-header">
+                    <div class="column-title">
+                        Pending for vehicles
+                        <span class="column-count" id="pendingCount">0</span>
+                    </div>
+                </div>
+                <div class="position-list" id="pendingList">
+                    <div class="loading">Loading positions...</div>
+                </div>
+            </div>
+            
+            <div class="workflow-column resume">
+                <div class="column-header">
+                    <div class="column-title">
+                        Resume submitted
+                        <span class="column-count" id="resumeCount">0</span>
+                    </div>
+                </div>
+                <div class="position-list" id="resumeList">
+                    <div class="loading">Loading positions...</div>
+                </div>
+            </div>
+            
+            <div class="workflow-column processed">
+                <div class="column-header">
+                    <div class="column-title">
+                        Processed The Suspense
+                        <span class="column-count" id="processedCount">0</span>
+                    </div>
+                </div>
+                <div class="position-list" id="processedList">
+                    <div class="loading">Loading positions...</div>
+                </div>
+            </div>
+            
+            <div class="workflow-column mail-sent">
+                <div class="column-header">
+                    <div class="column-title">
+                        Mail sent to applicant
+                        <span class="column-count" id="mailSentCount">0</span>
+                    </div>
+                </div>
+                <div class="position-list" id="mailSentList">
+                    <div class="loading">Loading positions...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer from Resources -->
+    <footer>© 2025 ChakoraHub. All rights reserved.</footer>
+    
+    <!-- Add/Edit Position Modal -->
+    <div class="modal" id="positionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Position</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="positionForm">
+                <input type="hidden" id="positionId">
+                <div class="form-group">
+                    <label for="positionTitle">Position Title *</label>
+                    <input type="text" id="positionTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="positionDepartment">Department *</label>
+                    <select id="positionDepartment" required>
+                        <option value="">Select Department</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales">Sales</option>
+                        <option value="HR">Human Resources</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Operations">Operations</option>
+                        <option value="IT">IT</option>
+                        <option value="Customer Service">Customer Service</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="positionLocation">Location *</label>
+                    <input type="text" id="positionLocation" required>
+                </div>
+                <div class="form-group">
+                    <label for="positionDescription">Job Description</label>
+                    <textarea id="positionDescription" placeholder="Enter job description..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="positionHiringManager">Hiring Manager</label>
+                    <input type="text" id="positionHiringManager" placeholder="Optional">
+                </div>
+                <div class="form-group">
+                    <label for="positionSalaryRange">Salary Range</label>
+                    <input type="text" id="positionSalaryRange" placeholder="e.g., $50k-$70k">
+                </div>
+                <div class="form-group">
+                    <label for="positionEmploymentType">Employment Type</label>
+                    <select id="positionEmploymentType">
+                        <option value="Full-time">Full-time</option>
+                        <option value="Part-time">Part-time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Remote">Remote</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="positionStatus">Status *</label>
+                    <select id="positionStatus" required>
+                        <option value="pending">Pending for vehicles</option>
+                        <option value="resume">Resume submitted</option>
+                        <option value="processed">Processed The Suspense</option>
+                        <option value="mail-sent">Mail sent to applicant</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Position</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 🔹 Logout Modal -->
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-modal-content">
+            <h3>Are you sure you want to log out?</h3>
+            <div class="logout-modal-actions">
+                <button class="confirm-btn" id="confirmLogoutBtn">Yes</button>
+                <button class="cancel-btn" onclick="closeLogoutModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Update these URLs to match your Python backend
+        const API_BASE_URL = window.location.origin; // Use same origin as the page
+        const POSITIONS_ENDPOINT = `${API_BASE_URL}/api/positions`;
+        
+        // DOM Elements
+        const pendingList = document.getElementById('pendingList');
+        const resumeList = document.getElementById('resumeList');
+        const processedList = document.getElementById('processedList');
+        const mailSentList = document.getElementById('mailSentList');
+        
+        const pendingCount = document.getElementById('pendingCount');
+        const resumeCount = document.getElementById('resumeCount');
+        const processedCount = document.getElementById('processedCount');
+        const mailSentCount = document.getElementById('mailSentCount');
+        
+        const addPositionBtn = document.getElementById('addPositionBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const positionModal = document.getElementById('positionModal');
+        const closeModal = document.querySelector('.close-modal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const positionForm = document.getElementById('positionForm');
+        const modalTitle = document.getElementById('modalTitle');
+        const errorContainer = document.getElementById('errorContainer');
+        const messageContainer = document.getElementById('messageContainer');
+        
+        // Profile dropdown functionality
+        function toggleDropdown() {
+            const d = document.getElementById('dropdownMenu');
+            d.style.display = d.style.display === 'block' ? 'none' : 'block';
+        }
+        
+        // Logout modal functionality
+        function openLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'flex';
+        }
+        
+        function closeLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+        
+        document.getElementById('confirmLogoutBtn').addEventListener('click', function() {
+            window.location.href = "/logout";
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!document.querySelector('.profile-wrapper').contains(e.target)) {
+                document.getElementById('dropdownMenu').style.display = 'none';
+            }
+        });
+        
+        // Event Listeners for positions management
+        addPositionBtn.addEventListener('click', openAddModal);
+        refreshBtn.addEventListener('click', loadPositions);
+        closeModal.addEventListener('click', closePositionModal);
+        cancelBtn.addEventListener('click', closePositionModal);
+        positionForm.addEventListener('submit', savePosition);
+        
+        // Close modal when clicking outside of it
+        positionModal.addEventListener('click', function(e) {
+            if (e.target === positionModal) {
+                closePositionModal();
+            }
+        });
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPositions();
+        });
+        
+        // API Functions - REAL SNOWFLAKE INTEGRATION
+        async function fetchPositions() {
+            try {
+                showMessage('Loading positions from database...', 'info');
+                const response = await fetch(POSITIONS_ENDPOINT);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const positions = await response.json();
+                console.log('✅ Fetched positions from Snowflake:', positions);
+                clearMessage();
+                return positions;
+            } catch (error) {
+                console.error('❌ Error fetching positions:', error);
+                showError('Failed to load positions. Please check if the backend server is running.');
+                return [];
+            }
+        }
+        
+        async function createPosition(positionData) {
+            try {
+                showMessage('Creating new position...', 'info');
+                const response = await fetch(POSITIONS_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(positionData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                
+                const newPosition = await response.json();
+                console.log('✅ Created position in Snowflake:', newPosition);
+                showMessage('Position created successfully!', 'success');
+                return newPosition;
+            } catch (error) {
+                console.error('❌ Error creating position:', error);
+                showError('Failed to create position: ' + error.message);
+                throw error;
+            }
+        }
+        
+        async function updatePosition(positionId, positionData) {
+            try {
+                showMessage('Updating position...', 'info');
+                const response = await fetch(`${POSITIONS_ENDPOINT}/${positionId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(positionData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                
+                const updatedPosition = await response.json();
+                console.log('✅ Updated position in Snowflake:', updatedPosition);
+                showMessage('Position updated successfully!', 'success');
+                return updatedPosition;
+            } catch (error) {
+                console.error('❌ Error updating position:', error);
+                showError('Failed to update position: ' + error.message);
+                throw error;
+            }
+        }
+        
+        async function updatePositionStatus(positionId, newStatus) {
+            try {
+                const response = await fetch(`${POSITIONS_ENDPOINT}/${positionId}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                
+                const updatedPosition = await response.json();
+                console.log('✅ Updated position status in Snowflake:', updatedPosition);
+                showMessage('Position status updated!', 'success');
+                return updatedPosition;
+            } catch (error) {
+                console.error('❌ Error updating position status:', error);
+                showError('Failed to update position status: ' + error.message);
+                throw error;
+            }
+        }
+        
+        async function deletePositionFromAPI(positionId) {
+            try {
+                showMessage('Deleting position...', 'info');
+                const response = await fetch(`${POSITIONS_ENDPOINT}/${positionId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                
+                console.log('✅ Deleted position from Snowflake:', positionId);
+                showMessage('Position deleted successfully!', 'success');
+                return true;
+            } catch (error) {
+                console.error('❌ Error deleting position:', error);
+                showError('Failed to delete position: ' + error.message);
+                throw error;
+            }
+        }
+        
+        // Load positions and update UI
+        async function loadPositions() {
+            // Show loading state
+            showLoadingState();
+            
+            try {
+                const positions = await fetchPositions();
+                
+                // Clear all lists
+                pendingList.innerHTML = '';
+                resumeList.innerHTML = '';
+                processedList.innerHTML = '';
+                mailSentList.innerHTML = '';
+                
+                // Count positions by status
+                let pending = 0, resume = 0, processed = 0, mailSent = 0;
+                
+                // Populate positions in their respective columns
+                positions.forEach(position => {
+                    const positionCard = createPositionCard(position);
+                    
+                    switch(position.status) {
+                        case 'pending':
+                            pendingList.appendChild(positionCard);
+                            pending++;
+                            break;
+                        case 'resume':
+                            resumeList.appendChild(positionCard);
+                            resume++;
+                            break;
+                        case 'processed':
+                            processedList.appendChild(positionCard);
+                            processed++;
+                            break;
+                        case 'mail-sent':
+                            mailSentList.appendChild(positionCard);
+                            mailSent++;
+                            break;
+                    }
+                });
+                
+                // Update counts
+                pendingCount.textContent = pending;
+                resumeCount.textContent = resume;
+                processedCount.textContent = processed;
+                mailSentCount.textContent = mailSent;
+                
+                // Show empty state if no positions in a column
+                showEmptyStates();
+                
+                // Clear any previous errors
+                clearError();
+            } catch (error) {
+                console.error('Error loading positions:', error);
+            }
+        }
+        
+        // Show loading state
+        function showLoadingState() {
+            const loadingHTML = '<div class="loading">Loading positions...</div>';
+            pendingList.innerHTML = loadingHTML;
+            resumeList.innerHTML = loadingHTML;
+            processedList.innerHTML = loadingHTML;
+            mailSentList.innerHTML = loadingHTML;
+        }
+        
+        // Create a position card element
+        function createPositionCard(position) {
+            const card = document.createElement('div');
+            card.className = 'position-card';
+            card.dataset.id = position.id;
+            
+            const statusClass = `status-${position.status}`;
+            const statusText = getStatusText(position.status);
+            
+            card.innerHTML = `
+                <div class="position-title">${escapeHtml(position.title)}</div>
+                <div class="position-department">${escapeHtml(position.department)} • ${escapeHtml(position.location)}</div>
+                ${position.description ? `<div class="position-description" style="font-size: 11px; color: #666; margin: 5px 0;">${escapeHtml(position.description.substring(0, 100))}${position.description.length > 100 ? '...' : ''}</div>` : ''}
+                <div class="position-meta">
+                    <span>Created: ${formatDate(position.created)}</span>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </div>
+                <div class="position-actions">
+                    <button class="action-btn edit-btn" data-id="${position.id}">Edit</button>
+                    <button class="action-btn delete-btn" data-id="${position.id}">Delete</button>
+                </div>
+            `;
+            
+            // Add event listeners to action buttons
+            card.querySelector('.edit-btn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                openEditModal(position.id);
+            });
+            
+            card.querySelector('.delete-btn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                deletePosition(position.id);
+            });
+            
+            // Make card draggable
+            card.setAttribute('draggable', 'true');
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+            
+            return card;
+        }
+        
+        // Drag and drop functionality
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.id);
+            e.target.classList.add('dragging');
+        }
+        
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+        
+        // Set up drop zones
+        document.querySelectorAll('.workflow-column').forEach(column => {
+            column.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+            });
+            
+            column.addEventListener('dragleave', function() {
+                this.classList.remove('drag-over');
+            });
+            
+            column.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                
+                const positionId = e.dataTransfer.getData('text/plain');
+                const newStatus = this.classList[1]; // pending, resume, processed, or mail-sent
+                
+                updatePositionStatus(positionId, newStatus).then(() => {
+                    loadPositions(); // Reload to reflect the change
+                });
+            });
+        });
+        
+        // Open modal for adding a new position
+        function openAddModal() {
+            modalTitle.textContent = 'Add New Position';
+            positionForm.reset();
+            document.getElementById('positionId').value = '';
+            document.getElementById('positionEmploymentType').value = 'Full-time';
+            document.getElementById('positionStatus').value = 'pending';
+            positionModal.style.display = 'flex';
+        }
+        
+        // Open modal for editing an existing position
+        async function openEditModal(positionId) {
+            try {
+                const positions = await fetchPositions();
+                const position = positions.find(p => p.id == positionId);
+                
+                if (position) {
+                    modalTitle.textContent = 'Edit Position';
+                    document.getElementById('positionId').value = position.id;
+                    document.getElementById('positionTitle').value = position.title;
+                    document.getElementById('positionDepartment').value = position.department;
+                    document.getElementById('positionLocation').value = position.location;
+                    document.getElementById('positionDescription').value = position.description || '';
+                    document.getElementById('positionHiringManager').value = position.hiring_manager || '';
+                    document.getElementById('positionSalaryRange').value = position.salary_range || '';
+                    document.getElementById('positionEmploymentType').value = position.employment_type || 'Full-time';
+                    document.getElementById('positionStatus').value = position.status;
+                    positionModal.style.display = 'flex';
+                }
+            } catch (error) {
+                console.error('Error opening edit modal:', error);
+                showError('Failed to load position data. Please try again.');
+            }
+        }
+        
+        // Close the position modal
+        function closePositionModal() {
+            positionModal.style.display = 'none';
+            clearError();
+        }
+        
+        // Save position (both new and existing)
+        async function savePosition(e) {
+            e.preventDefault();
+            
+            const positionId = document.getElementById('positionId').value;
+            const title = document.getElementById('positionTitle').value;
+            const department = document.getElementById('positionDepartment').value;
+            const location = document.getElementById('positionLocation').value;
+            const description = document.getElementById('positionDescription').value;
+            const hiringManager = document.getElementById('positionHiringManager').value;
+            const salaryRange = document.getElementById('positionSalaryRange').value;
+            const employmentType = document.getElementById('positionEmploymentType').value;
+            const status = document.getElementById('positionStatus').value;
+            
+            // Validate required fields
+            if (!title || !department || !location) {
+                showError('Please fill in all required fields (Title, Department, Location)');
+                return;
+            }
+            
+            const positionData = {
+                title,
+                department,
+                location,
+                description,
+                hiring_manager: hiringManager,
+                salary_range: salaryRange,
+                employment_type: employmentType,
+                status
+            };
+            
+            try {
+                if (positionId) {
+                    // Update existing position
+                    await updatePosition(positionId, positionData);
+                } else {
+                    // Add new position
+                    await createPosition(positionData);
+                }
+                
+                closePositionModal();
+                await loadPositions();
+            } catch (error) {
+                console.error('Error saving position:', error);
+            }
+        }
+        
+        // Delete a position
+        async function deletePosition(positionId) {
+            if (confirm('Are you sure you want to delete this position? This action cannot be undone.')) {
+                try {
+                    await deletePositionFromAPI(positionId);
+                    await loadPositions();
+                } catch (error) {
+                    console.error('Error deleting position:', error);
+                }
+            }
+        }
+        
+        // Show empty state messages
+        function showEmptyStates() {
+            const columns = document.querySelectorAll('.workflow-column');
+            
+            columns.forEach(column => {
+                const positionList = column.querySelector('.position-list');
+                if (positionList.children.length === 0) {
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.textContent = 'No positions';
+                    positionList.appendChild(emptyState);
+                }
+            });
+        }
+        
+        // Helper function to get status text
+        function getStatusText(status) {
+            switch(status) {
+                case 'pending': return 'Pending for vehicles';
+                case 'resume': return 'Resume submitted';
+                case 'processed': return 'Processed The Suspense';
+                case 'mail-sent': return 'Mail sent to applicant';
+                default: return status;
+            }
+        }
+        
+        // Helper function to format date
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+        
+        // Helper function to escape HTML (security)
+        function escapeHtml(unsafe) {
+            if (unsafe === null || unsafe === undefined) return '';
+            return unsafe
+                .toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+        
+        // Message handling functions
+        function showMessage(message, type = 'info') {
+            const className = type === 'error' ? 'error-message' : 
+                            type === 'success' ? 'success-message' : 'loading';
+            messageContainer.innerHTML = `<div class="${className}">${message}</div>`;
+            
+            // Auto-hide success messages after 3 seconds
+            if (type === 'success') {
+                setTimeout(clearMessage, 3000);
+            }
+        }
+        
+        function clearMessage() {
+            messageContainer.innerHTML = '';
+        }
+        
+        // Error handling functions
+        function showError(message) {
+            errorContainer.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+        
+        function clearError() {
+            errorContainer.innerHTML = '';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Infra 360</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --sidebar: #0f1724;
+      --accent: #2563eb;
+      --muted: #64748b;
+      --card: #ffffff;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: var(--bg);
+      color: #0b1220;
+    }
+
+    /* Header */
+    .topbar {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: #ffffff;
+      border-bottom: 1px solid rgba(11,18,32,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--accent);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .title { font-weight: 700; font-size: 18px; }
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .profile img {
+      width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
+      border: 2px solid #e2e8f0;
+    }
+
+    /* Layout */
+    .layout { display: flex; min-height: calc(100vh - 64px); }
+
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar);
+      color: white;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .subheading {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 10px;
+    }
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      color: rgba(255,255,255,0.95);
+      text-decoration: none;
+      transition: background 0.3s ease;
+      cursor: pointer;
+    }
+    .nav a:hover, .nav a.active {
+      background: rgba(255,255,255,0.08);
+    }
+
+    .submenu {
+      display: none;
+      flex-direction: column;
+      margin-left: 16px;
+      margin-top: 4px;
+    }
+    .submenu a {
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+
+    .spacer { flex: 1; }
+    .account {
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Main */
+    .main { flex: 1; padding: 24px; }
+    .page-title { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+    .card {
+      background: var(--card);
+      padding: 16px;
+      border-radius: var(--radius);
+      box-shadow: 0 6px 18px rgba(12,20,30,0.06);
+      max-width: 480px;
+    }
+    label { display: block; margin-top: 10px; font-weight: 600; }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+    button {
+      margin-top: 16px;
+      padding: 10px 18px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover { opacity: 0.9; }
+
+    .muted { color: var(--muted); font-size: 13px; }
+
+    @media (max-width: 880px) {
+      .sidebar {
+        position: fixed;
+        left: -320px;
+        top: 64px;
+        height: calc(100% - 64px);
+        transition: left .25s ease;
+        z-index: 50;
+      }
+      .sidebar.open { left: 0; }
+      .layout { padding-left: 0; }
+      .menu-btn { display: inline-flex; }
+    }
+    .menu-btn {
+      display: none;
+      cursor: pointer;
+      border: 0;
+      background: none;
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 8px 14px;
+      background: #e5e7eb;
+      color: #111827;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .back-btn:hover {
+      background: #d1d5db;
+    }
+
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: calc(100vh - 120px);
+      text-align: center;
+    }
+    .welcome h1 {
+      font-size: 32px;
+      color: #1e293b;
+    }
+    .welcome p {
+      color: #475569;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">I3</div>
+      <div class="title">Infra 360</div>
+    </div>
+
+    <div class="profile">
+      <span class="muted">Admin</span>
+      <img src="https://via.placeholder.com/36" alt="Profile" />
+    </div>
+  </header>
+
+  <!-- LAYOUT -->
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div>
+        <div style="font-weight:700">Infra 360</div>
+        <div class="muted" style="font-size:12px">Control panel</div>
+      </div>
+
+      <div class="subheading">Modules</div>
+      <nav class="nav" id="nav">
+        <a data-toggle="submenu-idcard">ID_CARD ▼</a>
+        <div class="submenu" id="submenu-idcard">
+          <a data-target="create_idcard">➤ Create ID Card</a>
+        </div>
+
+        <a data-toggle="submenu-asset">Asset ▼</a>
+        <div class="submenu" id="submenu-asset">
+          <a data-target="register_asset">➤ Register Asset</a>
+        </div>
+
+        <a data-target="enquiry">Enquiry</a>
+      </nav>
+
+      <div class="spacer"></div>
+      <div class="account">
+        <div style="width:40px;height:40px;border-radius:8px;background:#111827;display:grid;place-items:center;font-weight:700">I</div>
+        <div>
+          <div style="font-weight:700">Infra Team</div>
+          <div class="muted">infra@company.com</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main" id="main">
+
+      <!-- Welcome Page -->
+      <div id="welcome" class="page" style="display:block">
+        <div class="welcome">
+          <h1>Welcome to Infra 360 Dashboard</h1>
+          <p>Select a module from the left sidebar to continue.</p>
+        </div>
+      </div>
+
+      <!-- Create ID Card Page -->
+      <div id="create_idcard" class="page" style="display:none">
+        <button class="back-btn" onclick="showPage('welcome')">← Back to Resources</button>
+        <div class="page-title">Create ID Card</div>
+        <div class="card">
+          <form>
+            <label>Employee Name</label>
+            <input type="text" placeholder="Enter employee name" required>
+            <label>Employee ID</label>
+            <input type="text" placeholder="Enter ID number" required>
+            <label>Department</label>
+            <input type="text" placeholder="Enter department" required>
+            <label>Designation</label>
+            <input type="text" placeholder="Enter designation" required>
+            <button type="submit">Generate ID Card</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Register Asset Page -->
+      <div id="register_asset" class="page" style="display:none">
+        <button class="back-btn" onclick="showPage('welcome')">← Back to Resources</button>
+        <div class="page-title">Register Asset</div>
+        <div class="card">
+          <form>
+            <label>Asset Name</label>
+            <input type="text" placeholder="Enter asset name" required>
+            <label>Asset Type</label>
+            <select required>
+              <option value="">Select type</option>
+              <option>Laptop</option>
+              <option>Desktop</option>
+              <option>Network Device</option>
+              <option>Peripheral</option>
+            </select>
+            <label>Serial Number</label>
+            <input type="text" placeholder="Enter serial number" required>
+            <label>Assigned To</label>
+            <input type="text" placeholder="Enter employee name" required>
+            <button type="submit">Register Asset</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Enquiry Page -->
+      <div id="enquiry" class="page" style="display:none">
+        <button class="back-btn" onclick="showPage('welcome')">← Back to Resources</button>
+        <div class="page-title">Enquiry</div>
+        <div class="card">
+          <div style="font-weight:700">Customer Enquiries</div>
+          <ul style="margin-top:8px; padding-left:20px; line-height:1.6">
+            <li>Subhash Chandra — Laptop Request</li>
+            <li>Sathvika — Network Access Issue</li>
+            <li>Bhavishya — Asset Tag Replacement</li>
+            <li>Prathibha — ID Card Reprint</li>
+            <li>Anupama — Monitor Allocation</li>
+          </ul>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Function to show a specific page
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+      document.querySelectorAll('#nav a').forEach(x => x.classList.remove('active'));
+    }
+
+    // Sidebar submenu toggle
+    document.querySelectorAll('[data-toggle]').forEach(item => {
+      item.addEventListener('click', () => {
+        const submenu = document.getElementById(item.dataset.toggle);
+        submenu.style.display = submenu.style.display === 'flex' ? 'none' : 'flex';
+      });
+    });
+
+    // Navigation click
+    document.getElementById('nav').addEventListener('click', function(e) {
+      const a = e.target.closest('a[data-target]');
+      if (!a) return;
+      e.preventDefault();
+      showPage(a.dataset.target);
+      a.classList.add('active');
+    });
+  </script>
+</body>
+</html>

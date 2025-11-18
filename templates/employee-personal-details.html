@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Personal Details</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+    .form-container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .name-group {
+      display: flex;
+      gap: 20px;
+    }
+    .name-group input {
+      flex: 1;
+    }
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 12px;
+      background-color: #0078D4;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005ea2;
+    }
+    .flash-messages {
+      margin-bottom: 20px;
+    }
+    .flash-success {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #c3e6cb;
+    }
+    .flash-error {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Employee Personal Details</h2>
+    
+    <!-- Flash Messages -->
+    <div class="flash-messages">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    <form method="POST" action="{{ url_for('personal_details') }}">
+      <label for="firstName">First Name</label>
+      <input type="text" id="firstName" name="firstName" placeholder="First Name" 
+             value="{{ personal_data[0] if personal_data else '' }}" required />
+
+      <label for="lastName">Last Name</label>
+      <input type="text" id="lastName" name="lastName" placeholder="Last Name" 
+             value="{{ personal_data[1] if personal_data else '' }}" required />
+
+      <label for="dob">Date of Birth</label>
+      <input type="date" id="dob" name="dob" 
+             value="{{ personal_data[2] if personal_data else '' }}" />
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" 
+             value="{{ personal_data[3] if personal_data else '' }}" required />
+
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" name="phone" 
+             value="{{ personal_data[4] if personal_data else '' }}" required />
+
+      <label for="address">Address</label>
+      <textarea id="address" name="address" rows="3">{{ personal_data[5] if personal_data else '' }}</textarea>
+
+      <button type="submit">Save Personal Details</button>
+    </form>
+    
+    <div style="margin-top: 20px; text-align: center;">
+      <a href="{{ url_for('employee_resources') }}" style="color: #0078D4; text-decoration: none;">
+        ← Back to Employee Resources
+      </a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Registration</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e1f5fe, #ede7f6);
+      color: #333;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background: linear-gradient(to right, #42a5f5, #7e57c2);
+      color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+    }
+    .logo img { height: 90px; }
+    .profile-wrapper { position: relative; cursor: pointer; }
+    .profile-pic {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 2px solid white;
+      object-fit: cover;
+    }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 55px;
+      right: 0;
+      background-color: white;
+      color: black;
+      border-radius: 6px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      min-width: 160px;
+    }
+    .dropdown-menu a {
+      display: block;
+      padding: 10px 15px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      border-bottom: 1px solid #eee;
+    }
+    .dropdown-menu a:last-child { border-bottom: none; }
+    .dropdown-menu a:hover { background-color: #f0f0f0; }
+
+    .container {
+      max-width: 600px;
+      background-color: rgba(255, 255, 255, 0.95);
+      margin: 40px auto 60px auto;
+      padding: 40px 50px;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    h1 {
+      text-align: center;
+      color: #4527a0;
+      margin: 20px 0 30px;
+      font-size: 26px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: bold;
+      font-size: 15px;
+    }
+    .required::after {
+      content: " *";
+      color: red;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+      transition: border-color 0.3s ease;
+    }
+    input:focus, select:focus {
+      border-color: #42a5f5;
+      outline: none;
+    }
+    .error-msg {
+      color: red;
+      font-size: 13px;
+      margin-top: -10px;
+      margin-bottom: 10px;
+      min-height: 18px;
+      font-weight: 600;
+    }
+    .flash {
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      font-weight: bold;
+      text-align: center;
+      font-size: 16px;
+    }
+    .flash.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .flash.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .button-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+    }
+    button {
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: 700;
+      transition: background-color 0.3s ease;
+    }
+    .submit-btn {
+      background-color: #42a5f5;
+      color: white;
+    }
+    .submit-btn:disabled {
+      background-color: #90caf9;
+      cursor: not-allowed;
+    }
+    .submit-btn:hover:not(:disabled) {
+      background-color: #1e88e5;
+    }
+    .cancel-btn {
+      background-color: #f44336;
+      color: white;
+    }
+    .cancel-btn:hover {
+      background-color: #e53935;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-top: 30px;
+      background-color: #3f51b5;
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 500;
+      text-align: center;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .back-button:hover {
+      background-color: #303f9f;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .button-container { text-align: center; }
+
+    .reg-id-box {
+      text-align: center;
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease;
+    }
+    .reg-id-box:hover { background-color: #c8e6c9; }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+      width: 320px;
+    }
+    .modal-content h3 { margin-bottom: 20px; color: #3949ab; }
+    .modal-actions button {
+      margin: 8px;
+      padding: 8px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .confirm-btn { background: #3949ab; color: white; }
+    .cancel-btn-modal { background: #f0f0f0; color: #333; }
+    .confirm-btn:hover { background: #303f9f; }
+    .cancel-btn-modal:hover { background: #ddd; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" />
+    </div>
+    <div class="profile-wrapper" onclick="toggleDropdown()">
+      <img class="profile-pic"
+           src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}"
+           alt="Profile" />
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="{{ url_for('profile') }}">Profile</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+        <a href="#" onclick="openModal('logout')">Logout</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Admin Registration</h1>
+    <div id="flashMessage" class="flash" style="display:none;"></div>
+    <div id="regIdBox" class="reg-id-box" style="display:none;" title="Click to copy Registration ID"></div>
+
+    <form id="registerForm">
+      <label class="required">First Name:</label>
+      <input type="text" name="first_name" required>
+      <label class="required">Last Name:</label>
+      <input type="text" name="last_name" required>
+      <label class="required">Email:</label>
+      <input type="email" id="email" name="email" required>
+      <div id="emailError" class="error-msg"></div>
+      <label class="required">Phone:</label>
+      <input type="tel" id="phone" name="phone" pattern="\d{10}" maxlength="10" required>
+      <div id="phoneError" class="error-msg"></div>
+      <label class="required">Location:</label>
+      <input type="text" name="location" required>
+      <label class="required">Course:</label>
+      <select name="course" required>
+        <option value="">-- Select Course --</option>
+        {% for c in courses %}
+          <option value="{{ c.id }}">{{ c.course_name }}</option>
+        {% endfor %}
+      </select>
+      <label class="required">Language:</label>
+      <select name="language" required>
+        <option value="">-- Select Language --</option>
+        {% for l in languages %}
+          <option value="{{ l.id }}">{{ l.language }}</option>
+        {% endfor %}
+      </select>
+      <label class="required">Start Date:</label>
+      <input type="date" name="start_date" required>
+
+      <div class="button-row">
+        <button type="button" class="cancel-btn" onclick="openModal('cancel')">Cancel</button>
+        <button type="submit" class="submit-btn" id="submitBtn" disabled>Submit</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="button-container">
+    <a href="{{ url_for('resources') }}" class="back-button">← Back to Resources</a>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmationModal" class="modal">
+    <div class="modal-content">
+      <h3 id="modalMessage">Are you sure?</h3>
+      <div class="modal-actions">
+        <button class="confirm-btn" id="confirmBtn">Yes</button>
+        <button class="cancel-btn-modal" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdownMenu');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+    document.addEventListener('click', function(event) {
+      const dropdown = document.getElementById('dropdownMenu');
+      const wrapper = document.querySelector('.profile-wrapper');
+      if (!wrapper.contains(event.target)) dropdown.style.display = 'none';
+    });
+
+    let actionType = null;
+    function openModal(type) {
+      actionType = type;
+      const modal = document.getElementById('confirmationModal');
+      const message = document.getElementById('modalMessage');
+      if (type === 'logout') {
+        message.textContent = "Are you sure you want to log out?";
+      } else if (type === 'cancel') {
+        message.textContent = "Do you want to cancel registration?";
+      }
+      modal.style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('confirmationModal').style.display = 'none';
+    }
+    document.getElementById('confirmBtn').addEventListener('click', function() {
+      if (actionType === 'logout') {
+        window.location.href = "{{ url_for('logout') }}";
+      } else if (actionType === 'cancel') {
+        window.location.href = "/";
+      }
+    });
+
+    // ---- Enable/Disable Submit and Validate ----
+    const form = document.getElementById('registerForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const emailInput = document.getElementById('email');
+    const phoneInput = document.getElementById('phone');
+    const emailError = document.getElementById('emailError');
+    const phoneError = document.getElementById('phoneError');
+
+    let emailValid = false;
+    let phoneValid = false;
+
+    emailInput.addEventListener('input', async () => {
+      const email = emailInput.value.trim();
+      if (!email) {
+        emailError.textContent = "";
+        emailValid = false;
+        toggleSubmit();
+        return;
+      }
+      const res = await fetch("/check_admin_email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (data.exists) {
+        emailError.textContent = "This email is already registered!";
+        emailValid = false;
+      } else {
+        emailError.textContent = "";
+        emailValid = true;
+      }
+      toggleSubmit();
+    });
+
+    phoneInput.addEventListener('input', async () => {
+      const phone = phoneInput.value.trim();
+      if (!/^\d{10}$/.test(phone)) {
+        phoneError.textContent = "Phone must be exactly 10 digits.";
+        phoneValid = false;
+        toggleSubmit();
+        return;
+      }
+      const res = await fetch("/check_admin_phone", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone })
+      });
+      const data = await res.json();
+      if (data.exists) {
+        phoneError.textContent = "This phone is already registered!";
+        phoneValid = false;
+      } else {
+        phoneError.textContent = "";
+        phoneValid = true;
+      }
+      toggleSubmit();
+    });
+
+    function toggleSubmit() {
+      submitBtn.disabled = !(emailValid && phoneValid);
+    }
+
+    // ---- Submit via AJAX ----
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = Object.fromEntries(new FormData(form));
+      const res = await fetch("/admin/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+      const flashBox = document.getElementById('flashMessage');
+      if (data.success) {
+        flashBox.className = "flash success";
+        flashBox.textContent = data.message;
+        flashBox.style.display = "block";
+        document.getElementById('regIdBox').textContent = data.message;
+        document.getElementById('regIdBox').style.display = "block";
+        form.reset();
+        emailValid = phoneValid = false;
+        toggleSubmit();
+      } else {
+        flashBox.className = "flash error";
+        flashBox.textContent = data.message;
+        flashBox.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>

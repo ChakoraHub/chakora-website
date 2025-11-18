@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Job Work Details</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 500px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            background: #2c3e50;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Employee Job Work Details</h2>
+        <form method="POST" action="{{ url_for('job_work') }}">
+            <!-- Employee ID -->
+            <div class="form-group">
+                <label for="employee_id">Employee ID</label>
+                <input type="text" id="employee_id" name="employee_id" required>
+            </div>
+
+            <!-- Department / Team -->
+            <div class="form-group">
+                <label for="department_id">Department / Team</label>
+                <select id="department_id" name="department_id" required>
+                    {% for dept in departments %}
+                        <option value="{{ dept.id }}">{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Designation / Grade -->
+            <div class="form-group">
+                <label for="designation_id">Designation / Grade</label>
+                <select id="designation_id" name="designation_id" required>
+                    {% for des in designations %}
+                        <option value="{{ des.id }}">{{ des.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Manager / Reporting Hierarchy -->
+            <div class="form-group">
+                <label for="manager_id">Manager / Reporting To</label>
+                <select id="manager_id" name="manager_id">
+                    {% for mgr in managers %}
+                        <option value="{{ mgr.id }}">{{ mgr.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Work Location / Office Branch -->
+            <div class="form-group">
+                <label for="location_id">Work Location / Office Branch</label>
+                <select id="location_id" name="location_id" required>
+                    {% for loc in locations %}
+                        <option value="{{ loc.id }}">{{ loc.branch_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn-submit">Save Details</button>
+        </form>
+    </div>
+</body>
+</html>

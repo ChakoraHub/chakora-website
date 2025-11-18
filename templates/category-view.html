@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ tech }} - {{ file_type | title }} Files</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e1f5fe, #ede7f6);
+      color: #333;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background: linear-gradient(to right, #42a5f5, #7e57c2);
+      color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .logo img {
+      height: 90px;
+    }
+
+    .profile-wrapper {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .profile-pic {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 2px solid white;
+      object-fit: cover;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 55px;
+      right: 0;
+      background-color: white;
+      color: black;
+      border-radius: 6px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      min-width: 160px;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 10px 15px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      border-bottom: 1px solid #eee;
+    }
+
+    .dropdown-menu a:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-menu a:hover {
+      background-color: #f0f0f0;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 40px 20px 30px;
+      font-size: 26px;
+      color: #4527a0;
+    }
+
+    .file-box {
+      max-width: 1100px;
+      margin: 0 auto 40px;
+      padding: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 25px;
+      justify-content: center;
+    }
+
+    .file-card {
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 18px 20px;
+      width: 280px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .file-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    .download-link {
+      color: #3949ab;
+      text-decoration: none;
+      font-weight: bold;
+      margin-bottom: 15px;
+      word-break: break-word;
+    }
+
+    .download-link:hover {
+      text-decoration: underline;
+    }
+
+    .back-resources {
+      text-align: center;
+      margin: 40px 0;
+    }
+
+    .back-btn {
+      background: #3949ab;
+      padding: 10px 25px;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: #283593;
+    }
+
+    /* Popup Styles */
+    .popup-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .popup-box {
+      background: white;
+      padding: 25px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      text-align: center;
+      max-width: 350px;
+    }
+
+    .popup-box h2 {
+      margin-bottom: 15px;
+      font-size: 20px;
+      color: #4527a0;
+    }
+
+    .popup-buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .popup-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .popup-confirm {
+      background: #d32f2f;
+      color: white;
+    }
+
+    .popup-cancel {
+      background: #ccc;
+      color: black;
+    }
+
+    .popup-confirm:hover {
+      background: #b71c1c;
+    }
+
+    .popup-cancel:hover {
+      background: #999;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" />
+    </div>
+    <div class="profile-wrapper" onclick="toggleDropdown()">
+      <img class="profile-pic"
+           src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}"
+           alt="Profile" />
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="{{ url_for('profile') }}">Profile</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+        <a href="#" onclick="showPopup('logoutPopup')">Logout</a>
+      </div>
+    </div>
+  </div>
+
+  <h1>{{ tech }} - {{ file_type | title }} Files</h1>
+
+  <div class="file-box">
+    {% if files %}
+      {% for file in files %}
+        {% set base_folder = {
+          'ppt': 'ppt',
+          'code': 'code',
+          'interview': 'interview'
+        }[file_type] if file_type in ['ppt', 'code', 'interview'] else 'unknown' %}
+
+        {% if base_folder != 'unknown' %}
+          <div class="file-card">
+            <a class="download-link" href="{{ url_for('serve_uploaded_file', subpath=base_folder ~ '/' ~ tech, filename=file) }}" target="_blank">{{ file }}</a>
+          </div>
+        {% else %}
+          <p style="text-align:center;">Invalid file type.</p>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <p style="text-align:center;">No files uploaded yet.</p>
+    {% endif %}
+  </div>
+
+  <div class="back-resources">
+    <a href="{{ url_for('resources') }}" class="back-btn">← Back to Resources</a>
+  </div>
+
+  <!-- Logout Popup -->
+  <div class="popup-overlay" id="logoutPopup">
+    <div class="popup-box">
+      <h2>Are you sure you want to logout?</h2>
+      <div class="popup-buttons">
+        <button class="popup-btn popup-confirm" onclick="window.location.href='{{ url_for('logout') }}'">Yes</button>
+        <button class="popup-btn popup-cancel" onclick="closePopup('logoutPopup')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdownMenu');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    document.addEventListener('click', function(event) {
+      const dropdown = document.getElementById('dropdownMenu');
+      const wrapper = document.querySelector('.profile-wrapper');
+      if (!wrapper.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    function showPopup(id) {
+      document.getElementById(id).style.display = 'flex';
+    }
+
+    function closePopup(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>

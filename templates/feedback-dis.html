@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Feedback</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f7f9fb;
+      margin: 0;
+      padding: 0;
+    }
+
+    .feedback-section {
+      text-align: center;
+      padding: 60px 20px 40px;
+      background: linear-gradient(to right, #f3f4f7, #eaf1f9);
+      margin: 40px 0;
+    }
+
+    .feedback-heading {
+      font-size: 28px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 25px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .feedback-scroll-wrapper {
+      position: relative;
+      max-width: 1100px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .feedback-container {
+      display: flex;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      gap: 30px;
+      padding: 10px 10px 20px 10px;
+    }
+
+    .feedback-item {
+      flex: 0 0 auto;
+      background-color: white;
+      border-radius: 12px;
+      padding: 20px 30px;
+      min-width: 280px;
+      max-width: 400px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+      font-style: italic;
+      font-size: 17px;
+      color: #333;
+      font-family: 'Georgia', serif;
+      position: relative;
+      transition: transform 0.2s ease;
+    }
+
+    .feedback-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .feedback-item span {
+      display: block;
+      margin-top: 12px;
+      font-style: normal;
+      font-weight: 600;
+      color: #007BFF;
+      text-align: right;
+    }
+
+    /* Scrollbar customization */
+    .feedback-container::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .feedback-container::-webkit-scrollbar-thumb {
+      background-color: #bbb;
+      border-radius: 4px;
+    }
+
+    .feedback-container::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
+
+    /* Optional: fade effect on edges */
+    .feedback-scroll-wrapper::before,
+    .feedback-scroll-wrapper::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 40px;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .feedback-scroll-wrapper::before {
+      left: 0;
+      background: linear-gradient(to right, #f3f4f7, transparent);
+    }
+
+    .feedback-scroll-wrapper::after {
+      right: 0;
+      background: linear-gradient(to left, #f3f4f7, transparent);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="feedback-section">
+   <div class="feedback-heading">What Our Students Say</div>
+
+   <div class="feedback-scroll-wrapper">
+     <div class="feedback-container">
+       {% for fb in feedbacks %}
+         <div class="feedback-item">“{{ fb.feedback_message }}” — <span>{{ fb.name }}</span></div>
+       {% endfor %}
+     </div>
+   </div>
+  </div>
+
+</body>
+</html>

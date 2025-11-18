@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Employee Self-Service (ESS) - ChakoraHub</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+    }
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: #2c3e50;
+      color: #fff;
+      height: 100vh;
+      padding-top: 20px;
+      position: fixed;
+    }
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 20px;
+      border-bottom: 1px solid #444;
+      padding-bottom: 10px;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    .sidebar ul li {
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .sidebar ul li:hover {
+      background: #34495e;
+    }
+    .sidebar ul li a {
+      color: #fff;
+      text-decoration: none;
+      display: block;
+    }
+    /* Submenu */
+    .submenu {
+      display: none;
+      background: #3d566e;
+    }
+    .submenu li {
+      padding: 10px 40px;
+    }
+    .submenu li:hover {
+      background: #4a6a89;
+    }
+    /* Content area */
+    .content {
+      margin-left: 250px;
+      padding: 20px;
+      flex: 1;
+    }
+  </style>
+  <script>
+    function toggleSubmenu() {
+      const submenu = document.getElementById("essSubmenu");
+      submenu.style.display = submenu.style.display === "block" ? "none" : "block";
+    }
+  </script>
+</head>
+<body>
+
+  <div class="sidebar">
+    <h2>ChakoraHub</h2>
+    <ul>
+      <li onclick="toggleSubmenu()">Employee Self-Service (ESS) ▸</li>
+      <ul id="essSubmenu" class="submenu">
+        <li><a href="{{ url_for('profile_update') }}">Profile Update (Contact, Address, Bank Details)</a></li>
+        <li><a href="{{ url_for('leave_application') }}">Leave Application & Status</a></li>
+        <li><a href="{{ url_for('salary_slips') }}">Download Salary Slips, Tax Forms</a></li>
+        <li><a href="{{ url_for('view_assets') }}">View Assigned Assets</a></li>
+      </ul>
+    </ul>
+  </div>
+
+  <div class="content">
+    <h1>Employee Self-Service (ESS)</h1>
+    <p>Select a submodule from the sidebar to manage your details.</p>
+  </div>
+
+</body>
+</html>

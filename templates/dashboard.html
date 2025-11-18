@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>360 Dashboard Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Styles */
+        .header {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-right: 50px;
+        }
+
+        .logo-img {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            flex: 1;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 10px 20px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background: #f7fafc;
+            color: #2d3748;
+        }
+
+        .nav-link.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-link.active:hover {
+            background: #5a6fd8;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            background: white;
+            margin: 0;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            padding: 60px 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .welcome-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .welcome-title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .welcome-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 30px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid #e2e8f0;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            color: #718096;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        /* Module Content Area */
+        .module-container {
+            display: none;
+            width: 100%;
+            min-height: calc(100vh - 80px);
+            background: white;
+            padding: 20px;
+        }
+
+        .module-container.active {
+            display: block;
+        }
+
+        /* Module-specific styles */
+        .module-iframe {
+            width: 100%;
+            height: calc(100vh - 120px);
+            border: none;
+            border-radius: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                padding: 15px 20px;
+            }
+
+            .logo {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+
+            .nav-links {
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .nav-link {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+
+            .welcome-title {
+                font-size: 32px;
+            }
+
+            .welcome-subtitle {
+                font-size: 16px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+
+            .module-container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-img">CH</div>
+            <div class="logo-text">ChakoraHub</div>
+        </div>
+        <nav class="nav-links">
+            <a class="nav-link {% if current_module == 'welcome' %}active{% endif %}" 
+               data-module="welcome">Dashboard</a>
+            <a class="nav-link {% if current_module == 'elearn360' %}active{% endif %}" 
+               data-module="elearn360">E-Learn 360</a>
+            <a class="nav-link {% if current_module == 'personal360' %}active{% endif %}" 
+               data-module="personal360">Personal 360</a>
+            <a class="nav-link {% if current_module == 'finance360' %}active{% endif %}" 
+               data-module="finance360">Finance 360</a>
+            <a class="nav-link {% if current_module == 'infra360' %}active{% endif %}" 
+               data-module="infra360">Infra 360</a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Welcome/Dashboard Section -->
+        <div id="welcome" class="module-container {% if current_module == 'welcome' %}active{% endif %}">
+            <div class="welcome-section">
+                <div class="welcome-icon">🚀</div>
+                <h1 class="welcome-title">Welcome to 360 Dashboard Portal</h1>
+                <p class="welcome-subtitle">
+                    Access all your enterprise modules in one unified interface. 
+                    Click on any module below to get started.
+                </p>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card" data-module="elearn360">
+                    <div class="card-icon">📚</div>
+                    <h3 class="card-title">E-Learn 360</h3>
+                    <p class="card-description">
+                        Comprehensive learning platform with skill development, certifications, 
+                        workshops, and research modules.
+                    </p>
+                </div>
+
+                <div class="dashboard-card" data-module="personal360">
+                    <div class="card-icon">👤</div>
+                    <h3 class="card-title">Personal 360</h3>
+                    <p class="card-description">
+                        Manage your personal information, educational background, documents, 
+                        leave requests, and timesheets.
+                    </p>
+                </div>
+
+                <div class="dashboard-card" data-module="finance360">
+                    <div class="card-icon">💰</div>
+                    <h3 class="card-title">Finance 360</h3>
+                    <p class="card-description">
+                        Access salary slips, PF details, tax information, Form 16, 
+                        and Form 26AS for complete financial management.
+                    </p>
+                </div>
+
+                <div class="dashboard-card" data-module="infra360">
+                    <div class="card-icon">🏢</div>
+                    <h3 class="card-title">Infra 360</h3>
+                    <p class="card-description">
+                        Employee portal for ID cards, asset management, infrastructure 
+                        enquiries, and organizational resource tracking.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- E-Learn 360 Module -->
+        <div id="elearn360" class="module-container {% if current_module == 'elearn360' %}active{% endif %}">
+            <iframe src="/elearn360" class="module-iframe" frameborder="0"></iframe>
+        </div>
+
+        <!-- Personal 360 Module -->
+        <div id="personal360" class="module-container {% if current_module == 'personal360' %}active{% endif %}">
+            <iframe src="/personal360" class="module-iframe" frameborder="0"></iframe>
+        </div>
+
+        <!-- Finance 360 Module -->
+        <div id="finance360" class="module-container {% if current_module == 'finance360' %}active{% endif %}">
+            <iframe src="/finance360" class="module-iframe" frameborder="0"></iframe>
+        </div>
+
+        <!-- Infra 360 Module -->
+        <div id="infra360" class="module-container {% if current_module == 'infra360' %}active{% endif %}">
+            {% if current_module == 'infra360' and infra_data %}
+                <!-- Render Infra360 content directly -->
+                <div style="padding: 20px;">
+                    <h2>Infra 360 - Employee Portal</h2>
+                    
+                    <!-- My ID Card -->
+                    <div style="margin: 20px 0; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h3>My ID Card</h3>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <img src="{{ infra_data.profile_pic }}" style="border-radius:50%; width: 100px; height: 100px; margin-bottom:10px;">
+                            <div style="font-weight:700; font-size:18px;">{{ infra_data.emp_name }}</div>
+                            <div style="color: #666;">Employee ID: {{ infra_data.emp_id }}</div>
+                            <div style="color: #666;">Department: {{ infra_data.department }}</div>
+                            <div style="color: #666;">Designation: {{ infra_data.designation }}</div>
+                        </div>
+                    </div>
+
+                    <!-- My Assigned Asset -->
+                    <div style="margin: 20px 0; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h3>My Assigned Asset</h3>
+                        <div style="margin-top: 15px;">
+                            <div><b>Asset Name:</b> {{ infra_data.asset_name }}</div>
+                            <div><b>Asset Type:</b> {{ infra_data.asset_type }}</div>
+                            <div><b>Serial Number:</b> {{ infra_data.serial_number }}</div>
+                            <div><b>Allocation Date:</b> {{ infra_data.allocation_date }}</div>
+                            <div><b>Status:</b> {{ infra_data.status }}</div>
+                        </div>
+                    </div>
+
+                    <!-- My Enquiries -->
+                    <div style="margin: 20px 0; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h3>My Enquiries</h3>
+                        <div style="margin-top: 15px;">
+                            <div style="font-weight:700">Your Recent Requests</div>
+                            <ul style="margin-top:8px; padding-left:20px; line-height:1.6">
+                                {% for e in infra_data.enquiries %}
+                                    <li>{{ e['ENQUIRY'] }} — {{ e['STATUS'] }}</li>
+                                {% else %}
+                                    <li>No enquiries found.</li>
+                                {% endfor %}
+                            </ul>
+                            <button style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                Raise New Enquiry
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <iframe src="/infra360" class="module-iframe" frameborder="0"></iframe>
+            {% endif %}
+        </div>
+    </main>
+
+    <script>
+        // Module management
+        const modules = {
+            welcome: document.getElementById('welcome'),
+            elearn360: document.getElementById('elearn360'),
+            personal360: document.getElementById('personal360'),
+            finance360: document.getElementById('finance360'),
+            infra360: document.getElementById('infra360')
+        };
+
+        const navLinks = document.querySelectorAll('.nav-link');
+        const dashboardCards = document.querySelectorAll('.dashboard-card');
+
+        // Function to switch modules
+        function showModule(moduleId) {
+            // Update URL without page reload
+            const url = new URL(window.location);
+            url.searchParams.set('module', moduleId);
+            window.history.pushState({}, '', url);
+            
+            // Hide all modules
+            Object.values(modules).forEach(module => {
+                if (module) module.classList.remove('active');
+            });
+            
+            // Remove active class from all nav links
+            navLinks.forEach(link => link.classList.remove('active'));
+            
+            // Show selected module
+            if (modules[moduleId]) {
+                modules[moduleId].classList.add('active');
+            }
+            
+            // Add active class to clicked nav link
+            document.querySelector(`[data-module="${moduleId}"]`).classList.add('active');
+        }
+
+        // Event listeners for navigation
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const moduleId = link.getAttribute('data-module');
+                showModule(moduleId);
+            });
+        });
+
+        // Event listeners for dashboard cards
+        dashboardCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const moduleId = card.getAttribute('data-module');
+                showModule(moduleId);
+            });
+        });
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const module = urlParams.get('module') || 'welcome';
+            showModule(module);
+        });
+
+        // Add interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to cards
+            const cards = document.querySelectorAll('.dashboard-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Add click animation to nav links
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

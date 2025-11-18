@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generate Certificate - ChakoraHub</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e3f2fd, #ffffff);
+      color: #222;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 30px;
+      background: linear-gradient(to right, #64b5f6, #9575cd);
+      height: 100px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .logo img { height: 80px; }
+    .center-text { flex: 1; text-align: center; font-size: 1.2rem; }
+
+    .profile-wrapper { position: relative; cursor: pointer; }
+    .profile-pic {
+      width: 50px; height: 50px;
+      border-radius: 50%; border: 2px solid white;
+      object-fit: cover;
+    }
+
+    .dropdown-menu {
+      display: none; position: absolute; top: 60px; right: 0;
+      background-color: #ffffff; border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      z-index: 1000; min-width: 140px;
+    }
+    .dropdown-menu a {
+      display: block; padding: 10px 15px; color: #444;
+      font-weight: 500; text-decoration: none; border-bottom: 1px solid #eee;
+    }
+    .dropdown-menu a:last-child { border-bottom: none; }
+    .dropdown-menu a:hover { background-color: #f0f0f0; }
+
+    .form-section { text-align: center; margin: 30px; }
+    .form-section input {
+      padding: 10px; font-size: 1rem; width: 300px;
+    }
+    .form-section button {
+      padding: 10px 20px; font-size: 1rem;
+      background: #673ab7; color: white; border: none;
+      cursor: pointer; margin-left: 10px;
+    }
+    .form-section button:hover { background: #5e35b1; }
+
+    .certificate {
+      margin: 30px auto; padding: 30px; max-width: 800px;
+      border: 4px double #673ab7; background: #fffefc;
+      text-align: center; position: relative;
+    }
+    .certificate .left-logo {
+      position: absolute; top: 20px; left: 30px;
+    }
+    .certificate .left-logo img { height: 100px; }
+    .certificate h2 { color: #673ab7; font-size: 28px; margin-top: 40px; }
+    .certificate h3 { color: #1a237e; margin: 20px 0 10px; }
+    .certificate p { font-size: 18px; }
+
+    .button-row { text-align: center; margin-top: 30px; }
+    .button-row button {
+      margin: 0 10px; padding: 10px 20px; font-size: 1rem;
+      border: none; cursor: pointer; border-radius: 5px;
+    }
+    .btn-print { background: #512da8; color: white; }
+    .btn-download { background: #4caf50; color: white; }
+
+    .back-resources { text-align: center; margin: 40px 0; }
+    .back-btn {
+      background: #3949ab; padding: 10px 25px; color: white;
+      text-decoration: none; border-radius: 8px; font-weight: bold;
+      display: inline-block; transition: background 0.3s ease;
+      font-size: 1rem;
+    }
+    .back-btn:hover { background: #303f9f; }
+
+    .error-msg {
+      text-align: center; font-weight: bold; margin-top: 20px;
+    }
+    .status-active { color: green; }
+    .status-pending { color: orange; }
+    .status-other { color: red; }
+
+    /* Popup Modal */
+    .popup { display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%; background: rgba(0,0,0,0.6);
+      justify-content: center; align-items: center; z-index: 2000; }
+    .popup-content {
+      background: white; padding: 25px; border-radius: 12px;
+      text-align: center; width: 320px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      animation: scaleIn 0.3s ease;
+    }
+    .popup-content h3 { margin: 0 0 15px; color: #333; }
+    .popup-content p { margin-bottom: 20px; color: #555; }
+    .popup-buttons { display: flex; justify-content: space-around; }
+    .popup-buttons button {
+      padding: 10px 20px; border: none; border-radius: 6px;
+      font-weight: bold; cursor: pointer; transition: all 0.2s ease;
+    }
+    .popup-buttons .confirm { background: #4caf50; color: white; }
+    .popup-buttons .confirm:hover { background: #43a047; }
+    .popup-buttons .cancel { background: #f44336; color: white; }
+    .popup-buttons .cancel:hover { background: #e53935; }
+    @keyframes scaleIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">
+    <a href="/"><img src="{{ url_for('static', filename='logo.png') }}" alt="Logo"></a>
+  </div>
+  <div class="center-text">Certificate Generator – Admin Only</div>
+  <div class="profile-wrapper" onclick="toggleDropdown()">
+    <img class="profile-pic"
+         src="{{ url_for('static', filename=session.get('profile_pic','profile_photo/defaultpicture.jpg')) }}"
+         alt="Profile" />
+    <div class="dropdown-menu" id="dropdownMenu">
+      <a href="/profile">Profile</a>
+      <a href="/settings">Settings</a>
+      <a href="#" onclick="showLogoutPopup()">Logout</a>
+    </div>
+  </div>
+</div>
+
+<!-- Form Section -->
+<div class="form-section">
+  <form method="POST">
+    <input type="text" name="reg_id" placeholder="e.g., ORABJ0012907" value="{{ reg_id or '' }}" required />
+    <button type="submit">Fetch Student Details</button>
+  </form>
+</div>
+
+{% if student %}
+  {% if student['status'] == 'Completed' %}
+    <!-- Certificate Section -->
+    <div id="certificate" class="certificate">
+      <div class="left-logo">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Chakora Logo" />
+      </div>
+      <h2>Certificate of Completion</h2>
+      <p>This is to certify that</p>
+      <h3>{{ student['first_name'] }} {{ student['last_name'] }}</h3>
+      <p>has successfully completed the course</p>
+      <h3>{{ student['course_name'] }}</h3>
+      <p style="text-align:right; margin-top: 50px;"><strong>V. SUBHASH CHANDRA</strong></p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="button-row">
+      <button class="btn-print" onclick="window.print()">🖨️ Print</button>
+      <button class="btn-download" onclick="downloadPDF()">📥 Download PDF</button>
+    </div>
+
+  {% else %}
+    <div class="error-msg">
+      Student status:
+      {% if student['status'] == 'Active' %}
+        <span class="status-active">{{ student['status'] }}</span>
+      {% elif student['status'] == 'Pending' %}
+        <span class="status-pending">{{ student['status'] }}</span>
+      {% else %}
+        <span class="status-other">{{ student['status'] }}</span>
+      {% endif %}
+      <br>Certificate cannot be generated until course is completed.
+    </div>
+  {% endif %}
+{% elif reg_id %}
+  <div class="error-msg">No student found for Registration ID: {{ reg_id }}</div>
+{% endif %}
+
+<!-- Back to Resources -->
+<div class="back-resources">
+  <a href="{{ url_for('resources') }}" class="back-btn">← Back to Resources</a>
+</div>
+
+<!-- Logout Popup -->
+<div id="logoutPopup" class="popup">
+  <div class="popup-content">
+    <h3>Confirm Logout</h3>
+    <p>Are you sure you want to logout?</p>
+    <div class="popup-buttons">
+      <button class="confirm" onclick="logoutConfirmed()">Yes</button>
+      <button class="cancel" onclick="closePopup('logoutPopup')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  function toggleDropdown() {
+    const d = document.getElementById('dropdownMenu');
+    d.style.display = d.style.display === 'block' ? 'none' : 'block';
+  }
+  document.addEventListener('click', function(e) {
+    const d = document.getElementById('dropdownMenu');
+    const w = document.querySelector('.profile-wrapper');
+    if (!w.contains(e.target)) d.style.display = 'none';
+  });
+
+  async function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const cert = document.getElementById('certificate');
+    if (!cert) return alert("No certificate to download!");
+    const text = cert.innerText;
+    doc.setFontSize(12);
+    doc.text(text, 10, 20);
+    doc.save('certificate.pdf');
+  }
+
+  function showLogoutPopup() {
+    document.getElementById('logoutPopup').style.display = 'flex';
+  }
+  function closePopup(id) {
+    document.getElementById(id).style.display = 'none';
+  }
+  function logoutConfirmed() {
+    localStorage.setItem('logout-event', Date.now());
+    window.location.href = '/logout';
+  }
+  window.addEventListener('storage', function(event) {
+    if (event.key === 'logout-event') {
+      window.location.href = '/';
+    }
+  });
+</script>
+</body>
+</html>

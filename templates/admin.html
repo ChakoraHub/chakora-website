@@ -1,0 +1,353 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Admin Dashboard - ChakoraHub</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;padding:20px;max-width:1200px;margin:0 auto;background:#f8f9fa}
+    .login-form{background:#fff;padding:30px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);max-width:400px;margin:0 auto}
+    .login-form input{margin:5px;padding:10px;width:220px;border:1px solid #ddd;border-radius:4px}
+    .login-form button{padding:10px 20px;background:#dc3545;color:white;border:none;border-radius:4px;cursor:pointer;font-size:14px;width:100%}
+    .login-form button:hover{background:#c82333}
+    .hidden{display:none}
+    .header{background:#fff;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 4px rgba(0,0,0,0.1);display:flex;justify-content:space-between;align-items:center}
+    .logout-btn{background:#6c757d;padding:8px 16px;border:none;border-radius:4px;color:white;cursor:pointer}
+    .logout-btn:hover{background:#5a6268}
+    .dashboard-section{background:#fff;padding:25px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-bottom:20px}
+    h1{color:#333;margin:0}
+    h2{color:#495057;border-bottom:2px solid:#dc3545;padding-bottom:8px;margin-top:0}
+    .filters{margin-bottom:20px;display:flex;gap:15px;align-items:center}
+    .filters select{padding:8px;border:1px solid #ddd;border-radius:4px;font-size:14px}
+    .filters button{padding:8px 16px;background:#17a2b8;color:white;border:none;border-radius:4px;cursor:pointer}
+    .filters button:hover{background:#138496}
+    .bookings-table{width:100%;border-collapse:collapse;margin-top:15px}
+    .bookings-table th{background:#dc3545;color:white;padding:12px;text-align:left;font-weight:500;position:sticky;top:0}
+    .bookings-table td{padding:10px;border-bottom:1px solid #ddd}
+    .bookings-table tr:hover{background:#f8f9fa}
+    .status-badge{padding:4px 12px;border-radius:12px;font-size:12px;font-weight:bold;display:inline-block}
+    .status-pending{background:#fff3cd;color:#856404}
+    .status-approved{background:#d4edda;color:#155724}
+    .status-rejected{background:#f8d7da;color:#721c24}
+    .status-cancelled{background:#e2e3e5;color:#383d41}
+    .action-buttons{display:flex;gap:5px}
+    .btn-approve{background:#28a745;color:white;padding:5px 12px;border:none;border-radius:4px;cursor:pointer;font-size:12px}
+    .btn-approve:hover{background:#218838}
+    .btn-reject{background:#dc3545;color:white;padding:5px 12px;border:none;border-radius:4px;cursor:pointer;font-size:12px}
+    .btn-reject:hover{background:#c82333}
+    .btn-approve:disabled, .btn-reject:disabled{background:#ccc;cursor:not-allowed}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:25px}
+    .stat-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+    .stat-card.pending{background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%)}
+    .stat-card.approved{background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)}
+    .stat-card.total{background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%)}
+    .stat-card h3{margin:0;font-size:14px;opacity:0.9}
+    .stat-card .number{font-size:32px;font-weight:bold;margin-top:10px}
+    .error{color:#721c24;background:#f8d7da;border:1px solid #f5c6cb;padding:12px;border-radius:4px;margin-top:15px}
+    .success{color:#155724;background:#d4edda;border:1px solid #c3e6cb;padding:12px;border-radius:4px;margin-top:15px}
+    .empty-state{text-align:center;padding:40px;color:#999}
+    .empty-state svg{width:64px;height:64px;margin-bottom:15px;opacity:0.5}
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center;color:#dc3545;margin-bottom:30px">🔐 Admin Dashboard - ChakoraHub</h1>
+
+  <!-- Login Section -->
+  <div id="loginSection" class="login-form">
+    <h2 style="border:none;text-align:center;color:#dc3545">Admin Login</h2>
+    <div style="margin-top:20px">
+      <div><input type="text" id="username" placeholder="Admin Username" value="admin" /></div>
+      <div><input type="password" id="password" placeholder="Admin Password" value="admin" /></div>
+      <div style="margin-top:15px">
+        <button id="loginBtn">🔐 Admin Login</button>
+      </div>
+    </div>
+    <div id="loginMessage" style="margin-top:15px;color:#dc3545;font-weight:500;text-align:center"></div>
+  </div>
+
+  <!-- Dashboard Section -->
+  <div id="dashboardSection" class="hidden">
+    <div class="header">
+      <div>
+        <span style="color:#666">Admin:</span>
+        <strong id="loggedInUser" style="color:#dc3545;font-size:18px"></strong>
+      </div>
+      <button id="logoutBtn" class="logout-btn">🚪 Logout</button>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats">
+      <div class="stat-card pending">
+        <h3>⏳ Pending Approval</h3>
+        <div class="number" id="statPending">0</div>
+      </div>
+      <div class="stat-card approved">
+        <h3>✓ Approved</h3>
+        <div class="number" id="statApproved">0</div>
+      </div>
+      <div class="stat-card total">
+        <h3>📊 Total Bookings</h3>
+        <div class="number" id="statTotal">0</div>
+      </div>
+    </div>
+
+    <!-- Bookings Management -->
+    <div class="dashboard-section">
+      <h2>📋 Booking Approvals</h2>
+      
+      <div class="filters">
+        <label>Status Filter:</label>
+        <select id="statusFilter">
+          <option value="PENDING">Pending</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+          <option value="CANCELLED">Cancelled</option>
+          <option value="">All</option>
+        </select>
+        <button id="refreshBtn">🔄 Refresh</button>
+      </div>
+
+      <div id="bookingsContainer">
+        <p style="color:#666">Loading bookings...</p>
+      </div>
+
+      <div id="message"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/meeting/api/';
+
+    let authToken = null;
+    let currentUsername = null;
+
+    const loginSection = document.getElementById('loginSection');
+    const dashboardSection = document.getElementById('dashboardSection');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const loginMessage = document.getElementById('loginMessage');
+    const loggedInUser = document.getElementById('loggedInUser');
+    
+    const statusFilter = document.getElementById('statusFilter');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const bookingsContainer = document.getElementById('bookingsContainer');
+    const messageDiv = document.getElementById('message');
+    
+    const statPending = document.getElementById('statPending');
+    const statApproved = document.getElementById('statApproved');
+    const statTotal = document.getElementById('statTotal');
+
+    function createAuthToken(username, password) {
+      return 'Basic ' + btoa(username + ':' + password);
+    }
+
+    async function login() {
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+      
+      if (!username || !password) {
+        loginMessage.textContent = '❌ Please enter credentials';
+        return;
+      }
+
+      const token = createAuthToken(username, password);
+      
+      try {
+        const res = await fetch(`${API_BASE}admin/bookings?status=PENDING`, {
+          headers: {'Authorization': token}
+        });
+
+        if (res.ok) {
+          authToken = token;
+          currentUsername = username;
+          loginMessage.textContent = '';
+          loginSection.classList.add('hidden');
+          dashboardSection.classList.remove('hidden');
+          loggedInUser.textContent = username;
+          loadBookings();
+          loadStats();
+        } else if (res.status === 401 || res.status === 403) {
+          loginMessage.textContent = '❌ Invalid admin credentials';
+        } else {
+          loginMessage.textContent = '❌ Login failed';
+        }
+      } catch (err) {
+        loginMessage.textContent = '❌ Network error: ' + err.message;
+      }
+    }
+
+    function logout() {
+      authToken = null;
+      currentUsername = null;
+      loginSection.classList.remove('hidden');
+      dashboardSection.classList.add('hidden');
+      passwordInput.value = '';
+      bookingsContainer.innerHTML = '';
+      messageDiv.textContent = '';
+    }
+
+    async function loadStats() {
+      try {
+        const [pendingRes, approvedRes, allRes] = await Promise.all([
+          fetch(`${API_BASE}admin/bookings?status=PENDING`, {headers: {'Authorization': authToken}}),
+          fetch(`${API_BASE}admin/bookings?status=APPROVED`, {headers: {'Authorization': authToken}}),
+          fetch(`${API_BASE}admin/bookings?status=`, {headers: {'Authorization': authToken}})
+        ]);
+
+        const pending = await pendingRes.json();
+        const approved = await approvedRes.json();
+        const all = await allRes.json();
+
+        statPending.textContent = (pending.bookings || []).length;
+        statApproved.textContent = (approved.bookings || []).length;
+        statTotal.textContent = (all.bookings || []).length;
+      } catch (err) {
+        console.error('Error loading stats:', err);
+      }
+    }
+
+    async function loadBookings() {
+      const status = statusFilter.value;
+      bookingsContainer.innerHTML = '<p style="color:#666">Loading bookings...</p>';
+      messageDiv.textContent = '';
+      messageDiv.className = '';
+      
+      try {
+        const res = await fetch(`${API_BASE}admin/bookings?status=${status}`, {
+          headers: {'Authorization': authToken}
+        });
+
+        if (res.status === 401) {
+          logout();
+          alert('Session expired. Please login again.');
+          return;
+        }
+
+        const data = await res.json();
+        const bookings = data.bookings || [];
+        
+        if (bookings.length === 0) {
+          bookingsContainer.innerHTML = `
+            <div class="empty-state">
+              <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+              <p>No bookings found with status: ${status || 'All'}</p>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '<table class="bookings-table"><thead><tr>';
+        html += '<th>Booking ID</th><th>Student</th><th>Date</th><th>Time</th><th>Duration</th><th>Complexity</th><th>Price</th><th>Status</th><th>Created</th><th>Actions</th>';
+        html += '</tr></thead><tbody>';
+
+        bookings.forEach(b => {
+          const statusClass = `status-${b.status.toLowerCase()}`;
+          const isPending = b.status === 'PENDING';
+          const bookingId = b.bookingId.substring(0, 8);
+          const createdDate = new Date(b.created_at).toLocaleString();
+          
+          html += `<tr>`;
+          html += `<td title="${b.bookingId}">${bookingId}...</td>`;
+          html += `<td>${b.studentId}</td>`;
+          html += `<td>${b.booking_date}</td>`;
+          html += `<td>${b.start_time}</td>`;
+          html += `<td>${b.duration_minutes} mins</td>`;
+          html += `<td>${b.complexity}</td>`;
+          html += `<td><strong>₹${b.price}</strong></td>`;
+          html += `<td><span class="status-badge ${statusClass}">${b.status}</span></td>`;
+          html += `<td style="font-size:11px">${createdDate}</td>`;
+          html += `<td><div class="action-buttons">`;
+          
+          if (isPending) {
+            html += `<button class="btn-approve" onclick="approveBooking('${b.bookingId}')">✓ Approve</button>`;
+            html += `<button class="btn-reject" onclick="rejectBooking('${b.bookingId}')">✗ Reject</button>`;
+          } else {
+            html += '<span style="color:#999">-</span>';
+          }
+          
+          html += `</div></td>`;
+          html += `</tr>`;
+        });
+
+        html += '</tbody></table>';
+        bookingsContainer.innerHTML = html;
+      } catch (err) {
+        bookingsContainer.innerHTML = '<p class="error">❌ Error loading bookings: ' + err.message + '</p>';
+        console.error(err);
+      }
+    }
+
+    async function approveBooking(bookingId) {
+      if (!confirm('Approve this booking? This confirms payment has been received.')) {
+        return;
+      }
+
+      await updateBookingStatus(bookingId, 'approve');
+    }
+
+    async function rejectBooking(bookingId) {
+      if (!confirm('Reject this booking? This will cancel the booking.')) {
+        return;
+      }
+
+      await updateBookingStatus(bookingId, 'reject');
+    }
+
+    async function updateBookingStatus(bookingId, action) {
+      messageDiv.textContent = 'Processing...';
+      messageDiv.className = 'info';
+
+      try {
+        const res = await fetch(`${API_BASE}admin/approve`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': authToken
+          },
+          body: JSON.stringify({ booking_id: bookingId, action: action })
+        });
+
+        const j = await res.json();
+        
+        if (res.ok) {
+          messageDiv.className = 'success';
+          messageDiv.textContent = `✓ ${j.message}`;
+          await loadBookings();
+          await loadStats();
+          setTimeout(() => {
+            messageDiv.textContent = '';
+            messageDiv.className = '';
+          }, 3000);
+        } else {
+          messageDiv.className = 'error';
+          messageDiv.textContent = '❌ ' + (j.error || 'Operation failed');
+        }
+      } catch (err) {
+        messageDiv.className = 'error';
+        messageDiv.textContent = '❌ Network error: ' + err.message;
+      }
+    }
+
+    // Event listeners
+    loginBtn.onclick = login;
+    logoutBtn.onclick = logout;
+    refreshBtn.onclick = () => {
+      loadBookings();
+      loadStats();
+    };
+    statusFilter.onchange = loadBookings;
+
+    passwordInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') login();
+    });
+
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+      if (authToken && !loginSection.classList.contains('hidden')) {
+        loadStats();
+      }
+    }, 30000);
+  </script>
+</body>
+</html>

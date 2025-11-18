@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Leave Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            border-radius: 8px;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .employee-info {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-header h2 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* Leave Application Form */
+        .leave-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 2fr auto;
+            gap: 15px;
+            margin-bottom: 30px;
+            align-items: end;
+        }
+        
+        .form-group {
+            margin-bottom: 0;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        
+        /* Calendar Styles */
+        .calendar-header {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+        }
+        
+        .calendar-table th, 
+        .calendar-table td {
+            border: 1px solid #ddd;
+            text-align: center;
+            vertical-align: top;
+            width: 14%;
+            height: 120px;
+            padding: 5px;
+        }
+        
+        .calendar-table th {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            padding: 15px;
+        }
+        
+        .calendar-day {
+            height: 100%;
+            padding: 5px;
+        }
+        
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        
+        .festival {
+            background-color: #ffcccc;
+        }
+        
+        .leave {
+            background-color: #ccffcc;
+        }
+        
+        .both {
+            background: linear-gradient(135deg, #ffcccc 50%, #ccffcc 50%);
+        }
+        
+        .empty {
+            background-color: #f9f9f9;
+        }
+        
+        .event {
+            font-size: 0.8rem;
+            margin: 2px 0;
+            padding: 2px 4px;
+            border-radius: 3px;
+            text-align: left;
+        }
+        
+        .festival-event {
+            background-color: #ff9999;
+            color: #721c24;
+        }
+        
+        .leave-event {
+            background-color: #99ff99;
+            color: #155724;
+        }
+        
+        .legend {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .legend span {
+            display: inline-block;
+            padding: 8px 15px;
+            margin-right: 15px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        
+        .legend .festival { background-color: #ffcccc; }
+        .legend .leave { background-color: #ccffcc; }
+        .legend .both { background: linear-gradient(135deg, #ffcccc 50%, #ccffcc 50%); }
+        
+        /* Leave History */
+        .leave-history {
+            margin-top: 30px;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        table th, table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        table th {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Simple Page Header -->
+        <div class="page-header">
+            <h1><i class="fas fa-calendar-alt"></i> Employee Leave Tracker</h1>
+            <div class="employee-info">
+                <strong>{{ employee_name }}</strong> | {{ employee_id }}
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
+                        <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Leave Application Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <h2><i class="fas fa-plus-circle"></i> Apply for Leave</h2>
+            </div>
+            
+            <form method="POST" class="leave-form">
+                <div class="form-group">
+                    <label for="start_date">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="end_date">End Date</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reason">Reason</label>
+                    <input type="text" id="reason" name="reason" class="form-control" placeholder="Enter reason for leave" required>
+                </div>
+                
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-paper-plane"></i> Apply for Leave
+                </button>
+            </form>
+        </div>
+
+        <!-- Calendar Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <h2><i class="fas fa-calendar"></i> Leave Calendar - {{ month_name }} {{ year }}</h2>
+            </div>
+            
+            <div class="calendar-nav">
+                <div class="nav-buttons">
+                    <a href="{{ url_for('leave_tracker', month=prev_month, year=prev_year) }}" class="btn btn-secondary">
+                        <i class="fas fa-chevron-left"></i> Previous Month
+                    </a>
+                    <a href="{{ url_for('leave_tracker', month=next_month, year=next_year) }}" class="btn btn-secondary">
+                        Next Month <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <table class="calendar-table">
+                <thead>
+                    <tr>
+                        <th>Sunday</th>
+                        <th>Monday</th>
+                        <th>Tuesday</th>
+                        <th>Wednesday</th>
+                        <th>Thursday</th>
+                        <th>Friday</th>
+                        <th>Saturday</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for week in calendar_data %}
+                    <tr>
+                        {% for day in week %}
+                        <td class="{{ day.type }}">
+                            <div class="calendar-day">
+                                {% if day.date %}
+                                <div class="day-number">{{ day.date.day }}</div>
+                                {% if day.festival %}
+                                    <div class="event festival-event">
+                                        <i class="fas fa-star"></i> {{ day.festival }}
+                                    </div>
+                                {% endif %}
+                                {% if day.leave %}
+                                    <div class="event leave-event">
+                                        <i class="fas fa-user-clock"></i> On Leave
+                                    </div>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="legend">
+                <span class="festival">Festival/Holiday</span>
+                <span class="leave">Your Leave</span>
+                <span class="both">Festival + Leave</span>
+            </div>
+        </div>
+
+        <!-- Leave History Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <h2><i class="fas fa-history"></i> Leave History</h2>
+            </div>
+            
+            {% if leave_data %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Applied On</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leave in leave_data %}
+                    <tr>
+                        <td>{{ leave[1].strftime('%Y-%m-%d') if leave[1] else 'N/A' }}</td>
+                        <td>{{ leave[2].strftime('%Y-%m-%d') if leave[2] else 'N/A' }}</td>
+                        <td>{{ leave[3] if leave[3] else 'N/A' }}</td>
+                        <td>
+                            <span class="status-{{ leave[4].lower() if leave[4] else 'pending' }}">
+                                {{ leave[4] if leave[4] else 'Pending' }}
+                            </span>
+                        </td>
+                        <td>{{ leave[5].strftime('%Y-%m-%d %H:%M') if leave[5] else 'N/A' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No leave applications found.</p>
+            {% endif %}
+        </div>
+
+        <!-- Back to Resources Link -->
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="{{ url_for('employee_resources') }}" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Employee Resources
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Set minimum date for leave application to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('start_date').min = today;
+        document.getElementById('end_date').min = today;
+        
+        // Auto-hide flash messages after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                alert.style.transition = 'opacity 0.5s';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+        
+        // End date validation - cannot be before start date
+        document.getElementById('start_date').addEventListener('change', function() {
+            const endDate = document.getElementById('end_date');
+            endDate.min = this.value;
+            if (endDate.value && endDate.value < this.value) {
+                endDate.value = this.value;
+            }
+        });
+    </script>
+</body>
+</html>

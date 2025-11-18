@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solutions | ChakoraHub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root { --primary-color: #0078D7; --secondary-color: #6c5ce7; --text-color: #333; }
+    body { margin: 0; font-family: Arial, sans-serif; background: #fafafa; display: flex; flex-direction: column; min-height: 100vh; }
+
+    header { background: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 1000; }
+    .logo { display: flex; align-items: center; font-weight: bold; font-size: 20px; color: var(--primary-color); }
+    .logo-img { height: 90px; margin-right: 10px; }
+    nav { display: flex; align-items: center; gap: 20px; position: relative; }
+    nav a { text-decoration: none; color: var(--text-color); font-weight: 500; }
+    nav a:hover { color: var(--primary-color); }
+
+    .dropdown { position: relative; display: inline-block; }
+    .dropdown-content { display: none; position: absolute; background-color: #fff; min-width: 150px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 6px; z-index: 1001; }
+    .dropdown-content a { color: #333; padding: 10px 14px; text-decoration: none; display: block; }
+    .dropdown-content a:hover { background-color: #f1f1f1; color: var(--primary-color); }
+    .dropdown:hover .dropdown-content { display: block; }
+
+    main { flex: 1; padding: 50px 20px; text-align: center; }
+    main h1 { color: var(--primary-color); font-size: 32px; margin-bottom: 15px; }
+    main p { color: #555; font-size: 18px; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+
+    footer { background-color: #fff; padding: 20px 24px; font-size: 16px; color: var(--text-color); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ccc; margin-top: auto; flex-wrap: wrap; }
+    .social-icons { flex: 1; text-align: center; }
+    .social-icons a { margin: 0 10px; text-decoration: none; font-size: 24px; color: var(--text-color); }
+    .social-icons a:hover { color: var(--primary-color); }
+    .copyright { text-align: right; flex: 1; }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <img src="/static/logo.png" alt="Logo" class="logo-img" />
+      ChakoraHub
+    </div>
+
+    <nav>
+      <a href="/">Home</a>
+      <div class="dropdown">
+        <a href="/solutions">Solutions ▾</a>
+        <div class="dropdown-content">
+          <a href="/solutions/automation">Automation</a>
+          <a href="/solutions/aiml">AI/ML</a>
+          <a href="/solutions/mdm">MDM</a>
+        </div>
+      </div>
+      <a href="/aboutus">About Us</a>
+      <a href="/contact">Contact Us</a>
+      <a href="/register">Register</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Our Solutions</h1>
+    <p>At ChakoraHub, we design and deliver customized digital solutions to help your business excel. From automation frameworks to advanced AI/ML models and MDM solutions, our expertise ensures seamless integration, performance, and growth.</p>
+  </main>
+
+  <footer>
+    <div class="social-icons">
+      <a href="#"><i class="fab fa-facebook"></i></a>
+      <a href="https://youtube.com/@chakorahub" target="_blank"><i class="fab fa-youtube"></i></a>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+    </div>
+    <div class="copyright">&copy; {{ current_year }} ChakoraHub. All rights reserved.</div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - ChakoraHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb');
+      background-size: cover;
+      background-position: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 10px 20px;
+    }
+
+    .logo {
+      height: 80px;
+    }
+
+    .container {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 500px;
+      margin-top: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #007BFF;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+
+    .required::after {
+      content: " *";
+      color: red;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    input[type="submit"] {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+
+    .error-msg {
+      color: red;
+      font-size: 0.85rem;
+      margin-top: 3px;
+    }
+
+    .strength {
+      margin-top: 5px;
+      font-size: 0.9rem;
+    }
+
+    .weak {
+      color: red;
+    }
+
+    .medium {
+      color: orange;
+    }
+
+    .strong {
+      color: green;
+    }
+
+    .home-button-container {
+      margin: 30px 0;
+      text-align: center;
+    }
+
+    .home-button {
+      background-color: #4cafef;
+      color: white;
+      text-decoration: none;
+      padding: 10px 25px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+
+    .home-button:hover {
+      background-color: #2196f3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="/">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="ChakoraHub Logo" class="logo">
+    </a>
+  </div>
+
+  <div class="container">
+    <h2>Register</h2>
+
+    <!-- ✅ Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form id="registerForm" action="/register" method="POST">
+      <label class="required">User Type</label>
+      <select id="usertype" name="usertype" required>
+        <option value="">Select Type</option>
+        <option value="student">Student</option>
+        <option value="public">Public</option>
+      </select>
+
+      <label class="required">User Name</label>
+      <input type="text" name="username" placeholder="Choose a username" required />
+
+      <label class="required">Email</label>
+      <input type="email" id="email" name="email" required>
+      <div id="email-error" class="error-msg"></div>
+
+      <label class="required">Phone No</label>
+      <input type="tel" id="phone" name="phone" pattern="\d{10}" maxlength="10" required>
+      <div id="phone-error" class="error-msg"></div>
+
+      <label class="required">Location</label>
+      <input type="text" name="location" required>
+
+      <label class="required">Gothram</label>
+      <input type="text" name="gothram" required>
+
+      <label class="required">Password</label>
+      <input type="password" id="password" name="password" required>
+      <div id="password-strength" class="strength"></div>
+      <div id="password-error" class="error-msg"></div>
+
+      <label class="required">Confirm Password</label>
+      <input type="password" id="confirm_password" name="confirm_password" required>
+      <div id="confirm-error" class="error-msg"></div>
+
+      <input type="submit" value="Register">
+    </form>
+  </div>
+
+  <div class="home-button-container">
+    <a href="/" class="home-button">Home</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("registerForm");
+      const password = document.getElementById("password");
+      const confirmPassword = document.getElementById("confirm_password");
+      const email = document.getElementById("email");
+      const phone = document.getElementById("phone");
+      const userType = document.getElementById("usertype");
+
+      const emailError = document.getElementById("email-error");
+      const phoneError = document.getElementById("phone-error");
+      const passStrength = document.getElementById("password-strength");
+      const passError = document.getElementById("password-error");
+      const confirmError = document.getElementById("confirm-error");
+
+      // Email validation (only for public users)
+      email.addEventListener("blur", () => {
+        if (!email.value || !userType.value) return;
+
+        if (userType.value === "public") {
+          fetch(`/check_email?email=${email.value}&usertype=public`)
+            .then(res => res.json())
+            .then(data => {
+              emailError.textContent = data.exists ? "This email is already registered." : "";
+            });
+        } else {
+          emailError.textContent = ""; // ignore for students
+        }
+      });
+
+      // Phone validation (only for public users)
+      phone.addEventListener("blur", () => {
+        if (!phone.value || !userType.value) return;
+
+        if (userType.value === "public") {
+          fetch(`/check_phone?phone=${phone.value}&usertype=public`)
+            .then(res => res.json())
+            .then(data => {
+              phoneError.textContent = data.exists ? "This phone number is already registered." : "";
+            });
+        } else {
+          phoneError.textContent = ""; // ignore for students
+        }
+      });
+
+      // Password strength
+      password.addEventListener("input", () => {
+        const val = password.value;
+        const special = val.match(/[\W_]/g) || [];
+        const hasUpper = /[A-Z]/.test(val);
+        const hasNumber = /\d/.test(val);
+
+        passError.textContent = "";
+        if (special.length === 1 && hasUpper && hasNumber && val.length >= 8) {
+          passStrength.textContent = "Strong Password";
+          passStrength.className = "strength strong";
+        } else {
+          passStrength.textContent = "Password should have exactly 1 special character, 1 capital letter, and at least 1 number.";
+          passStrength.className = "strength weak";
+        }
+      });
+
+      // Confirm password
+      confirmPassword.addEventListener("blur", () => {
+        confirmError.textContent = password.value !== confirmPassword.value ? "Passwords do not match." : "";
+      });
+
+      // Form submit validation
+      form.addEventListener("submit", (e) => {
+        const val = password.value;
+        const special = val.match(/[\W_]/g) || [];
+        const hasUpper = /[A-Z]/.test(val);
+        const hasNumber = /\d/.test(val);
+
+        if (special.length !== 1 || !hasUpper || !hasNumber || val.length < 8) {
+          e.preventDefault();
+          passError.textContent = "Password should contain exactly one special character, at least one uppercase letter, and at least one number.";
+          return;
+        }
+
+        if (password.value !== confirmPassword.value) {
+          e.preventDefault();
+          confirmError.textContent = "Passwords do not match.";
+          return;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+

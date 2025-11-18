@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asset Module - Chakora Hub</title>
+<style>
+    body { margin:0; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display:flex; height:100vh; background:#f5f7fa;}
+    .sidebar {width:220px; background:#0078d7; color:white; display:flex; flex-direction:column; align-items:center; padding-top:30px;}
+    .sidebar h2 {margin-bottom:40px;}
+    .tab {width:180px; padding:12px 15px; margin:8px 0; border-radius:8px; cursor:pointer; text-align:center; background:rgba(255,255,255,0.1); transition:0.3s;}
+    .tab:hover, .tab.active {background:white; color:#0078d7; font-weight:bold;}
+    .main-content {flex:1; padding:30px; overflow-y:auto;}
+    h3 {color:#333; margin-bottom:20px;}
+    label {display:block; margin-top:10px; font-weight:600; color:#555;}
+    input, select {width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:8px;}
+    button {margin-top:20px; width:100%; background:#0078d7; color:white; border:none; padding:12px; font-size:16px; border-radius:8px; cursor:pointer;}
+    button:hover {background:#005fa3;}
+    .error {color:red; font-weight:600; text-align:center; margin-top:10px; display:none;}
+    table {width:100%; border-collapse:collapse; background:white; border-radius:8px; overflow:hidden;}
+    th, td {padding:10px; border-bottom:1px solid #ddd; text-align:center;}
+    th {background:#0078d7; color:white;}
+    tr:hover {background:#f1f1f1;}
+    .hidden {display:none;}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <h2>Resources</h2>
+    <div class="tab active" id="updateTab">🧾 Update Asset</div>
+    <div class="tab" id="reportTab">📊 Generate Report</div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+
+    <!-- Update Asset Form -->
+    <div id="updateSection">
+        <h3>Update Asset</h3>
+        <form id="assetForm">
+            <label for="assetId">Asset ID:</label>
+            <input type="text" id="assetId" name="assetId" placeholder="Enter Asset ID (e.g., CH101)" required>
+
+            <label for="assetType">Asset Type:</label>
+            <select id="assetType" name="assetType" required>
+                <option value="">-- Select Type --</option>
+                <option value="Laptop">Laptop</option>
+                <option value="Monitor">Monitor</option>
+                <option value="Mobile">Mobile</option>
+                <option value="Printer">Printer</option>
+                <option value="Router">Router</option>
+            </select>
+
+            <label for="modelNo">Model Number:</label>
+            <select id="modelNo" name="modelNo" required>
+                <option value="">-- Select Model --</option>
+            </select>
+
+            <label for="serialNo">Serial Number:</label>
+            <select id="serialNo" name="serialNo" required>
+                <option value="">-- Select Serial --</option>
+            </select>
+
+            <label for="ownedBy">Owned By:</label>
+            <input type="text" id="ownedBy" name="ownedBy" placeholder="Enter Owner Name" required>
+
+            <label for="purchaseDate">Purchase Date:</label>
+            <input type="date" id="purchaseDate" name="purchaseDate" required>
+
+            <label for="warrantyExpiry">Warranty Expiry:</label>
+            <input type="date" id="warrantyExpiry" name="warrantyExpiry">
+
+            <label for="vendorName">Vendor Name:</label>
+            <select id="vendorName" name="vendorName" required>
+                <option value="">-- Select Vendor --</option>
+            </select>
+
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" placeholder="Enter Location" required>
+
+            <label for="condition">Condition:</label>
+            <select id="condition" name="condition" required>
+                <option value="">-- Select Condition --</option>
+                <option value="Working">Working</option>
+                <option value="Under Repair">Under Repair</option>
+                <option value="Scrap">Scrap</option>
+            </select>
+
+            <label for="status">Status:</label>
+            <select id="status" name="status" required>
+                <option value="">-- Select Status --</option>
+                <option value="Allocated">Allocated</option>
+                <option value="In Stock">In Stock</option>
+                <option value="Returned">Returned</option>
+            </select>
+
+            <label for="price">Price (₹):</label>
+            <input type="number" id="price" name="price" placeholder="Enter Price" required>
+
+            <button type="submit">Add Asset</button>
+        </form>
+        <p class="error" id="errorMsg"></p>
+    </div>
+
+    <!-- Asset Report -->
+    <div id="reportSection" class="hidden">
+        <h3>Asset Report</h3>
+        <table id="assetTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Model</th>
+                    <th>Serial</th>
+                    <th>Owned By</th>
+                    <th>Purchase Date</th>
+                    <th>Warranty Expiry</th>
+                    <th>Vendor</th>
+                    <th>Location</th>
+                    <th>Condition</th>
+                    <th>Status</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody> 
+        </table>
+    </div>
+
+</div>
+
+<script>
+// --- Asset Data ---
+const assetsData = [
+  { type: "Laptop", brands: ["HP","Dell","Lenovo","Acer"], models: ["HP-245G8","Dell-Inspiron15","Lenovo-V14","Acer-Aspire3"], serials:["SN9845371","SN9845372","SN9845373","SN9845374"] },
+  { type: "Monitor", brands: ["Dell","HP","LG","Samsung"], models: ["Dell-U2419H","HP-24mh","LG-24MP59G","Samsung-LS24R350"], serials:["SN9945371","SN9945372","SN9945373","SN9945374"] },
+  { type: "Mobile", brands: ["Apple","Samsung","OnePlus","Xiaomi"], models: ["iPhone 15","Samsung S23","OnePlus 11","Xiaomi 13"], serials:["SN8745371","SN8745372","SN8745373","SN8745374"] },
+  { type: "Printer", brands: ["HP","Canon","Epson","Brother"], models: ["HP-LaserJet M507","Canon MF244dw","Epson-L3150","Brother-HL-L2350DW"], serials:["SN8645371","SN8645372","SN8645373","SN8645374"] },
+  { type: "Router", brands: ["TP-Link","Netgear","Cisco","D-Link"], models: ["TP-Link-Archer C6","Netgear-R7000","Cisco-RV340","D-Link-DIR-825"], serials:["SN8545371","SN8545372","SN8545373","SN8545374"] }
+];
+
+// --- Map dropdown options ---
+const modelOptions = {};
+const serialOptions = {};
+const vendorOptions = {};
+
+assetsData.forEach(asset => {
+    modelOptions[asset.type] = asset.models;
+    serialOptions[asset.type] = asset.serials;
+    vendorOptions[asset.type] = asset.brands; // brands used as vendors
+});
+
+// --- DOM Elements ---
+const assetType = document.getElementById("assetType");
+const modelNo = document.getElementById("modelNo");
+const serialNo = document.getElementById("serialNo");
+const vendorName = document.getElementById("vendorName");
+
+// Populate dropdowns on type change
+assetType.addEventListener("change", () => {
+    const type = assetType.value;
+
+    // Models
+    modelNo.innerHTML = `<option value="">-- Select Model --</option>`;
+    if(modelOptions[type]) modelOptions[type].forEach(m=>modelNo.innerHTML+=`<option value="${m}">${m}</option>`);
+
+    // Serials
+    serialNo.innerHTML = `<option value="">-- Select Serial --</option>`;
+    if(serialOptions[type]) serialOptions[type].forEach(s=>serialNo.innerHTML+=`<option value="${s}">${s}</option>`);
+
+    // Vendors
+    vendorName.innerHTML = `<option value="">-- Select Vendor --</option>`;
+    if(vendorOptions[type]) vendorOptions[type].forEach(v=>vendorName.innerHTML+=`<option value="${v}">${v}</option>`);
+});
+
+// --- Tabs ---
+const updateTab = document.getElementById("updateTab");
+const reportTab = document.getElementById("reportTab");
+const updateSection = document.getElementById("updateSection");
+const reportSection = document.getElementById("reportSection");
+
+updateTab.addEventListener("click", ()=>{
+    updateTab.classList.add("active");
+    reportTab.classList.remove("active");
+    updateSection.classList.remove("hidden");
+    reportSection.classList.add("hidden");
+});
+
+reportTab.addEventListener("click", ()=>{
+    reportTab.classList.add("active");
+    updateTab.classList.remove("active");
+    reportSection.classList.remove("hidden");
+    updateSection.classList.add("hidden");
+    loadReport();
+});
+
+// --- Form Submit ---
+const assetForm = document.getElementById("assetForm");
+const errorMsg = document.getElementById("errorMsg");
+
+assetForm.addEventListener("submit", (e)=>{
+    e.preventDefault();
+    const formData = new FormData(assetForm);
+    fetch('/submit',{
+        method:'POST',
+        body: formData
+    }).then(res=>res.json())
+    .then(data=>{
+        if(data.message.includes("❌")){
+            errorMsg.style.display="block";
+            errorMsg.textContent = data.message;
+        } else {
+            errorMsg.style.display="none";
+            assetForm.reset();
+            alert(data.message);
+        }
+    }).catch(err=>{
+        errorMsg.style.display="block";
+        errorMsg.textContent="❌ Something went wrong!";
+    });
+});
+
+// --- Load Asset Report ---
+function loadReport() {
+    fetch('/get_assets')
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.querySelector("#assetTable tbody");
+            tbody.innerHTML = "";
+            data.forEach(a => {
+                tbody.innerHTML += `
+<tr>
+    <td>${a.asset_id}</td>
+    <td>${a.asset_type}</td>
+    <td>${a.model_no}</td>
+    <td>${a.serial_no}</td>
+    <td>${a.owned_by}</td>
+    <td>${a.purchase_date}</td>
+    <td>${a.warranty_expiry}</td>
+    <td>${a.vendor_name}</td>
+    <td>${a.location}</td>
+    <td>${a.condition}</td>
+    <td>${a.status}</td>
+    <td>${a.price}</td>
+    <td>
+        <button onclick="deleteAsset('${a.asset_id}')" style="background:red;color:white;padding:5px;border:none;border-radius:5px;">
+            Delete
+        </button>
+    </td>
+</tr>`;
+            });
+        });
+}
+
+function deleteAsset(assetId) {
+    if (!confirm("Are you sure you want to delete asset " + assetId + "?")) return;
+    fetch('/delete_asset/' + assetId, { method: 'DELETE' })
+    .then(res => res.json())
+    .then(data => { alert(data.message); loadReport(); });
+}
+
+window.onload = loadReport;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #0078D7;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .status-active {
+            color: green;
+            font-weight: bold;
+        }
+        .status-inactive {
+            color: red;
+            font-weight: bold;
+        }
+        .back-button {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 10px 15px;
+            background-color: #0078D7;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .back-button:hover {
+            background-color: #005a9e;
+        }
+    </style>
+</head>
+<body>
+    <h1>Employee Report</h1>
+    {% if employee_data %}
+    <table>
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Hire Date</th>
+                <th>Reg ID</th>
+                <th>Status</th>
+                <th>Msinfo32 - Laptop, OS, SSD,RAM</th>
+                <th>Job Title</th>
+                <th>Aadhaar Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for emp in employee_data %}
+            <tr>
+                <td>{{ emp['First Name'] }}</td>
+                <td>{{ emp['Last Name'] }}</td>
+                <td>{{ emp['Email'] }}</td>
+                <td>{{ emp['Phone Number'] }}</td>
+                <td>{{ emp['Hire Date'] }}</td>
+                <td>{{ emp['Reg ID'] }}</td>
+                <td class="status-{{ 'active' if emp['Status'] == 'Active' else 'inactive' }}">{{ emp['Status'] }}</td>
+                <td>{{ emp['Msinfo32 - Laptop, OS, SSD,RAM'] }}</td>
+                <td>{{ emp['Job Title'] }}</td>
+                <td>{{ emp.get('Aadhaar number', '—') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align:center; color:#888;">No employee data available.</p>
+    {% endif %}
+    
+    <a href="/resources" class="back-button">Back to Resources</a>
+</body>
+</html>

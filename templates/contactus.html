@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us - ChakoraHub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+    }
+
+    .overlay {
+      background: rgba(0, 0, 0, 0.7);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 10px 20px;
+    }
+
+    .logo {
+      height: 80px;
+    }
+
+    .content-center {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .contact-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(6px);
+      padding: 40px;
+      border-radius: 15px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+
+    .contact-container h1 {
+      margin-bottom: 20px;
+      font-size: 36px;
+      text-align: center;
+      color: #ffeb3b;
+      text-shadow: 2px 2px 6px #000;
+    }
+
+    .contact-container p {
+      font-size: 18px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .email-link {
+      color: #81d4fa;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .email-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .contact-container {
+        padding: 25px;
+      }
+      .contact-container h1 {
+        font-size: 28px;
+      }
+      .logo {
+        height: 60px;
+      }
+    }
+
+    /* ✅ Home Button (same as register page) */
+    .home-button-container {
+      margin: 30px 0;
+      text-align: center;
+    }
+
+    .home-button {
+      background-color: #4cafef;
+      color: white;
+      text-decoration: none;
+      padding: 10px 25px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+
+    .home-button:hover {
+      background-color: #2196f3;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="top-bar">
+      <img src="/static/logo.png" alt="ChakoraHub Logo" class="logo" />
+    </div>
+
+    <div class="content-center">
+      <div class="contact-container">
+        <h1>Contact Us</h1>
+        <p>Feel free to email us:</p>
+        <p>
+          <a class="email-link" target="_blank"
+             href="https://mail.google.com/mail/?view=cm&fs=1&to=support@chakorahub.com">
+            support@chakorahub.com
+          </a>
+        </p>
+      </div>
+
+      <!-- ✅ Home button only -->
+      <div class="home-button-container">
+        <a href="/" class="home-button">Home</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

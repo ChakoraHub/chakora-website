@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Queue</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+        }
+
+         header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: none; /* Removed white background */
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+        }
+        header img {
+            height: 100px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 30px;
+            border-radius: 15px;
+            width: 500px;
+            margin: 120px auto; /* Adjust for header height */
+            text-align: center;
+            box-shadow: 0 0 20px #333;
+        }
+
+        h1 {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            font-size: 20px;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+
+        p {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        .home-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            text-decoration: none;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+    </header>
+    <div class="container">
+        <h1>Queue</h1>
+        <ul>
+            {% for user in queue %}
+            <li>{{ user.username }} - {{ user.status }}</li>
+            {% endfor %}
+        </ul>
+        <p>Meeting ends at: {{ end_time }}</p>
+        <a href="/meeting" class="home-link">Go Back</a>
+    </div>
+</body>
+</html>

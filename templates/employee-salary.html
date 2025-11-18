@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Salary Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .salary-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .salary-breakdown {
+            margin-bottom: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        .badge {
+            background-color: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        
+        .salary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .net-salary {
+            background: #d4edda;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #0078D4;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .no-salary-data {
+            text-align: center;
+            padding: 40px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .no-salary-data i {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2><i class="fas fa-money-bill-wave"></i> Employee Salary Details</h2>
+        
+        <!-- Error Messages -->
+        {% if error %}
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        {% if salary_info %}
+        <!-- Salary Summary -->
+        <div class="salary-summary">
+            <h3>Salary Summary</h3>
+            <p><strong>Employee ID:</strong> {{ salary_info.id }}</p>
+            <p><strong>Name:</strong> {{ salary_info.name }}</p>
+            <p><strong>Department:</strong> {{ salary_info.department }}</p>
+            <p><strong>Status:</strong> <span class="badge">{{ salary_info.status }}</span></p>
+        </div>
+
+        <!-- Check if we have actual salary data or just employee info -->
+        {% if salary_info.basic is defined %}
+        <!-- Salary Breakdown -->
+        <div class="salary-breakdown">
+            <h3>Salary Breakdown</h3>
+            <div class="salary-item">
+                <span>Basic Salary:</span>
+                <span>₹ {{ "{:,.2f}".format(salary_info.basic) }}</span>
+            </div>
+            <div class="salary-item">
+                <span>HRA:</span>
+                <span>₹ {{ "{:,.2f}".format(salary_info.hra) }}</span>
+            </div>
+            <div class="salary-item">
+                <span>Allowances:</span>
+                <span>₹ {{ "{:,.2f}".format(salary_info.allowances) }}</span>
+            </div>
+            <div class="salary-item">
+                <span>Deductions:</span>
+                <span>₹ {{ "{:,.2f}".format(salary_info.deductions) }}</span>
+            </div>
+            <div class="salary-item net-salary">
+                <span>Net Salary:</span>
+                <span>₹ {{ "{:,.2f}".format(salary_info.net_salary) }}</span>
+            </div>
+        </div>
+
+        <!-- Salary Slips -->
+        {% if salary_slips %}
+        <div class="salary-slips">
+            <h3>Salary Slips</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Year</th>
+                        <th>Generated Date</th>
+                        <th>Download</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for slip in salary_slips %}
+                    <tr>
+                        <td>{{ slip[1] }}</td>
+                        <td>{{ slip[2] }}</td>
+                        <td>
+                            {% if slip[4] %}
+                                {{ slip[4].strftime('%Y-%m-%d') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if slip[3] %}
+                                <a href="{{ slip[3] }}" target="_blank">Download</a>
+                            {% else %}
+                                Not Available
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="no-slips">
+            <h3>Salary Slips</h3>
+            <p>No salary slips available.</p>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- Show message when we have employee info but no salary data -->
+        <div class="no-salary-data">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <h3>Salary Information Not Available</h3>
+            <p>Your salary details are currently not available in the system.</p>
+            <p>Please contact HR or your manager for assistance.</p>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- Show when no employee info is available at all -->
+        <div class="no-salary-data">
+            <i class="fas fa-exclamation-circle"></i>
+            <h3>Unable to Load Salary Information</h3>
+            <p>There was an error loading your salary details.</p>
+            <p>Please try again later or contact system administrator.</p>
+        </div>
+        {% endif %}
+
+        <a href="{{ url_for('employee_resources') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Employee Resources
+        </a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal 360 Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 25px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-header {
+            padding: 0 25px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .menu-item {
+            padding: 14px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            border-left: 4px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .menu-item i {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .content-header {
+            margin-bottom: 30px;
+        }
+        
+        .content-header h2 {
+            font-size: 28px;
+            color: #2a5298;
+            margin-bottom: 10px;
+        }
+        
+        .content-header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .content-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            color: #2a5298;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: #2a5298;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(42, 82, 152, 0.2);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .btn {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #1e3c72;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Welcome Section */
+        .welcome-section {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .welcome-icon {
+            font-size: 64px;
+            color: #2a5298;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-section h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: #2a5298;
+        }
+        
+        .welcome-section p {
+            font-size: 18px;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        
+        /* Module Content */
+        .module-content {
+            display: none;
+        }
+        
+        .module-content.active {
+            display: block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        table th, table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        table th {
+            background-color: #f8f9fa;
+            color: #2a5298;
+            font-weight: 600;
+        }
+        
+        table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: #2a5298;
+            background-color: #f8fafc;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #2a5298;
+            margin-bottom: 15px;
+        }
+        
+        .file-list {
+            margin-top: 20px;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        
+        .file-name {
+            display: flex;
+            align-items: center;
+        }
+        
+        .file-icon {
+            margin-right: 10px;
+            color: #2a5298;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 15px 0;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>Personal 360</h1>
+                <p>Your Personal Dashboard</p>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="menu-item active" data-module="personal">
+                    <i>👤</i> Personal
+                </li>
+                <li class="menu-item" data-module="org">
+                    <i>🏢</i> Org Background
+                </li>
+                <li class="menu-item" data-module="education">
+                    <i>🎓</i> Educational Background
+                </li>
+                <li class="menu-item" data-module="hierarchy">
+                    <i>📊</i> Hierarchy
+                </li>
+                <li class="menu-item" data-module="document">
+                    <i>📄</i> Document Upload
+                </li>
+                <li class="menu-item" data-module="leave">
+                    <i>📅</i> Leave
+                </li>
+                <li class="menu-item" data-module="timesheet">
+                    <i>⏱️</i> Timesheet
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Welcome Section (shown by default) -->
+            <div id="welcome" class="module-content active">
+                <div class="welcome-section">
+                    <div class="welcome-icon">🚀</div>
+                    <h2>Welcome to Personal 360</h2>
+                    <p>Select a module from the sidebar to get started</p>
+                </div>
+            </div>
+            
+            <!-- Personal Information Module -->
+            <div id="personal" class="module-content">
+                <div class="content-header">
+                    <h2>Personal Information</h2>
+                    <p>Manage your personal details and identification information</p>
+                </div>
+                
+                <div class="content-card">
+                    <h3 class="card-title">Basic Information</h3>
+                    <div class="form-group">
+                        <label for="aadhaar">Aadhaar Number</label>
+                        <input type="text" id="aadhaar" class="form-control" placeholder="Enter Aadhaar Number">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" class="form-control" placeholder="Enter First Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" class="form-control" placeholder="Enter Last Name">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-control" placeholder="Enter Email Address">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" class="form-control" placeholder="Enter Phone Number">
+                        </div>
+                        <div class="form-group">
+                            <label for="dob">Date of Birth</label>
+                            <input type="date" id="dob" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <textarea id="address" class="form-control" rows="3" placeholder="Enter your address"></textarea>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn">Save Changes</button>
+                        <button class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Org Background Module -->
+            <div id="org" class="module-content">
+                <div class="content-header">
+                    <h2>Organization Background</h2>
+                    <p>View and update your organizational information</p>
+                </div>
+                
+                <div class="content-card">
+                    <h3 class="card-title">Organization Details</h3>
+                    
+                    <div class="form-group">
+                        <label for="employeeId">Employee ID</label>
+                        <input type="text" id="employeeId" class="form-control" placeholder="Enter Employee ID">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <select id="department" class="form-control">
+                            <option value="">Select Department</option>
+                            <option value="hr">Human Resources</option>
+                            <option value="it">Information Technology</option>
+                            <option value="finance">Finance</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="operations">Operations</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="designation">Designation</label>
+                        <input type="text" id="designation" class="form-control" placeholder="Enter Designation">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="joinDate">Date of Joining</label>
+                            <input type="date" id="joinDate" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="workLocation">Work Location</label>
+                            <input type="text" id="workLocation" class="form-control" placeholder="Enter Work Location">
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn">Save Changes</button>
+                        <button class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Educational Background Module -->
+            <div id="education" class="module-content">
+                <div class="content-header">
+                    <h2>Educational Background</h2>
+                    <p>Manage your educational qualifications and history</p>
+                </div>
+                
+                <div class="content-card">
+                    <h3 class="card-title">Education Details</h3>
+                    
+                    <div class="form-group">
+                        <label for="highestQualification">Highest Qualification</label>
+                        <select id="highestQualification" class="form-control">
+                            <option value="">Select Highest Qualification</option>
+                            <option value="highschool">High School</option>
+                            <option value="diploma">Diploma</option>
+                            <option value="bachelor">Bachelor's Degree</option>
+                            <option value="master">Master's Degree</option>
+                            <option value="phd">PhD</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="institution">Institution Name</label>
+                        <input type="text" id="institution" class="form-control" placeholder="Enter Institution Name">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="degree">Degree/Certificate</label>
+                            <input type="text" id="degree" class="form-control" placeholder="Enter Degree/Certificate">
+                        </div>
+                        <div class="form-group">
+                            <label for="specialization">Specialization</label>
+                            <input type="text" id="specialization" class="form-control" placeholder="Enter Specialization">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startDate">Start Date</label>
+                            <input type="date" id="startDate" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">End Date</label>
+                            <input type="date" id="endDate" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="grade">Grade/Percentage</label>
+                        <input type="text" id="grade" class="form-control" placeholder="Enter Grade/Percentage">
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn">Save Changes</button>
+                        <button class="btn btn-secondary">Add Another</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hierarchy Module -->
+            <div id="hierarchy" class="module-content">
+                <div class="content-header">
+                    <h2>Hierarchy</h2>
+                    <p>View organizational hierarchy and reporting structure</p>
+                </div>
+                
+                <div class="content-card">
+                    <h3 class="card-title">Organization Chart</h3>
+                    <div style="text-align: center; padding: 30px; background-color: #f8f9fa; border-radius: 8px;">
+                        <p>Organization chart visualization will be displayed here</p>
+                        <div style="margin-top: 20px; color: #6c757d;">
+                            <p>CEO</p>
+                            <p>↓</p>
+                            <p>Department Heads</p>
+                            <p>↓</p>
+                            <p>Team Leads</p>
+                            <p>↓</p>
+                            <p>Team Members</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-card">
+                    <h3 class="card-title">Reporting Structure</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Designation</th>
+                                <th>Department</th>
+                                <th>Contact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>John Smith</td>
+                                <td>Manager</td>
+                                <td>Information Technology</td>
+                                <td>john.smith@company.com</td>
+                            </tr>
+                            <tr>
+                                <td>Sarah Johnson</td>
+                                <td>Team Lead</td>
+                                <td>Information Technology</td>
+                                <td>sarah.j@company.com</td>
+                            </tr>
+                            <tr>
+                                <td>Michael Brown</td>
+                                <td>HR Manager</td>
+                                <td>Human Resources</td>
+                                <td>michael.b@company.com</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Document Upload Module -->
+            <div id="document" class="module-content">
+                <div class="content-header">
+                    <h2>Document Upload</h2>
+                    <p>Upload and manage your documents</p>
+                </div>
+                
+                <div class="content-card">
+                    <h3 class="card-title">Upload Documents</h3>
+                    
+                    <div class="upload-area">
+                        <div class="upload-icon">📁</div>
+                        <h3>Drag & Drop Files Here</h3>
+                        <p>or</p>
+                        <button class="btn">Browse Files</button>
+                        <p style="margin-top: 10px; font-size: 14px; color: #6c757d;">Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 10MB)</p>
+                    </div>
+                    
+                    <div class="file-list">
+                        <h4>Uploaded Documents</h4>
+                        <div class="file-item">
+                            <div class="file-name">
+                                <span class="file-icon">📄</span>
+                                <span>Resume.pdf</span>
+                            </div>
+                            <div>
+                                <span style="margin-right: 15px; color: #6c757d;">2.4 MB</span>
+                                <button class="btn" style="padding: 6px 12px; font-size: 14px;">View</button>
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 14px;">Delete</button>
+                            </div>
+                        </div>
+                        
+                        <div class="file-item">
+                            <div class="file-name">
+                                <span class="file-icon">📄</span>
+                                <span>Degree_Certificate.jpg</span>
+                            </div>
+                            <div>
+                                <span style="margin-right: 15px; color: #6c757d;">1.8 MB</span>
+                                <button class="btn" style="padding: 6px 12px; font-size: 14px;">View</button>
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 14px;">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Leave Module -->
+            <div id="leave" class="module-content">
+                <div class="content-header">
+                    <h2>Leave Management</h2>
+                    <p>Apply for leave and view your leave balance</p>
+                </div>
+                
+                <div class="content-card">
+                    <h3 class="card-title">Leave Balance</h3>
+                    <div class="form-row">
+                        <div class="form-group" style="text-align: center; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                            <h4 style="color: #2a5298; margin-bottom: 10px;">Sick Leave</h4>
+                            <p style="font-size: 24px; font-weight: bold;">12 days</p>
+                        </div>
+                        <div class="form-group" style="text-align: center; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                            <h4 style="color: #2a5298; margin-bottom: 10px;">Casual Leave</h4>
+                            <p style="font-size: 24px; font-weight: bold;">8 days</p>
+                        </div>
+                        <div class="form-group" style="text-align: center; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                            <h4 style="color: #2a5298; margin-bottom: 10px;">Earned Leave</h4>
+                            <p style="font-size: 24px; font-weight: bold;">15 days</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-card">
+                    <h3 class="card-title">Apply for Leave</h3>
+                    
+                    <div class="form-group">
+                        <label for="leaveType">Leave Type</label>
+                        <select id="leaveType" class="form-control">
+                            <option value="">Select Leave Type</option>
+                            <option value="sick">Sick Leave</option>
+                            <option value="casual">Casual Leave</option>
+                            <option value="earned">Earned Leave</option>
+                            <option value="maternity">Maternity Leave</option>
+                            <option value="paternity">Paternity Leave</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fromDate">From Date</label>
+                            <input type="date" id="fromDate" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="toDate">To Date</label>
+                            <input type="date" id="toDate" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reason">Reason for Leave</label>
+                        <textarea id="reason" class="form-control" rows="3" placeholder="Enter reason for leave"></textarea>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn">Apply for Leave</button>
+                        <button class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Timesheet Module -->
+            <div id="timesheet" class="module-content">
+                <div class="content-header">
+                    <h2>Timesheet</h2>
+                    <p>Track and submit your working hours</p>
+                </div>
+                
+                <div class="content-card">
+                    <h3 class="card-title">Weekly Timesheet</h3>
+                    
+                    <div class="form-group">
+                        <label for="weekSelect">Select Week</label>
+                        <input type="week" id="weekSelect" class="form-control">
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Project</th>
+                                <th>Task</th>
+                                <th>Hours</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Mon, 10 Jan</td>
+                                <td>Project Alpha</td>
+                                <td>Development</td>
+                                <td>8</td>
+                                <td>Frontend development</td>
+                            </tr>
+                            <tr>
+                                <td>Tue, 11 Jan</td>
+                                <td>Project Alpha</td>
+                                <td>Testing</td>
+                                <td>6</td>
+                                <td>Unit testing</td>
+                            </tr>
+                            <tr>
+                                <td>Wed, 12 Jan</td>
+                                <td>Project Beta</td>
+                                <td>Design</td>
+                                <td>7</td>
+                                <td>UI/UX design</td>
+                            </tr>
+                            <tr>
+                                <td>Thu, 13 Jan</td>
+                                <td>Project Alpha</td>
+                                <td>Development</td>
+                                <td>8</td>
+                                <td>Backend development</td>
+                            </tr>
+                            <tr>
+                                <td>Fri, 14 Jan</td>
+                                <td>Project Beta</td>
+                                <td>Meeting</td>
+                                <td>2</td>
+                                <td>Client meeting</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="btn-group">
+                        <button class="btn">Submit Timesheet</button>
+                        <button class="btn btn-secondary">Save Draft</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuItems = document.querySelectorAll('.menu-item');
+            const moduleContents = document.querySelectorAll('.module-content');
+            
+            // Hide welcome message and show Personal module by default
+            document.getElementById('welcome').classList.remove('active');
+            document.getElementById('personal').classList.add('active');
+            
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove active class from all menu items
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    
+                    // Add active class to clicked menu item
+                    this.classList.add('active');
+                    
+                    // Get the module id from data attribute
+                    const moduleId = this.getAttribute('data-module');
+                    
+                    // Hide all module contents
+                    moduleContents.forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Show the selected module content
+                    document.getElementById(moduleId).classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elearn 360</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #0d47a1;
+      padding: 0 30px;
+      color: white;
+      height: 60px;
+      position: relative;
+    }
+
+    .logo img {
+      height: 40px;
+    }
+
+    .title {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .profile img {
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .container {
+      display: flex;
+      flex: 1;
+    }
+
+    .sidebar {
+      width: 220px;
+      background-color: #1976d2;
+      padding-top: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar a {
+      padding: 15px 20px;
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+      display: block;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+
+    .sidebar a:hover {
+      background-color: #0d47a1;
+    }
+
+    .content {
+      flex: 1;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .content h2 {
+      color: #0d47a1;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .btn:hover {
+      background: #0d47a1;
+    }
+
+    .back-btn {
+      margin-top: 30px;
+      background: #555;
+    }
+
+    .back-btn:hover {
+      background: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="https://via.placeholder.com/40" alt="Logo">
+    </div>
+    <div class="title">Elearn 360</div>
+    <div class="profile">
+      <img src="https://via.placeholder.com/40" alt="Profile">
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="sidebar">
+      <a onclick="loadContent('skill')">Skill Set</a>
+      <a onclick="loadContent('certification')">Certification</a>
+      <a onclick="loadContent('wilp')">WILP</a>
+      <a onclick="loadContent('rnd')">R&amp;D</a>
+      <a onclick="loadContent('workshop')">Workshop</a>
+    </div>
+
+    <div class="content" id="content-area">
+      <h2>Welcome to Elearn 360</h2>
+      <p>Select a module from the sidebar to explore more.</p>
+    </div>
+  </div>
+
+  <script>
+    function showWelcome() {
+      document.getElementById("content-area").innerHTML = `
+        <h2>Welcome to Elearn 360</h2>
+        <p>Select a module from the sidebar to explore more.</p>
+      `;
+    }
+
+    function loadContent(module) {
+      let content = document.getElementById("content-area");
+
+      if (module === "skill") {
+        content.innerHTML = `
+          <h2>Skill Set</h2>
+          <p>Manage and update your skills below:</p>
+          <textarea rows="5" cols="50" placeholder="Enter your skills here..."></textarea><br>
+          <button class="btn">Add / Update Skills</button><br>
+          <button class="btn back-btn" onclick="showWelcome()">Back to Resources</button>
+        `;
+      } else if (module === "certification") {
+        content.innerHTML = `
+          <h2>Certification</h2>
+          <p>Upload and manage your certifications:</p>
+          <input type="file"><br><br>
+          <button class="btn">Upload Certification</button><br>
+          <button class="btn back-btn" onclick="showWelcome()">Back to Resources</button>
+        `;
+      } else if (module === "wilp") {
+        content.innerHTML = `
+          <h2>WILP</h2>
+          <p>Work Integrated Learning Program details:</p>
+          <textarea rows="5" cols="50" placeholder="Enter your WILP details..."></textarea><br>
+          <button class="btn">Save WILP Info</button><br>
+          <button class="btn back-btn" onclick="showWelcome()">Back to Resources</button>
+        `;
+      } else if (module === "rnd") {
+        content.innerHTML = `
+          <h2>Research & Development</h2>
+          <p>Submit your R&D contributions:</p>
+          <textarea rows="5" cols="50" placeholder="Enter your R&D project details..."></textarea><br>
+          <button class="btn">Submit R&D</button><br>
+          <button class="btn back-btn" onclick="showWelcome()">Back to Resources</button>
+        `;
+      } else if (module === "workshop") {
+        content.innerHTML = `
+          <h2>Workshop</h2>
+          <p>Register or add workshop details:</p>
+          <input type="text" placeholder="Workshop Name"><br><br>
+          <input type="date"><br><br>
+          <button class="btn">Register Workshop</button><br>
+          <button class="btn back-btn" onclick="showWelcome()">Back to Resources</button>
+        `;
+      }
+    }
+  </script>
+
+</body>
+</html>

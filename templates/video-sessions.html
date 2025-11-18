@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ tech }} - {{ lang.title() }} Sessions</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e1f5fe, #ede7f6);
+      color: #333;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background: linear-gradient(to right, #42a5f5, #7e57c2);
+      color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+    }
+    .logo img { height: 90px; }
+    .profile-wrapper { position: relative; cursor: pointer; }
+    .profile-pic {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 2px solid white;
+      object-fit: cover;
+    }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 55px;
+      right: 0;
+      background-color: white;
+      color: black;
+      border-radius: 6px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      min-width: 160px;
+    }
+    .dropdown-menu a {
+      display: block;
+      padding: 10px 15px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      border-bottom: 1px solid #eee;
+    }
+    .dropdown-menu a:last-child { border-bottom: none; }
+    .dropdown-menu a:hover { background-color: #f0f0f0; }
+
+    h1 {
+      text-align: center;
+      color: #4527a0;
+      margin: 40px 20px 20px;
+      font-size: 26px;
+    }
+
+    /* Big White Box for All Videos */
+    .videos-container {
+      width: 75%;
+      margin: 0 auto 40px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+      padding: 30px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .videos-container:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Grid of Video Thumbnails */
+    .session-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .video-item {
+      text-align: center;
+    }
+    .video-item img {
+      width: 140px;
+      height: 90px;
+      border-radius: 8px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease;
+    }
+    .video-item img:hover {
+      transform: scale(1.1);
+    }
+    .session-label {
+      font-size: 15px;
+      color: #5e35b1;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .no-videos {
+      font-size: 18px;
+      color: #d32f2f;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 30px;
+    }
+    .back-resources { text-align: center; margin: 40px 0; }
+    .back-btn {
+      background: #3949ab;
+      padding: 10px 25px;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background 0.3s ease;
+      cursor: pointer;
+    }
+    .back-btn:hover { background: #303f9f; }
+
+    /* Popup Styles */
+    .popup-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+    .popup-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      width: 300px;
+    }
+    .popup-box p { margin-bottom: 20px; font-size: 16px; font-weight: bold; }
+    .popup-buttons { display: flex; justify-content: space-between; }
+    .popup-buttons button {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .popup-buttons .yes-btn { background: #3949ab; color: white; }
+    .popup-buttons .cancel-btn { background: #e0e0e0; color: #333; }
+    .popup-buttons .yes-btn:hover { background: #303f9f; }
+    .popup-buttons .cancel-btn:hover { background: #bdbdbd; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" />
+    </div>
+    <div class="profile-wrapper" onclick="toggleDropdown()">
+      <img class="profile-pic"
+           src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}"
+           alt="Profile" />
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="{{ url_for('profile') }}">Profile</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+        <a href="#" onclick="showPopup()">Logout</a>
+      </div>
+    </div>
+  </div>
+
+  <h1>{{ tech }} - {{ lang.title() }} Session Videos</h1>
+
+  {% if sessions %}
+    <div class="videos-container">
+      <div class="session-row">
+        {% for session in sessions %}
+          <div class="video-item">
+            <!-- FIX: use dictionary keys from Snowflake (uppercase) -->
+            <a href="https://youtu.be/{{ session['YOUTUBE_ID'] }}" target="_blank">
+              <img src="https://img.youtube.com/vi/{{ session['YOUTUBE_ID'] }}/hqdefault.jpg" alt="Video Thumbnail">
+            </a>
+            <div class="session-label">
+              {{ session['TITLE'] or ("Session " ~ session['SESSION_NUMBER']) }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+    <div class="no-videos">No session videos available for this selection.</div>
+  {% endif %}
+
+  <div class="back-resources">
+    <a class="back-btn" href="{{ url_for('resources') }}">← Back to Resources</a>
+  </div>
+
+  <!-- Popup -->
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup-box">
+      <p>Are you sure you want to Logout?</p>
+      <div class="popup-buttons">
+        <button class="yes-btn" onclick="confirmLogout()">Yes</button>
+        <button class="cancel-btn" onclick="closePopup()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdownMenu');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+    document.addEventListener('click', function(event) {
+      const dropdown = document.getElementById('dropdownMenu');
+      const wrapper = document.querySelector('.profile-wrapper');
+      if (!wrapper.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    function showPopup() {
+      document.getElementById("popupOverlay").style.display = "flex";
+    }
+    function closePopup() {
+      document.getElementById("popupOverlay").style.display = "none";
+    }
+    function confirmLogout() {
+      window.location.href = "{{ url_for('logout') }}";
+    }
+  </script>
+
+</body>
+</html>

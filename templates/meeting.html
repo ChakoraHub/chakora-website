@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Book Meeting Session</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 40px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.4);
+      box-sizing: border-box;
+    }
+
+    header img {
+      height: 90px;
+    }
+
+    .profile-container {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .profile-pic {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #fff;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: white;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.25);
+      border-radius: 8px;
+      z-index: 1001;
+      overflow: hidden;
+    }
+
+    .dropdown a {
+      color: #333;
+      padding: 12px 15px;
+      text-decoration: none;
+      display: block;
+      font-weight: 500;
+      font-size: 14px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .dropdown a:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown a:hover {
+      background-color: #f2f2f2;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 15px;
+      width: 500px;
+      margin: 140px auto 20px;
+      text-align: center;
+      box-shadow: 0 0 20px #333;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .user-info {
+      background: #e8f5e8;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .booking-options {
+      text-align: left;
+      margin: 20px 0;
+    }
+
+    .option-group {
+      margin: 15px 0;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    select, input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .cost-display {
+      background: #fff3cd;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    button:hover {
+      background: #218838;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+    }
+
+    .btn-secondary:hover {
+      background: #545b62;
+    }
+
+    .btn-back {
+      background: #007bff;
+      display: block;
+      margin: 20px auto;
+      width: 200px;
+    }
+
+    .btn-back:hover {
+      background: #0056b3;
+    }
+
+    .pricing-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    .pricing-table th,
+    .pricing-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .pricing-table th {
+      background-color: #f8f9fa;
+    }
+
+    .footer-section {
+      text-align: center;
+      margin-top: auto;
+      padding: 20px;
+    }
+
+    @media screen and (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+      }
+
+      .profile-container {
+        align-self: flex-end;
+        margin-top: 10px;
+      }
+
+      .container {
+        width: 90%;
+        margin: 160px auto 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+    <div class="profile-container" onclick="toggleDropdown()">
+      <img src="{{ url_for('static', filename='default_profile.jpg') }}" class="profile-pic" alt="Profile">
+      <div class="dropdown" id="dropdownMenu">
+        <a href="#" onclick="logout()">Logout</a>
+      </div>
+    </div>
+  </header>
+  
+  <div class="container">
+    <div class="user-info">
+      <strong>Welcome, {{ username }}</strong><br>
+      User Type: {{ user_type|title }} Student
+    </div>
+
+    <h1>Book Meeting Session</h1>
+
+    <form id="bookingForm">
+      {% if user_type == 'new' %}
+      <div class="option-group">
+        <label for="complexity_level">Issue Complexity:</label>
+        <select id="complexity_level" name="complexity_level" required>
+          <option value="Easy">Easy</option>
+          <option value="Medium">Medium</option>
+          <option value="Difficult">Difficult</option>
+        </select>
+      </div>
+      {% endif %}
+
+      <div class="option-group">
+        <label for="slot_duration">Slot Duration (minutes):</label>
+        <select id="slot_duration" name="slot_duration" required>
+          <option value="15">15 minutes</option>
+          <option value="30">30 minutes</option>
+          <option value="45">45 minutes</option>
+          <option value="60">60 minutes</option>
+        </select>
+      </div>
+
+      <div class="cost-display" id="costDisplay">
+        Estimated Cost: ₹0
+      </div>
+
+      <button type="submit">Join Queue</button>
+      <button type="button" class="btn-secondary" onclick="window.location.href='{{ url_for('meeting_home') }}'">Cancel</button>
+    </form>
+    
+    <div id="response" style="margin-top: 20px;"></div>
+    
+    {% if user_type == 'new' %}
+    <div style="margin-top: 30px;">
+      <h3>Pricing Information</h3>
+      <table class="pricing-table">
+        <thead>
+          <tr>
+            <th>Complexity</th>
+            <th>15 min</th>
+            <th>30 min</th>
+            <th>45 min</th>
+            <th>60 min</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Easy</td>
+            <td>₹100</td>
+            <td>₹150</td>
+            <td>₹200</td>
+            <td>₹250</td>
+          </tr>
+          <tr>
+            <td>Medium</td>
+            <td>₹150</td>
+            <td>₹250</td>
+            <td>₹350</td>
+            <td>₹450</td>
+          </tr>
+          <tr>
+            <td>Difficult</td>
+            <td>₹200</td>
+            <td>₹350</td>
+            <td>₹450</td>
+            <td>₹500</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="margin-top: 20px; background: #d1ecf1; padding: 15px; border-radius: 8px;">
+      <strong>Note for Existing Students:</strong> Flat rate of ₹50 per session regardless of duration.
+    </div>
+    {% endif %}
+
+    <a href="/meeting/queue" class="queue-link" style="display: block; margin-top: 20px;">View Queue Status</a>
+  </div>
+
+  <div class="footer-section">
+    <button class="btn-back" onclick="window.location.href='{{ url_for('resources') }}'">Back to Resources</button>
+  </div>
+
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdownMenu');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    document.addEventListener('click', function(event) {
+      const dropdown = document.getElementById('dropdownMenu');
+      const wrapper = document.querySelector('.profile-container');
+      if (!wrapper.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        window.location.href = "{{ url_for('meeting_home') }}";
+      }
+    }
+
+    // Calculate and display cost
+    function updateCost() {
+      const userType = "{{ user_type }}";
+      const complexity = document.getElementById('complexity_level') ? document.getElementById('complexity_level').value : 'Easy';
+      const duration = parseInt(document.getElementById('slot_duration').value);
+      
+      // Simple client-side calculation (actual calculation happens on server)
+      let cost = 0;
+      
+      if (userType === 'existing') {
+        cost = 50;
+      } else {
+        // Client-side approximation
+        if (complexity === 'Easy') {
+          cost = [100, 150, 200, 250][duration / 15 - 1];
+        } else if (complexity === 'Medium') {
+          cost = [150, 250, 350, 450][duration / 15 - 1];
+        } else {
+          cost = [200, 350, 450, 500][duration / 15 - 1];
+        }
+      }
+      
+      document.getElementById('costDisplay').textContent = `Estimated Cost: ₹${cost}`;
+    }
+
+    // Initialize cost and add event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      updateCost();
+      
+      if (document.getElementById('complexity_level')) {
+        document.getElementById('complexity_level').addEventListener('change', updateCost);
+      }
+      document.getElementById('slot_duration').addEventListener('change', updateCost);
+    });
+
+    // Handle form submission
+    document.getElementById('bookingForm').onsubmit = async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(e.target);
+      
+      let response = await fetch('/meeting/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formData)
+      });
+      
+      let result = await response.json();
+      if (result.status === 'joined') {
+        document.getElementById('response').innerHTML = 
+          `<div style="color: green; font-weight: bold;">${result.message}</div>`;
+      } else {
+        document.getElementById('response').innerHTML = 
+          `<div style="color: red; font-weight: bold;">${result.message}</div>`;
+      }
+    };
+  </script>
+</body>
+</html>

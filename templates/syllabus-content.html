@@ -1,0 +1,15 @@
+{% if course %}
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h2 class="h5 mb-0">{{ course.course_name }}</h2>
+    </div>
+    <div class="card-body">
+        <div class="syllabus-box">
+            {{ course.content | safe }}
+        </div>
+    </div>
+</div>
+{% else %}
+<p>No syllabus found for this course.</p>
+{% endif %}
+
