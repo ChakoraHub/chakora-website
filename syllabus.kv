@@ -1,0 +1,100 @@
+#:import dp kivy.metrics.dp
+
+<SyllabusLayout>:
+    orientation: "vertical"
+
+    # ===== Top Gradient Header =====
+    BoxLayout:
+        size_hint_y: 0.12
+        padding: 10
+        spacing: 10
+
+        canvas.before:
+            Rectangle:
+                # gradient_texture will be set in Python later if needed
+                texture: root.gradient_texture if hasattr(root, "gradient_texture") else None
+                pos: self.pos
+                size: self.size
+
+        # Left Side (Logo)
+        Image:
+            source: "logo.png"   # replace with your logo path
+            size_hint_x: None
+            width: dp(80)
+            allow_stretch: True
+            keep_ratio: True
+
+        Widget:   # pushes profile image to the right
+
+        # Right Side (Profile Pic)
+        Image:
+            source: "images/profile.png"   # replace with your profile image path
+            size_hint: None, None
+            size: dp(45), dp(45)
+            allow_stretch: True
+            keep_ratio: True
+            canvas.before:
+                PushMatrix
+                StencilPush
+                Ellipse:
+                    pos: self.pos
+                    size: self.size
+                StencilUse
+            canvas.after:
+                StencilUnUse
+                Ellipse:
+                    pos: self.pos
+                    size: self.size
+                StencilPop
+                PopMatrix
+
+    # ===== Main Layout (Sidebar + Content) =====
+    BoxLayout:
+        orientation: "horizontal"
+
+        # Sidebar
+        BoxLayout:
+            orientation: "vertical"
+            size_hint_x: 0.25
+            spacing: 10
+            padding: 10
+            canvas.before:
+                Color:
+                    rgba: 0.2, 0.2, 0.2, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            Button:
+                text: "Course 1"
+                on_release: root.load_syllabus(1)
+
+            Button:
+                text: "Course 2"
+                on_release: root.load_syllabus(2)
+
+            Button:
+                text: "Logout"
+                on_release: root.logout()
+
+        # Content Area
+        BoxLayout:
+            orientation: "vertical"
+            padding: 20
+            spacing: 10
+
+            Label:
+                id: welcome_label
+                text: "Welcome to the Syllabus App!"
+                size_hint_y: None
+                height: dp(40)
+                font_size: dp(18)
+
+            ScrollView:
+                BoxLayout:
+                    id: syllabus_content
+                    orientation: "vertical"
+                    size_hint_y: None
+                    height: self.minimum_height
+                
+
