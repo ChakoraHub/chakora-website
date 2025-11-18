@@ -1,1 +1,0 @@
-print("Resources page")
