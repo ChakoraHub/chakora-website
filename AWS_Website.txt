@@ -1,0 +1,91 @@
+
+========
+
+Launch an EC2 instance
+
+Go to AWS Console → EC2 → Launch Instance.
+
+Choose an OS image (Ubuntu 22.04 LTS is common).
+
+Select instance type (e.g., t2.micro → free tier).
+
+Configure key pair (download .pem file).
+
+Configure security group:
+
+Allow SSH (22) for your IP.
+
+Allow HTTP (80) for everyone.
+
+Allow HTTPS (443) for everyone (if you plan SSL).
+
+Launch instance.
+
+==========
+
+Remote Desktop - RDP Lite
+RemotePC Remote Desktop
+Remote Desktop Manager
+iRemoteDesktop Lite
+
+===========
+
+Instance ID:
+i-0d3ccfdee543b5968
+
+Private IP address:
+172.31.28.156
+
+Username:
+Administrator
+
+Password:
+Ge*ydI=;c$u7Xt*ezZw5@Og?X)%V&UDe
+
+Public IPv4 DNS:
+ec2-13-53-38-18.eu-north-1.compute.amazonaws.com
+
+Public IPV4 address:
+13.53.38.18
+
+============ Pending
+
+Install Python & Git in EC2 Instance
+Transfer your code / clone via Github
+Create virtual environment & install dependencies
+Run your app
+
+======== More details
+
+3. Transfer your code
+
+Options:
+
+If your code is on GitHub:
+Open Git Bash or CMD and run:
+
+git clone https://github.com/username/repo.git
+cd repo
+
+
+If from PythonAnywhere export (ZIP):
+Upload file to Windows EC2 using RDP clipboard or S3 bucket, then extract.
+
+4. Create virtual environment & install dependencies
+
+Open PowerShell or CMD:
+
+cd C:\Users\Administrator\myproject
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+
+5. Run your app
+
+If it’s Flask/FastAPI app:
+
+python app.py
+
+
+
+
