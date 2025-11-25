@@ -1,424 +1,349 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Admin Registration</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #e1f5fe, #ede7f6);
-      color: #333;
+    :root{
+      --accent1: #42a5f5;
+      --accent2: #5e35b1;
+      --danger: #e53935;
+      --success: #28a745;
+      --warning: #ffca28;
+      --muted: #6b7280;
+      --card-bg: rgba(255,255,255,0.92);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background: linear-gradient(120deg,#e6f0fb 0%, #f6f2fb 100%);
+      color:#222;
+      -webkit-font-smoothing:antialiased;
     }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 30px;
-      background: linear-gradient(to right, #42a5f5, #7e57c2);
-      color: white;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
-    }
-    .logo img { height: 90px; }
-    .profile-wrapper { position: relative; cursor: pointer; }
-    .profile-pic {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      border: 2px solid white;
-      object-fit: cover;
-    }
-    .dropdown-menu {
-      display: none;
-      position: absolute;
-      top: 55px;
-      right: 0;
-      background-color: white;
-      color: black;
-      border-radius: 6px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-      min-width: 160px;
-    }
-    .dropdown-menu a {
-      display: block;
-      padding: 10px 15px;
-      text-decoration: none;
-      color: #333;
-      font-weight: 500;
-      border-bottom: 1px solid #eee;
-    }
-    .dropdown-menu a:last-child { border-bottom: none; }
-    .dropdown-menu a:hover { background-color: #f0f0f0; }
-
-    .container {
-      max-width: 600px;
-      background-color: rgba(255, 255, 255, 0.95);
-      margin: 40px auto 60px auto;
-      padding: 40px 50px;
-      border-radius: 10px;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    }
-    h1 {
-      text-align: center;
-      color: #4527a0;
-      margin: 20px 0 30px;
-      font-size: 26px;
-    }
-    label {
-      display: block;
-      margin-bottom: 8px;
-      color: #333;
-      font-weight: bold;
-      font-size: 15px;
-    }
-    .required::after {
-      content: " *";
-      color: red;
-    }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-size: 15px;
-      transition: border-color 0.3s ease;
-    }
-    input:focus, select:focus {
-      border-color: #42a5f5;
-      outline: none;
-    }
-    .error-msg {
-      color: red;
-      font-size: 13px;
-      margin-top: -10px;
-      margin-bottom: 10px;
-      min-height: 18px;
-      font-weight: 600;
-    }
-    .flash {
-      padding: 12px;
-      margin-bottom: 15px;
-      border-radius: 5px;
-      font-weight: bold;
-      text-align: center;
-      font-size: 16px;
-    }
-    .flash.success {
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-    .flash.error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-    .button-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
-    }
-    button {
-      padding: 12px;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      width: 100%;
-      font-weight: 700;
-      transition: background-color 0.3s ease;
-    }
-    .submit-btn {
-      background-color: #42a5f5;
-      color: white;
-    }
-    .submit-btn:disabled {
-      background-color: #90caf9;
-      cursor: not-allowed;
-    }
-    .submit-btn:hover:not(:disabled) {
-      background-color: #1e88e5;
-    }
-    .cancel-btn {
-      background-color: #f44336;
-      color: white;
-    }
-    .cancel-btn:hover {
-      background-color: #e53935;
-    }
-
-    .back-button {
-      display: inline-block;
-      margin-top: 30px;
-      background-color: #3f51b5;
+    /* Header */
+    .header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 26px;
+      background: linear-gradient(90deg,var(--accent1),var(--accent2));
       color: #fff;
-      text-decoration: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-weight: 500;
-      text-align: center;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(18,18,18,0.12);
+      position:sticky;
+      top:0;
+      z-index:100;
     }
-    .back-button:hover {
-      background-color: #303f9f;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    .logo img{ height:66px; display:block; }
+
+    /* Profile */
+    .profile-wrapper{ position:relative; cursor:pointer; display:flex; align-items:center; gap:12px; }
+    .profile-pic{ width:46px; height:46px; border-radius:50%; object-fit:cover; border:2px solid #fff; }
+    .profile-name{ font-weight:600; color:#fff; }
+
+    .dropdown-menu{
+      display:none;
+      position:absolute;
+      right:0;
+      top:62px;
+      min-width:170px;
+      background:#fff;
+      border-radius:10px;
+      box-shadow: 0 8px 20px rgba(1,1,1,0.12);
+      overflow:hidden;
+      z-index:2000;
+    }
+    .dropdown-menu a{
+      display:block;
+      padding:10px 14px;
+      color:#333;
+      text-decoration:none;
+      font-weight:500;
+      border-bottom:1px solid #f1f1f1;
+    }
+    .dropdown-menu a:last-child{ border-bottom:none; }
+    .dropdown-menu a:hover{ background:#fafafa; }
+
+    /* Container */
+    .container{
+      max-width:760px;
+      margin:44px auto;
+      background:var(--card-bg);
+      padding:34px 42px;
+      border-radius:14px;
+      box-shadow: 0 18px 38px rgba(15,15,15,0.09);
+      backdrop-filter: blur(4px);
+    }
+    h1{ text-align:center; color:#41207a; margin:0 0 18px; font-size:26px; font-weight:600; }
+
+    /* Flash */
+    .flash{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 16px;
+      border-radius:10px;
+      font-weight:600;
+      margin-bottom:18px;
+      font-size:15px;
+      animation: pop .28s ease;
+    }
+    .flash.success{ background:#e6f6ea; color:var(--success); border-left:6px solid var(--success); }
+    .flash.warning{ background:#fff9e6; color:var(--warning); border-left:6px solid var(--warning); }
+    .flash.danger, .flash.error{ background:#fbeaea; color:var(--danger); border-left:6px solid var(--danger); }
+    @keyframes pop{ from{opacity:0; transform:translateY(-6px) scale(.99)} to{opacity:1; transform:none} }
+
+    /* Form */
+    form{ margin-top:6px; }
+    .row{ display:flex; gap:18px; }
+    .col{ flex:1; }
+
+    label{ display:block; margin-top:14px; color:#2b2b2b; font-weight:600; font-size:14px; }
+    .required::after{ content:" *"; color:var(--danger); margin-left:3px; font-weight:700; }
+
+    input[type="text"], input[type="email"], input[type="date"], select{
+      width:100%;
+      padding:12px 14px;
+      margin-top:8px;
+      border-radius:10px;
+      border:1px solid #d1d5db;
+      background:#fff;
+      font-size:15px;
+      transition: box-shadow .18s, border-color .18s;
+    }
+    input:focus, select:focus{
+      outline:none;
+      border-color:var(--accent2);
+      box-shadow: 0 6px 18px rgba(94,53,177,0.08);
     }
 
-    .button-container { text-align: center; }
+    .error-msg{ color:var(--danger); font-weight:600; font-size:13px; margin-top:8px; min-height:18px; }
+    .ok-msg{ color:var(--success); font-weight:600; font-size:13px; margin-top:8px; min-height:18px; }
 
-    .reg-id-box {
-      text-align: center;
-      background-color: #e8f5e9;
-      color: #2e7d32;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 5px;
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-      user-select: none;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: background-color 0.3s ease;
+    /* Buttons */
+    .button-row{ display:flex; gap:18px; margin-top:22px; }
+    button{
+      flex:1;
+      padding:12px 14px;
+      font-size:15px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      font-weight:700;
     }
-    .reg-id-box:hover { background-color: #c8e6c9; }
+    .submit-btn{
+      background: linear-gradient(90deg,var(--accent1),var(--accent2));
+      color:white;
+      box-shadow: 0 6px 18px rgba(69,39,160,0.12);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .submit-btn:disabled{
+      opacity:.56; cursor:not-allowed; transform:none; box-shadow:none;
+    }
+    .submit-btn:hover:not(:disabled){ transform:translateY(-2px); }
 
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 2000;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      justify-content: center;
-      align-items: center;
+    .cancel-btn{ background:#ef5350; color:white; }
+    .cancel-btn:hover{ transform:translateY(-2px); box-shadow: 0 8px 18px rgba(229,57,53,0.12); }
+
+    .back { margin-top:20px; text-align:center; }
+    .back a{ text-decoration:none; color:#fff; background:#3949ab; padding:10px 18px; border-radius:8px; font-weight:600; }
+
+    @media (max-width:720px){
+      .row{ flex-direction:column; }
+      .header{ padding:12px 14px; }
+      .container{ margin:20px 12px; padding:22px; }
     }
-    .modal-content {
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      text-align: center;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-      width: 320px;
-    }
-    .modal-content h3 { margin-bottom: 20px; color: #3949ab; }
-    .modal-actions button {
-      margin: 8px;
-      padding: 8px 20px;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .confirm-btn { background: #3949ab; color: white; }
-    .cancel-btn-modal { background: #f0f0f0; color: #333; }
-    .confirm-btn:hover { background: #303f9f; }
-    .cancel-btn-modal:hover { background: #ddd; }
   </style>
 </head>
+
 <body>
+
+  <!-- Header -->
   <div class="header">
-    <div class="logo">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" />
-    </div>
+    <div class="logo"><img src="{{ url_for('static', filename='logo.png') }}" alt="Logo"></div>
+
     <div class="profile-wrapper" onclick="toggleDropdown()">
       <img class="profile-pic"
            src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}"
-           alt="Profile" />
-      <div class="dropdown-menu" id="dropdownMenu">
+           alt="Profile pic">
+      <div class="profile-name">{{ session.get('username','Admin') }}</div>
+
+      <div id="profileMenu" class="dropdown-menu">
         <a href="{{ url_for('profile') }}">Profile</a>
         <a href="{{ url_for('settings') }}">Settings</a>
-        <a href="#" onclick="openModal('logout')">Logout</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
       </div>
     </div>
   </div>
 
+  <!-- Main Container -->
   <div class="container">
     <h1>Admin Registration</h1>
-    <div id="flashMessage" class="flash" style="display:none;"></div>
-    <div id="regIdBox" class="reg-id-box" style="display:none;" title="Click to copy Registration ID"></div>
 
-    <form id="registerForm">
-      <label class="required">First Name:</label>
-      <input type="text" name="first_name" required>
-      <label class="required">Last Name:</label>
-      <input type="text" name="last_name" required>
-      <label class="required">Email:</label>
-      <input type="email" id="email" name="email" required>
-      <div id="emailError" class="error-msg"></div>
-      <label class="required">Phone:</label>
-      <input type="tel" id="phone" name="phone" pattern="\d{10}" maxlength="10" required>
-      <div id="phoneError" class="error-msg"></div>
-      <label class="required">Location:</label>
-      <input type="text" name="location" required>
-      <label class="required">Course:</label>
-      <select name="course" required>
-        <option value="">-- Select Course --</option>
-        {% for c in courses %}
-          <option value="{{ c.id }}">{{ c.course_name }}</option>
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="flash {{ category }}">{{ msg }}</div>
         {% endfor %}
-      </select>
-      <label class="required">Language:</label>
-      <select name="language" required>
-        <option value="">-- Select Language --</option>
-        {% for l in languages %}
-          <option value="{{ l.id }}">{{ l.language }}</option>
-        {% endfor %}
-      </select>
-      <label class="required">Start Date:</label>
-      <input type="date" name="start_date" required>
+      {% endif %}
+    {% endwith %}
 
-      <div class="button-row">
-        <button type="button" class="cancel-btn" onclick="openModal('cancel')">Cancel</button>
-        <button type="submit" class="submit-btn" id="submitBtn" disabled>Submit</button>
+    <!-- Registration Form -->
+    <form method="POST" action="{{ url_for('admin_register') }}" novalidate id="regForm">
+
+      <!-- Row 1: First + Last -->
+      <div class="row">
+        <div class="col">
+          <label class="required">First name</label>
+          <input type="text" name="first_name" id="firstName"/>
+          <div id="firstNameError" class="error-msg"></div>
+        </div>
+
+        <div class="col">
+          <label class="required">Last name</label>
+          <input type="text" name="last_name" id="lastName"/>
+          <div id="lastNameError" class="error-msg"></div>
+        </div>
       </div>
+
+      <!-- Email -->
+      <label class="required">Email</label>
+      <input type="email" name="email" id="email"/>
+      <div id="emailError" class="error-msg"></div>
+      <div id="emailOk" class="ok-msg" style="display:none;"></div>
+
+      <!-- Phone -->
+      <label class="required">Phone (10 digits)</label>
+      <input type="text" name="phone" id="phone" maxlength="10" inputmode="numeric"/>
+      <div id="phoneError" class="error-msg"></div>
+      <div id="phoneOk" class="ok-msg" style="display:none;"></div>
+
+      <!-- Location -->
+      <label class="required">Location</label>
+      <input type="text" name="location" id="location"/>
+      <div id="locationError" class="error-msg"></div>
+
+      <!-- Course + Language -->
+      <div class="row">
+        <div class="col">
+          <label class="required">Course</label>
+          <select name="course" id="courseSelect">
+            <option value="">-- Select Course --</option>
+            {% for c in courses %}
+              <option value="{{ c.ID }}">{{ c.COURSE_NAME }}</option>
+            {% endfor %}
+          </select>
+          <div id="courseError" class="error-msg"></div>
+        </div>
+
+        <div class="col">
+          <label class="required">Language</label>
+          <select name="language" id="languageSelect">
+            <option value="">-- Select Language --</option>
+            {% for l in languages %}
+              <option value="{{ l.ID }}">{{ l.LANGUAGE }}</option>
+            {% endfor %}
+          </select>
+          <div id="languageError" class="error-msg"></div>
+        </div>
+      </div>
+
+      <!-- Start Date -->
+      <label class="required">Start date</label>
+      <input type="date" name="start_date" id="startDate"/>
+      <div id="dateError" class="error-msg"></div>
+
+      <!-- Buttons -->
+      <div class="button-row">
+        <button type="button" class="cancel-btn" onclick="window.location.href='/'">Cancel</button>
+        <button type="submit" id="submitBtn" class="submit-btn" disabled>Submit</button>
+      </div>
+
+      <div class="back">
+        <a href="{{ url_for('resources') }}">← Back to Resources</a>
+      </div>
+
     </form>
   </div>
 
-  <div class="button-container">
-    <a href="{{ url_for('resources') }}" class="back-button">← Back to Resources</a>
-  </div>
-
-  <!-- Confirmation Modal -->
-  <div id="confirmationModal" class="modal">
-    <div class="modal-content">
-      <h3 id="modalMessage">Are you sure?</h3>
-      <div class="modal-actions">
-        <button class="confirm-btn" id="confirmBtn">Yes</button>
-        <button class="cancel-btn-modal" onclick="closeModal()">Cancel</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    function toggleDropdown() {
-      const dropdown = document.getElementById('dropdownMenu');
-      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    // PROFILE DROPDOWN
+    function toggleDropdown(){
+      const menu = document.getElementById('profileMenu');
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     }
-    document.addEventListener('click', function(event) {
-      const dropdown = document.getElementById('dropdownMenu');
+    document.addEventListener('click', function(e){
       const wrapper = document.querySelector('.profile-wrapper');
-      if (!wrapper.contains(event.target)) dropdown.style.display = 'none';
-    });
-
-    let actionType = null;
-    function openModal(type) {
-      actionType = type;
-      const modal = document.getElementById('confirmationModal');
-      const message = document.getElementById('modalMessage');
-      if (type === 'logout') {
-        message.textContent = "Are you sure you want to log out?";
-      } else if (type === 'cancel') {
-        message.textContent = "Do you want to cancel registration?";
-      }
-      modal.style.display = 'flex';
-    }
-    function closeModal() {
-      document.getElementById('confirmationModal').style.display = 'none';
-    }
-    document.getElementById('confirmBtn').addEventListener('click', function() {
-      if (actionType === 'logout') {
-        window.location.href = "{{ url_for('logout') }}";
-      } else if (actionType === 'cancel') {
-        window.location.href = "/";
+      const menu = document.getElementById('profileMenu');
+      if(wrapper && !wrapper.contains(e.target)){
+        menu.style.display = 'none';
       }
     });
 
-    // ---- Enable/Disable Submit and Validate ----
-    const form = document.getElementById('registerForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const emailInput = document.getElementById('email');
-    const phoneInput = document.getElementById('phone');
-    const emailError = document.getElementById('emailError');
-    const phoneError = document.getElementById('phoneError');
+    // VALIDATION JS — EXACTLY AS FINALIZED EARLIER
+    const firstName=document.getElementById('firstName');
+    const lastName=document.getElementById('lastName');
+    const email=document.getElementById('email');
+    const phone=document.getElementById('phone');
+    const locationF=document.getElementById('location');
+    const course=document.getElementById('courseSelect');
+    const language=document.getElementById('languageSelect');
+    const startDate=document.getElementById('startDate');
+    const submitBtn=document.getElementById('submitBtn');
 
-    let emailValid = false;
-    let phoneValid = false;
+    const firstNameError=document.getElementById('firstNameError');
+    const lastNameError=document.getElementById('lastNameError');
+    const emailError=document.getElementById('emailError');
+    const emailOk=document.getElementById('emailOk');
+    const phoneError=document.getElementById('phoneError');
+    const phoneOk=document.getElementById('phoneOk');
+    const locationError=document.getElementById('locationError');
+    const courseError=document.getElementById('courseError');
+    const languageError=document.getElementById('languageError');
+    const dateError=document.getElementById('dateError');
 
-    emailInput.addEventListener('input', async () => {
-      const email = emailInput.value.trim();
-      if (!email) {
-        emailError.textContent = "";
-        emailValid = false;
-        toggleSubmit();
-        return;
-      }
-      const res = await fetch("/check_admin_email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-      });
-      const data = await res.json();
-      if (data.exists) {
-        emailError.textContent = "This email is already registered!";
-        emailValid = false;
-      } else {
-        emailError.textContent = "";
-        emailValid = true;
-      }
-      toggleSubmit();
-    });
+    const state={firstName:false,lastName:false,email:false,phone:false,location:false,course:false,language:false,date:false};
 
-    phoneInput.addEventListener('input', async () => {
-      const phone = phoneInput.value.trim();
-      if (!/^\d{10}$/.test(phone)) {
-        phoneError.textContent = "Phone must be exactly 10 digits.";
-        phoneValid = false;
-        toggleSubmit();
-        return;
-      }
-      const res = await fetch("/check_admin_phone", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone })
-      });
-      const data = await res.json();
-      if (data.exists) {
-        phoneError.textContent = "This phone is already registered!";
-        phoneValid = false;
-      } else {
-        phoneError.textContent = "";
-        phoneValid = true;
-      }
-      toggleSubmit();
-    });
+    function setError(node,msg){node.textContent=msg;node.style.display=msg?'block':'none';}
+    function setOk(node,msg){if(msg){node.style.display='block';node.textContent=msg;}else{node.style.display='none';node.textContent='';}}
 
-    function toggleSubmit() {
-      submitBtn.disabled = !(emailValid && phoneValid);
+    function validEmailDomain(v){
+      const lower=v.toLowerCase().trim();
+      const domainValid=lower.endsWith("@gmail.com")||lower.endsWith("@chakorahub.com");
+      const formatValid=/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(lower);
+      return domainValid&&formatValid;
     }
 
-    // ---- Submit via AJAX ----
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = Object.fromEntries(new FormData(form));
-      const res = await fetch("/admin/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      });
-      const data = await res.json();
-      const flashBox = document.getElementById('flashMessage');
-      if (data.success) {
-        flashBox.className = "flash success";
-        flashBox.textContent = data.message;
-        flashBox.style.display = "block";
-        document.getElementById('regIdBox').textContent = data.message;
-        document.getElementById('regIdBox').style.display = "block";
-        form.reset();
-        emailValid = phoneValid = false;
-        toggleSubmit();
-      } else {
-        flashBox.className = "flash error";
-        flashBox.textContent = data.message;
-        flashBox.style.display = "block";
-      }
+    function validateFirstName(){const v=firstName.value.trim();if(!v){state.firstName=false;setError(firstNameError,"First name is required.");} else{state.firstName=true;setError(firstNameError,"");}toggleSubmit();}
+    function validateLastName(){if(!state.firstName){setError(lastNameError,"Please fill first name first.");state.lastName=false;toggleSubmit();return;}const v=lastName.value.trim();if(!v){state.lastName=false;setError(lastNameError,"Last name is required.");} else{state.lastName=true;setError(lastNameError,"");}toggleSubmit();}
+    function validateEmail(){if(!state.firstName||!state.lastName){setError(emailError,"Complete name first.");state.email=false;setOk(emailOk,"");toggleSubmit();return;}const v=email.value.trim();if(!v){state.email=false;setError(emailError,"Email is required.");setOk(emailOk,"");} else if(!validEmailDomain(v)){state.email=false;setError(emailError,"Must end with @gmail.com or @chakorahub.com");setOk(emailOk,"");} else{state.email=true;setError(emailError,"");setOk(emailOk,"Email looks good.");}toggleSubmit();}
+    function validatePhone(){if(!state.email){setError(phoneError,"Please complete email first.");state.phone=false;setOk(phoneOk,"");toggleSubmit();return;}const v=phone.value.trim();if(!v){state.phone=false;setError(phoneError,"Phone required.");setOk(phoneOk,"");} else if(!/^\d+$/.test(v)){state.phone=false;setError(phoneError,"Digits only.");setOk(phoneOk,"");} else if(v.length!==10){state.phone=false;setError(phoneError,"Must be exactly 10 digits.");setOk(phoneOk,"");} else{state.phone=true;setError(phoneError,"");setOk(phoneOk,"Phone looks good.");}toggleSubmit();}
+    function validateLocation(){if(!state.phone){setError(locationError,"Complete phone first.");state.location=false;toggleSubmit();return;}const v=locationF.value.trim();if(!v){state.location=false;setError(locationError,"Location required.");} else{state.location=true;setError(locationError,"");}toggleSubmit();}
+    function validateCourse(){if(!state.location){setError(courseError,"Complete location first.");state.course=false;toggleSubmit();return;}const v=course.value;if(!v){state.course=false;setError(courseError,"Select a course.");} else{state.course=true;setError(courseError,"");}toggleSubmit();}
+    function validateLanguage(){if(!state.course){setError(languageError,"Select course first.");state.language=false;toggleSubmit();return;}const v=language.value;if(!v){state.language=false;setError(languageError,"Select a language.");} else{state.language=true;setError(languageError,"");}toggleSubmit();}
+    function validateDate(){if(!state.language){setError(dateError,"Select language first.");state.date=false;toggleSubmit();return;}const v=startDate.value;if(!v){state.date=false;setError(dateError,"Start date required.");} else{const d=new Date(v),t=new Date();t.setHours(0,0,0,0);if(d<t){state.date=false;setError(dateError,"Date cannot be past.");} else{state.date=true;setError(dateError,"");}}toggleSubmit();}
+    function toggleSubmit(){submitBtn.disabled=!Object.values(state).every(v=>v===true);}
+
+    firstName.addEventListener('input',validateFirstName);
+    lastName.addEventListener('input',validateLastName);
+    email.addEventListener('input',validateEmail);
+    phone.addEventListener('input',validatePhone);
+    locationF.addEventListener('input',validateLocation);
+    course.addEventListener('change',validateCourse);
+    language.addEventListener('change',validateLanguage);
+    startDate.addEventListener('change',validateDate);
+
+    document.getElementById('regForm').addEventListener('submit',function(e){
+      validateFirstName();validateLastName();validateEmail();validatePhone();validateLocation();validateCourse();validateLanguage();validateDate();
+      if(!Object.values(state).every(v=>v===true)){ e.preventDefault(); }
     });
   </script>
+
 </body>
 </html>

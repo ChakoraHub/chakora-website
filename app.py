@@ -2,7 +2,7 @@ import sys
 import io
 import logging
 import traceback
-
+import boto3
 # Set higher log level to reduce debug noise
 logging.getLogger('snowflake.connector').setLevel(logging.WARNING)
 logging.getLogger('botocore').setLevel(logging.WARNING)
@@ -1494,140 +1494,168 @@ def aboutus():
     return render_template("aboutus.html")
 
 
+# -------------------------------------------------------
+# ADMIN REGISTER (GET + POST) — FINAL & CORRECT
+# -------------------------------------------------------
 
-
-#admin register
-@app.route('/admin-register', methods=['GET', 'POST'])
+@app.route("/admin-register", methods=["GET", "POST"])
 def admin_register():
     connection = get_db_connection()
     courses, languages = [], []
 
+    # ---------- LOAD DROPDOWNS ----------
     if connection:
         cursor = connection.cursor(snowflake.connector.DictCursor)
+
         cursor.execute("SELECT id, course_name, course_code FROM nrm_courses ORDER BY course_name")
-        courses = cursor.fetchall()
+        rows = cursor.fetchall()
+        courses = [{"id": r["ID"], "course_name": r["COURSE_NAME"], "course_code": r["COURSE_CODE"]} for r in rows]
 
         cursor.execute("SELECT id, language FROM nrm_languages ORDER BY language")
-        languages = cursor.fetchall()
+        rows = cursor.fetchall()
+        languages = [{"id": r["ID"], "language": r["LANGUAGE"]} for r in rows]
+
         cursor.close()
 
-    if request.method == 'POST':
+    # ---------- GET REQUEST ----------
+    if request.method == "GET":
+        return render_template("admin-register.html", courses=courses, languages=languages)
+
+    # ---------- POST REQUEST ----------
+    if request.method == "POST":
         data = request.get_json()
+
         if not data:
-            return jsonify({"success": False, "message": "Invalid request data."})
+            return jsonify({"success": False, "message": "Invalid request data"}), 400
 
         try:
-            fname = data.get('first_name', '').strip()
-            lname = data.get('last_name', '').strip()
-            email = data.get('email', '').strip()
-            phone = data.get('phone', '').strip()
-            location_val = data.get('location', '').strip()
-            course_val = data.get('course', '').strip()
-            language_val = data.get('language', '').strip()
-            start_date = data.get('start_date', '').strip()
+            fname = data.get("first_name","").strip()
+            lname = data.get("last_name","").strip()
+            email = data.get("email","").strip()
+            phone = data.get("phone","").strip()
+            location_val = data.get("location","").strip()
+            course_id = int(data.get("course"))
+            language_id = int(data.get("language"))
+            start_date = data.get("start_date","").strip()
 
-            if not all([fname, lname, email, phone, location_val, course_val, language_val, start_date]):
-                return jsonify({"success": False, "message": "All fields are required!"})
-
-            if not re.fullmatch(r'\d{10}', phone):
-                return jsonify({"success": False, "message": "Phone number must be exactly 10 digits."})
+            # ---------- VALIDATE ----------
+            if not all([fname, lname, email, phone, location_val, course_id, language_id, start_date]):
+                return jsonify({"success": False, "message": "All fields are required."})
 
             cursor = connection.cursor()
 
-            # --- Convert course to ID if name provided ---
-            try:
-                course_id = int(course_val)
-            except ValueError:
-                cursor.execute("SELECT id FROM nrm_courses WHERE course_name = %s", (course_val,))
-                row = cursor.fetchone()
-                if not row:
-                    return jsonify({"success": False, "message": "Invalid course selected."})
-                course_id = row[0]
-
-            # --- Convert language to ID if name provided ---
-            try:
-                language_id = int(language_val)
-            except ValueError:
-                cursor.execute("SELECT id FROM nrm_languages WHERE language = %s", (language_val,))
-                row = cursor.fetchone()
-                if not row:
-                    return jsonify({"success": False, "message": "Invalid language selected."})
-                language_id = row[0]
-
-            location_text = location_val
-
-            # --- Check duplicates ---
-            cursor.execute("SELECT 1 FROM nrm_students WHERE email = %s", (email,))
-            if cursor.fetchone():
-                return jsonify({"success": False, "message": "This Email is already registered."})
-
-            cursor.execute("SELECT 1 FROM nrm_students WHERE phone = %s", (phone,))
-            if cursor.fetchone():
-                return jsonify({"success": False, "message": "This Phone number is already registered."})
-
-            # --- Get course_code ---
+            # ---------- COURSE LOOKUP (correct) ----------
             cursor.execute("SELECT course_code FROM nrm_courses WHERE id = %s", (course_id,))
-            course_row = cursor.fetchone()
-            if not course_row:
-                return jsonify({"success": False, "message": "Invalid course selected."})
-            course_code = course_row[0]
+            row = cursor.fetchone()
+            if not row:
+                return jsonify({"success": False, "message": "Invalid course"})
+            course_code = row[0]
 
-            # --- Ensure Active status exists ---
-            cursor.execute("SELECT id FROM nrm_statuses WHERE status = 'Active'")
-            active_status = cursor.fetchone()
-            if not active_status:
-                return jsonify({"success": False, "message": "'Active' status not found in nrm_statuses table."})
-            active_status_id = active_status[0]
+            # ---------- LANGUAGE LOOKUP (correct) ----------
+            cursor.execute("SELECT language FROM nrm_languages WHERE id = %s", (language_id,))
+            row = cursor.fetchone()
+            if not row:
+                return jsonify({"success": False, "message": "Invalid language"})
 
-            # --- Registration ID ---
-            cursor.execute("SELECT COUNT(*) FROM nrm_registrations WHERE course_id = %s", (course_id,))
+            # ---------- DUPLICATE CHECK ----------
+            cursor.execute("SELECT 1 FROM nrm_students WHERE email=%s", (email,))
+            if cursor.fetchone():
+                return jsonify({"success": False, "message": "Email already exists"})
+
+            cursor.execute("SELECT 1 FROM nrm_students WHERE phone=%s", (phone,))
+            if cursor.fetchone():
+                return jsonify({"success": False, "message": "Phone already exists"})
+
+            # ---------- GET ACTIVE STATUS ----------
+            cursor.execute("SELECT id FROM nrm_statuses WHERE status='Active'")
+            active_id = cursor.fetchone()[0]
+
+            # ---------- GENERATE REGISTRATION ID ----------
+            cursor.execute("SELECT COUNT(*) FROM nrm_registrations WHERE course_id=%s", (course_id,))
             seq = cursor.fetchone()[0] + 1
-            initials = fname[0].upper() + lname[0].upper()
-            dt = datetime.strptime(start_date, '%Y-%m-%d')
-            registration_id = f"{course_code}{initials}{str(seq).zfill(3)}{dt.strftime('%d')}{dt.strftime('%m')}"
 
-            # --- Insert into nrm_students ---
+            initials = fname[0].upper() + lname[0].upper()
+            dt = datetime.strptime(start_date, "%Y-%m-%d")
+            registration_id = f"{course_code}{initials}{str(seq).zfill(3)}{dt.strftime('%d%m')}"
+
+            # ---------- INSERT STUDENT (use RETURNING to fetch the new id) ----------
             cursor.execute("""
                 INSERT INTO nrm_students (first_name, last_name, email, phone, location, registration_source)
                 VALUES (%s, %s, %s, %s, %s, %s)
-            """, (fname, lname, email, phone, location_text, 'admin'))
-            student_id = cursor.lastrowid
+                RETURNING id
+                """, (fname, lname, email, phone, location_val, "admin"))
+            row = cursor.fetchone()
+            if not row:
+                raise Exception("Failed to create student record")
+            student_id = row[0]
 
-            # --- Insert into nrm_users ---
-            username = f"{fname} {lname}"
+# ---------- INSERT USER (fetch id) ----------
             cursor.execute("""
                 INSERT INTO nrm_users (username, email, phone, profile_pic, usertype)
                 VALUES (%s, %s, %s, %s, %s)
-            """, (username, email, phone, 'default_profile.jpg', 'student'))
-            user_id = cursor.lastrowid
+                RETURNING id
+            """, (f"{fname} {lname}", email, phone, "default.jpg", "student"))
+            row = cursor.fetchone()
+            if not row:
+                raise Exception("Failed to create user record")
+            user_id = row[0]
 
-            # --- Insert into nrm_logins ---
-            default_password = generate_password_hash('changeme123')
+# ---------- INSERT LOGIN (use the obtained user_id) ----------
+            hashed_pwd = generate_password_hash("changeme123")
             cursor.execute("""
                 INSERT INTO nrm_logins (user_id, password, is_active)
                 VALUES (%s, %s, %s)
-            """, (user_id, default_password, 'Y'))
+            """, (user_id, hashed_pwd, "Y"))
+# no RETURNING required here unless you need the login id
 
-            # --- Insert into nrm_registrations ---
+
+            # ---------- INSERT REGISTRATION ----------
             cursor.execute("""
                 INSERT INTO nrm_registrations
                 (registration_id, student_id, course_id, language_id, start_date, status_id, created_dt)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """, (registration_id, student_id, course_id, language_id, start_date, active_status_id, datetime.now()))
+            """, (registration_id, student_id, course_id, language_id, start_date, active_id, datetime.now()))
 
             connection.commit()
-            return jsonify({"success": True, "message": f"Registered successfully. Registration ID: {registration_id}"})
+
+            # ---------- SEND SES EMAIL ----------
+            ses = boto3.client("ses", region_name="eu-north-1")
+            SENDER = "admin@chakorahub.com"
+
+            html = f"""
+            <html><body>
+            <h2>Hello {fname},</h2>
+            <p>Your registration is successful!</p>
+            <p><b>Registration ID:</b> {registration_id}</p>
+            <p><b>Start Date:</b> {start_date}</p>
+            </body></html>
+            """
+
+            ses.send_email(
+                Source=SENDER,
+                Destination={"ToAddresses": [email], "CcAddresses": [SENDER]},
+                Message={
+                    "Subject": {"Data": "Registration Successful — Chakora Hub"},
+                    "Body": {"Html": {"Data": html}}
+                }
+            )
+
+            return jsonify({
+                "success": True,
+                "message": f"Registered successfully. Registration ID: {registration_id}"
+            })
 
         except Exception as e:
             connection.rollback()
-            print(f"❌ Database Error: {e}")
-            return jsonify({"success": False, "message": f"Database error: {str(e)}"})
+            print("❌ ERROR:", e)
+            return jsonify({"success": False, "message": str(e)})
 
         finally:
             cursor.close()
             connection.close()
 
-    return render_template('admin-register.html', courses=courses, languages=languages)
+
+
 
 # ---------- DUPLICATE CHECKS ----------
 @app.route('/check_admin_email', methods=['POST'])
@@ -4511,4 +4539,4 @@ def submit_appraisal():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)
