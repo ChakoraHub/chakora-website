@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -195,7 +198,7 @@
     {% endwith %}
 
     <!-- Registration Form -->
-    <form method="POST" action="{{ url_for('admin_register') }}" novalidate id="regForm">
+    <form method="POST" action="{{ url_for('admin_register') }}" novalidate id="adminRegisterForm">
 
       <!-- Row 1: First + Last -->
       <div class="row">
@@ -230,29 +233,30 @@
       <div id="locationError" class="error-msg"></div>
 
       <!-- Course + Language -->
-      <div class="row">
-        <div class="col">
-          <label class="required">Course</label>
-          <select name="course" id="courseSelect">
-            <option value="">-- Select Course --</option>
-            {% for c in courses %}
-              <option value="{{ c.ID }}">{{ c.COURSE_NAME }}</option>
-            {% endfor %}
-          </select>
-          <div id="courseError" class="error-msg"></div>
-        </div>
+<div class="row">
+  <div class="col">
+    <label class="required">Course</label>
+    <select name="course" id="courseSelect">
+      <option value="">-- Select Course --</option>
+      {% for c in courses %}
+        <option value="{{ c.ID }}">{{ c.COURSE_NAME }}</option>
+      {% endfor %}
+    </select>
+    <div id="courseError" class="error-msg"></div>
+  </div>
 
-        <div class="col">
-          <label class="required">Language</label>
-          <select name="language" id="languageSelect">
-            <option value="">-- Select Language --</option>
-            {% for l in languages %}
-              <option value="{{ l.ID }}">{{ l.LANGUAGE }}</option>
-            {% endfor %}
-          </select>
-          <div id="languageError" class="error-msg"></div>
-        </div>
-      </div>
+  <div class="col">
+    <label class="required">Language</label>
+    <select name="language" id="languageSelect">
+      <option value="">-- Select Language --</option>
+      {% for l in languages %}
+        <option value="{{ l.ID }}">{{ l.LANGUAGE }}</option>
+      {% endfor %}
+    </select>
+    <div id="languageError" class="error-msg"></div>
+  </div>
+</div>
+
 
       <!-- Start Date -->
       <label class="required">Start date</label>
@@ -273,77 +277,172 @@
   </div>
 
   <script>
-    // PROFILE DROPDOWN
-    function toggleDropdown(){
-      const menu = document.getElementById('profileMenu');
-      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+/* ---------------- PROFILE DROPDOWN ---------------- */
+function toggleDropdown(){
+  const menu = document.getElementById('profileMenu');
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+document.addEventListener('click', function(e){
+  const wrapper = document.querySelector('.profile-wrapper');
+  const menu = document.getElementById('profileMenu');
+  if(wrapper && !wrapper.contains(e.target)){
+    menu.style.display = 'none';
+  }
+});
+
+/* --------------- VALIDATION --------------- */
+
+const firstName=document.getElementById('firstName');
+const lastName=document.getElementById('lastName');
+const email=document.getElementById('email');
+const phone=document.getElementById('phone');
+const locationF=document.getElementById('location');
+const course=document.getElementById('courseSelect');
+const language=document.getElementById('languageSelect');
+const startDate=document.getElementById('startDate');
+const submitBtn=document.getElementById('submitBtn');
+
+const firstNameError=document.getElementById('firstNameError');
+const lastNameError=document.getElementById('lastNameError');
+const emailError=document.getElementById('emailError');
+const emailOk=document.getElementById('emailOk');
+const phoneError=document.getElementById('phoneError');
+const phoneOk=document.getElementById('phoneOk');
+const locationError=document.getElementById('locationError');
+const courseError=document.getElementById('courseError');
+const languageError=document.getElementById('languageError');
+const dateError=document.getElementById('dateError');
+
+const state={firstName:false,lastName:false,email:false,phone:false,location:false,course:false,language:false,date:false};
+
+function setError(node,msg){node.textContent=msg;node.style.display=msg?'block':'none';}
+function setOk(node,msg){if(msg){node.style.display='block';node.textContent=msg;}else{node.style.display='none';node.textContent='';}}
+
+function validEmailDomain(v){
+  const lower=v.toLowerCase().trim();
+  const domainValid=lower.endsWith("@gmail.com")||lower.endsWith("@chakorahub.com");
+  const formatValid=/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(lower);
+  return domainValid&&formatValid;
+}
+
+function validateFirstName(){const v=firstName.value.trim();if(!v){state.firstName=false;setError(firstNameError,"First name is required.");} else{state.firstName=true;setError(firstNameError,"");}toggleSubmit();}
+function validateLastName(){if(!state.firstName){setError(lastNameError,"Please fill first name first.");state.lastName=false;toggleSubmit();return;}const v=lastName.value.trim();if(!v){state.lastName=false;setError(lastNameError,"Last name is required.");} else{state.lastName=true;setError(lastNameError,"");}toggleSubmit();}
+function validateEmail(){if(!state.firstName||!state.lastName){setError(emailError,"Complete name first.");state.email=false;setOk(emailOk,"");toggleSubmit();return;}const v=email.value.trim();if(!v){state.email=false;setError(emailError,"Email is required.");setOk(emailOk,"");} else if(!validEmailDomain(v)){state.email=false;setError(emailError,"Must end with @gmail.com or @chakorahub.com");setOk(emailOk,"");} else{state.email=true;setError(emailError,"");setOk(emailOk,"Email looks good.");}toggleSubmit();}
+function validatePhone(){if(!state.email){setError(phoneError,"Please complete email first.");state.phone=false;setOk(phoneOk,"");toggleSubmit();return;}const v=phone.value.trim();if(!v){state.phone=false;setError(phoneError,"Phone required.");setOk(phoneOk,"");} else if(!/^\d+$/.test(v)){state.phone=false;setError(phoneError,"Digits only.");setOk(phoneOk,"");} else if(v.length!==10){state.phone=false;setError(phoneError,"Must be exactly 10 digits.");setOk(phoneOk,"");} else{state.phone=true;setError(phoneError,"");setOk(phoneOk,"Phone looks good.");}toggleSubmit();}
+function validateLocation(){if(!state.phone){setError(locationError,"Complete phone first.");state.location=false;toggleSubmit();return;}const v=locationF.value.trim();if(!v){state.location=false;setError(locationError,"Location required.");} else{state.location=true;setError(locationError,"");}toggleSubmit();}
+
+function validateCourse() {
+    const v = course.value; 
+    if (!v) {
+        state.course = false;
+        setError(courseError, "Select a course.");
+    } else {
+        state.course = true;
+        setError(courseError, "");
     }
-    document.addEventListener('click', function(e){
-      const wrapper = document.querySelector('.profile-wrapper');
-      const menu = document.getElementById('profileMenu');
-      if(wrapper && !wrapper.contains(e.target)){
-        menu.style.display = 'none';
-      }
-    });
+    // Re-run language validation in case it was blocked by a previous false course state
+    validateLanguage(); 
+    toggleSubmit();
+}
 
-    // VALIDATION JS — EXACTLY AS FINALIZED EARLIER
-    const firstName=document.getElementById('firstName');
-    const lastName=document.getElementById('lastName');
-    const email=document.getElementById('email');
-    const phone=document.getElementById('phone');
-    const locationF=document.getElementById('location');
-    const course=document.getElementById('courseSelect');
-    const language=document.getElementById('languageSelect');
-    const startDate=document.getElementById('startDate');
-    const submitBtn=document.getElementById('submitBtn');
+function validateLanguage() {
+    const v = language.value; 
+    if (!v) {
+        state.language = false;
+        setError(languageError, "Select a language.");
+    } else {
+        state.language = true;
+        setError(languageError, "");
+    }
+    validateDate();
+    toggleSubmit();
+}
 
-    const firstNameError=document.getElementById('firstNameError');
-    const lastNameError=document.getElementById('lastNameError');
-    const emailError=document.getElementById('emailError');
-    const emailOk=document.getElementById('emailOk');
-    const phoneError=document.getElementById('phoneError');
-    const phoneOk=document.getElementById('phoneOk');
-    const locationError=document.getElementById('locationError');
-    const courseError=document.getElementById('courseError');
-    const languageError=document.getElementById('languageError');
-    const dateError=document.getElementById('dateError');
+function validateDate() {
+    const v = startDate.value;
+    if (!v) {
+        state.date = false;
+        setError(dateError, "Start date required.");
+    } else {
+        const d = new Date(v), t = new Date();
+        t.setHours(0,0,0,0);
+        if (d < t) {
+            state.date = false;
+            setError(dateError, "Date cannot be past.");
+        } else {
+            state.date = true;
+            setError(dateError, "");
+        }
+    }
+    toggleSubmit();
+}
 
-    const state={firstName:false,lastName:false,email:false,phone:false,location:false,course:false,language:false,date:false};
+function toggleSubmit(){submitBtn.disabled=!Object.values(state).every(v=>v===true);}
 
-    function setError(node,msg){node.textContent=msg;node.style.display=msg?'block':'none';}
-    function setOk(node,msg){if(msg){node.style.display='block';node.textContent=msg;}else{node.style.display='none';node.textContent='';}}
+firstName.addEventListener('input',validateFirstName);
+lastName.addEventListener('input',validateLastName);
+email.addEventListener('input',validateEmail);
+phone.addEventListener('input',validatePhone);
+locationF.addEventListener('input',validateLocation);
+course.addEventListener('change',validateCourse);
+language.addEventListener('change',validateLanguage);
+startDate.addEventListener('change',validateDate);
 
-    function validEmailDomain(v){
-      const lower=v.toLowerCase().trim();
-      const domainValid=lower.endsWith("@gmail.com")||lower.endsWith("@chakorahub.com");
-      const formatValid=/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(lower);
-      return domainValid&&formatValid;
+/* ---------------- FINAL SUBMIT HANDLER (FIXED) ---------------- */
+
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("adminRegisterForm");
+
+  console.log("JS Loaded. form=", form);
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    console.log("Submit clicked → running validation + JSON submit");
+
+    // Run validation again before submit
+    validateFirstName();
+    validateLastName();
+    validateEmail();
+    validatePhone();
+    validateLocation();
+    validateCourse();
+    validateLanguage();
+    validateDate();
+
+    if (!Object.values(state).every(v=>v===true)) {
+      console.warn("Form invalid → not submitting");
+      return;
     }
 
-    function validateFirstName(){const v=firstName.value.trim();if(!v){state.firstName=false;setError(firstNameError,"First name is required.");} else{state.firstName=true;setError(firstNameError,"");}toggleSubmit();}
-    function validateLastName(){if(!state.firstName){setError(lastNameError,"Please fill first name first.");state.lastName=false;toggleSubmit();return;}const v=lastName.value.trim();if(!v){state.lastName=false;setError(lastNameError,"Last name is required.");} else{state.lastName=true;setError(lastNameError,"");}toggleSubmit();}
-    function validateEmail(){if(!state.firstName||!state.lastName){setError(emailError,"Complete name first.");state.email=false;setOk(emailOk,"");toggleSubmit();return;}const v=email.value.trim();if(!v){state.email=false;setError(emailError,"Email is required.");setOk(emailOk,"");} else if(!validEmailDomain(v)){state.email=false;setError(emailError,"Must end with @gmail.com or @chakorahub.com");setOk(emailOk,"");} else{state.email=true;setError(emailError,"");setOk(emailOk,"Email looks good.");}toggleSubmit();}
-    function validatePhone(){if(!state.email){setError(phoneError,"Please complete email first.");state.phone=false;setOk(phoneOk,"");toggleSubmit();return;}const v=phone.value.trim();if(!v){state.phone=false;setError(phoneError,"Phone required.");setOk(phoneOk,"");} else if(!/^\d+$/.test(v)){state.phone=false;setError(phoneError,"Digits only.");setOk(phoneOk,"");} else if(v.length!==10){state.phone=false;setError(phoneError,"Must be exactly 10 digits.");setOk(phoneOk,"");} else{state.phone=true;setError(phoneError,"");setOk(phoneOk,"Phone looks good.");}toggleSubmit();}
-    function validateLocation(){if(!state.phone){setError(locationError,"Complete phone first.");state.location=false;toggleSubmit();return;}const v=locationF.value.trim();if(!v){state.location=false;setError(locationError,"Location required.");} else{state.location=true;setError(locationError,"");}toggleSubmit();}
-    function validateCourse(){if(!state.location){setError(courseError,"Complete location first.");state.course=false;toggleSubmit();return;}const v=course.value;if(!v){state.course=false;setError(courseError,"Select a course.");} else{state.course=true;setError(courseError,"");}toggleSubmit();}
-    function validateLanguage(){if(!state.course){setError(languageError,"Select course first.");state.language=false;toggleSubmit();return;}const v=language.value;if(!v){state.language=false;setError(languageError,"Select a language.");} else{state.language=true;setError(languageError,"");}toggleSubmit();}
-    function validateDate(){if(!state.language){setError(dateError,"Select language first.");state.date=false;toggleSubmit();return;}const v=startDate.value;if(!v){state.date=false;setError(dateError,"Start date required.");} else{const d=new Date(v),t=new Date();t.setHours(0,0,0,0);if(d<t){state.date=false;setError(dateError,"Date cannot be past.");} else{state.date=true;setError(dateError,"");}}toggleSubmit();}
-    function toggleSubmit(){submitBtn.disabled=!Object.values(state).every(v=>v===true);}
+    const payload = {
+      first_name: firstName.value.trim(),
+      last_name: lastName.value.trim(),
+      email: email.value.trim(),
+      phone: phone.value.trim(),
+      location: locationF.value.trim(),
+      course: course.value,
+      language: language.value,
+      start_date: startDate.value
+    };
 
-    firstName.addEventListener('input',validateFirstName);
-    lastName.addEventListener('input',validateLastName);
-    email.addEventListener('input',validateEmail);
-    phone.addEventListener('input',validatePhone);
-    locationF.addEventListener('input',validateLocation);
-    course.addEventListener('change',validateCourse);
-    language.addEventListener('change',validateLanguage);
-    startDate.addEventListener('change',validateDate);
+    console.log("Sending JSON payload:", payload);
 
-    document.getElementById('regForm').addEventListener('submit',function(e){
-      validateFirstName();validateLastName();validateEmail();validatePhone();validateLocation();validateCourse();validateLanguage();validateDate();
-      if(!Object.values(state).every(v=>v===true)){ e.preventDefault(); }
-    });
-  </script>
+    fetch("/admin-register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(data => {
+      console.log("Response from server:", data);
+      alert(data.message);
+    })
+    .catch(err => console.error("Error:", err));
+  });
+});
+</script>
+
 
 </body>
 </html>

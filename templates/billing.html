@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Billing Module</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Billing Module - ChakoraHub</title>
   <style>
     body {
       margin: 0;
@@ -118,6 +119,11 @@
       background: #303f9f;
     }
 
+    .billing-form button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
     .back-button {
       display: block;
       width: 500px;
@@ -142,25 +148,55 @@
       background: #1e857b;
     }
 
-    .flash-message {
+    .alert {
       text-align: center;
       font-weight: bold;
       margin: 15px auto;
       padding: 10px;
       max-width: 500px;
       border-radius: 6px;
+      display: none;
     }
 
-    .flash-success { background-color: #d4edda; color: #155724; }
-    .flash-danger { background-color: #f8d7da; color: #721c24; }
-    .flash-warning { background-color: #fff3cd; color: #856404; }
-    .flash-info { background-color: #d1ecf1; color: #0c5460; }
+    .alert.show { display: block; }
+    .alert.success { background-color: #d4edda; color: #155724; }
+    .alert.error { background-color: #f8d7da; color: #721c24; }
+    .alert.warning { background-color: #fff3cd; color: #856404; }
+    .alert.info { background-color: #d1ecf1; color: #0c5460; }
 
-    /* Popout Modal */
+    /* Login Modal */
+    #loginModal { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(0,0,0,0.6); 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 10000; 
+    }
+    
+    #loginBox { 
+      background: white; 
+      width: 360px; 
+      padding: 30px; 
+      border-radius: 12px; 
+      text-align: center; 
+    }
+    
+    #loginBox input { 
+      width: 100%; 
+      padding: 16px; 
+      margin: 12px 0; 
+      font-size: 1.1rem; 
+      border-radius: 10px; 
+      border: 2px solid #ccc; 
+    }
+
+    /* Logout Modal */
     .modal {
       display: none;
       position: fixed;
-      z-index: 2000;
+      z-index: 10001;
       left: 0;
       top: 0;
       width: 100%;
@@ -211,10 +247,9 @@
       background: #ddd;
     }
 
-    #courseFee {
-      margin-bottom: 15px;
-      font-weight: bold;
-      color: #3949ab;
+    .required::after {
+      content: " *";
+      color: #d32f2f;
     }
   </style>
 </head>
@@ -227,28 +262,33 @@
     <div class="profile-wrapper" onclick="toggleDropdown()">
       <img class="profile-pic"
            src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}"
+           onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%237e57c2%22/%3E%3Ctext x=%2250%22 y=%2260%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2240%22 font-family=%22Arial%22%3EU%3C/text%3E%3C/svg%3E'"
            alt="Profile" />
       <div class="dropdown-menu" id="dropdownMenu">
         <a href="{{ url_for('profile') }}">Profile</a>
         <a href="{{ url_for('settings') }}">Settings</a>
-        <!-- Logout with popup confirmation -->
-        <a href="#" onclick="openModal()">Logout</a>
+        <a href="#" onclick="openLogoutModal()">Logout</a>
       </div>
     </div>
   </div>
 
-  <h1>Billing Module</h1>
+  <!-- LOGIN MODAL -->
+  <div id="loginModal">
+    <div id="loginBox">
+      <h2 style="color:#667eea;margin:20px 0;">🔐 Login</h2>
+      <input id="loginUser" placeholder="Username">
+      <input id="loginPass" type="password" placeholder="Password">
+      <button id="loginBtn" class="btn btn-primary" style="width:100%; background:#3949ab; color:white; padding:15px; border-radius:10px; border:none; cursor:pointer;">Login</button>
+      <p id="loginError" style="color:red;margin-top:10px;"></p>
+    </div>
+  </div>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for category, message in messages %}
-        <div class="flash-message flash-{{ category }}">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
+  <h1>💰 Billing Module</h1>
 
-  <form method="POST" class="billing-form" enctype="multipart/form-data">
-    <label for="billing_type">Billing Type</label>
+  <div id="alertBox" class="alert"></div>
+
+  <form id="billingForm" class="billing-form">
+    <label for="billing_type" class="required">Billing Type</label>
     <select name="billing_type" id="billing_type" required>
       <option value="">-- Select Billing Type --</option>
       <option value="individual">Individual</option>
@@ -256,7 +296,7 @@
       <option value="institutional">Institutional</option>
     </select>
 
-    <label for="payment_mode">Payment Mode</label>
+    <label for="payment_mode" class="required">Payment Mode</label>
     <select name="payment_mode" id="payment_mode" required>
       <option value="">-- Select Payment Mode --</option>
       <option value="upi">UPI</option>
@@ -265,47 +305,75 @@
       <option value="card">Card</option>
     </select>
 
-    <div id="upiFields">
-      <label for="upi">UPI Transaction ID</label>
-      <input type="text" name="upi" id="upi">
+    <div id="upiFields" style="display:none;">
+      <label for="upi_txn_id">UPI Transaction ID</label>
+      <input type="text" name="upi_txn_id" id="upi_txn_id">
     </div>
 
-    <label for="billing_category">Billing Category</label>
+    <label for="billing_category" class="required">Billing Category</label>
     <select name="billing_category" id="billing_category" required>
       <option value="">-- Select Category --</option>
       <option value="normal">Normal</option>
       <option value="bulk">Bulk</option>
     </select>
 
-    <label for="phone">Mobile Number</label>
-    <input type="text" name="phone" id="phone" required maxlength="15">
+    <label for="phone" class="required">Mobile Number</label>
+    <input type="text" name="phone" id="phone" required maxlength="15" placeholder="Enter your mobile number">
 
-    <label for="payment">Payment Amount</label>
-    <input type="number" name="payment" id="payment" required>
+    <label for="amount" class="required">Payment Amount (₹)</label>
+    <input type="number" name="amount" id="amount" required min="1" placeholder="Enter amount">
 
-    <label for="receipt">Upload Receipt</label>
-    <input type="file" name="receipt" id="receipt" accept=".pdf,.jpg,.jpeg,.png" required>
+    <label for="receipt">Upload Receipt (Optional)</label>
+    <input type="file" name="receipt" id="receipt" accept=".pdf,.jpg,.jpeg,.png">
 
-    <button type="submit">Submit Entry</button>
+    <button type="submit" id="submitBtn">Submit Entry</button>
   </form>
 
-  <!-- Back to resources -->
   <div class="back-button">
     <button onclick="window.location.href='{{ url_for('resources') }}'">← Back to Resources</button>
   </div>
 
-  <!-- Confirmation Modal for Logout -->
-  <div id="confirmationModal" class="modal">
+  <!-- Logout Confirmation Modal -->
+  <div id="logoutModal" class="modal">
     <div class="modal-content">
       <h3>Are you sure you want to log out?</h3>
       <div class="modal-actions">
         <button class="confirm-btn" onclick="confirmLogout()">Yes</button>
-        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        <button class="cancel-btn" onclick="closeLogoutModal()">Cancel</button>
       </div>
     </div>
   </div>
 
   <script>
+    // Global variables
+    const API_BASE = "https://n9m17jqfn2.execute-api.eu-north-1.amazonaws.com/Billing-Prod"; 
+    let AUTH_USER = null;
+    let AUTH_PASS = null;
+
+    function authHeader() { 
+      return "Basic " + btoa(`${AUTH_USER}:${AUTH_PASS}`); 
+    }
+
+    async function secureFetch(url, options = {}) {
+      if (AUTH_USER && AUTH_PASS) {
+        options.headers = options.headers || {};
+        options.headers["Authorization"] = authHeader();
+      }
+      
+      const response = await fetch(url, options);
+      
+      if (response.status === 401 && !url.includes('/whoami')) {
+        console.error("Authentication failed");
+        showAlert("Session expired. Please login again.", "error");
+        setTimeout(() => {
+          document.getElementById("loginModal").style.display = "flex";
+        }, 2000);
+      }
+      
+      return response;
+    }
+
+    // Dropdown toggle
     function toggleDropdown() {
       const dropdown = document.getElementById('dropdownMenu');
       dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
@@ -319,35 +387,161 @@
       }
     });
 
-    function openModal() {
-      document.getElementById('confirmationModal').style.display = 'flex';
+    // Logout modals
+    function openLogoutModal() {
+      document.getElementById('logoutModal').style.display = 'flex';
     }
 
-    function closeModal() {
-      document.getElementById('confirmationModal').style.display = 'none';
+    function closeLogoutModal() {
+      document.getElementById('logoutModal').style.display = 'none';
     }
 
     function confirmLogout() {
       window.location.href = "{{ url_for('logout') }}";
     }
 
-    // Show/hide UPI fields based on payment mode selection
+    // Show/hide UPI fields
     document.getElementById('payment_mode').addEventListener('change', function() {
       const upiFields = document.getElementById('upiFields');
+      const upiInput = document.getElementById('upi_txn_id');
+      
       if (this.value === 'upi') {
         upiFields.style.display = 'block';
-        document.getElementById('upi').required = true;
+        upiInput.required = true;
       } else {
         upiFields.style.display = 'none';
-        document.getElementById('upi').required = false;
+        upiInput.required = false;
+        upiInput.value = '';
       }
     });
 
-    // Initialize UPI fields visibility
-    document.addEventListener('DOMContentLoaded', function() {
-      const upiFields = document.getElementById('upiFields');
-      upiFields.style.display = 'none';
-    });
+    // Alert function
+    function showAlert(msg, type) {
+      const box = document.getElementById("alertBox");
+      box.textContent = msg;
+      box.className = "alert show " + type;
+      setTimeout(() => box.classList.remove("show"), 5000);
+    }
+
+    // ========================================
+    // LOGIN
+    // ========================================
+    document.getElementById("loginBtn").onclick = async () => {
+      const user = document.getElementById("loginUser").value.trim();
+      const pass = document.getElementById("loginPass").value.trim();
+      const err = document.getElementById("loginError");
+      
+      if (!user || !pass) { 
+        err.textContent = "Enter username & password"; 
+        return; 
+      }
+      
+      try {
+        console.log("🔐 Attempting login for:", user);
+        
+        AUTH_USER = user;
+        AUTH_PASS = pass;
+        
+        const res = await secureFetch(`${API_BASE}/whoami`);
+        
+        if (res.status === 401) {
+          err.textContent = "Invalid credentials"; 
+          AUTH_USER = null;
+          AUTH_PASS = null;
+          return; 
+        }
+
+        if (!res.ok) {
+          err.textContent = "Server error";
+          AUTH_USER = null;
+          AUTH_PASS = null;
+          return;
+        }
+
+        const userData = await res.json();
+        console.log("✅ Login successful:", userData);
+        
+        document.getElementById("loginModal").style.display = "none";
+        showAlert("✅ Login successful!", "success");
+        
+      } catch(e) { 
+        err.textContent = "Login error"; 
+        console.error("❌ Login error:", e);
+        AUTH_USER = null;
+        AUTH_PASS = null;
+      }
+    };
+
+    // ========================================
+    // BILLING FORM SUBMIT
+    // ========================================
+    document.getElementById("billingForm").onsubmit = async (e) => {
+      e.preventDefault();
+      
+      if (!AUTH_USER || !AUTH_PASS) {
+        showAlert("Please login first", "error");
+        document.getElementById("loginModal").style.display = "flex";
+        return;
+      }
+      
+      console.log("💰 Submitting billing entry...");
+      
+      const submitBtn = document.getElementById("submitBtn");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Submitting...";
+      
+      // Get form data
+      const formData = {
+        billing_type: document.getElementById("billing_type").value,
+        billing_category: document.getElementById("billing_category").value,
+        payment_method: document.getElementById("payment_mode").value,
+        amount: parseFloat(document.getElementById("amount").value),
+        phone: document.getElementById("phone").value,
+        currency: "INR",
+        upi_txn_id: document.getElementById("upi_txn_id").value || null,
+        receipt_file_path: null, // Handle file upload separately if needed
+        payload: {}
+      };
+      
+      console.log("📦 Payload:", formData);
+      
+      try {
+        const res = await secureFetch(`${API_BASE}/billing-create`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json" 
+          },
+          body: JSON.stringify(formData)
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) {
+          showAlert(data.detail || "Billing submission failed", "error");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Submit Entry";
+          return;
+        }
+        
+        console.log("✅ Billing successful:", data);
+        showAlert(`✅ Billing entry created successfully! Transaction ID: ${data.transaction_uuid}`, "success");
+        
+        // Reset form
+        document.getElementById("billingForm").reset();
+        document.getElementById("upiFields").style.display = "none";
+        
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit Entry";
+        
+      } catch(err) {
+        console.error("❌ Billing error:", err);
+        showAlert("Network error. Please try again.", "error");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit Entry";
+      }
+    };
+
+    console.log("✅ Billing page loaded successfully");
   </script>
 
 </body>

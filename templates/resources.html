@@ -95,13 +95,13 @@
       justify-content: flex-start;
     }
     .subject-box {
-      width: calc(33.333% - 20px);
+      width: calc(25% - 20px);
       text-align: center;
       margin-bottom: 10px;
       position: relative;
     }
 
-    /* 🔹 Wrapper around image to keep ribbon aligned */
+    /* Wrapper around image */
     .image-wrapper {
       position: relative;
       display: inline-block;
@@ -119,7 +119,7 @@
     }
     .image-wrapper:hover img { transform: scale(1.05); }
 
-    /* 🔹 Responsive Diagonal Offer Ribbon */
+    /* Diagonal Offer Ribbon */
     .offer-badge {
       position: absolute;
       top: 8%;
@@ -143,7 +143,13 @@
       font-size: 15px;
       cursor: pointer;
     }
-    .submenu { display: none; margin-top: 10px; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .submenu {
+      display: none;
+      margin-top: 10px;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
     .submenu-tile {
       background-color: #d1c4e9;
       border-radius: 10px;
@@ -157,15 +163,47 @@
       transition: all 0.3s ease;
       position: relative;
     }
-    .submenu-tile:hover { background-color: #b39ddb; color: #311b92; transform: scale(1.05); }
+    .submenu-tile:hover {
+      background-color: #b39ddb;
+      color: #311b92;
+      transform: scale(1.05);
+    }
     .tile-icon { font-size: 18px; }
     .tile-label { font-size: 13px; }
-    .lang-submenu { display: none; flex-direction: column; margin-top: 8px; background-color: #ede7f6; padding: 6px; border-radius: 8px; }
-    .lang-submenu a { background: #d1c4e9; color: #311b92; padding: 5px 10px; border-radius: 6px; margin: 4px 0; text-decoration: none; font-size: 13px; text-align: center; transition: all 0.3s ease; }
-    .lang-submenu a:hover { background-color: #b39ddb; color: #000; transform: scale(1.02); }
-    footer { text-align: center; padding: 20px; background: linear-gradient(to right, #9575cd, #7986cb); color: #fff; font-size: 13px; margin-top: 20px; }
+    .lang-submenu {
+      display: none;
+      flex-direction: column;
+      margin-top: 8px;
+      background-color: #ede7f6;
+      padding: 6px;
+      border-radius: 8px;
+    }
+    .lang-submenu a {
+      background: #d1c4e9;
+      color: #311b92;
+      padding: 5px 10px;
+      border-radius: 6px;
+      margin: 4px 0;
+      text-decoration: none;
+      font-size: 13px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .lang-submenu a:hover {
+      background-color: #b39ddb;
+      color: #000;
+      transform: scale(1.02);
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(to right, #9575cd, #7986cb);
+      color: #fff;
+      font-size: 13px;
+      margin-top: 20px;
+    }
 
-    /* 🔹 Modal for Logout */
+    /* Modal for Logout */
     .modal {
       display: none;
       position: fixed;
@@ -254,43 +292,46 @@
 
     <a href="{{ url_for('syllabus_page') }}">📚 Courses Syllabus</a>
 
-   <div style="position: relative; display: flex; align-items: center; justify-content: space-between; padding: 10px 0;">
-  <a href="{{ url_for('meeting_home') }}" style="font-weight: 500; color: #333; text-decoration: none;">
-    ⏰ Meeting hours
-  </a>
-</div>
-   <div style="position: relative; display: inline-block; margin-bottom: 10px;">
-  <a href="{{ url_for('blogger_page') }}" style="display: inline-block; font-weight: 500; color: #333; text-decoration: none;">
-    ✍ Blogger
-  </a>
-  <span style="
-    position: absolute;
-    top: -6px;
-    right: -18px;
-    background: crimson;
-    color: white;
-    font-size: 10px;
-    font-weight: bold;
-    padding: 2px 6px;
-    border-radius: 12px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  ">
-    NEW
-  </span>
-</div>
-    <a href="{{ url_for('nrm_enquiries') }}">📩 Enquiry</a>
+    <div style="position: relative; display: flex; align-items: center; justify-content: space-between; padding: 10px 0;">
+      <a href="{{ url_for('meeting_home') }}" style="font-weight: 500; color: #333; text-decoration: none;">
+        ⏰ Meeting hours
+      </a>
+    </div>
+
+    <div style="position: relative; display: inline-block; margin-bottom: 10px;">
+      <a href="{{ url_for('blogger_page') }}" style="display: inline-block; font-weight: 500; color: #333; text-decoration: none;">
+        ✍ Blogger
+      </a>
+      <span style="
+        position: absolute;
+        top: -6px;
+        right: -18px;
+        background: crimson;
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        padding: 2px 6px;
+        border-radius: 12px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      ">
+        NEW
+      </span>
+    </div>
+
+    <a href="{{ url_for('submit_nrm_enquiries') }}">📩 Enquiry</a>
     <a href="{{ url_for('demo_videos') }}">🎬 Demo Videos</a>
     <div id="practice-toggle" class="sidebar-toggle">🖍 Practice Tests</div>
     <div id="practice-submenu" class="sidebar-submenu">
-      {% for s in ['Informatica', 'Unix', 'Oracle', 'IICS', 'Python for web development', 'Informatica MDM', 'Informatica BDM', 'Python for automation'] %}
+      {% for s in ['Informatica', 'Informatica MDM', 'Unix', 'Oracle', 'IICS', 'Python for web development', 'Informatica BDM', 'Python for automation'] %}
         <a href="{{ url_for('practice_test', subject=s) }}">{{ s }}</a>
       {% endfor %}
     </div>
     <a href="{{ url_for('feedback_form') }}">💬 Feedback</a>
-    
     <a href="{{ url_for('calendar_page') }}">📅 Calendar</a>
+
     {% if usertype == 'admin' %}
       <a href="{{ url_for('upload_page') }}">📄 Admin Upload Portal</a>
+      <a href="{{ url_for('add_course') }}">➕Add Course</a>
       <a href="{{ url_for('admin_dashboard_page') }}">📄Admin Dashboard </a>
       <a href="{{ url_for('billing') }}">💳 Billing</a>
       <a href="{{ url_for('admin_register') }}">📝 Register Students</a>
@@ -298,31 +339,48 @@
       <a href="{{ url_for('generate_student_report') }}">📊 Generate student report</a>
       <a href="{{ url_for('generate_certificate') }}">🎓 Generate Certificate</a>
       <a href="{{ url_for('offers_page') }}">🎁 Offers</a>
+      <a href="{{ url_for('project_dashboard') }}">📊 Project Dashboard</a>
+
       <a href="{{ url_for('employee_report') }}">📋 Employee Report</a>
     {% endif %}
   </div>
 
   <div class="content-area">
     <h1>Welcome {{ username }}</h1>
-    <div class="container">
 
+    <div class="container">
       {% set subjects = [
-        ('Informatica', 'sub1', 'informatica.png'),
-        ('Unix', 'sub2', 'unix.png'),
-        ('Oracle', 'sub3', 'Oracle.png'),
-        ('IICS', 'sub4', 'iics.png'),
-        ('Python for web development', 'sub5', 'python_web.png'),
-        ('Informatica MDM', 'sub6', 'Informatica-MDM.png'),
-        ('Informatica BDM', 'sub7', 'informaticaBDM.png'),
-        ('Python for automation', 'sub8', 'python with automation.png'),
-        ('Snowflake','sub9','snowflake.png')
+        ('Informatica', 'sub1', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/informatica.png'),
+        ('Unix', 'sub2', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/unix.png'),
+        ('Oracle', 'sub3', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/Oracle.png'),
+        ('IICS', 'sub4', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/iics.png'),
+        ('Python for web development', 'sub5', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/python.png'),
+        ('Informatica MDM', 'sub6', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/Informatica-MDM.png'),
+        ('Informatica BDM', 'sub7', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/informaticaBDM.png'),
+        ('Python for automation', 'sub8', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/python+with+automation.png'),
+        ('Snowflake', 'sub9', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/snowflake.png'),
+        ('Cybersecurity', 'sub10', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/cybersecurity.png'),
+        ('System design', 'sub11', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/system+design.jpeg'),
+        ('Microsoft Excel', 'sub12', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/Excel.png'),
+        ('DevOps', 'sub13', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/devops.jpeg'),
+        ('Java', 'sub14', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/java.png'),
+        ('AI & ML', 'sub15', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/AI%26ML.png'),
+        ('Data science', 'sub16', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/data+science.jpeg'),
+        ('Blockchain', 'sub17', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/blockchain.png'),
+        ('AWS Cloud Computing','sub18', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/AWS.jpeg'),
+        ('PowerBI','sub19','https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/Power+BI.jpeg'),
+        ('Photo Shop','sub20','https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/PS.jpeg'),
+        ('DSA (Data structures & algorithms)','sub21','https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/DSA.jpeg'),
+        ('Video Editing','sub22','https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/Video+Editing.jpeg'),
+        ('HTML & CSS','sub23','https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/Html%26Css.jpeg'),
+        ('2D & 3D Animation','sub24','https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/2D+Vs+3D.jpeg')
       ] %}
 
-      {% for subject, sub_id, img in subjects %}
+      {% for subject, sub_id, s3_url in subjects %}
         {% set offer = offers.get(subject) if offers else None %}
         <div class="subject-box">
           <div class="image-wrapper">
-            <img src="{{ url_for('static', filename=img) }}" alt="{{ subject }}" onclick="toggleSubmenu('{{ sub_id }}')">
+            <img src="{{ s3_url }}" alt="{{ subject }}" onerror="handleImageError(this, '{{ subject }}')" onclick="toggleSubmenu('{{ sub_id }}')">
             {% if offer and offer.discount_percentage %}
               <div class="offer-badge">{{ offer.discount_percentage }}% OFF</div>
             {% endif %}
@@ -330,34 +388,54 @@
           <div class="subject-title" onclick="toggleSubmenu('{{ sub_id }}')">{{ subject }}</div>
 
           <div class="submenu" id="{{ sub_id }}">
-            <a class="submenu-tile" href="{{ url_for('view_category_files', tech=subject, file_type='ppt') }}">
-              <div class="tile-icon">📄</div><div class="tile-label">PPTs</div>
+            <!-- PPT – Model-2: background AJAX + redirect -->
+            <a class="submenu-tile"
+               href="{{ url_for('view_category_files', tech=subject, file_type='ppt') }}"
+               onclick="loadResourcesAjax('{{ subject }}','ppt', this.href)">
+              <div class="tile-icon">📄</div>
+              <div class="tile-label">PPTs</div>
             </a>
-            <a class="submenu-tile" href="{{ url_for('view_category_files', tech=subject, file_type='code') }}">
-              <div class="tile-icon">💻</div><div class="tile-label">Code</div>
+
+            <!-- Code – Model-2 -->
+            <a class="submenu-tile"
+               href="{{ url_for('view_category_files', tech=subject, file_type='code') }}"
+               onclick="loadResourcesAjax('{{ subject }}','code', this.href)">
+              <div class="tile-icon">💻</div>
+              <div class="tile-label">Code</div>
             </a>
+
+            <!-- Videos (still Flask route) -->
             <div class="submenu-tile" onclick="event.stopPropagation(); toggleLanguageMenu('{{ sub_id }}-lang')">
-              <div class="tile-icon">🎥</div><div class="tile-label">Videos ▾</div>
+              <div class="tile-icon">🎥</div>
+              <div class="tile-label">Videos ▾</div>
               <div class="lang-submenu" id="{{ sub_id }}-lang">
-                <a href="{{ url_for('video_sessions', tech=subject, lang='telugu') }}">Telugu</a>
-                <a href="{{ url_for('video_sessions', tech=subject, lang='english') }}">English</a>
-                <a href="{{ url_for('video_sessions', tech=subject, lang='hindi') }}">Hindi</a>
+                <a href="{{ url_for('video_sessions', tech=subject, lang='telugu') }}"
+                   onclick="return loadVideoAjax('{{ subject }}', 'telugu', this.href)">Telugu</a>
+                <a href="{{ url_for('video_sessions', tech=subject, lang='english') }}"
+                   onclick="return loadVideoAjax('{{ subject }}', 'english', this.href)">English</a>
+                <a href="{{ url_for('video_sessions', tech=subject, lang='hindi') }}"
+                   onclick="return loadVideoAjax('{{ subject }}', 'hindi', this.href)">Hindi</a>
               </div>
             </div>
-            <a class="submenu-tile" href="{{ url_for('view_category_files', tech=subject, file_type='interview') }}">
-              <div class="tile-icon">❓</div><div class="tile-label">Interview</div>
+
+            <!-- Interview – Model-2 -->
+            <a class="submenu-tile"
+               href="{{ url_for('view_category_files', tech=subject, file_type='interview') }}"
+               onclick="loadResourcesAjax('{{ subject }}','interview', this.href)">
+              <div class="tile-icon">❓</div>
+              <div class="tile-label">Interview</div>
             </a>
           </div>
         </div>
       {% endfor %}
-
     </div>
+
   </div>
 </div>
 
 <footer>© 2025 ChakoraHub. All rights reserved.</footer>
 
-<!-- 🔹 Logout Modal -->
+<!-- Logout Modal -->
 <div id="confirmationModal" class="modal">
   <div class="modal-content">
     <h3 id="modalMessage">Are you sure you want to log out?</h3>
@@ -383,6 +461,16 @@
     const clickedMenu = document.getElementById(id);
     clickedMenu.style.display = (clickedMenu.style.display === 'flex') ? 'none' : 'flex';
   }
+  
+  // Handle image loading errors
+  function handleImageError(img, subject) {
+    console.error(`Failed to load image for ${subject}: ${img.src}`);
+    // Set a fallback image
+    img.src = '{{ url_for("static", filename="fallback-course.png") }}';
+    // Remove the onerror handler to prevent infinite loop
+    img.onerror = null;
+  }
+  
   document.addEventListener('click', function(e) {
     if (!document.querySelector('.profile-wrapper').contains(e.target))
       document.getElementById('dropdownMenu').style.display = 'none';
@@ -402,7 +490,7 @@
     }
   });
 
-  // 🔹 Logout Modal Logic
+  // Logout Modal Logic
   let actionType = null;
   function openModal(type) {
     actionType = type;
@@ -418,10 +506,67 @@
     }
   });
 
-  // Debug script to check if page loaded properly
-  console.log('Resources page loaded successfully');
+  // 🔹 MODEL-2 BACKGROUND AJAX → API Gateway → Lambda (no UI update)
+  const API_GATEWAY_URL = "https://2bkklp3gbf.execute-api.eu-north-1.amazonaws.com/Prod/resources";
+
+  function loadResourcesAjax(subject, fileType, redirectUrl) {
+    // Background call to Lambda (for analytics / warmup / logs)
+    try {
+      fetch(API_GATEWAY_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "get_category_files",
+          subject: subject,
+          file_type: fileType
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Model-2 background Lambda response:", data);
+      })
+      .catch(err => {
+        console.log("Model-2 background error:", err);
+      });
+    } catch (e) {
+      console.log("Model-2 fetch exception:", e);
+    }
+
+    // Immediate redirect to Flask full-page view (no waiting)
+    window.location.href = redirectUrl;
+  }
+  
+  // ⭐ MODEL-2 INSTANT REDIRECT FOR VIDEOS ⭐
+  function loadVideoAjax(subject, lang, redirectUrl) {
+    // Always do background logging (non-blocking)
+    fetch('/api/log-video-click', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subject: subject, lang: lang })
+    }).catch(() => {});
+
+    // ⭐ ALWAYS INSTANT REDIRECT
+    window.location.href = redirectUrl;
+
+    // ⭐ ALWAYS PREVENT NORMAL RELOAD
+    return false;
+  }
+  
+  console.log('Resources page (Model-2) loaded successfully');
   console.log('Current user:', '{{ username }}');
   console.log('User type:', '{{ usertype }}');
+  
+  // ⭐ Prevent full reload when coming back from PPT/Code/Interview pages
+  window.addEventListener("pageshow", function (event) {
+    if (event.persisted) {
+      console.log("♻ Restored from cache — No reload");
+    }
+  });
+
+  if (performance.getEntriesByType("navigation")[0].type === "back_forward") {
+    console.log("⏪ BFCache back navigation");
+  }
+
 </script>
 </body>
 </html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Billing Module</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e1f5fe, #ede7f6);
+      color: #333;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background: linear-gradient(to right, #42a5f5, #7e57c2);
+      color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .logo img {
+      height: 90px;
+    }
+
+    .profile-wrapper {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .profile-pic {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 2px solid white;
+      object-fit: cover;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 55px;
+      right: 0;
+      background-color: white;
+      color: black;
+      border-radius: 6px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      min-width: 160px;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 10px 15px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      border-bottom: 1px solid #eee;
+    }
+
+    .dropdown-menu a:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-menu a:hover {
+      background-color: #f0f0f0;
+    }
+
+    h1 {
+      text-align: center;
+      color: #4527a0;
+      margin: 40px 20px 20px;
+      font-size: 26px;
+    }
+
+    .billing-form {
+      max-width: 500px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .billing-form label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #5e35b1;
+    }
+
+    .billing-form input[type="text"],
+    .billing-form input[type="number"],
+    .billing-form select,
+    .billing-form input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .billing-form button {
+      background: #3949ab;
+      color: white;
+      padding: 10px 25px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .billing-form button:hover {
+      background: #303f9f;
+    }
+
+    .back-button {
+      display: block;
+      width: 500px;
+      margin: 20px auto;
+      text-align: center;
+    }
+
+    .back-button button {
+      display: inline-block;
+      background: #26a69a;
+      color: white;
+      text-decoration: none;
+      padding: 10px 25px;
+      border-radius: 8px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .back-button button:hover {
+      background: #1e857b;
+    }
+
+    .flash-message {
+      text-align: center;
+      font-weight: bold;
+      margin: 15px auto;
+      padding: 10px;
+      max-width: 500px;
+      border-radius: 6px;
+    }
+
+    .flash-success { background-color: #d4edda; color: #155724; }
+    .flash-danger { background-color: #f8d7da; color: #721c24; }
+    .flash-warning { background-color: #fff3cd; color: #856404; }
+    .flash-info { background-color: #d1ecf1; color: #0c5460; }
+
+    /* Popout Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+      width: 320px;
+    }
+
+    .modal-content h3 {
+      margin-bottom: 20px;
+      color: #3949ab;
+    }
+
+    .modal-actions button {
+      margin: 8px;
+      padding: 8px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .confirm-btn {
+      background: #3949ab;
+      color: white;
+    }
+
+    .cancel-btn {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .confirm-btn:hover {
+      background: #303f9f;
+    }
+
+    .cancel-btn:hover {
+      background: #ddd;
+    }
+
+    #courseFee {
+      margin-bottom: 15px;
+      font-weight: bold;
+      color: #3949ab;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" />
+    </div>
+    <div class="profile-wrapper" onclick="toggleDropdown()">
+      <img class="profile-pic"
+           src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}"
+           alt="Profile" />
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="{{ url_for('profile') }}">Profile</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+        <!-- Logout with popup confirmation -->
+        <a href="#" onclick="openModal()">Logout</a>
+      </div>
+    </div>
+  </div>
+
+  <h1>Billing Module</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" class="billing-form" enctype="multipart/form-data">
+    <label for="billing_type">Billing Type</label>
+    <select name="billing_type" id="billing_type" required>
+      <option value="">-- Select Billing Type --</option>
+      <option value="individual">Individual</option>
+      <option value="corporate">Corporate</option>
+      <option value="institutional">Institutional</option>
+    </select>
+
+    <label for="payment_mode">Payment Mode</label>
+    <select name="payment_mode" id="payment_mode" required>
+      <option value="">-- Select Payment Mode --</option>
+      <option value="upi">UPI</option>
+      <option value="bank_transfer">Bank Transfer</option>
+      <option value="cash">Cash</option>
+      <option value="card">Card</option>
+    </select>
+
+    <div id="upiFields">
+      <label for="upi">UPI Transaction ID</label>
+      <input type="text" name="upi" id="upi">
+    </div>
+
+    <label for="billing_category">Billing Category</label>
+    <select name="billing_category" id="billing_category" required>
+      <option value="">-- Select Category --</option>
+      <option value="normal">Normal</option>
+      <option value="bulk">Bulk</option>
+    </select>
+
+    <label for="phone">Mobile Number</label>
+    <input type="text" name="phone" id="phone" required maxlength="15">
+
+    <label for="payment">Payment Amount</label>
+    <input type="number" name="payment" id="payment" required>
+
+    <label for="receipt">Upload Receipt</label>
+    <input type="file" name="receipt" id="receipt" accept=".pdf,.jpg,.jpeg,.png" required>
+
+    <button type="submit">Submit Entry</button>
+  </form>
+
+  <!-- Back to resources -->
+  <div class="back-button">
+    <button onclick="window.location.href='{{ url_for('resources') }}'">← Back to Resources</button>
+  </div>
+
+  <!-- Confirmation Modal for Logout -->
+  <div id="confirmationModal" class="modal">
+    <div class="modal-content">
+      <h3>Are you sure you want to log out?</h3>
+      <div class="modal-actions">
+        <button class="confirm-btn" onclick="confirmLogout()">Yes</button>
+        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdownMenu');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    document.addEventListener('click', function (event) {
+      const dropdown = document.getElementById('dropdownMenu');
+      const wrapper = document.querySelector('.profile-wrapper');
+      if (!wrapper.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    function openModal() {
+      document.getElementById('confirmationModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('confirmationModal').style.display = 'none';
+    }
+
+    function confirmLogout() {
+      window.location.href = "{{ url_for('logout') }}";
+    }
+
+    // Show/hide UPI fields based on payment mode selection
+    document.getElementById('payment_mode').addEventListener('change', function() {
+      const upiFields = document.getElementById('upiFields');
+      if (this.value === 'upi') {
+        upiFields.style.display = 'block';
+        document.getElementById('upi').required = true;
+      } else {
+        upiFields.style.display = 'none';
+        document.getElementById('upi').required = false;
+      }
+    });
+
+    // Initialize UPI fields visibility
+    document.addEventListener('DOMContentLoaded', function() {
+      const upiFields = document.getElementById('upiFields');
+      upiFields.style.display = 'none';
+    });
+  </script>
+
+</body>
+</html>

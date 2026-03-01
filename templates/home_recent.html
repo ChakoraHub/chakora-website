@@ -215,42 +215,6 @@
       text-align: center;
       font-size: 14px;
     }
-    .login-links {
-    margin-top: 12px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    }
-
-    .forgot-dropdown {
-        position: relative;
-    }
-
-    .forgot-dropdown-content {
-        display: none;
-        position: absolute;
-        background: #fff;
-        min-width: 160px;
-        box-shadow: 0 4px 12px rgba(0,0,0,.15);
-        border-radius: 6px;
-        z-index: 1000;
-    }
-
-    .forgot-dropdown-content a {
-        display: block;
-        padding: 10px;
-        text-decoration: none;
-        color: #333;
-    }
-
-    .forgot-dropdown-content a:hover {
-        background: #f1f1f1;
-    }
-
-    .forgot-dropdown:hover .forgot-dropdown-content {
-        display: block;
-    }
-
 
     /* --- Batch Section --- */
     .batch-section {
@@ -342,19 +306,6 @@
     .service-list > li span {
       font-size: 22px;
       margin-right: 10px;
-    }
-
-    /* Service Downtime Message - Updated Color */
-    .service-downtime-message {
-      background-color: #e3f2fd;
-      border: 2px solid #2196F3;
-      border-radius: 8px;
-      padding: 12px 20px;
-      margin-bottom: 25px;
-      text-align: center;
-      font-weight: bold;
-      color: #1565C0;
-      font-size: 16px;
     }
 
     /* --- Collaboration Box --- */
@@ -486,18 +437,14 @@
     }
 
     /* --- Feedback Section --- */
-    /* --- Feedback Section --- */
     .feedback-section {
-  background: #eef6fa;
-  padding: 30px;
-  border-radius: 15px;
-  width: 450px;
-  margin-left: 500px;
-   box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.08),
-    0 12px 30px rgba(0, 0, 0, 0.12);
-}
-
+      min-width: 500px;
+      background-color: #eef6fa;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      font-family: 'Segoe UI', sans-serif;
+    }
 
     .feedback-section h2 {
       text-align: center;
@@ -590,19 +537,27 @@
       line-height: 1.6;
     }
 
-    /* --- Enquiry Section --- */
-    .enquiry-wrapper {
+    /* --- Video & Enquiry --- */
+    .video-enquiry-wrapper {
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
+      gap: 60px;
       margin: 50px auto;
+      flex-wrap: wrap;
       padding: 0 20px;
       max-width: 1100px;
     }
 
+    .youtube-box iframe {
+      width: 420px;
+      height: 270px;
+      border-radius: 10px;
+    }
+
     .enquiry-box {
-      width: 100%;
-      max-width: 500px;
+      flex: 1;
+      max-width: 400px;
       background: #fff;
       border-radius: 10px;
       padding: 30px;
@@ -722,11 +677,6 @@
       .certificate-section {
         max-width: 100%;
       }
-
-      .service-downtime-message {
-        font-size: 14px;
-        padding: 10px 15px;
-      }
     }
 
     @media (max-width: 480px) {
@@ -765,11 +715,6 @@
       .feedback-section, .certificate-section {
         min-width: 100%;
       }
-
-      .service-downtime-message {
-        font-size: 13px;
-        padding: 8px 12px;
-      }
     }
   </style>
 </head>
@@ -798,7 +743,6 @@
           <a href="/solutions#api">API Solutions</a>
         </div>
       </div>
-      <a href="/client">Client</a>
       <div class="dropdown">
         <a href="/aboutus">About Us ▾</a>
         <div class="dropdown-content">
@@ -860,14 +804,9 @@
                placeholder="Enter your password" required>
 
         <button type="submit">Login</button>
-        <div class="login-links">
-
-    <a href="/forgot-password">Forgot Password?</a>
-
-    New user?<a href="/register">Register Here</a>
-
-</div>
-
+        <div class="register-link">
+          New user? <a href="{{ url_for('register') }}">Register here</a>
+        </div>
       </form>
     </div>
   </div>
@@ -925,11 +864,6 @@
 
     <!-- Services -->
     <section class="services-highlight" data-search="services">
-      <!-- Services Downtime Message -->
-      <div class="service-downtime-message" data-search="services downtime">
-        ⚠️ Services down time : 10 PM IST to 8 AM IST
-      </div>
-      
       <h2>✨ Our Services</h2>
       <ul class="service-list">
         <li><span>💡</span> IT Training</li>
@@ -954,34 +888,30 @@
   </div>
 
   <!-- Feedback Section -->
-  <div class="feedback-section">
-  <h2>Student Feedback</h2>
-
   {% if feedbacks %}
-   
-
-    <div class="feedback-scroll-wrapper">
-      <div class="feedback-scroll-content">
-
-        {% for fb in feedbacks %}
+  <div class="services-wrapper">
+    <div class="feedback-section" data-search="student feedback">
+      <h2>💬 Student Feedback</h2>
+      <div class="feedback-scroll-wrapper">
+        <div class="feedback-scroll-content">
+          {% for feedback in feedbacks %}
           <div class="feedback-item">
-            <span class="feedback-msg">
-              "{{ fb.feedback_message }}"
-            </span>
-            <span class="feedback-name">
-              - {{ fb.username }}
-            </span>
+            <span class="feedback-msg">"{{ feedback.feedback_message }}"</span>
+            <span class="feedback-name">— {{ feedback.username }}</span>
           </div>
-        {% endfor %}
-
+          {% endfor %}
+          <!-- Duplicate for seamless scrolling -->
+          {% for feedback in feedbacks %}
+          <div class="feedback-item">
+            <span class="feedback-msg">"{{ feedback.feedback_message }}"</span>
+            <span class="feedback-name">— {{ feedback.username }}</span>
+          </div>
+          {% endfor %}
+        </div>
       </div>
     </div>
-
-  {% else %}
-    <p style="text-align:center;">No feedback available.</p>
+  </div>
   {% endif %}
-</div>
-
 
   <!-- Certificate Section -->
   <div class="certificate-wrapper">
@@ -998,8 +928,16 @@
     </div>
   </div>
 
-  <!-- Enquiry Section -->
-  <div class="enquiry-wrapper">
+  <!-- Video + Enquiry -->
+  <div class="video-enquiry-wrapper">
+    <div class="youtube-box" data-search="video">
+      <iframe src="https://www.youtube.com/embed/tqA7J9-1yNo"
+        title="Lord Balaji" frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
+    </div>
+
     <div class="enquiry-box" data-search="enquiry" id="enquirySection">
       <h2 data-search="enquiry heading">Quick Enquiry</h2>
       
@@ -1088,8 +1026,7 @@
 
           const formData = new FormData(this);
 
-          fetch( 
-          "/home/enquiry", {
+          fetch(this.action, {
             method: 'POST',
             body: formData,
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -1147,4 +1084,4 @@
     });
   </script>
 </body>
-</html>
+</html

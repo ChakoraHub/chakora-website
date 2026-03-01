@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generate Student Report - ChakoraHub</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e1f5fe, #ede7f6);
+      color: #333;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background: linear-gradient(to right, #42a5f5, #7e57c2);
+      color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+    }
+    .logo img { height: 90px; }
+    .profile-wrapper { position: relative; cursor: pointer; }
+    .profile-pic {
+      width: 45px; height: 45px; border-radius: 50%;
+      border: 2px solid white; object-fit: cover;
+    }
+    .dropdown-menu {
+      display: none; position: absolute; top: 55px; right: 0;
+      background-color: white; color: black; border-radius: 6px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3); z-index: 1000;
+      min-width: 160px;
+    }
+    .dropdown-menu a {
+      display: block; padding: 10px 15px; text-decoration: none;
+      color: #333; font-weight: 500; border-bottom: 1px solid #eee;
+    }
+    .dropdown-menu a:last-child { border-bottom: none; }
+    .dropdown-menu a:hover { background-color: #f0f0f0; }
+    h2 {
+      text-align: center; margin: 40px 20px 30px; font-size: 26px; color: #4527a0;
+    }
+    .table-container {
+      width: 95%; margin: 0 auto 30px; background-color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); border-radius: 10px; overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+    th, td {
+      border: 1px solid #ccc; padding: 12px 10px; text-align: center;
+      font-size: 14px;
+    }
+    th { background-color: #3949ab; color: white; position: sticky; top: 0; }
+    tr:nth-child(even) { background-color: #f8f9fa; }
+    tr:hover { background-color: #e3f2fd; }
+    .delete-btn {
+      background: #e53935; color: white; border: none;
+      padding: 6px 12px; border-radius: 4px; cursor: pointer;
+      font-weight: bold; font-size: 12px;
+    }
+    .delete-btn:hover { background: #c62828; }
+    .back-resources { text-align: center; margin: 40px 0 60px; }
+    .back-btn {
+      background: #3949ab; color: white; padding: 10px 25px;
+      text-decoration: none; border-radius: 8px; font-weight: bold;
+      display: inline-block; transition: background 0.3s;
+    }
+    .back-btn:hover { background: #303f9f; }
+    .modal {
+      display: none; position: fixed; z-index: 2000;
+      left: 0; top: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); justify-content: center; align-items: center;
+    }
+    .modal-content {
+      background: #fff; padding: 25px; border-radius: 12px; text-align: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3); width: 320px;
+    }
+    .download-link { color: #1976d2; text-decoration: none; }
+    .download-link:hover { text-decoration: underline; }
+    .no-resume { color: #757575; font-style: italic; }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" />
+    </div>
+
+    <div class="profile-wrapper" onclick="toggleDropdown()">
+      <img class="profile-pic"
+           src="{{ url_for('static', filename='images/defaultpicture.jpg') }}"
+           alt="Profile" />
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="{{ url_for('profile') }}">Profile</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+        <a href="#" onclick="openModal('logout')">Logout</a>
+      </div>
+    </div>
+  </div>
+
+  <h2>Generate Student Report</h2>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Registration ID</th>
+          <th>Course</th>
+          <th>E-mail</th>
+          <th>Phone</th>
+          <th>Employed</th>
+          <th>Experience</th>
+          <th>Address</th>
+          <th>Skill Set</th>
+          <th>Resume</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="studentsTableBody">
+        <tr><td colspan="11" class="loading">Loading student data...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="back-resources">
+    <a href="{{ url_for('resources') }}" class="back-btn">← Back to Resources</a>
+  </div>
+
+  <!-- Modal -->
+  <div id="confirmationModal" class="modal">
+    <div class="modal-content">
+      <h3 id="modalMessage">Are you sure?</h3>
+      <button id="confirmBtn" class="confirm-btn">Yes</button>
+      <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+
+<script>
+// LOAD DATA
+document.addEventListener('DOMContentLoaded', () => fetchStudents());
+
+async function fetchStudents() {
+  const response = await fetch("/students");
+  const result = await response.json();
+
+  const table = document.getElementById("studentsTableBody");
+
+  if (result.status !== "success") {
+    table.innerHTML = `<tr><td colspan="11">Error loading data</td></tr>`;
+    return;
+  }
+
+  table.innerHTML = "";
+
+  result.data.forEach(s => {
+    table.innerHTML += `
+      <tr>
+        <td>${s.first_name}</td>
+        <td>${s.registration_id}</td>
+        <td>${s.course}</td>
+        <td>${s.email}</td>
+        <td>${s.phone}</td>
+        <td>${s.employed}</td>
+        <td>${s.experience}</td>
+        <td>${s.address}</td>
+        <td>${s.skill_set}</td>
+        <td>${s.resume ? `<a class="download-link" href="/download_resume?file_path=${s.resume}">Download</a>` : "No Resume"}</td>
+        <td><button onclick="deleteStudent('${s.registration_id}')" class="delete-btn">Delete</button></td>
+      </tr>
+    `;
+  });
+}
+
+async function deleteStudent(regId) {
+  if (!confirm("Delete student " + regId + "?")) return;
+
+  const response = await fetch("/delete_student", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({registration_id: regId})
+  });
+
+  const result = await response.json();
+  alert(result.message);
+  fetchStudents();
+}
+
+// Dropdown
+function toggleDropdown() {
+  const menu = document.getElementById("dropdownMenu");
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+</script>
+
+</body>
+</html>

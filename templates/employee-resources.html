@@ -82,90 +82,178 @@
       text-decoration: none;
       font-weight: 500;
       transition: all 0.3s ease;
+      cursor: pointer;
     }
     .sidebar a:hover { color: #5e35b1; transform: translateX(8px); }
-    .sidebar-submenu { display: none; padding-left: 10px; }
-    .sidebar-toggle { cursor: pointer; padding: 10px 0; font-weight: 500; color: #333; transition: all 0.3s ease; }
-    .sidebar-toggle:hover { color: #5e35b1; transform: translateX(8px); }
+    .sidebar a.active { color: #5e35b1; font-weight: 700; }
     .content-area { flex: 1; padding: 10px 20px; background: #fdfdfd; }
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: flex-start;
-    }
-    .subject-box {
-      width: calc(33.333% - 20px);
+
+    .welcome-section {
+      padding: 30px 20px;
       text-align: center;
+    }
+    .welcome-title {
+      font-size: 2.5rem;
+      color: #333;
       margin-bottom: 10px;
-      position: relative;
+      font-weight: 700;
+    }
+    .welcome-subtitle {
+      font-size: 1.2rem;
+      color: #666;
+      margin-bottom: 30px;
     }
 
-    /* 🔹 Wrapper around image to keep ribbon aligned */
-    .image-wrapper {
-      position: relative;
-      display: inline-block;
-      width: 100%;
-      max-width: 180px;
+    .content-section {
+      display: none;
+      animation: fadeIn 0.3s ease-in;
     }
-    .image-wrapper img {
-      width: 100%;
-      height: auto;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease;
-      cursor: pointer;
+    .content-section.active {
       display: block;
     }
-    .image-wrapper:hover img { transform: scale(1.05); }
 
-    /* 🔹 Responsive Diagonal Offer Ribbon */
-    .offer-badge {
-      position: absolute;
-      top: 8%;
-      right: -25%;
-      background: crimson;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      background: linear-gradient(to right, #7986cb, #9575cd);
       color: white;
-      font-size: 0.7em;
-      font-weight: bold;
-      padding: 0.3em 2em;
-      transform: rotate(45deg);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      z-index: 2;
-      text-align: center;
-      white-space: nowrap;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    .section-header h2 {
+      margin: 0 0 5px 0;
+      font-size: 1.8rem;
+    }
+    .section-header p {
+      margin: 0;
+      opacity: 0.9;
     }
 
-    .subject-title {
-      margin-top: 8px;
-      font-weight: bold;
-      color: #5e35b1;
-      font-size: 15px;
-      cursor: pointer;
+    .info-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    .submenu { display: none; margin-top: 10px; gap: 10px; justify-content: center; flex-wrap: wrap; }
-    .submenu-tile {
-      background-color: #d1c4e9;
-      border-radius: 10px;
-      text-align: center;
-      padding: 10px;
-      min-width: 90px;
-      text-decoration: none;
-      color: #4a148c;
-      font-weight: 500;
+    .info-card h3 {
+      color: #5e35b1;
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      font-weight: 600;
+      color: #666;
+    }
+    .info-value {
+      color: #333;
+    }
+
+    .btn-primary {
+      background: #5e35b1;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
-      position: relative;
     }
-    .submenu-tile:hover { background-color: #b39ddb; color: #311b92; transform: scale(1.05); }
-    .tile-icon { font-size: 18px; }
-    .tile-label { font-size: 13px; }
-    .lang-submenu { display: none; flex-direction: column; margin-top: 8px; background-color: #ede7f6; padding: 6px; border-radius: 8px; }
-    .lang-submenu a { background: #d1c4e9; color: #311b92; padding: 5px 10px; border-radius: 6px; margin: 4px 0; text-decoration: none; font-size: 13px; text-align: center; transition: all 0.3s ease; }
-    .lang-submenu a:hover { background-color: #b39ddb; color: #000; transform: scale(1.02); }
-    footer { text-align: center; padding: 20px; background: linear-gradient(to right, #9575cd, #7986cb); color: #fff; font-size: 13px; margin-top: 20px; }
+    .btn-primary:hover {
+      background: #4527a0;
+      transform: translateY(-2px);
+    }
 
-    /* 🔹 Modal for Logout */
+    .leave-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    .leave-table th,
+    .leave-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .leave-table th {
+      background: #ede7f6;
+      color: #4a148c;
+      font-weight: 600;
+    }
+    .leave-table tr:hover {
+      background: #f5f5f5;
+    }
+
+    .id-card-preview {
+      max-width: 400px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+    .id-card-photo {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      object-fit: cover;
+    }
+
+    .query-form {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #555;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    .form-group textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    footer { 
+      text-align: center; 
+      padding: 20px; 
+      background: linear-gradient(to right, #9575cd, #7986cb); 
+      color: #fff; 
+      font-size: 13px; 
+      margin-top: 20px; 
+    }
+
     .modal {
       display: none;
       position: fixed;
@@ -200,28 +288,35 @@
     .confirm-btn:hover { background: #303f9f; }
     .cancel-btn:hover { background: #ddd; }
 
-    /* 🔹 Welcome Section Styles */
-    .welcome-section {
-      padding: 30px 20px;
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       text-align: center;
     }
-    .welcome-title {
-      font-size: 2.5rem;
-      color: #333;
-      margin-bottom: 10px;
+    .stat-number {
+      font-size: 2rem;
       font-weight: 700;
+      color: #5e35b1;
+      margin-bottom: 5px;
     }
-    .welcome-subtitle {
-      font-size: 1.2rem;
+    .stat-label {
       color: #666;
-      margin-bottom: 30px;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
 <div class="header">
   <div class="logo">
-    <a href="/"><img src="{{ url_for('static', filename='logo.png') }}" alt="Logo"></a>
+    <a href="#" onclick="showSection('welcome')"><img src="{{ url_for('static', filename='logo.png') }}" alt="Logo"></a>
   </div>
   <div class="center-text">
     {% if festival_today %}
@@ -233,8 +328,8 @@
     <div class="profile-wrapper" onclick="toggleDropdown()">
       <img class="profile-pic" src="{{ url_for('static', filename=(profile_pic if profile_pic else 'profile_photo/defaultpicture.jpg')) }}" alt="Profile" />
       <div class="dropdown-menu" id="dropdownMenu">
-        <a href="/profile">Profile</a>
-        <a href="/settings">Settings</a>
+        <a href="#" onclick="showSection('profile')">Profile</a>
+        <a href="#" onclick="showComingSoon('Settings')">Settings</a>
         <a href="#" onclick="openModal('logout')">Logout</a>
       </div>
     </div>
@@ -244,34 +339,406 @@
 <div class="main-wrapper">
   <div class="sidebar">
     <h3>EMPLOYEE RESOURCES</h3>
-    <a href="{{ url_for('personal_details') }}">👤 Personal Details</a>
-    <a href="{{ url_for('salary_info') }}">💰 Salary Information</a>
-    <a href="{{ url_for('leave_tracker') }}">📆 Leave Tracker</a>
-    <a href="{{ url_for('id_card') }}">🪪 ID Card</a>
-    <a href="{{ url_for('employee_queries') }}">📨 Employee Queries</a>
-    <a href="{{ url_for('employee_appraisal') }}">📨 Employee appraisal</a>
-    
-    <!-- 🔹 360 Dashboard Link - Plain style like others -->
+    <a href="#" onclick="showSection('personal-details')" data-section="personal-details">👤 Personal Details</a>
+    <a href="#" onclick="showSection('salary-info')" data-section="salary-info">💰 Salary Information</a>
+    <a href="#" onclick="showSection('leave-tracker')" data-section="leave-tracker">📆 Leave Tracker</a>
+    <a href="#" onclick="showSection('id-card')" data-section="id-card">🪪 ID Card</a>
+    <a href="#" onclick="showSection('employee-queries')" data-section="employee-queries">📨 Employee Queries</a>
+    <a href="{{ url_for('employee_appraisal') }}">📊 Employee Appraisal</a>
     <a href="{{ url_for('dashboard') }}">🚀 360 Dashboard</a>
+    
+    <a href="#" onclick="showComingSoon('Blogger'); return false;">📝 Blogger</a>
+    <a href="#" onclick="showComingSoon('Calendar'); return false;">📅 Calendar</a>
+    <a href="#" onclick="showComingSoon('Meeting'); return false;">🤝 Meeting</a>
+    <a href="#" onclick="showComingSoon('Roadmap'); return false;">🗺️ Roadmap</a>
+    <a href="#" onclick="showComingSoon('COC'); return false;">📜 COC</a>
+    <a href="#" onclick="showComingSoon('Offers'); return false;">🎁 Offers</a>
   </div>
 
-  <div class="content-area">
-    <!-- Plain Welcome Section (No logos/cards) -->
-    <div class="welcome-section">
-      <h1 class="welcome-title">Welcome {{ Employee_name }}!</h1>
-      <p class="welcome-subtitle">Access all your employee information and resources in one place.</p>
+  <div class="content-area" id="mainContent">
+    <!-- Welcome Section -->
+    <div id="welcome" class="content-section active">
+      <div class="welcome-section">
+        <h1 class="welcome-title">Welcome {{ Employee_name }}!</h1>
+        <p class="welcome-subtitle">Access all your employee information and resources in one place.</p>
+      </div>
     </div>
-    
-    <!-- Empty container (no cards/logos) -->
-    <div class="container">
-      <!-- Content area is kept plain as requested -->
+
+    <!-- Personal Details Section -->
+    <div id="personal-details" class="content-section">
+      <div class="section-header">
+        <h2>👤 Personal Details</h2>
+        <p>Your complete personal information</p>
+      </div>
+      
+      <div class="info-card">
+        <h3>Basic Information</h3>
+        <div class="info-row">
+          <span class="info-label">Full Name:</span>
+          <span class="info-value">{{ employee_data.full_name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Employee ID:</span>
+          <span class="info-value">{{ employee_data.employee_id }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Date of Birth:</span>
+          <span class="info-value">{{ employee_data.dob }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Gender:</span>
+          <span class="info-value">{{ employee_data.gender }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Email:</span>
+          <span class="info-value">{{ employee_data.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Phone:</span>
+          <span class="info-value">{{ employee_data.phone }}</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>Employment Details</h3>
+        <div class="info-row">
+          <span class="info-label">Department:</span>
+          <span class="info-value">{{ employee_data.department }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Designation:</span>
+          <span class="info-value">{{ employee_data.designation }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Date of Joining:</span>
+          <span class="info-value">{{ employee_data.date_of_joining }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Manager:</span>
+          <span class="info-value">{{ employee_data.manager }}</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>Address</h3>
+        <div class="info-row">
+          <span class="info-label">Current Address:</span>
+          <span class="info-value">{{ employee_data.current_address }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Permanent Address:</span>
+          <span class="info-value">{{ employee_data.permanent_address }}</span>
+        </div>
+      </div>
     </div>
+
+    <!-- Salary Information Section -->
+    <div id="salary-info" class="content-section">
+      <div class="section-header">
+        <h2>💰 Salary Information</h2>
+        <p>Your salary structure and payment details</p>
+      </div>
+      
+      <div class="info-card">
+        <h3>Current Salary Breakdown</h3>
+        <div class="info-row">
+          <span class="info-label">Basic Salary:</span>
+          <span class="info-value">{{ salary_data.basic_salary }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">HRA:</span>
+          <span class="info-value">{{ salary_data.hra }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Special Allowance:</span>
+          <span class="info-value">{{ salary_data.special_allowance }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Transport Allowance:</span>
+          <span class="info-value">{{ salary_data.transport_allowance }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Medical Allowance:</span>
+          <span class="info-value">{{ salary_data.medical_allowance }}</span>
+        </div>
+        <div class="info-row" style="font-weight: 700; font-size: 1.1rem;">
+          <span class="info-label">Gross Salary:</span>
+          <span class="info-value">{{ salary_data.gross_salary }}</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>Deductions</h3>
+        <div class="info-row">
+          <span class="info-label">Provident Fund:</span>
+          <span class="info-value">{{ salary_data.pf }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Professional Tax:</span>
+          <span class="info-value">{{ salary_data.professional_tax }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Income Tax (TDS):</span>
+          <span class="info-value">{{ salary_data.tds }}</span>
+        </div>
+        <div class="info-row" style="font-weight: 700; font-size: 1.1rem;">
+          <span class="info-label">Net Salary:</span>
+          <span class="info-value">{{ salary_data.net_salary }}</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>Payment Details</h3>
+        <div class="info-row">
+          <span class="info-label">Bank Name:</span>
+          <span class="info-value">{{ salary_data.bank_name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Account Number:</span>
+          <span class="info-value">{{ salary_data.account_number }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">IFSC Code:</span>
+          <span class="info-value">{{ salary_data.ifsc_code }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leave Tracker Section -->
+    <div id="leave-tracker" class="content-section">
+      <div class="section-header">
+        <h2>📆 Leave Tracker</h2>
+        <p>Manage your leave balance and history</p>
+      </div>
+      
+      <div class="info-card">
+        <h3>Leave Balance</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">{{ leave_data.casual_leave }}</div>
+            <div class="stat-label">Casual Leave</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">{{ leave_data.sick_leave }}</div>
+            <div class="stat-label">Sick Leave</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">{{ leave_data.privilege_leave }}</div>
+            <div class="stat-label">Privilege Leave</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>Leave History</h3>
+        <table class="leave-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>From Date</th>
+              <th>To Date</th>
+              <th>Days</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for leave in leave_history %}
+            <tr>
+              <td>{{ leave.type }}</td>
+              <td>{{ leave.from_date }}</td>
+              <td>{{ leave.to_date }}</td>
+              <td>{{ leave.days }}</td>
+              <td>{{ leave.status }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <button class="btn-primary" onclick="showComingSoon('Apply Leave')">Apply for Leave</button>
+    </div>
+
+    <!-- ID Card Section -->
+    <div id="id-card" class="content-section">
+      <div class="section-header">
+        <h2>🪪 Employee ID Card</h2>
+        <p>Your digital identity card</p>
+      </div>
+      
+      <div class="id-card-preview">
+        <img class="id-card-photo" src="{{ url_for('static', filename=(profile_pic if profile_pic else 'profile_photo/defaultpicture.jpg')) }}" alt="Profile" />
+        <h2 style="margin: 10px 0; color: #5e35b1;">{{ id_card_data.name }}</h2>
+        <p style="color: #666; margin: 5px 0;">{{ id_card_data.designation }}</p>
+        <p style="color: #666; margin: 5px 0;">{{ id_card_data.department }}</p>
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+          <p style="font-weight: 700; color: #333; margin: 5px 0;">Employee ID: {{ id_card_data.employee_id }}</p>
+          <p style="color: #666; margin: 5px 0;">Valid Until: {{ id_card_data.valid_until }}</p>
+        </div>
+        <button class="btn-primary" style="margin-top: 20px;" onclick="showComingSoon('Download ID Card')">Download ID Card</button>
+      </div>
+    </div>
+
+    <!-- Employee Queries Section -->
+    <div id="employee-queries" class="content-section">
+      <div class="section-header">
+        <h2>📨 Employee Queries</h2>
+        <p>Submit and track your queries</p>
+      </div>
+      
+      <div class="query-form">
+        <h3 style="color: #5e35b1; margin-top: 0;">Submit New Query</h3>
+        <div class="form-group">
+          <label>Query Type</label>
+          <select>
+            <option>Select Query Type</option>
+            <option>IT Support</option>
+            <option>HR Related</option>
+            <option>Payroll</option>
+            <option>Leave Management</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Subject</label>
+          <input type="text" placeholder="Enter query subject">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea placeholder="Describe your query in detail"></textarea>
+        </div>
+        <button class="btn-primary" onclick="showComingSoon('Submit Query')">Submit Query</button>
+      </div>
+
+      <div class="info-card" style="margin-top: 20px;">
+        <h3>Recent Queries</h3>
+        <table class="leave-table">
+          <thead>
+            <tr>
+              <th>Query ID</th>
+              <th>Subject</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for query in queries %}
+            <tr>
+              <td>{{ query.query_id }}</td>
+              <td>{{ query.subject }}</td>
+              <td>{{ query.date }}</td>
+              <td>{{ query.status }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Employee Appraisal Section -->
+    <div id="employee-appraisal" class="content-section">
+      <div class="section-header">
+        <h2>📊 Employee Appraisal</h2>
+        <p>Your performance review and ratings</p>
+      </div>
+      
+      <div class="info-card">
+        <h3>Latest Appraisal</h3>
+        <div class="info-row">
+          <span class="info-label">Overall Rating:</span>
+          <span class="info-value" style="color: #5e35b1; font-weight: 700; font-size: 1.2rem;">{{ appraisal_data.overall_rating }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Review Period:</span>
+          <span class="info-value">{{ appraisal_data.review_period }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Reviewer:</span>
+          <span class="info-value">{{ appraisal_data.reviewer }}</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>Performance Metrics</h3>
+        {% for metric in appraisal_data.metrics %}
+        <div class="info-row">
+          <span class="info-label">{{ metric.name }}:</span>
+          <span class="info-value">{{ metric.rating }}</span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="info-card">
+        <h3>Feedback Summary</h3>
+        <p style="line-height: 1.6; color: #555;">
+          {{ appraisal_data.feedback }}
+        </p>
+      </div>
+
+      <div class="info-card">
+        <h3>Appraisal History</h3>
+        <table class="leave-table">
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>Rating</th>
+              <th>Increment</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for history in appraisal_history %}
+            <tr>
+              <td>{{ history.year }}</td>
+              <td>{{ history.rating }}</td>
+              <td>{{ history.increment }}</td>
+              <td>{{ history.status }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Profile Section -->
+    <div id="profile" class="content-section">
+      <div class="section-header">
+        <h2>👤 My Profile</h2>
+        <p>View and update your profile information</p>
+      </div>
+      
+      <div class="id-card-preview">
+        <img class="id-card-photo" src="{{ url_for('static', filename=(profile_pic if profile_pic else 'profile_photo/defaultpicture.jpg')) }}" alt="Profile" />
+        <button class="btn-primary" style="margin-top: 15px;" onclick="showComingSoon('Upload Photo')">Upload Photo</button>
+      </div>
+
+      <div class="info-card">
+        <h3>Account Information</h3>
+        <div class="info-row">
+          <span class="info-label">Username:</span>
+          <span class="info-value">{{ profile_data.username }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Email:</span>
+          <span class="info-value">{{ profile_data.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Account Status:</span>
+          <span class="info-value">{{ profile_data.account_status }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Last Login:</span>
+          <span class="info-value">{{ profile_data.last_login }}</span>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="showComingSoon('Edit Profile')">Edit Profile</button>
+    </div>
+
   </div>
 </div>
 
 <footer>© 2025 ChakoraHub. All rights reserved.</footer>
 
-<!-- 🔹 Logout Modal -->
 <div id="confirmationModal" class="modal">
   <div class="modal-content">
     <h3 id="modalMessage">Are you sure you want to log out?</h3>
@@ -282,36 +749,61 @@
   </div>
 </div>
 
+<div id="comingSoonModal" class="modal">
+  <div class="modal-content">
+    <h3 id="comingSoonMessage">Feature Coming Soon!</h3>
+    <p style="color: #666; margin: 15px 0;">This feature is currently under development.</p>
+    <div class="modal-actions">
+      <button class="confirm-btn" onclick="closeComingSoonModal()">OK</button>
+    </div>
+  </div>
+</div>
+
 <script>
+  // Toggle dropdown menu
   function toggleDropdown() {
     const d = document.getElementById('dropdownMenu');
     d.style.display = d.style.display === 'block' ? 'none' : 'block';
   }
 
-  function toggleSubmenu(id) {
-    const allSubmenus = document.querySelectorAll('.submenu');
-    allSubmenus.forEach(sm => { if (sm.id !== id) sm.style.display = 'none'; });
-    const target = document.getElementById(id);
-    target.style.display = (target.style.display === 'flex') ? 'none' : 'flex';
+  // Show section function
+  function showSection(sectionId) {
+    // Hide all sections
+    const sections = document.querySelectorAll('.content-section');
+    sections.forEach(section => {
+      section.classList.remove('active');
+    });
+
+    // Show selected section
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+      targetSection.classList.add('active');
+    }
+
+    // Update active state in sidebar
+    const sidebarLinks = document.querySelectorAll('.sidebar a');
+    sidebarLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('data-section') === sectionId) {
+        link.classList.add('active');
+      }
+    });
+
+    // Close dropdown if open
+    document.getElementById('dropdownMenu').style.display = 'none';
   }
 
-  function toggleLanguageMenu(id) {
-    const clickedMenu = document.getElementById(id);
-    clickedMenu.style.display = (clickedMenu.style.display === 'flex') ? 'none' : 'flex';
-  }
-
+  // Close dropdown when clicking outside
   document.addEventListener('click', function(e) {
-    if (!document.querySelector('.profile-wrapper').contains(e.target))
+    const profileWrapper = document.querySelector('.profile-wrapper');
+    if (profileWrapper && !profileWrapper.contains(e.target)) {
       document.getElementById('dropdownMenu').style.display = 'none';
-    
-    if (!e.target.closest('.subject-box') && !e.target.closest('.submenu') && !e.target.closest('.lang-submenu')) {
-      document.querySelectorAll('.submenu').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.lang-submenu').forEach(el => el.style.display = 'none');
     }
   });
 
-  // 🔹 Logout Modal Logic
+  // Modal functions
   let actionType = null;
+  
   function openModal(type) {
     actionType = type;
     const modal = document.getElementById('confirmationModal');
@@ -324,8 +816,38 @@
 
   document.getElementById('confirmBtn').addEventListener('click', function() {
     if (actionType === 'logout') {
-      window.location.href = "{{ url_for('Emp_logout') }}";
+      // In a real application, this would redirect to logout endpoint
+      alert('Logging out...');
+      closeModal();
+      // window.location.href = "/logout";
     }
+  });
+
+  // Coming soon modal
+  function showComingSoon(featureName) {
+    const modal = document.getElementById('comingSoonModal');
+    const message = document.getElementById('comingSoonMessage');
+    message.textContent = `${featureName} - Coming Soon!`;
+    modal.style.display = 'flex';
+  }
+
+  function closeComingSoonModal() {
+    document.getElementById('comingSoonModal').style.display = 'none';
+  }
+
+  // Close modals on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeModal();
+      closeComingSoonModal();
+    }
+  });
+
+  // Prevent default for sidebar links (except 360 Dashboard)
+  document.querySelectorAll('.sidebar a[data-section]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+    });
   });
 </script>
 </body>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Track Project Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* ===== Global ===== */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+body{
+  font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
+  background:#f5f7fa;
+  min-height:100vh;
+}
+
+/* ===== Header (Admin Dashboard Style) ===== */
+.top-header{
+  background:linear-gradient(90deg,#3e70d6,#4b8bff);
+  padding:14px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  color:#fff;
+  box-shadow:0 4px 10px rgba(0,0,0,.12);
+}
+.top-header .title{
+  font-size:22px;
+  font-weight:700;
+}
+.top-header .subtitle{
+  font-size:14px;
+  opacity:.9;
+}
+
+/* ===== Login Card ===== */
+.login-wrapper{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:60px 15px;
+}
+
+.login-card{
+  background:#fff;
+  width:100%;
+  max-width:380px;
+  padding:30px 28px;
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.12);
+}
+
+.login-card h2{
+  text-align:center;
+  color:#3e70d6;
+  margin-bottom:8px;
+}
+.login-card p{
+  text-align:center;
+  color:#666;
+  font-size:14px;
+  margin-bottom:22px;
+}
+
+/* ===== Inputs ===== */
+.login-card input{
+  width:100%;
+  padding:12px 14px;
+  margin-bottom:15px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  font-size:15px;
+}
+.login-card input:focus{
+  outline:none;
+  border-color:#4b8bff;
+  box-shadow:0 0 0 2px rgba(75,139,255,.15);
+}
+
+/* ===== Button ===== */
+.login-card button{
+  width:100%;
+  padding:12px;
+  background:linear-gradient(135deg,#4b8bff,#3e70d6);
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+}
+.login-card button:hover{
+  opacity:.95;
+  transform:translateY(-1px);
+}
+
+/* ===== Error ===== */
+.error{
+  background:#fdecea;
+  color:#b71c1c;
+  padding:10px;
+  border-radius:6px;
+  font-size:14px;
+  margin-bottom:15px;
+  text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===== Header ===== -->
+<div class="top-header">
+  <div>
+   <div class="title">Organization Login</div>
+<div class="subtitle">Login to view Organization sign off</div>
+
+  </div>
+</div>
+
+<!-- ===== Login Card ===== -->
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <h2>Organization Login</h2>
+    <p>Login using your registered email and password</p>
+
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+      <input
+        type="text"
+        name="username"
+        placeholder="Email or Phone"
+        required
+      >
+      <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        required
+      >
+      <button type="submit">Login</button>
+    </form>
+
+  </div>
+</div>
+
+</body>
+</html>

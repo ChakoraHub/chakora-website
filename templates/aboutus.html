@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -147,49 +148,26 @@
       margin-top: 50px;
       width: 100%;
       position: relative;
-      overflow: hidden;
       border-top: 2px solid #0078D7;
       box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
     }
 
     .mantra-scroll-container {
-      overflow: hidden;
+      overflow: visible;
       position: relative;
-      height: 45px;
+      height: auto;
       margin-bottom: 15px;
+      text-align: center;
     }
 
     .mantra-text {
-      position: absolute;
-      white-space: nowrap;
+      position: relative;
+      white-space: normal;
       font-size: 22px;
       font-weight: bold;
       color: #0078D7;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-      animation: scrollMantra 25s linear infinite;
-    }
-
-    .sanskrit-text {
-      font-family: 'Segoe UI', 'Noto Sans Devanagari', sans-serif;
-      font-size: 24px;
-      color: #8e44ad;
-    }
-
-    @keyframes scrollMantra {
-      0% {
-        transform: translateX(100%);
-      }
-      100% {
-        transform: translateX(-100%);
-      }
-    }
-
-    .mantra-note {
       text-align: center;
-      margin-top: 10px;
-      font-size: 16px;
-      font-style: italic;
-      color: #666;
     }
 
     .mantra-separator {
@@ -223,62 +201,6 @@
       background-color: #005a9e;
     }
 
-    @media (max-width: 768px) {
-      .about-container {
-        flex-direction: column;
-        text-align: center;
-      }
-      
-      .about-tabs {
-        flex-direction: column;
-        align-items: center;
-      }
-      
-      .about-tab {
-        width: 100%;
-        text-align: center;
-      }
-      
-      .about-text p {
-        text-align: left;
-      }
-      
-      .about-content {
-        padding: 20px;
-      }
-
-      .mantra-text {
-        font-size: 18px;
-        animation: scrollMantra 20s linear infinite;
-      }
-
-      .sanskrit-text {
-        font-size: 20px;
-      }
-
-      .mantra-scroll-container {
-        height: 40px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .mantra-text {
-        font-size: 16px;
-        animation: scrollMantra 15s linear infinite;
-      }
-
-      .sanskrit-text {
-        font-size: 18px;
-      }
-
-      .mantra-scroll-container {
-        height: 35px;
-      }
-
-      .mantra-note {
-        font-size: 14px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -305,7 +227,7 @@
           <p>
             This website has been founded by <strong>V. Subhash Chandra</strong>, a graduate in engineering from the class of 2011. Over the years, he has gained professional experience across various multinational corporations such as TCS, Cognizant, and Wipro. He is currently engaged as an Online trainer at Radical Technologies, sharing his knowledge and expertise with aspiring professionals.
           </p>
-          <p>
+	    <p>
             In March 2020, he received brahmana initiation from <strong>Bhuvanagiri Venkata Subrahmanya Sastry</strong> Garu, marking a significant spiritual milestone. His journey to pursue a spiritual life while continuing in the field of Information Technology has been deeply enriched from the very beginning by the timeless teachings of <strong>His Divine Grace A.C. Bhaktivedanta Swami Prabhupada</strong>, the Founder-Acharya of ISKCON, who appeared in the disciplic succession of the Brahma-Madhva-Gaudiya Sampradaya.
           </p>
           <p>
@@ -318,7 +240,8 @@
     <div id="companyContent" class="about-content">
       <div class="company-content">
         <h2>About the Company</h2>
-        <p><strong>Chakora Hub Pvt. Ltd.</strong> is a multi-domain innovation, education, and technology company with a mission to uplift society through <strong>knowledge, creativity, and meaningful problem-solving.</strong></p>
+        
+<p><strong>Chakora Hub Pvt. Ltd.</strong> is a multi-domain innovation, education, and technology company with a mission to uplift society through <strong>knowledge, creativity, and meaningful problem-solving.</strong></p>
         <p>We specialize in:</p>
         <ul>
           <li><strong>Automation & Software Development</strong></li>
@@ -344,60 +267,32 @@
     </div>
   </div>
 
-  <!-- Mantra Footer - Outside the main container at bottom of page -->
+  <!-- Mantra Footer -->
   <div class="mantra-footer">
-    <!-- Sanskrit Version with Diacritical Marks -->
-    <div class="mantra-scroll-container">
-      <div class="mantra-text sanskrit-text">
-        ॐ वज्रनखाय विद्महे तीक्ष्णदंष्ट्राय धीमहि तन्नो नरसिंहः प्रचोदयात् ॥
-      </div>
-    </div>
-    
     <div class="mantra-separator">~</div>
-    
-    <!-- English Transliteration -->
+
     <div class="mantra-scroll-container">
       <div class="mantra-text">
-        Oṁ Vajra-nakhāya Viddhi-mahe Tīkṣṇa-daṁṣṭrāya Dhīmahi Tanno Nṛsiṁhaḥ Pracodayāt
+        Oṁ Vajra-nakhāya Vidhmahe <br>
+        Tīkṣṇa-daṁṣṭrāya Dhīmahi <br>
+        Tanno Nṛsiṁhaḥ Pracodayāt
       </div>
-    </div>
-    
-    <div class="mantra-note">
-      Narasimha Maha Mantra - For Protection and Removing Obstacles
     </div>
   </div>
 
   <script>
     function switchTab(tabName) {
-      // Update tabs
-      document.querySelectorAll('.about-tab').forEach(tab => {
-        tab.classList.remove('active');
-      });
+      document.querySelectorAll('.about-tab').forEach(tab => tab.classList.remove('active'));
       document.querySelector(`.about-tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
-      
-      // Update content
-      document.querySelectorAll('.about-content').forEach(content => {
-        content.classList.remove('active');
-      });
+
+      document.querySelectorAll('.about-content').forEach(content => content.classList.remove('active'));
       document.getElementById(tabName + 'Content').classList.add('active');
     }
 
-    // Handle URL hash on page load
-    window.addEventListener('DOMContentLoaded', function() {
+    window.addEventListener('DOMContentLoaded', () => {
       const hash = window.location.hash;
-      if (hash === '#company') {
-        switchTab('company');
-      } else if (hash === '#founder') {
-        switchTab('founder');
-      }
-
-      // Initialize mantra text for continuous scrolling
-      const mantraContainers = document.querySelectorAll('.mantra-scroll-container');
-      mantraContainers.forEach(container => {
-        const mantraText = container.querySelector('.mantra-text');
-        const clone = mantraText.cloneNode(true);
-        container.appendChild(clone);
-      });
+      if (hash === '#company') switchTab('company');
+      if (hash === '#founder') switchTab('founder');
     });
   </script>
 

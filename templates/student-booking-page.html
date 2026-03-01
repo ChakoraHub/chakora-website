@@ -1,0 +1,515 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Book a Meeting - ChakoraHub</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;padding:20px;max-width:1100px;margin:0 auto;background:#f8f9fa}
+    .login-form{background:#fff;padding:30px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-bottom:20px;max-width:400px;margin:0 auto}
+    .login-form input{margin:5px;padding:10px;width:220px;border:1px solid #ddd;border-radius:4px}
+    .login-form button{padding:10px 20px;background:#007bff;color:white;border:none;border-radius:4px;cursor:pointer;font-size:14px}
+    .login-form button:hover{background:#0056b3}
+    .hidden{display:none}
+    .slot{display:inline-block;margin:6px;padding:10px 15px;border:1px solid #ddd;border-radius:6px;cursor:pointer;background:#fff;transition:all 0.2s}
+    .slot:hover{transform:translateY(-2px);box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+    .slot.taken{background:#f8d7da;color:#721c24;border-color:#f5c6cb;cursor:not-allowed}
+    .slot.taken:hover{transform:none;box-shadow:none}
+    .slot.selected{background:#d1ecf1;color:#0c5460;border-color:#bee5eb;font-weight:bold}
+    .booking-section{background:#fff;padding:25px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-top:20px}
+    .form-group{margin:15px 0}
+    label{display:inline-block;margin-right:15px;font-weight:500;color:#333}
+    input[type="date"], select, input[type="text"]{padding:8px;border:1px solid #ddd;border-radius:4px;font-size:14px}
+    input[type="checkbox"]{margin-left:5px;transform:scale(1.2)}
+    button{padding:10px 20px;background:#28a745;color:white;border:none;border-radius:4px;cursor:pointer;font-size:14px;font-weight:500}
+    button:hover{background:#218838}
+    button:disabled{background:#ccc;cursor:not-allowed}
+    #message{margin-top:18px;padding:12px;border-radius:4px;font-weight:500}
+    .error{color:#721c24;background:#f8d7da;border:1px solid #f5c6cb}
+    .success{color:#155724;background:#d4edda;border:1px solid #c3e6cb}
+    .info{color:#004085;background:#cce5ff;border:1px solid #b8daff}
+    .warning{color:#856404;background:#fff3cd;border:1px solid #ffeaa7}
+    .header{background:#fff;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 4px rgba(0,0,0,0.1);display:flex;justify-content:space-between;align-items:center}
+    .logout-btn{background:#dc3545;padding:8px 16px}
+    .logout-btn:hover{background:#c82333}
+    h1{color:#333;margin:0}
+    h3{color:#495057;border-bottom:2px solid #007bff;padding-bottom:8px;margin-top:25px}
+    
+    /* Modal styles */
+    .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5)}
+    .modal.show{display:flex;align-items:center;justify-content:center}
+    .modal-content{background:#fff;padding:30px;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);max-width:400px;width:90%;text-align:center}
+    .modal-content h2{color:#333;margin-top:0}
+    .modal-content .price{font-size:32px;color:#28a745;font-weight:bold;margin:20px 0}
+    .modal-buttons{margin-top:25px;display:flex;gap:10px;justify-content:center}
+    .modal-buttons button{flex:1;max-width:150px}
+    .btn-cancel{background:#6c757d}
+    .btn-cancel:hover{background:#5a6268}
+    
+    #studentIdGroup{opacity:0.5;pointer-events:none}
+    #studentIdGroup.enabled{opacity:1;pointer-events:auto}
+    
+    /* My Bookings Table */
+    .bookings-table{width:100%;border-collapse:collapse;margin-top:15px}
+    .bookings-table th{background:#007bff;color:white;padding:12px;text-align:left;font-weight:500}
+    .bookings-table td{padding:10px;border-bottom:1px solid #ddd}
+    .bookings-table tr:hover{background:#f8f9fa}
+    .status-badge{padding:4px 12px;border-radius:12px;font-size:12px;font-weight:bold}
+    .status-pending{background:#fff3cd;color:#856404}
+    .status-approved{background:#d4edda;color:#155724}
+    .status-rejected{background:#f8d7da;color:#721c24}
+    .status-cancelled{background:#e2e3e5;color:#383d41}
+    .btn-cancel-booking{background:#dc3545;padding:5px 12px;font-size:12px;border-radius:4px}
+    .btn-cancel-booking:hover{background:#c82333}
+    .btn-cancel-booking:disabled{background:#ccc}
+    .tabs{display:flex;gap:10px;margin-bottom:20px;border-bottom:2px solid #ddd}
+    .tab{padding:12px 24px;cursor:pointer;background:transparent;border:none;font-size:16px;font-weight:500;color:#666;border-bottom:3px solid transparent;transition:all 0.3s}
+    .tab:hover{color:#007bff}
+    .tab.active{color:#007bff;border-bottom-color:#007bff}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center;color:#007bff;margin-bottom:30px">📅 ChakoraHub - Meeting Booking</h1>
+
+  <!-- Login Section -->
+  <div id="loginSection" class="login-form">
+    <h3 style="border:none;padding:0;text-align:center">Student Login</h3>
+    <div style="margin-top:20px">
+      <div><input type="text" id="username" placeholder="Username" value="student" /></div>
+      <div><input type="password" id="password" placeholder="Password" value="student" /></div>
+      <div style="margin-top:15px">
+        <button id="loginBtn" style="width:100%">🔐 Login</button>
+      </div>
+    </div>
+    <div id="loginMessage" style="margin-top:15px;color:#dc3545;font-weight:500;text-align:center"></div>
+  </div>
+
+  <!-- Main Booking Section -->
+  <div id="bookingSection" class="hidden">
+    <div class="header">
+      <div>
+        <span style="color:#666">Logged in as:</span>
+        <strong id="loggedInUser" style="color:#007bff;font-size:18px"></strong>
+      </div>
+      <button id="logoutBtn" class="logout-btn">🚪 Logout</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="newBooking">📝 New Booking</button>
+      <button class="tab" data-tab="myBookings">📋 My Bookings</button>
+    </div>
+
+    <!-- New Booking Tab -->
+    <div id="newBooking" class="tab-content active">
+      <div class="booking-section">
+        <h3>📅 Select Date & Time</h3>
+        <div class="form-group">
+          <label>Date:</label>
+          <input type="date" id="date" />
+          
+          <label style="margin-left:20px">Duration:</label>
+          <select id="duration">
+            <option value="15">15 mins</option>
+            <option value="30">30 mins</option>
+            <option value="45">45 mins</option>
+            <option value="60" selected>1 hour</option>
+          </select>
+
+          <label style="margin-left:20px">Complexity:</label>
+          <select id="complexity">
+            <option value="Easy">Easy</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Difficult">Difficult</option>
+          </select>
+        </div>
+
+        <div style="margin-top:15px">
+          <button id="load">🔄 Load Available Slots</button>
+        </div>
+
+        <h3>⏰ Available Time Slots</h3>
+        <div id="slots" style="min-height:100px;padding:10px;background:#f8f9fa;border-radius:4px"></div>
+
+        <h3>📝 Booking Details</h3>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="isExisting" />
+            Existing Student (₹50 flat rate)
+          </label>
+        </div>
+        
+        <div class="form-group" id="studentIdGroup">
+          <label>Student ID:</label>
+          <input type="text" id="studentId" value="" placeholder="Enter Student ID" />
+          <small style="color:#666;margin-left:10px">(Required for existing students)</small>
+        </div>
+
+        <div style="margin-top:20px">
+          <button id="bookBtn">💳 Proceed to Book</button>
+        </div>
+
+        <div id="message"></div>
+      </div>
+    </div>
+
+    <!-- My Bookings Tab -->
+    <div id="myBookings" class="tab-content">
+      <div class="booking-section">
+        <h3>📋 My Bookings</h3>
+        <button id="refreshBookings" style="background:#17a2b8;margin-bottom:15px">🔄 Refresh</button>
+        <div id="bookingsContainer">
+          <p style="color:#666">Loading your bookings...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Confirmation Modal -->
+  <div id="paymentModal" class="modal">
+    <div class="modal-content">
+      <h2>💰 Payment Confirmation</h2>
+      <p style="color:#666;font-size:16px">Your booking amount:</p>
+      <div class="price">₹<span id="modalPrice">0</span></div>
+      <p style="color:#666;margin-top:20px">
+        Please confirm that you will make the payment.<br/>
+        After payment, admin will approve your booking.
+      </p>
+      <div class="modal-buttons">
+        <button id="confirmPayment">✓ Confirm & Book</button>
+        <button id="cancelPayment" class="btn-cancel">✗ Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/meeting/api/';
+
+    let authToken = null;
+    let currentUsername = null;
+    let pendingBooking = null;
+
+    const loginSection = document.getElementById('loginSection');
+    const bookingSection = document.getElementById('bookingSection');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const loginMessage = document.getElementById('loginMessage');
+    const loggedInUser = document.getElementById('loggedInUser');
+    
+    const slotsContainer = document.getElementById('slots');
+    const dateInput = document.getElementById('date');
+    const loadBtn = document.getElementById('load');
+    const durationSelect = document.getElementById('duration');
+    const complexitySelect = document.getElementById('complexity');
+    const studentIdInput = document.getElementById('studentId');
+    const studentIdGroup = document.getElementById('studentIdGroup');
+    const isExistingCheckbox = document.getElementById('isExisting');
+    const bookBtn = document.getElementById('bookBtn');
+    const messageDiv = document.getElementById('message');
+    
+    const paymentModal = document.getElementById('paymentModal');
+    const modalPrice = document.getElementById('modalPrice');
+    const confirmPaymentBtn = document.getElementById('confirmPayment');
+    const cancelPaymentBtn = document.getElementById('cancelPayment');
+    
+    const bookingsContainer = document.getElementById('bookingsContainer');
+    const refreshBookingsBtn = document.getElementById('refreshBookings');
+
+    let currentSlots = [];
+    let selectedSlot = null;
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.dataset.tab;
+        
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(tabName).classList.add('active');
+        
+        if (tabName === 'myBookings') {
+          loadMyBookings();
+        }
+      });
+    });
+
+    // Toggle Student ID field
+    isExistingCheckbox.addEventListener('change', () => {
+      if (isExistingCheckbox.checked) {
+        studentIdGroup.classList.add('enabled');
+        studentIdInput.required = true;
+      } else {
+        studentIdGroup.classList.remove('enabled');
+        studentIdInput.required = false;
+        studentIdInput.value = '';
+      }
+    });
+
+    function createAuthToken(username, password) {
+      return 'Basic ' + btoa(username + ':' + password);
+    }
+
+    async function login() {
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+      
+      if (!username || !password) {
+        loginMessage.textContent = '❌ Please enter username and password';
+        return;
+      }
+
+      const token = createAuthToken(username, password);
+      
+      try {
+        const testDate = new Date().toISOString().slice(0, 10);
+        const res = await fetch(`${API_BASE}slots?date=${testDate}`, {
+          headers: {'Authorization': token}
+        });
+
+        if (res.ok) {
+          authToken = token;
+          currentUsername = username;
+          loginMessage.textContent = '';
+          loginSection.classList.add('hidden');
+          bookingSection.classList.remove('hidden');
+          loggedInUser.textContent = username;
+        } else if (res.status === 401) {
+          loginMessage.textContent = '❌ Invalid username or password';
+        } else {
+          const error = await res.text();
+          loginMessage.textContent = '❌ Login failed: ' + error;
+        }
+      } catch (err) {
+        loginMessage.textContent = '❌ Network error: ' + err.message;
+      }
+    }
+
+    function logout() {
+      authToken = null;
+      currentUsername = null;
+      loginSection.classList.remove('hidden');
+      bookingSection.classList.add('hidden');
+      passwordInput.value = '';
+      slotsContainer.innerHTML = '';
+      messageDiv.textContent = '';
+      bookingsContainer.innerHTML = '';
+    }
+
+    async function loadSlots() {
+      messageDiv.textContent = '';
+      messageDiv.className = '';
+      selectedSlot = null;
+      slotsContainer.innerHTML = 'Loading...';
+      
+      const d = dateInput.value;
+      if (!d) {
+        alert('Please select a date');
+        slotsContainer.innerHTML = '';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}slots?date=${d}`, {
+          headers: {'Authorization': authToken}
+        });
+
+        if (res.status === 401) {
+          logout();
+          alert('Session expired. Please login again.');
+          return;
+        }
+
+        const data = await res.json();
+        currentSlots = data.slots || [];
+        renderSlots();
+      } catch (err) {
+        slotsContainer.innerHTML = '❌ Error loading slots: ' + err.message;
+        console.error(err);
+      }
+    }
+
+    function renderSlots() {
+      slotsContainer.innerHTML = '';
+      if (currentSlots.length === 0) {
+        slotsContainer.innerHTML = '<p style="color:#666">No slots available for this date</p>';
+        return;
+      }
+      currentSlots.forEach(s => {
+        const el = document.createElement('div');
+        el.className = 'slot' + 
+          (s.available ? '' : ' taken') + 
+          (selectedSlot === s.start ? ' selected' : '');
+        el.textContent = `${s.start} ${s.available ? '' : '(taken)'}`;
+        el.onclick = () => {
+          if (!s.available) return;
+          selectedSlot = s.start;
+          renderSlots();
+        };
+        slotsContainer.appendChild(el);
+      });
+    }
+
+    async function bookSelected() {
+      if (!selectedSlot) {
+        alert('Please select a time slot');
+        return;
+      }
+
+      if (isExistingCheckbox.checked && !studentIdInput.value.trim()) {
+        alert('Please enter Student ID for existing students');
+        studentIdInput.focus();
+        return;
+      }
+
+      const d = dateInput.value;
+      const duration = parseInt(durationSelect.value, 10);
+      const complexity = complexitySelect.value;
+      
+      pendingBooking = {
+        student_id: studentIdInput.value.trim() || currentUsername,
+        is_existing: isExistingCheckbox.checked,
+        date: d,
+        start_time: selectedSlot,
+        duration_minutes: duration,
+        complexity: complexity,
+        payment_confirmed: false
+      };
+
+      bookBtn.disabled = true;
+      messageDiv.textContent = 'Calculating price...';
+      messageDiv.className = 'info';
+
+      try {
+        const res = await fetch(`${API_BASE}book`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': authToken
+          },
+          body: JSON.stringify(pendingBooking)
+        });
+
+        const j = await res.json();
+        
+        if (res.ok && j.action === 'confirm_payment') {
+          messageDiv.textContent = '';
+          messageDiv.className = '';
+          modalPrice.textContent = j.price;
+          paymentModal.classList.add('show');
+        } else if (res.ok) {
+          messageDiv.className = 'success';
+          messageDiv.textContent = `✓ ${j.message}`;
+          await loadSlots();
+          selectedSlot = null;
+        } else {
+          messageDiv.className = 'error';
+          messageDiv.textContent = '❌ ' + (j.error || 'Booking failed');
+        }
+      } catch (err) {
+        messageDiv.className = 'error';
+        messageDiv.textContent = '❌ Network error: ' + err.message;
+      } finally {
+        bookBtn.disabled = false;
+      }
+    }
+
+    async function confirmPaymentAndBook() {
+      pendingBooking.payment_confirmed = true;
+      
+      confirmPaymentBtn.disabled = true;
+      confirmPaymentBtn.textContent = 'Processing...';
+
+      try {
+        const res = await fetch(`${API_BASE}book`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': authToken
+          },
+          body: JSON.stringify(pendingBooking)
+        });
+
+        const j = await res.json();
+        
+        paymentModal.classList.remove('show');
+        
+        if (res.ok) {
+          messageDiv.className = 'success';
+          messageDiv.textContent = `✅ ${j.message}\nBooking ID: ${j.booking_id}\nPrice: ₹${j.price}`;
+          await loadSlots();
+          selectedSlot = null;
+          renderSlots();
+        } else {
+          messageDiv.className = 'error';
+          messageDiv.textContent = '❌ ' + (j.error || 'Booking failed');
+        }
+      } catch (err) {
+        paymentModal.classList.remove('show');
+        messageDiv.className = 'error';
+        messageDiv.textContent = '❌ Network error: ' + err.message;
+      } finally {
+        confirmPaymentBtn.disabled = false;
+        confirmPaymentBtn.textContent = '✓ Confirm & Book';
+      }
+    }
+
+    function cancelPayment() {
+      paymentModal.classList.remove('show');
+      pendingBooking = null;
+      messageDiv.textContent = '';
+      messageDiv.className = '';
+    }
+
+    async function loadMyBookings() {
+      bookingsContainer.innerHTML = '<p style="color:#666">Loading your bookings...</p>';
+      
+      try {
+        const res = await fetch(`${API_BASE}mybookings`, {
+          headers: {'Authorization': authToken}
+        });
+
+        if (res.status === 401) {
+          logout();
+          alert('Session expired. Please login again.');
+          return;
+        }
+
+        const data = await res.json();
+        const bookings = data.bookings || [];
+        
+        if (bookings.length === 0) {
+          bookingsContainer.innerHTML = '<p style="color:#666">No bookings found</p>';
+          return;
+        }
+
+        let html = '<table class="bookings-table"><thead><tr>';
+        html += '<th>Date</th><th>Time</th><th>Duration</th><th>Complexity</th><th>Price</th><th>Status</th><th>Action</th>';
+        html += '</tr></thead><tbody>';
+
+        bookings.forEach(b => {
+          const statusClass = `status-${b.status.toLowerCase()}`;
+          const canCancel = b.status === 'PENDING' || b.status === 'APPROVED';
+          
+          html += `<tr>`;
+          html += `<td>${b.booking_date}</td>`;
+          html += `<td>${b.start_time}</td>`;
+          html += `<td>${b.duration_minutes} mins</td>`;
+          html += `<td>${b.complexity}</td>`;
+          html += `<td>₹${b.price}</td>`;
+          html += `<td><span class="status-badge ${statusClass}">${b.status}</span></td>`;
+          html += `<td>`;
+          if (canCancel) {
+            html += `<button class="btn-cancel-booking" onclick="cancelBooking('${b.bookingId}')">Cancel</button>`;
+          } else {
+            html += '<span style="color:#999">-</span>';
+          }
+          html += `</td>`;
+          html += `</tr>`;
+        });
+
+        html += '

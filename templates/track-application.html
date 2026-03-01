@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -415,13 +417,32 @@
 
             try {
                 // Replace with your API Gateway endpoint
-                const response = await fetch(`https://z6h4vvztvc.execute-api.eu-north-1.amazonaws.com/Prod/application-status/${applicationId}`);
+                const response = await fetch(`https://7j03rxamm1.execute-api.eu-north-1.amazonaws.com/Prod/application-status/${applicationId}`);
                 if (!response.ok) {
                     throw new Error('Application not found');
                 }
 
                 const data = await response.json();
-                displayApplication(data);
+
+// If backend returns { applications: [...] }
+let application;
+
+if (Array.isArray(data.applications)) {
+    // Find by ID, or just take the first match
+    application = data.applications.find(
+        (app) => app.application_id === applicationId
+    );
+
+    if (!application) {
+        showError('Application not found');
+        return;
+    }
+} else {
+    // Fallback if backend ever returns a single object
+    application = data;
+}
+
+displayApplication(application);
                 
             } catch (error) {
                 showError(error.message);
@@ -431,69 +452,84 @@
         }
 
         function displayApplication(data) {
-            // Show application details
-            document.getElementById('detailAppId').textContent = data.application_id;
-            document.getElementById('detailName').textContent = data.applicant_name;
-            document.getElementById('detailEmail').textContent = data.email;
-            document.getElementById('detailDate').textContent = new Date(data.applied_date).toLocaleDateString();
-            document.getElementById('detailStatus').textContent = data.current_status.name;
-            document.getElementById('appDetails').style.display = 'block';
+    const currentStatus = data.current_status || {};
 
-            // Build progress tracker
-            const stages = document.getElementById('stages');
-            stages.innerHTML = '';
+    document.getElementById('detailAppId').textContent = data.application_id || '';
+    document.getElementById('detailName').textContent = data.applicant_name || '';
+    document.getElementById('detailEmail').textContent = data.email || '';
+    document.getElementById('detailDate').textContent =
+        data.applied_date ? new Date(data.applied_date).toLocaleDateString() : '';
+    document.getElementById('detailStatus').textContent = currentStatus.name || '';
+    document.getElementById('appDetails').style.display = 'block';
 
-            const currentOrder = data.current_status.order;
-            let progressPercent = 0;
+    // -------- Progress tracker --------
+    const DEFAULT_STATUSES = [
+        { order: 1, name: 'Resume Uploaded' },
+        { order: 2, name: 'Pending for Review' },
+        { order: 3, name: '1st Round Interview' },
+        { order: 4, name: '2nd Round Interview' },
+        { order: 5, name: 'Selected' },
+        { order: 6, name: 'Rejected' },
+        { order: 7, name: 'Evaluation in Progress' },
+        { order: 8, name: 'Consent from Applicant' },
+        { order: 9, name: 'Offer Letter Sent' },
+    ];
 
-            data.all_statuses.forEach((status, index) => {
-                const stage = document.createElement('div');
-                stage.className = 'stage';
-                
-                if (status.order < currentOrder) {
-                    stage.classList.add('completed');
-                    progressPercent = ((index + 1) / data.all_statuses.length) * 100;
-                } else if (status.order === currentOrder) {
-                    stage.classList.add('current');
-                    progressPercent = ((index + 0.5) / data.all_statuses.length) * 100;
-                } else {
-                    stage.classList.add('pending');
-                }
+    const stages = document.getElementById('stages');
+    stages.innerHTML = '';
 
-                stage.innerHTML = `
-                    <div class="stage-dot"></div>
-                    <div class="stage-label">${status.name}</div>
-                `;
-                
-                stages.appendChild(stage);
-            });
+    const all_statuses = data.all_statuses || DEFAULT_STATUSES;
+    const currentOrder = currentStatus.order;
+    let progressPercent = 0;
 
-            // Animate progress
-            setTimeout(() => {
-                document.getElementById('timelineProgress').style.width = progressPercent + '%';
-            }, 100);
+    all_statuses.forEach((status, index) => {
+        const stage = document.createElement('div');
+        stage.className = 'stage';
 
-            document.getElementById('progressTracker').style.display = 'block';
-
-            // Show history
-            if (data.history && data.history.length > 0) {
-                const historyList = document.getElementById('historyList');
-                historyList.innerHTML = '';
-                
-                data.history.forEach(item => {
-                    const historyItem = document.createElement('div');
-                    historyItem.className = 'history-item';
-                    historyItem.innerHTML = `
-                        <div class="history-date">${new Date(item.date).toLocaleString()}</div>
-                        <div class="history-status">${item.new_status}</div>
-                        ${item.notes ? `<div>${item.notes}</div>` : ''}
-                    `;
-                    historyList.appendChild(historyItem);
-                });
-
-                document.getElementById('historySection').style.display = 'block';
-            }
+        if (status.order < currentOrder) {
+            stage.classList.add('completed');
+            progressPercent = ((index + 1) / all_statuses.length) * 100;
+        } else if (status.order === currentOrder) {
+            stage.classList.add('current');
+            progressPercent = ((index + 0.5) / all_statuses.length) * 100;
+        } else {
+            stage.classList.add('pending');
         }
+
+        stage.innerHTML = `
+            <div class="stage-dot"></div>
+            <div class="stage-label">${status.name}</div>
+        `;
+
+        stages.appendChild(stage);
+    });
+
+    setTimeout(() => {
+        document.getElementById('timelineProgress').style.width = progressPercent + '%';
+    }, 100);
+
+    document.getElementById('progressTracker').style.display = 'block';
+
+    // History (if you later add it from backend)
+    if (data.history && data.history.length > 0) {
+        const historyList = document.getElementById('historyList');
+        historyList.innerHTML = '';
+
+        data.history.forEach((item) => {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <div class="history-date">${new Date(item.date).toLocaleString()}</div>
+                <div class="history-status">${item.new_status}</div>
+                ${item.notes ? `<div>${item.notes}</div>` : ''}
+            `;
+            historyList.appendChild(historyItem);
+        });
+
+        document.getElementById('historySection').style.display = 'block';
+    }
+}
+
 
         function showError(message) {
             const errorDiv = document.getElementById('error');

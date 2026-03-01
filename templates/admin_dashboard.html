@@ -1,6 +1,3 @@
-
-
-
 <!doctype html>
 <html>
 <head>
@@ -20,12 +17,12 @@
     h1{color:#333;margin:0}
     h2{color:#495057;border-bottom:2px solid:#dc3545;padding-bottom:8px;margin-top:0}
     .filters{margin-bottom:20px;display:flex;gap:15px;align-items:center}
-    .filters select{padding:8px;border:1px solid:#ddd;border-radius:4px;font-size:14px}
+    .filters select{padding:8px;border:1px solid #ddd;border-radius:4px;font-size:14px}
     .filters button{padding:8px 16px;background:#17a2b8;color:white;border:none;border-radius:4px;cursor:pointer}
     .filters button:hover{background:#138496}
     .bookings-table{width:100%;border-collapse:collapse;margin-top:15px}
     .bookings-table th{background:#dc3545;color:white;padding:12px;text-align:left;font-weight:500;position:sticky;top:0}
-    .bookings-table td{padding:10px;border-bottom:1px solid:#ddd}
+    .bookings-table td{padding:10px;border-bottom:1px solid #ddd}
     .bookings-table tr:hover{background:#f8f9fa}
     .status-badge{padding:4px 12px;border-radius:12px;font-size:12px;font-weight:bold;display:inline-block}
     .status-pending{background:#fff3cd;color:#856404}
@@ -45,8 +42,8 @@
     .stat-card.total{background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%)}
     .stat-card h3{margin:0;font-size:14px;opacity:0.9}
     .stat-card .number{font-size:32px;font-weight:bold;margin-top:10px}
-    .error{color:#721c24;background:#f8d7da;border:1px solid:#f5c6cb;padding:12px;border-radius:4px;margin-top:15px}
-    .success{color:#155724;background:#d4edda;border:1px solid:#c3e6cb;padding:12px;border-radius:4px;margin-top:15px}
+    .error{color:#721c24;background:#f8d7da;border:1px solid #f5c6cb;padding:12px;border-radius:4px;margin-top:15px}
+    .success{color:#155724;background:#d4edda;border:1px solid #c3e6cb;padding:12px;border-radius:4px;margin-top:15px}
     .empty-state{text-align:center;padding:40px;color:#999}
     .empty-state svg{width:64px;height:64px;margin-bottom:15px;opacity:0.5}
   </style>
@@ -118,8 +115,7 @@
   </div>
 
   <script>
-    // 🔗 API Gateway base (NO trailing slash)
-    const API_BASE = 'https://m7ul4xf1e3.execute-api.eu-north-1.amazonaws.com/Prod';
+    const API_BASE = '/meeting/api/';
 
     let authToken = null;
     let currentUsername = null;
@@ -158,12 +154,9 @@
       const token = createAuthToken(username, password);
       
       try {
-        // ✅ Correct path: /admin-bookings
-        const res = await fetch(`${API_BASE}/admin-bookings?status=PENDING`, {
+        const res = await fetch(`${API_BASE}admin/bookings?status=PENDING`, {
           headers: {'Authorization': token}
         });
-
-        console.log('Login test response:', res.status);
 
         if (res.ok) {
           authToken = token;
@@ -172,15 +165,14 @@
           loginSection.classList.add('hidden');
           dashboardSection.classList.remove('hidden');
           loggedInUser.textContent = username;
-          await loadBookings();
-          await loadStats();
+          loadBookings();
+          loadStats();
         } else if (res.status === 401 || res.status === 403) {
           loginMessage.textContent = '❌ Invalid admin credentials';
         } else {
           loginMessage.textContent = '❌ Login failed';
         }
       } catch (err) {
-        console.error('Login error:', err);
         loginMessage.textContent = '❌ Network error: ' + err.message;
       }
     }
@@ -196,12 +188,11 @@
     }
 
     async function loadStats() {
-      if (!authToken) return;
       try {
         const [pendingRes, approvedRes, allRes] = await Promise.all([
-          fetch(`${API_BASE}/admin-bookings?status=PENDING`, {headers: {'Authorization': authToken}}),
-          fetch(`${API_BASE}/admin-bookings?status=APPROVED`, {headers: {'Authorization': authToken}}),
-          fetch(`${API_BASE}/admin-bookings?status=`, {headers: {'Authorization': authToken}})
+          fetch(`${API_BASE}admin/bookings?status=PENDING`, {headers: {'Authorization': authToken}}),
+          fetch(`${API_BASE}admin/bookings?status=APPROVED`, {headers: {'Authorization': authToken}}),
+          fetch(`${API_BASE}admin/bookings?status=`, {headers: {'Authorization': authToken}})
         ]);
 
         const pending = await pendingRes.json();
@@ -217,15 +208,13 @@
     }
 
     async function loadBookings() {
-      if (!authToken) return;
-
       const status = statusFilter.value;
       bookingsContainer.innerHTML = '<p style="color:#666">Loading bookings...</p>';
       messageDiv.textContent = '';
       messageDiv.className = '';
       
       try {
-        const res = await fetch(`${API_BASE}/admin-bookings?status=${status}`, {
+        const res = await fetch(`${API_BASE}admin/bookings?status=${status}`, {
           headers: {'Authorization': authToken}
         });
 
@@ -255,9 +244,9 @@
         bookings.forEach(b => {
           const statusClass = `status-${b.status.toLowerCase()}`;
           const isPending = b.status === 'PENDING';
-          const bookingId = (b.bookingId || '').substring(0, 8);
-          const createdDate = b.created_at ? new Date(b.created_at).toLocaleString() : '';
-
+          const bookingId = b.bookingId.substring(0, 8);
+          const createdDate = new Date(b.created_at).toLocaleString();
+          
           html += `<tr>`;
           html += `<td title="${b.bookingId}">${bookingId}...</td>`;
           html += `<td>${b.studentId}</td>`;
@@ -293,6 +282,7 @@
       if (!confirm('Approve this booking? This confirms payment has been received.')) {
         return;
       }
+
       await updateBookingStatus(bookingId, 'approve');
     }
 
@@ -300,6 +290,7 @@
       if (!confirm('Reject this booking? This will cancel the booking.')) {
         return;
       }
+
       await updateBookingStatus(bookingId, 'reject');
     }
 
@@ -308,8 +299,7 @@
       messageDiv.className = 'info';
 
       try {
-        // ✅ Correct path: /admin-approve
-        const res = await fetch(`${API_BASE}/admin-approve`, {
+        const res = await fetch(`${API_BASE}admin/approve`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -352,9 +342,9 @@
       if (e.key === 'Enter') login();
     });
 
-    // Auto-refresh every 30 seconds when logged in
+    // Auto-refresh every 30 seconds
     setInterval(() => {
-      if (authToken && !dashboardSection.classList.contains('hidden')) {
+      if (authToken && !loginSection.classList.contains('hidden')) {
         loadStats();
       }
     }, 30000);
