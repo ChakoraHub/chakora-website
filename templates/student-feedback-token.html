@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Feedback - ChakoraHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  min-height: 100vh;
+  color: #f8fafc;
+  padding: 20px;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  max-width: 800px;
+  margin: 0 auto 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+header img {
+  height: 48px;
+}
+
+.feedback-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.feedback-card {
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 750px;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #818cf8;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin-bottom: 24px;
+}
+
+.activity-badge {
+  display: inline-block;
+  background: rgba(129, 140, 248, 0.15);
+  color: #818cf8;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 4px;
+}
+
+/* Question blocks */
+.q-block {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+.q-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 12px;
+}
+
+/* Star Rating */
+.stars-container {
+  display: flex;
+  gap: 10px;
+}
+
+.star-icon {
+  font-size: 1.8rem;
+  color: #475569;
+  cursor: pointer;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.star-icon:hover, .star-icon.active {
+  color: #fbbf24;
+  transform: scale(1.15);
+}
+
+/* NPS Rating */
+.nps-container {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.nps-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #1e293b;
+  color: #f8fafc;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nps-btn.active, .nps-btn:hover {
+  background: #4f46e5;
+  border-color: #818cf8;
+  color: #fff;
+}
+
+textarea.form-control, input.form-control {
+  width: 100%;
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  padding: 12px;
+  border-radius: 10px;
+  font-family: inherit;
+  outline: none;
+}
+
+textarea.form-control:focus, input.form-control:focus {
+  border-color: #818cf8;
+}
+
+.btn-submit {
+  width: 100%;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #fff;
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-submit:hover {
+  opacity: 0.9;
+}
+
+.state-box {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.state-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a href="/"><img src="{{ url_for('static', filename='logo.png') }}" alt="Logo"></a>
+  <div style="font-weight: 600; color: #818cf8;"><i class="fas fa-comment-dots"></i> Student Feedback</div>
+</header>
+
+<div class="feedback-wrapper">
+  <div class="feedback-card" id="mainContainer">
+
+    <!-- Loading State -->
+    <div id="loadingState" class="state-box">
+      <i class="fas fa-spinner fa-spin state-icon" style="color: #818cf8;"></i>
+      <h3 style="color: #94a3b8;">Validating Feedback Token...</h3>
+    </div>
+
+    <!-- Error / Invalid / Expired / Already Submitted State -->
+    <div id="errorState" class="state-box" style="display: none;">
+      <i id="errorIcon" class="fas fa-circle-exclamation state-icon" style="color: #f43f5e;"></i>
+      <h2 id="errorTitle" style="color: #f1f5f9; margin-bottom: 10px;">Link Expired or Invalid</h2>
+      <p id="errorMessage" style="color: #94a3b8; font-size: 1rem;">This feedback link has already been used or expired.</p>
+    </div>
+
+    <!-- Feedback Submission Form -->
+    <div id="formState" style="display: none;">
+      <h2 class="title">Feedback Request</h2>
+      <p class="subtitle" id="studentHeader">Loading student details...</p>
+
+      <div class="mb-4 text-center" id="activitiesBadges"></div>
+
+      <form id="studentFeedbackForm" onsubmit="handleFormSubmit(event)">
+        <div id="dynamicQuestionsContainer"></div>
+
+        <div class="q-block">
+          <div class="q-title"><i class="fas fa-comment-medical text-warning"></i> Additional Comments or Suggestions</div>
+          <textarea class="form-control" id="generalComments" rows="3" placeholder="Share any extra feedback or suggestions..."></textarea>
+        </div>
+
+        <div class="q-block">
+          <div class="q-title"><i class="fas fa-paperclip text-info"></i> Optional File Upload (Screenshot/Proof)</div>
+          <input type="file" id="fileAttachment" class="form-control">
+        </div>
+
+        <button type="submit" class="btn-submit" id="btnSubmit">
+          <i class="fas fa-paper-plane"></i> Submit Feedback
+        </button>
+      </form>
+    </div>
+
+    <!-- Thank You Success State -->
+    <div id="successState" class="state-box" style="display: none;">
+      <i class="fas fa-circle-check state-icon" style="color: #10b981;"></i>
+      <h2 style="color: #10b981; margin-bottom: 10px;">Feedback Submitted Successfully!</h2>
+      <p style="color: #94a3b8;">Thank you for your valuable feedback. Your response has been recorded.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let token = "{{ token }}";
+  if (!token) {
+    const params = new URLSearchParams(window.location.search);
+    token = params.get('token') || '';
+  }
+
+  let questionsData = [];
+
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!token) {
+      showError("Missing Feedback Token", "No feedback token provided in the URL.");
+      return;
+    }
+
+    fetch(`/api/student/feedback/token/${encodeURIComponent(token)}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('loadingState').style.display = 'none';
+
+        if (!data.success) {
+          if (data.status === 'SUBMITTED') {
+            showError("Feedback Already Submitted", data.message, "fa-circle-check", "#10b981");
+          } else if (data.status === 'EXPIRED') {
+            showError("Feedback Link Expired", data.message, "fa-hourglass-end", "#f59e0b");
+          } else {
+            showError("Invalid Feedback Link", data.message || "Token is invalid.", "fa-circle-xmark", "#ef4444");
+          }
+          return;
+        }
+
+        // Render Student Info & Activities
+        document.getElementById('studentHeader').textContent = `Feedback for ${data.student_email || 'Student'}`;
+        
+        const badgesContainer = document.getElementById('activitiesBadges');
+        badgesContainer.innerHTML = '';
+        (data.activities || []).forEach(act => {
+          const span = document.createElement('span');
+          span.className = 'activity-badge';
+          span.innerHTML = `<i class="fas fa-check-circle"></i> ${act.MODULE_NAME || act.type}: ${act.ACTIVITY_NAME || act.label}`;
+          badgesContainer.appendChild(span);
+        });
+
+        // Render Dynamic Questions
+        questionsData = data.questions || [];
+        renderQuestions(questionsData, data.activities || []);
+        document.getElementById('formState').style.display = 'block';
+      })
+      .catch(err => {
+        document.getElementById('loadingState').style.display = 'none';
+        showError("Service Connection Error", "Unable to connect to feedback service.");
+      });
+  });
+
+  function showError(title, message, iconClass = "fa-circle-exclamation", iconColor = "#f43f5e") {
+    document.getElementById('formState').style.display = 'none';
+    document.getElementById('errorTitle').textContent = title;
+    document.getElementById('errorMessage').textContent = message;
+    const icon = document.getElementById('errorIcon');
+    icon.className = `fas ${iconClass} state-icon`;
+    icon.style.color = iconColor;
+    document.getElementById('errorState').style.display = 'block';
+  }
+
+  function renderQuestions(questions, activities) {
+    const container = document.getElementById('dynamicQuestionsContainer');
+    container.innerHTML = '';
+
+    questions.forEach((q, idx) => {
+      const block = document.createElement('div');
+      block.className = 'q-block';
+
+      let inputHtml = '';
+      if (q.QUESTION_TYPE === 'STARS_1_5') {
+        inputHtml = `
+          <div class="stars-container" id="stars_${q.QUESTION_ID}">
+            ${[1,2,3,4,5].map(star => `<i class="fas fa-star star-icon" data-q="${q.QUESTION_ID}" data-val="${star}" onclick="setStar('${q.QUESTION_ID}', ${star})"></i>`).join('')}
+          </div>
+          <input type="hidden" name="q_${q.QUESTION_ID}" id="val_${q.QUESTION_ID}" value="">
+        `;
+      } else if (q.QUESTION_TYPE === 'NPS') {
+        inputHtml = `
+          <div class="nps-container" id="nps_${q.QUESTION_ID}">
+            ${[0,1,2,3,4,5,6,7,8,9,10].map(val => `<button type="button" class="nps-btn" data-q="${q.QUESTION_ID}" data-val="${val}" onclick="setNps('${q.QUESTION_ID}', ${val})">${val}</button>`).join('')}
+          </div>
+          <input type="hidden" name="q_${q.QUESTION_ID}" id="val_${q.QUESTION_ID}" value="">
+        `;
+      } else {
+        inputHtml = `<textarea class="form-control" rows="2" name="q_${q.QUESTION_ID}" id="val_${q.QUESTION_ID}" placeholder="Your answer..."></textarea>`;
+      }
+
+      block.innerHTML = `
+        <div class="q-title">${idx + 1}. ${q.QUESTION_TEXT} ${q.IS_REQUIRED ? '<span style="color:#ef4444;">*</span>' : ''}</div>
+        ${inputHtml}
+      `;
+      container.appendChild(block);
+    });
+  }
+
+  function setStar(qid, rating) {
+    document.getElementById(`val_${qid}`).value = rating;
+    const container = document.getElementById(`stars_${qid}`);
+    const stars = container.querySelectorAll('.star-icon');
+    stars.forEach(s => {
+      const val = parseInt(s.getAttribute('data-val'));
+      if (val <= rating) s.classList.add('active');
+      else s.classList.remove('active');
+    });
+  }
+
+  function setNps(qid, score) {
+    document.getElementById(`val_${qid}`).value = score;
+    const container = document.getElementById(`nps_${qid}`);
+    const btns = container.querySelectorAll('.nps-btn');
+    btns.forEach(b => {
+      const val = parseInt(b.getAttribute('data-val'));
+      if (val === score) b.classList.add('active');
+      else b.classList.remove('active');
+    });
+  }
+
+  function handleFormSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnSubmit');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+    const responses = [];
+    let overallRating = null;
+    let ratingSum = 0;
+    let ratingCount = 0;
+
+    questionsData.forEach(q => {
+      const valEl = document.getElementById(`val_${q.QUESTION_ID}`);
+      const val = valEl ? valEl.value : null;
+      
+      let numVal = null;
+      let txtVal = null;
+      if (q.QUESTION_TYPE === 'STARS_1_5' || q.QUESTION_TYPE === 'NPS') {
+        numVal = val ? parseFloat(val) : null;
+        if (numVal !== null) {
+          ratingSum += numVal;
+          ratingCount++;
+        }
+      } else {
+        txtVal = val;
+      }
+
+      responses.push({
+        question_id: q.QUESTION_ID,
+        rating_value: numVal,
+        text_answer: txtVal
+      });
+    });
+
+    if (ratingCount > 0) {
+      overallRating = roundToTwo(ratingSum / ratingCount);
+    }
+
+    const comments = document.getElementById('generalComments').value || "";
+
+    fetch('/api/student/feedback/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: token,
+        responses: responses,
+        overall_rating: overallRating,
+        comments: comments
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('formState').style.display = 'none';
+        document.getElementById('successState').style.display = 'block';
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Feedback';
+        alert("Error: " + (data.message || "Failed to submit feedback."));
+      }
+    })
+    .catch(err => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Feedback';
+      alert("Submission error: Failed to connect to feedback service.");
+    });
+  }
+
+  function roundToTwo(num) {
+    return +(Math.round(num + "e+2")  + "e-2");
+  }
+</script>
+</body>
+</html>

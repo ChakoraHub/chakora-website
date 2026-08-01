@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asset Tracker — ChakoraHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --slate:       #0f172a;
+      --slate-mid:   #1e293b;
+      --slate-light: #334155;
+      --steel:       #475569;
+      --muted:       #64748b;
+      --border:      #e2e8f0;
+      --bg:          #f1f5f9;
+      --card:        #ffffff;
+      --accent:      #0ea5e9;
+      --accent-dark: #0369a1;
+      --accent-glow: rgba(14,165,233,0.10);
+      --green:       #059669;
+      --green-bg:    #ecfdf5;
+      --green-bdr:   #a7f3d0;
+      --amber:       #d97706;
+      --amber-bg:    #fffbeb;
+      --amber-bdr:   #fde68a;
+      --rose:        #e11d48;
+      --rose-bg:     #fff1f2;
+      --rose-bdr:    #fecdd3;
+      --violet:      #7c3aed;
+      --violet-bg:   #f5f3ff;
+      --mono:        'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--slate);
+      min-height: 100vh;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    /* ── HEADER ── */
+    .page-header {
+      background: linear-gradient(135deg, var(--slate) 0%, var(--slate-mid) 60%, #162032 100%);
+      padding: 13px 30px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+      position: sticky; top: 0; z-index: 200; gap: 12px; flex-wrap: wrap;
+    }
+    .hd-left { display: flex; align-items: center; gap: 13px; }
+    .hd-logo { height: 42px; width: 42px; border-radius: 10px; object-fit: cover; border: 2px solid rgba(255,255,255,0.15); }
+    .hd-title { font-size: 0.97rem; font-weight: 700; color: #fff; }
+    .hd-sub   { font-size: 0.7rem; color: rgba(255,255,255,0.42); }
+    .hd-right { display: flex; align-items: center; gap: 9px; }
+    .hd-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px; font-size: 0.8rem;
+      font-weight: 600; font-family: 'Outfit', sans-serif;
+      cursor: pointer; text-decoration: none; border: none;
+      transition: all 0.18s;
+    }
+    .hd-btn.ghost { background: rgba(255,255,255,0.07); color: #94a3b8; border: 1px solid rgba(255,255,255,0.1); }
+    .hd-btn.ghost:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .hd-btn.primary { background: var(--accent); color: white; box-shadow: 0 3px 12px rgba(14,165,233,0.3); }
+    .hd-btn.primary:hover { background: var(--accent-dark); }
+
+    /* ── MAIN ── */
+    .main-wrap { max-width: 1280px; margin: 28px auto 80px; padding: 0 18px; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(14px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* ══════════════════════════════
+       STAT CARDS ROW
+    ══════════════════════════════ */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    @media(max-width:900px){ .stat-row { grid-template-columns: repeat(3,1fr); } }
+    @media(max-width:600px){ .stat-row { grid-template-columns: 1fr 1fr; } }
+
+    .stat-card {
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 18px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      display: flex; align-items: center; gap: 13px;
+      cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      animation: fadeUp 0.4s ease both;
+    }
+    .stat-card:nth-child(n){ animation-delay: calc(0.05s * var(--i,0)); }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0,0,0,0.08); border-color: var(--accent); }
+
+    .stat-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .si-sky    { background: #e0f2fe; color: var(--accent); }
+    .si-green  { background: var(--green-bg); color: var(--green); }
+    .si-amber  { background: var(--amber-bg); color: var(--amber); }
+    .si-rose   { background: var(--rose-bg);  color: var(--rose); }
+    .si-violet { background: var(--violet-bg); color: var(--violet); }
+    .si-slate  { background: #f1f5f9; color: var(--slate-light); }
+
+    .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--slate); line-height: 1; }
+    .stat-lbl { font-size: 0.72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+
+    /* ══════════════════════════════
+       FILTER BAR
+    ══════════════════════════════ */
+    .filter-bar {
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 16px 20px;
+      margin-bottom: 18px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      animation: fadeUp 0.4s 0.1s ease both;
+    }
+
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-wrap i {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: var(--muted); font-size: 13px;
+    }
+    .search-wrap input {
+      width: 100%; padding: 9px 12px 9px 34px;
+      border: 1.5px solid var(--border); border-radius: 9px;
+      font-family: 'Outfit', sans-serif; font-size: 0.88rem;
+      background: #f8fafc; color: var(--slate);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-wrap input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); background: #fff; }
+
+    .filter-sel {
+      padding: 9px 12px; border: 1.5px solid var(--border);
+      border-radius: 9px; font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem; color: var(--slate); background: #f8fafc;
+      cursor: pointer; min-width: 140px;
+      transition: border-color 0.2s;
+    }
+    .filter-sel:focus { outline: none; border-color: var(--accent); }
+
+    .view-toggle { display: flex; gap: 4px; border: 1.5px solid var(--border); border-radius: 9px; overflow: hidden; }
+    .vt-btn {
+      padding: 8px 12px; background: #f8fafc; border: none;
+      color: var(--muted); cursor: pointer; transition: all 0.18s;
+      font-size: 13px;
+    }
+    .vt-btn.active { background: var(--accent); color: white; }
+    .vt-btn:hover:not(.active) { background: #e2e8f0; color: var(--slate); }
+
+    .export-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 16px; background: var(--green-bg); color: var(--green);
+      border: 1.5px solid var(--green-bdr); border-radius: 9px;
+      font-family: 'Outfit', sans-serif; font-size: 0.83rem;
+      font-weight: 600; cursor: pointer; transition: all 0.18s;
+    }
+    .export-btn:hover { background: var(--green); color: white; }
+
+    /* ══════════════════════════════
+       ASSET TABLE
+    ══════════════════════════════ */
+    .table-card {
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 14px rgba(0,0,0,0.05);
+      overflow: hidden;
+      margin-bottom: 22px;
+      animation: fadeUp 0.4s 0.15s ease both;
+    }
+
+    .tc-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 15px 22px; border-bottom: 1.5px solid var(--border);
+      background: #fafbfc; gap: 12px; flex-wrap: wrap;
+    }
+    .tc-title { font-size: 0.93rem; font-weight: 700; color: var(--slate); display: flex; align-items: center; gap: 8px; }
+    .tc-count {
+      font-family: var(--mono); font-size: 0.7rem;
+      background: #f0f9ff; color: var(--accent-dark);
+      border: 1px solid #bae6fd; border-radius: 5px; padding: 2px 8px;
+    }
+
+    .asset-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    .asset-table thead th {
+      background: #f8fafc; color: var(--steel);
+      font-size: 0.71rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      padding: 11px 14px; text-align: left;
+      border-bottom: 1.5px solid var(--border);
+      white-space: nowrap; cursor: pointer; user-select: none;
+    }
+    .asset-table thead th:hover { color: var(--accent); }
+    .asset-table thead th .sort-icon { opacity: 0.4; font-size: 10px; margin-left: 4px; }
+    .asset-table thead th.sorted .sort-icon { opacity: 1; color: var(--accent); }
+
+    .asset-table tbody tr {
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.14s;
+      cursor: pointer;
+    }
+    .asset-table tbody tr:hover { background: #f7fbff; }
+    .asset-table tbody tr:last-child { border-bottom: none; }
+
+    .asset-table td {
+      padding: 12px 14px; vertical-align: middle;
+      color: var(--slate); white-space: nowrap;
+    }
+
+    .asset-id-cell {
+      font-family: var(--mono); font-size: 0.78rem; font-weight: 600;
+      color: var(--accent-dark); letter-spacing: 0.3px;
+    }
+
+    /* Status badges */
+    .badge-status {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.71rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px; border: 1px solid;
+      white-space: nowrap;
+    }
+    .bs-active    { background: var(--green-bg);   color: var(--green);       border-color: var(--green-bdr); }
+    .bs-available { background: #e0f2fe;             color: var(--accent-dark); border-color: #bae6fd; }
+    .bs-repair    { background: var(--amber-bg);    color: var(--amber);       border-color: var(--amber-bdr); }
+    .bs-retired   { background: #f1f5f9;             color: var(--steel);       border-color: var(--border); }
+    .bs-disposed  { background: var(--rose-bg);     color: var(--rose);        border-color: var(--rose-bdr); }
+    .bs-lost      { background: #fdf4ff; color: var(--violet); border-color: #e9d5ff; }
+
+    /* Condition dots */
+    .cond-dot {
+      width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px;
+    }
+    .cd-new    { background: var(--green); }
+    .cd-good   { background: #84cc16; }
+    .cd-fair   { background: var(--amber); }
+    .cd-poor   { background: var(--rose); }
+    .cd-repair { background: var(--violet); }
+
+    /* Warranty status */
+    .warranty-chip {
+      font-size: 0.7rem; font-weight: 600; padding: 2px 8px;
+      border-radius: 5px;
+    }
+    .wc-ok      { background: var(--green-bg); color: var(--green); }
+    .wc-soon    { background: var(--amber-bg); color: var(--amber); }
+    .wc-expired { background: var(--rose-bg);  color: var(--rose); }
+
+    /* Action buttons */
+    .act-btn {
+      border: none; padding: 5px 10px; border-radius: 6px;
+      font-size: 11px; font-weight: 700; cursor: pointer;
+      transition: all 0.15s; font-family: 'Outfit', sans-serif;
+    }
+    .ab-edit   { background: #e0f2fe; color: var(--accent-dark); }
+    .ab-assign { background: var(--green-bg); color: var(--green); }
+    .ab-retire { background: var(--rose-bg);  color: var(--rose); }
+    .act-btn:hover { filter: brightness(0.92); transform: translateY(-1px); }
+
+    /* ══════════════════════════════
+       GRID VIEW (card tiles)
+    ══════════════════════════════ */
+    .asset-grid {
+      display: none;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+      padding: 18px;
+    }
+    .asset-grid.active { display: grid; }
+    .asset-table-wrap.hide { display: none; }
+
+    .ag-card {
+      border: 1.5px solid var(--border);
+      border-radius: 14px; padding: 18px;
+      background: #fafbff; transition: box-shadow 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+    .ag-card:hover { box-shadow: 0 6px 20px rgba(14,165,233,0.12); transform: translateY(-3px); border-color: var(--accent); }
+    .ag-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+    .ag-type-icon { width: 42px; height: 42px; border-radius: 11px; background: #e0f2fe; color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .ag-id { font-family: var(--mono); font-size: 0.7rem; color: var(--accent-dark); font-weight: 600; }
+    .ag-name { font-size: 0.92rem; font-weight: 700; color: var(--slate); margin-bottom: 4px; }
+    .ag-model { font-size: 0.78rem; color: var(--muted); margin-bottom: 10px; }
+    .ag-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .ag-chip { font-size: 0.68rem; font-weight: 600; padding: 2px 8px; border-radius: 5px; }
+    .ag-meta { display: flex; flex-direction: column; gap: 5px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .ag-meta-row { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); }
+    .ag-meta-val { color: var(--slate); font-weight: 600; }
+
+    /* ══════════════════════════════
+       DETAIL DRAWER
+    ══════════════════════════════ */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15,23,42,0.5);
+      backdrop-filter: blur(3px);
+      z-index: 500; display: none;
+    }
+    .drawer-overlay.open { display: block; }
+
+    .drawer {
+      position: fixed; top: 0; right: -520px; bottom: 0;
+      width: 500px; max-width: 96vw;
+      background: var(--card);
+      box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+      z-index: 501;
+      transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
+      display: flex; flex-direction: column;
+      border-left: 1px solid var(--border);
+    }
+    .drawer.open { right: 0; }
+
+    .drawer-header {
+      padding: 20px 24px;
+      border-bottom: 1.5px solid var(--border);
+      display: flex; align-items: center; gap: 13px;
+      background: linear-gradient(135deg, var(--slate), var(--slate-mid));
+      flex-shrink: 0;
+    }
+    .drawer-header h3 { font-size: 1rem; font-weight: 700; color: white; margin: 0; flex: 1; }
+    .drawer-close {
+      background: rgba(255,255,255,0.1); border: none; color: white;
+      width: 32px; height: 32px; border-radius: 8px; font-size: 14px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.18s;
+    }
+    .drawer-close:hover { background: rgba(255,255,255,0.2); }
+
+    .drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+    .dr-section { margin-bottom: 22px; }
+    .dr-section-title {
+      font-size: 0.7rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.8px;
+      margin-bottom: 12px; padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .dr-field { display: flex; flex-direction: column; gap: 3px; }
+    .dr-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .dr-val   { font-size: 0.87rem; font-weight: 500; color: var(--slate); }
+    .dr-val.mono { font-family: var(--mono); font-size: 0.8rem; }
+
+    .drawer-footer {
+      padding: 16px 24px; border-top: 1.5px solid var(--border);
+      display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0;
+    }
+    .drawer-footer button {
+      flex: 1; padding: 10px; border-radius: 10px; border: none;
+      font-family: 'Outfit', sans-serif; font-size: 0.85rem;
+      font-weight: 700; cursor: pointer; transition: all 0.18s;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      min-width: 100px;
+    }
+    .dfb-edit    { background: linear-gradient(135deg, #38bdf8, var(--accent-dark)); color: white; box-shadow: 0 3px 12px rgba(14,165,233,0.25); }
+    .dfb-assign  { background: linear-gradient(135deg, #34d399, #059669); color: white; box-shadow: 0 3px 12px rgba(5,150,105,0.25); }
+    .dfb-retire  { background: var(--rose-bg); color: var(--rose); border: 1.5px solid var(--rose-bdr); }
+
+    /* ══════════════════════════════
+       AUDIT LOG SECTION
+    ══════════════════════════════ */
+    .audit-card {
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 14px rgba(0,0,0,0.05);
+      overflow: hidden;
+      animation: fadeUp 0.4s 0.2s ease both;
+    }
+    .audit-head {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 22px; border-bottom: 1.5px solid var(--border);
+      background: #fafbfc;
+    }
+    .audit-icon { width: 34px; height: 34px; border-radius: 9px; background: #f1f5f9; color: var(--slate-light); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+
+    .audit-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    .audit-table th { background: #f8fafc; color: var(--steel); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 16px; text-align: left; border-bottom: 1.5px solid var(--border); }
+    .audit-table td { padding: 11px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .audit-table tr:last-child td { border-bottom: none; }
+    .audit-table tr:hover td { background: #f7fbff; }
+
+    .audit-action {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 6px;
+    }
+    .aa-reg      { background: #e0f2fe; color: var(--accent-dark); }
+    .aa-assigned { background: var(--green-bg); color: var(--green); }
+    .aa-returned { background: var(--amber-bg); color: var(--amber); }
+    .aa-repaired { background: var(--violet-bg); color: var(--violet); }
+    .aa-retired  { background: var(--rose-bg);  color: var(--rose); }
+
+    /* ══════════════════════════════
+       EMPTY STATE
+    ══════════════════════════════ */
+    .empty-state {
+      text-align: center; padding: 60px 20px; color: var(--muted);
+    }
+    .empty-state i { font-size: 42px; color: #cbd5e1; display: block; margin-bottom: 14px; }
+    .empty-state p { font-size: 0.9rem; }
+
+    /* Flash */
+    .flash { border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.86rem; display: flex; align-items: center; gap: 9px; }
+    .flash-ok  { background: var(--green-bg); border: 1px solid var(--green-bdr); color: #065f46; }
+    .flash-err { background: var(--rose-bg);  border: 1px solid var(--rose-bdr);  color: #be123c; }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="page-header">
+  <div class="hd-left">
+    <img src="https://chakrahub-stud.s3.eu-north-2.amazonaws.com/img.jpeg" alt="ChakoraHub" class="hd-logo" onerror="this.style.display='none'">
+    <div>
+      <div class="hd-title">Asset Tracker</div>
+      <div class="hd-sub">ChakoraHub Assets Module</div>
+    </div>
+  </div>
+  <div class="hd-right">
+    <a href="{{ url_for('register_asset') }}" class="hd-btn primary">
+      <i class="fas fa-plus"></i> Register Asset
+    </a>
+    <a href="{{ url_for('employee_resources') }}" class="hd-btn ghost">
+      <i class="fas fa-arrow-left"></i> Back
+    </a>
+  </div>
+</div>
+
+<div class="main-wrap">
+
+  <!-- Flash -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for cat, msg in messages %}
+      <div class="flash flash-{{ 'ok' if cat=='success' else 'err' }}">
+        <i class="fas fa-{{ 'check-circle' if cat=='success' else 'exclamation-circle' }}"></i>{{ msg }}
+      </div>
+    {% endfor %}{% endif %}
+  {% endwith %}
+
+  <!-- ══ STAT CARDS ══ -->
+  <div class="stat-row">
+    <div class="stat-card" onclick="filterByStatus('all')">
+      <div class="stat-icon si-sky"><i class="fas fa-boxes-stacked"></i></div>
+      <div>
+        <div class="stat-val">{{ stats.total or 0 }}</div>
+        <div class="stat-lbl">Total Assets</div>
+      </div>
+    </div>
+    <div class="stat-card" onclick="filterByStatus('Active')">
+      <div class="stat-icon si-green"><i class="fas fa-circle-check"></i></div>
+      <div>
+        <div class="stat-val">{{ stats.active or 0 }}</div>
+        <div class="stat-lbl">Active</div>
+      </div>
+    </div>
+    <div class="stat-card" onclick="filterByStatus('Available')">
+      <div class="stat-icon si-sky"><i class="fas fa-box-open"></i></div>
+      <div>
+        <div class="stat-val">{{ stats.available or 0 }}</div>
+        <div class="stat-lbl">Available</div>
+      </div>
+    </div>
+    <div class="stat-card" onclick="filterByStatus('Under Repair')">
+      <div class="stat-icon si-amber"><i class="fas fa-screwdriver-wrench"></i></div>
+      <div>
+        <div class="stat-val">{{ stats.repair or 0 }}</div>
+        <div class="stat-lbl">Under Repair</div>
+      </div>
+    </div>
+    <div class="stat-card" onclick="filterByStatus('Retired')">
+      <div class="stat-icon si-rose"><i class="fas fa-box-archive"></i></div>
+      <div>
+        <div class="stat-val">{{ stats.retired or 0 }}</div>
+        <div class="stat-lbl">Retired</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FILTER BAR ══ -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search by Asset ID, model, owner…" oninput="filterTable()">
+    </div>
+
+    <select class="filter-sel" id="typeFilter" onchange="filterTable()">
+      <option value="">All Types</option>
+      {% for t in asset_types %}
+      <option value="{{ t.TYPE_NAME }}">{{ t.TYPE_NAME }}</option>
+      {% endfor %}
+    </select>
+
+    <select class="filter-sel" id="statusFilter" onchange="filterTable()">
+      <option value="">All Statuses</option>
+      <option value="Active">Active</option>
+      <option value="Available">Available</option>
+      <option value="Under Repair">Under Repair</option>
+      <option value="Retired">Retired</option>
+      <option value="Disposed">Disposed</option>
+      <option value="Lost">Lost</option>
+    </select>
+
+    <select class="filter-sel" id="condFilter" onchange="filterTable()">
+      <option value="">All Conditions</option>
+      <option value="New">New</option>
+      <option value="Good">Good</option>
+      <option value="Fair">Fair</option>
+      <option value="Poor">Poor</option>
+      <option value="Under Repair">Under Repair</option>
+    </select>
+
+    <div class="view-toggle">
+      <button class="vt-btn active" id="btnTable" onclick="switchView('table')" title="Table view">
+        <i class="fas fa-table"></i>
+      </button>
+      <button class="vt-btn" id="btnGrid" onclick="switchView('grid')" title="Grid view">
+        <i class="fas fa-grip"></i>
+      </button>
+    </div>
+
+    <button class="export-btn" onclick="exportCSV()">
+      <i class="fas fa-download"></i> Export CSV
+    </button>
+  </div>
+
+  <!-- ══ ASSET TABLE ══ -->
+  <div class="table-card">
+    <div class="tc-head">
+      <div class="tc-title">
+        <i class="fas fa-list" style="color:var(--accent);"></i>
+        All Assets
+        <span class="tc-count" id="rowCount">{{ assets|length }} records</span>
+      </div>
+    </div>
+
+    <!-- TABLE VIEW -->
+    <div class="asset-table-wrap" id="tableView">
+      {% if assets %}
+      <div style="overflow-x:auto;">
+        <table class="asset-table" id="assetTable">
+          <thead>
+            <tr>
+              <th onclick="sortTable(0)">Asset ID <span class="sort-icon fas fa-sort"></span></th>
+              <th onclick="sortTable(1)">Type <span class="sort-icon fas fa-sort"></span></th>
+              <th onclick="sortTable(2)">Model <span class="sort-icon fas fa-sort"></span></th>
+              <th onclick="sortTable(3)">Serial No. <span class="sort-icon fas fa-sort"></span></th>
+              <th onclick="sortTable(4)">OS / RAM / SSD</th>
+              <th onclick="sortTable(5)">Owned By <span class="sort-icon fas fa-sort"></span></th>
+              <th onclick="sortTable(6)">Location <span class="sort-icon fas fa-sort"></span></th>
+              <th onclick="sortTable(7)">Condition <span class="sort-icon fas fa-sort"></span></th>
+              <th onclick="sortTable(8)">Status <span class="sort-icon fas fa-sort"></span></th>
+              <th onclick="sortTable(9)">Warranty <span class="sort-icon fas fa-sort"></span></th>
+              <th onclick="sortTable(10)">Price <span class="sort-icon fas fa-sort"></span></th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            {% for a in assets %}
+            <tr onclick="openDrawer({{ a|tojson }})"
+                data-status="{{ a.STATUS }}" data-type="{{ a.TYPE_NAME }}"
+                data-cond="{{ a.CONDITION }}">
+              <td class="asset-id-cell">{{ a.ASSET_ID }}</td>
+              <td>{{ a.TYPE_NAME or '—' }}</td>
+              <td style="font-weight:600;">{{ a.MODEL_NAME or '—' }}</td>
+              <td style="font-family:var(--mono);font-size:0.78rem;">{{ a.SERIAL_NO or '—' }}</td>
+              <td style="font-size:0.78rem;color:var(--muted);">
+                {{ a.OS or '—' }} / {{ a.RAM or '—' }} / {{ a.SSD or '—' }}
+              </td>
+              <td>{{ a.OWNED_BY or '—' }}</td>
+              <td>{{ a.LOCATION or '—' }}</td>
+              <td>
+                {% set cond = a.CONDITION or '' %}
+                <span class="cond-dot cd-{{ cond.lower().replace(' ','') }}"></span>{{ cond or '—' }}
+              </td>
+              <td>
+                {% set st = a.STATUS or '' %}
+                <span class="badge-status bs-{{ st.lower().replace(' ','-') }}">
+                  <i class="fas fa-circle" style="font-size:6px;"></i>{{ st or '—' }}
+                </span>
+              </td>
+              <td>
+                {% if a.WARRANTY_EXPIRY %}
+                  {% set days = (a.WARRANTY_EXPIRY - today).days %}
+                  <span class="warranty-chip {{ 'wc-ok' if days > 90 else 'wc-soon' if days > 0 else 'wc-expired' }}">
+                    {{ 'OK' if days > 90 else (days|string + 'd') if days > 0 else 'Expired' }}
+                  </span>
+                {% else %}—{% endif %}
+              </td>
+              <td style="font-family:var(--mono);font-size:0.78rem;">
+                {% if a.PRICE %}₹{{ '{:,.0f}'.format(a.PRICE) }}{% else %}—{% endif %}
+              </td>
+              <td onclick="event.stopPropagation()">
+                <div style="display:flex;gap:4px;">
+                  <a href="{{ url_for('edit_asset', asset_id=a.ASSET_ID) }}" class="act-btn ab-edit">
+                    <i class="fas fa-pen"></i>
+                  </a>
+                  <button class="act-btn ab-assign" onclick="openAssign('{{ a.ASSET_ID }}')">
+                    <i class="fas fa-user-plus"></i>
+                  </button>
+                  <button class="act-btn ab-retire" onclick="confirmRetire('{{ a.ASSET_ID }}')">
+                    <i class="fas fa-box-archive"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <i class="fas fa-boxes-stacked"></i>
+        <p>No assets registered yet.<br>
+          <a href="{{ url_for('register_asset') }}" style="color:var(--accent);font-weight:600;">Register your first asset →</a>
+        </p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- GRID VIEW -->
+    <div class="asset-grid" id="gridView">
+      {% for a in assets %}
+      <div class="ag-card" onclick="openDrawer({{ a|tojson }})">
+        <div class="ag-top">
+          <div class="ag-type-icon">
+            <i class="fas fa-{{ 'laptop' if 'Laptop' in (a.TYPE_NAME or '') else 'desktop' if 'Desktop' in (a.TYPE_NAME or '') else 'mobile-alt' if 'Mobile' in (a.TYPE_NAME or '') else 'print' if 'Printer' in (a.TYPE_NAME or '') else 'cube' }}"></i>
+          </div>
+          <span class="badge-status bs-{{ (a.STATUS or '').lower().replace(' ','-') }}" style="font-size:0.68rem;">
+            {{ a.STATUS or 'Unknown' }}
+          </span>
+        </div>
+        <div class="ag-id">{{ a.ASSET_ID }}</div>
+        <div class="ag-name">{{ a.TYPE_NAME or 'Asset' }}</div>
+        <div class="ag-model">{{ a.MODEL_NAME or 'Unknown Model' }}</div>
+        <div class="ag-chips">
+          {% if a.OS %}<span class="ag-chip" style="background:#f0f9ff;color:var(--accent-dark);">{{ a.OS }}</span>{% endif %}
+          {% if a.RAM %}<span class="ag-chip" style="background:#f5f3ff;color:var(--violet);">{{ a.RAM }}</span>{% endif %}
+          {% if a.SSD %}<span class="ag-chip" style="background:var(--green-bg);color:var(--green);">{{ a.SSD }}</span>{% endif %}
+        </div>
+        <div class="ag-meta">
+          <div class="ag-meta-row"><span>Owner</span><span class="ag-meta-val">{{ a.OWNED_BY or '—' }}</span></div>
+          <div class="ag-meta-row"><span>Location</span><span class="ag-meta-val">{{ a.LOCATION or '—' }}</span></div>
+          {% if a.PRICE %}<div class="ag-meta-row"><span>Price</span><span class="ag-meta-val" style="font-family:var(--mono);">₹{{ '{:,.0f}'.format(a.PRICE) }}</span></div>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+
+  <!-- ══ AUDIT LOG ══ -->
+  <div class="audit-card">
+    <div class="audit-head">
+      <div class="audit-icon"><i class="fas fa-clock-rotate-left"></i></div>
+      <div>
+        <div style="font-size:0.93rem;font-weight:700;color:var(--slate);">Audit Log</div>
+        <div style="font-size:0.72rem;color:var(--muted);">Recent asset actions — Table: asset_audit_log</div>
+      </div>
+    </div>
+    {% if audit_log %}
+    <div style="overflow-x:auto;">
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>Asset ID <span style="font-family:var(--mono);font-weight:400;">ASSET_ID</span></th>
+            <th>Action <span style="font-family:var(--mono);font-weight:400;">ACTION</span></th>
+            <th>Actioned By <span style="font-family:var(--mono);font-weight:400;">ACTIONED_BY</span></th>
+            <th>Date <span style="font-family:var(--mono);font-weight:400;">ACTION_DATE</span></th>
+            <th>Remarks <span style="font-family:var(--mono);font-weight:400;">REMARKS</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in audit_log %}
+          <tr>
+            <td style="font-family:var(--mono);font-size:0.78rem;color:var(--accent-dark);font-weight:600;">{{ log.ASSET_ID }}</td>
+            <td>
+              <span class="audit-action aa-{{ log.ACTION.lower() }}">
+                {{ log.ACTION }}
+              </span>
+            </td>
+            <td>{{ log.ACTIONED_BY or '—' }}</td>
+            <td style="color:var(--muted);font-size:0.8rem;">{{ log.ACTION_DATE.strftime('%d %b %Y, %H:%M') if log.ACTION_DATE else '—' }}</td>
+            <td style="color:var(--muted);font-size:0.82rem;max-width:240px;">{{ log.REMARKS or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state" style="padding:30px;">
+      <i class="fas fa-clock-rotate-left" style="font-size:28px;"></i>
+      <p style="font-size:0.84rem;">No audit entries yet.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div><!-- /main-wrap -->
+
+<!-- ══ DETAIL DRAWER ══ -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="assetDrawer">
+  <div class="drawer-header">
+    <div class="sc-icon i-sky" style="background:rgba(255,255,255,0.12);color:white;flex-shrink:0;width:36px;height:36px;">
+      <i class="fas fa-laptop"></i>
+    </div>
+    <h3 id="drawerTitle">Asset Details</h3>
+    <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-xmark"></i></button>
+  </div>
+  <div class="drawer-body" id="drawerBody">
+    <!-- Populated by JS -->
+  </div>
+  <div class="drawer-footer">
+    <button class="dfb-edit"   id="drawerEditBtn"><i class="fas fa-pen"></i> Edit</button>
+    <button class="dfb-assign" id="drawerAssignBtn"><i class="fas fa-user-plus"></i> Assign</button>
+    <button class="dfb-retire" id="drawerRetireBtn"><i class="fas fa-box-archive"></i> Retire</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  /* ── VIEW TOGGLE ── */
+  function switchView(mode) {
+    const tableV = document.getElementById('tableView');
+    const gridV  = document.getElementById('gridView');
+    const btnT   = document.getElementById('btnTable');
+    const btnG   = document.getElementById('btnGrid');
+    if (mode === 'table') {
+      tableV.classList.remove('hide'); gridV.classList.remove('active');
+      btnT.classList.add('active'); btnG.classList.remove('active');
+    } else {
+      tableV.classList.add('hide'); gridV.classList.add('active');
+      btnG.classList.add('active'); btnT.classList.remove('active');
+    }
+  }
+
+  /* ── FILTER TABLE ── */
+  function filterTable() {
+    const q      = document.getElementById('searchInput').value.toLowerCase();
+    const status = document.getElementById('statusFilter').value.toLowerCase();
+    const type   = document.getElementById('typeFilter').value.toLowerCase();
+    const cond   = document.getElementById('condFilter').value.toLowerCase();
+    const rows   = document.querySelectorAll('#tableBody tr');
+    let visible  = 0;
+    rows.forEach(row => {
+      const text = row.innerText.toLowerCase();
+      const rSt  = (row.dataset.status || '').toLowerCase();
+      const rTy  = (row.dataset.type   || '').toLowerCase();
+      const rCo  = (row.dataset.cond   || '').toLowerCase();
+      const show = text.includes(q)
+        && (!status || rSt === status)
+        && (!type   || rTy === type)
+        && (!cond   || rCo === cond);
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    document.getElementById('rowCount').textContent = visible + ' records';
+  }
+
+  function filterByStatus(st) {
+    const sel = document.getElementById('statusFilter');
+    sel.value = st === 'all' ? '' : st;
+    filterTable();
+  }
+
+  /* ── SORT TABLE ── */
+  let sortDir = {};
+  function sortTable(col) {
+    const tbody = document.getElementById('tableBody');
+    const rows  = Array.from(tbody.querySelectorAll('tr'));
+    const asc   = !sortDir[col];
+    sortDir = {};
+    sortDir[col] = asc;
+    rows.sort((a, b) => {
+      const av = a.cells[col]?.innerText.trim() || '';
+      const bv = b.cells[col]?.innerText.trim() || '';
+      return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+    });
+    rows.forEach(r => tbody.appendChild(r));
+  }
+
+  /* ── DRAWER ── */
+  let currentAsset = null;
+  function openDrawer(asset) {
+    currentAsset = asset;
+    document.getElementById('drawerTitle').textContent = asset.ASSET_ID || 'Asset Details';
+    const body = document.getElementById('drawerBody');
+
+    const warrantyDays = asset.WARRANTY_EXPIRY
+      ? Math.ceil((new Date(asset.WARRANTY_EXPIRY) - new Date()) / 86400000) : null;
+    const wLabel = warrantyDays == null ? '—'
+      : warrantyDays > 0 ? `${warrantyDays} days remaining`
+      : 'Expired';
+    const wColor = warrantyDays == null ? '' : warrantyDays > 90 ? 'color:var(--green)'
+      : warrantyDays > 0 ? 'color:var(--amber)' : 'color:var(--rose)';
+
+    body.innerHTML = `
+      <div class="dr-section">
+        <div class="dr-section-title"><i class="fas fa-qrcode me-1"></i> Identity · assets</div>
+        <div class="dr-grid">
+          <div class="dr-field"><div class="dr-label">Asset ID</div><div class="dr-val mono">${asset.ASSET_ID||'—'}</div></div>
+          <div class="dr-field"><div class="dr-label">Type</div><div class="dr-val">${asset.TYPE_NAME||'—'}</div></div>
+          <div class="dr-field"><div class="dr-label">Model</div><div class="dr-val">${asset.MODEL_NAME||'—'}</div></div>
+          <div class="dr-field"><div class="dr-label">Serial No.</div><div class="dr-val mono">${asset.SERIAL_NO||'—'}</div></div>
+          <div class="dr-field"><div class="dr-label">Vendor</div><div class="dr-val">${asset.VENDOR_NAME||'—'}</div></div>
+          <div class="dr-field"><div class="dr-label">Status</div><div class="dr-val">${asset.STATUS||'—'}</div></div>
+        </div>
+      </div>
+      <div class="dr-section">
+        <div class="dr-section-title"><i class="fas fa-microchip me-1"></i> Hardware Specs</div>
+        <div class="dr-grid">
+          <div class="dr-field"><div class="dr-label">OS</div><div class="dr-val">${asset.OS||'—'}</div></div>
+          <div class="dr-field"><div class="dr-label">RAM</div><div class="dr-val">${asset.RAM||'—'}</div></div>
+          <div class="dr-field"><div class="dr-label">Storage</div><div class="dr-val">${asset.SSD||'—'}</div></div>
+          <div class="dr-field"><div class="dr-label">Condition</div><div class="dr-val">${asset.CONDITION||'—'}</div></div>
+        </div>
+      </div>
+      <div class="dr-section">
+        <div class="dr-section-title"><i class="fas fa-receipt me-1"></i> Ownership & Financials</div>
+        <div class="dr-grid">
+          <div class="dr-field"><div class="dr-label">Owned By</div><div class="dr-val">${asset.OWNED_BY||'—'}</div></div>
+          <div class="dr-field"><div class="dr-label">Location</div><div class="dr-val">${asset.LOCATION||'—'}</div></div>
+          <div class="dr-field"><div class="dr-label">Purchase Date</div><div class="dr-val">${asset.PURCHASE_DATE||'—'}</div></div>
+          <div class="dr-field"><div class="dr-label">Price</div><div class="dr-val mono">${asset.PRICE ? '₹'+Number(asset.PRICE).toLocaleString('en-IN') : '—'}</div></div>
+          <div class="dr-field"><div class="dr-label">Warranty Expiry</div><div class="dr-val">${asset.WARRANTY_EXPIRY||'—'}</div></div>
+          <div class="dr-field"><div class="dr-label">Warranty Status</div><div class="dr-val" style="${wColor}">${wLabel}</div></div>
+        </div>
+      </div>
+      ${asset.NOTES ? `<div class="dr-section"><div class="dr-section-title"><i class="fas fa-note-sticky me-1"></i> Notes</div><div style="font-size:0.87rem;color:var(--slate);line-height:1.6;">${asset.NOTES}</div></div>` : ''}
+    `;
+
+    document.getElementById('drawerEditBtn').onclick   = () => window.location = `/asset/edit/${asset.ASSET_ID}`;
+    document.getElementById('drawerAssignBtn').onclick = () => openAssign(asset.ASSET_ID);
+    document.getElementById('drawerRetireBtn').onclick = () => confirmRetire(asset.ASSET_ID);
+
+    document.getElementById('drawerOverlay').classList.add('open');
+    document.getElementById('assetDrawer').classList.add('open');
+  }
+
+  function closeDrawer() {
+    document.getElementById('drawerOverlay').classList.remove('open');
+    document.getElementById('assetDrawer').classList.remove('open');
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+  /* ── ASSIGN ── */
+  function openAssign(assetId) {
+    window.location = `/asset/assign/${assetId}`;
+  }
+
+  /* ── RETIRE ── */
+  function confirmRetire(assetId) {
+    if (confirm(`Retire asset ${assetId}? This will mark it as Retired in the system.`)) {
+      fetch(`/asset/retire/${assetId}`, { method: 'POST' })
+        .then(() => location.reload());
+    }
+  }
+
+  /* ── EXPORT CSV ── */
+  function exportCSV() {
+    const rows  = document.querySelectorAll('#assetTable tr');
+    const lines = [];
+    rows.forEach(row => {
+      const cols = Array.from(row.querySelectorAll('th, td')).slice(0, -1);
+      lines.push(cols.map(c => `"${c.innerText.trim().replace(/"/g,'""')}"`).join(','));
+    });
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `chakorahub_assets_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+  }
+</script>
+</body>
+</html>

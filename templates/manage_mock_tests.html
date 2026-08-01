@@ -1,0 +1,469 @@
+{% extends "base.html" %}
+{% block title %}Manage Mock Tests - Admin Panel{% endblock %}
+
+{% block head %}
+<style>
+    .fade-row {
+        transition: opacity 0.3s ease;
+    }
+
+    .fade-row.deleting {
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 4px 12px;
+        border-radius: 20px;
+    }
+
+    .btn-loading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+
+        <!-- Header -->
+        <div class="glass-card p-4 mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="text-white mb-1">
+                    <i class="bi bi-journal-check me-2 text-gradient-blue"></i>
+                    Manage Mock Tests
+                </h2>
+                <p class="text-secondary mb-0">Publish, edit, or delete mock tests</p>
+            </div>
+            <div>
+                <button class="btn btn-premium-outline me-2" onclick="refreshTests()" title="Refresh">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+                <a href="{{ url_for('admin_create_mock_test') }}" class="btn btn-premium">
+                    <i class="bi bi-plus-circle"></i> Create New Test
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="row g-4 mb-4" id="statsRow">
+            <div class="col-md-3">
+                <div class="glass-card p-3 text-center">
+                    <h3 class="text-white" id="totalCount">0</h3>
+                    <p class="text-secondary mb-0">Total Tests</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card p-3 text-center">
+                    <h3 class="text-success" id="publishedCount">0</h3>
+                    <p class="text-secondary mb-0">Published</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card p-3 text-center">
+                    <h3 class="text-warning" id="draftCount">0</h3>
+                    <p class="text-secondary mb-0">Drafts</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card p-3 text-center">
+                    <h3 class="text-info" id="questionCount">0</h3>
+                    <p class="text-secondary mb-0">Total Questions</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tests Table -->
+        <div class="glass-card p-4">
+            <div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
+                <table class="table table-premium">
+                    <thead>
+                        <tr>
+                            <th style="min-width: 60px;">ID</th>
+                            <th style="min-width: 180px;">Title</th>
+                            <th style="min-width: 120px;">Category</th>
+                            <th style="min-width: 80px;">Questions</th>
+                            <th style="min-width: 100px;">Duration</th>
+                            <th style="min-width: 150px;">Scheduled</th>
+                            <th style="min-width: 100px;">Status</th>
+                            <th style="min-width: 200px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="testsTableBody">
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="text-secondary mt-2 mb-0">Loading tests...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // ================================================================
+    // TOAST NOTIFICATIONS (Using Premium Toast from base.html)
+    // ================================================================
+    function showToast(message, type = 'success') {
+        if (typeof showPremiumToast === 'function') {
+            const titles = {
+                success: '✅ Success',
+                error: '❌ Error',
+                warning: '⚠️ Warning',
+                info: 'ℹ️ Info'
+            };
+            showPremiumToast(message, type, titles[type] || 'Info');
+        } else {
+            alert(message);
+        }
+    }
+
+    // ================================================================
+    // LOAD TESTS
+    // ================================================================
+    function loadTests() {
+        fetch('/api/proxy/admin/mock-tests')
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                return res.json();
+            })
+            .then(tests => {
+                displayTests(tests);
+                updateStats(tests);
+            })
+            .catch(err => {
+                console.error('Error loading tests:', err);
+                document.getElementById('testsTableBody').innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center text-danger py-5">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                        <p class="mt-2">Error loading tests: ${escapeHtml(err.message)}</p>
+                        <button class="btn btn-premium-outline btn-sm mt-2" onclick="loadTests()">
+                            <i class="bi bi-arrow-clockwise"></i> Retry
+                        </button>
+                    </td>
+                </tr>
+            `;
+                showToast('Failed to load tests: ' + err.message, 'error');
+            });
+    }
+
+    // ================================================================
+    // UPDATE STATS
+    // ================================================================
+    function updateStats(tests) {
+        if (!tests || tests.length === 0) {
+            document.getElementById('totalCount').textContent = '0';
+            document.getElementById('publishedCount').textContent = '0';
+            document.getElementById('draftCount').textContent = '0';
+            document.getElementById('questionCount').textContent = '0';
+            return;
+        }
+
+        const total = tests.length;
+        const published = tests.filter(t => t.is_published === 1).length;
+        const drafts = tests.filter(t => t.is_published === 0).length;
+        const totalQuestions = tests.reduce((sum, t) => sum + (t.total_questions || 0), 0);
+
+        document.getElementById('totalCount').textContent = total;
+        document.getElementById('publishedCount').textContent = published;
+        document.getElementById('draftCount').textContent = drafts;
+        document.getElementById('questionCount').textContent = totalQuestions;
+    }
+
+    // ================================================================
+    // DISPLAY TESTS
+    // ================================================================
+    function displayTests(tests) {
+        const tbody = document.getElementById('testsTableBody');
+
+        if (!tests || tests.length === 0) {
+            tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center text-secondary py-5">
+                    <i class="bi bi-journal-x" style="font-size: 2.5rem; display: block; margin-bottom: 10px;"></i>
+                    No mock tests created yet
+                    <p class="mt-2">
+                        <a href="{{ url_for('admin_create_mock_test') }}" class="btn btn-premium btn-sm">
+                            <i class="bi bi-plus-circle"></i> Create Your First Test
+                        </a>
+                    </p>
+                </td>
+            </tr>
+        `;
+            return;
+        }
+
+        tbody.innerHTML = '';
+        tests.forEach((test) => {
+            const row = tbody.insertRow();
+            row.setAttribute('data-test-id', test.id);
+            row.className = 'fade-row';
+
+            row.insertCell(0).innerHTML = `<span class="text-secondary">${test.id}</span>`;
+            row.insertCell(1).innerHTML = `<strong class="text-white">${escapeHtml(test.title)}</strong>`;
+            row.insertCell(2).innerHTML = `<span class="badge bg-primary bg-opacity-10 text-primary">${escapeHtml(test.category)}</span>`;
+            row.insertCell(3).innerHTML = `<span class="text-white">${test.total_questions || 0}</span>`;
+            row.insertCell(4).innerHTML = `<span class="text-secondary">${test.duration_minutes} min</span>`;
+
+            const scheduledDate = test.scheduled_date || 'Not scheduled';
+            const startTime = test.start_time || '';
+            row.insertCell(5).innerHTML = `
+            <small class="text-secondary">
+                ${escapeHtml(scheduledDate)}
+                ${startTime ? `<br><span class="text-muted" style="font-size: 0.7rem;">${escapeHtml(startTime)} - ${escapeHtml(test.end_time || '')}</span>` : ''}
+            </small>
+        `;
+
+            const isPublished = test.is_published === 1;
+            const statusText = isPublished ? 'Published' : 'Draft';
+            const statusColor = isPublished ? 'success' : 'secondary';
+            row.insertCell(6).innerHTML = `
+            <span class="status-badge badge bg-${statusColor} bg-opacity-10 text-${statusColor}">
+                ${statusText}
+            </span>
+        `;
+
+            const publishIcon = isPublished ? 'bi-eye-slash' : 'bi-eye';
+            const publishTitle = isPublished ? 'Unpublish' : 'Publish';
+            const publishColor = isPublished ? 'btn-warning' : 'btn-success';
+
+            row.insertCell(7).innerHTML = `
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-sm ${publishColor}" onclick="togglePublish(${test.id}, ${isPublished})" title="${publishTitle}">
+                    <i class="bi ${publishIcon}"></i>
+                </button>
+                <button class="btn btn-sm btn-premium-outline" onclick="editTest(${test.id})" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-danger-premium" onclick="deleteTest(${test.id}, '${escapeHtml(test.title)}')" title="Delete">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+        });
+    }
+
+    // ================================================================
+    // REFRESH TESTS
+    // ================================================================
+    function refreshTests() {
+        showToast('Refreshing tests...', 'warning');
+        loadTests();
+    }
+
+    // ================================================================
+    // EDIT TEST
+    // ================================================================
+    function editTest(id) {
+        showToast(`Edit functionality for test ${id} will be available soon.`, 'warning');
+    }
+
+    // ================================================================
+    // TOGGLE PUBLISH STATUS - FIXED
+    // ================================================================
+    function togglePublish(id, currentStatus) {
+        const action = currentStatus ? 'unpublish' : 'publish';
+        const newStatus = currentStatus ? 'Draft' : 'Published';
+
+        if (typeof showPremiumModal === 'function') {
+            showPremiumModal(
+                `Are you sure you want to ${action} this mock test? It will become ${newStatus}.`,
+                `${action.charAt(0).toUpperCase() + action.slice(1)} Test?`,
+                'warning',
+                action.charAt(0).toUpperCase() + action.slice(1)
+            ).then((confirmed) => {
+                if (!confirmed) return;
+                performTogglePublish(id, action);
+            });
+        } else {
+            if (confirm(`Are you sure you want to ${action} this mock test? It will become ${newStatus}.`)) {
+                performTogglePublish(id, action);
+            }
+        }
+    }
+
+    function performTogglePublish(id, action) {
+        const row = document.querySelector(`tr[data-test-id="${id}"]`);
+        if (row) {
+            const actionsCell = row.cells[7];
+            actionsCell.innerHTML = '<span class="text-secondary"><i class="bi bi-hourglass-split"></i> Updating...</span>';
+        }
+
+        fetch(`/api/proxy/admin/mock-tests/${id}/publish`, {
+            method: 'PUT'
+        })
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                return res.json();
+            })
+            .then(data => {
+                showToast(`Test ${action}ed successfully!`, 'success');
+                loadTests();
+            })
+            .catch(err => {
+                console.error('Error toggling publish:', err);
+                showToast(`Failed to ${action} test: ${err.message}`, 'error');
+                loadTests();
+            });
+    }
+
+    // ================================================================
+    // DELETE TEST - FIXED
+    // ================================================================
+    function deleteTest(id, title) {
+        if (typeof showPremiumModal === 'function') {
+            showPremiumModal(
+                `⚠️ Are you sure you want to delete the mock test "${title}"?\n\nThis action cannot be undone and will remove all associated data.`,
+                'Delete Mock Test?',
+                'danger',
+                'Delete'
+            ).then((confirmed) => {
+                if (!confirmed) return;
+
+                showPremiumModal(
+                    `⚠️ Confirm deletion of "${title}"? This is permanent!`,
+                    'Final Confirmation',
+                    'danger',
+                    'Yes, Delete'
+                ).then((confirmed2) => {
+                    if (!confirmed2) return;
+                    performDeleteTest(id, title);
+                });
+            });
+        } else {
+            if (confirm(`⚠️ Are you sure you want to delete the mock test "${title}"?`)) {
+                if (confirm(`⚠️ Confirm deletion of "${title}"? This is permanent!`)) {
+                    performDeleteTest(id, title);
+                }
+            }
+        }
+    }
+
+    function performDeleteTest(id, title) {
+        const row = document.querySelector(`tr[data-test-id="${id}"]`);
+        if (row) {
+            row.classList.add('deleting');
+            const actionsCell = row.cells[7];
+            actionsCell.innerHTML = '<span class="text-danger"><i class="bi bi-hourglass-split"></i> Deleting...</span>';
+        }
+
+        fetch(`/api/proxy/admin/mock-tests/${id}`, {
+            method: 'DELETE'
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(data => {
+                        throw new Error(data.message || data.detail || `HTTP ${res.status}`);
+                    }).catch(() => {
+                        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                    });
+                }
+                return res.json();
+            })
+            .then(data => {
+                showToast(`✅ Test "${title}" deleted successfully!`, 'success');
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => {
+                        row.remove();
+                        loadTests();
+                    }, 300);
+                } else {
+                    loadTests();
+                }
+            })
+            .catch(err => {
+                console.error('Error deleting test:', err);
+                showToast(`❌ Failed to delete test: ${err.message}`, 'error');
+                if (row) {
+                    row.classList.remove('deleting');
+                    loadTests();
+                }
+            });
+    }
+
+    // ================================================================
+    // KEYBOARD SHORTCUT: Ctrl+R for refresh
+    // ================================================================
+    document.addEventListener('keydown', function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+            const tag = document.activeElement ? document.activeElement.tagName : '';
+            if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+                e.preventDefault();
+                refreshTests();
+            }
+        }
+    });
+
+    // ================================================================
+    // AUTO-REFRESH every 30 seconds
+    // ================================================================
+    let autoRefreshInterval = null;
+
+    function startAutoRefresh() {
+        if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+        autoRefreshInterval = setInterval(() => {
+            if (!document.hidden) {
+                loadTests();
+            }
+        }, 30000);
+    }
+
+    function stopAutoRefresh() {
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+            autoRefreshInterval = null;
+        }
+    }
+
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+            stopAutoRefresh();
+        } else {
+            startAutoRefresh();
+        }
+    });
+
+    // ================================================================
+    // UTILITY FUNCTIONS
+    // ================================================================
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ================================================================
+    // INITIALIZATION
+    // ================================================================
+    document.addEventListener('DOMContentLoaded', function () {
+        loadTests();
+        startAutoRefresh();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const success = urlParams.get('success');
+        const error = urlParams.get('error');
+
+        if (success) {
+            showToast(decodeURIComponent(success), 'success');
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        if (error) {
+            showToast(decodeURIComponent(error), 'error');
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
+</script>
+{% endblock %}

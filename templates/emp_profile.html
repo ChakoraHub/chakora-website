@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Profile — ChakoraHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:       #0078D7;
+      --primary-dark:  #0e4fa0;
+      --primary-deep:  #083580;
+      --primary-glow:  rgba(0,120,215,0.10);
+      --success:       #16a34a;
+      --success-bg:    #f0fdf4;
+      --success-bdr:   #bbf7d0;
+      --warning:       #d97706;
+      --danger:        #dc2626;
+      --danger-bg:     #fff1f2;
+      --danger-bdr:    #fecdd3;
+      --bg:            #eef2f7;
+      --card:          #ffffff;
+      --border:        #dde4f0;
+      --text:          #0f1a2e;
+      --muted:         #5a6a85;
+      --label:         #3d4f6b;
+      --mono:          'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .page-header {
+      background: linear-gradient(135deg, #1262b8 0%, var(--primary-dark) 50%, var(--primary-deep) 100%);
+      padding: 14px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .header-logo { height: 46px; width: 46px; border-radius: 10px; object-fit: cover; border: 2px solid rgba(255,255,255,0.22); }
+    .header-title { font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0; }
+    .header-sub { font-size: 0.75rem; color: rgba(255,255,255,0.6); }
+    .header-back { color: #cfe8ff; text-decoration: none; font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
+    .header-back:hover { color: #fff; }
+
+    /* ── MAIN ── */
+    .main-wrap { max-width: 1080px; margin: 32px auto 80px; padding: 0 20px; }
+
+    /* ── HERO CARD ── */
+    .hero-card {
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: 0 4px 28px rgba(0,50,120,0.1);
+      overflow: hidden;
+      margin-bottom: 24px;
+      animation: fadeUp 0.4s ease both;
+      border: 1px solid var(--border);
+    }
+    .hero-banner {
+      height: 120px;
+      background: linear-gradient(135deg, #1262b8, var(--primary-dark) 50%, #5b8def);
+      position: relative;
+    }
+    .hero-banner::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-body {
+      padding: 0 28px 24px;
+      display: flex; align-items: flex-end; gap: 20px;
+      margin-top: -50px;
+      flex-wrap: wrap;
+    }
+    .profile-avatar-wrap { position: relative; flex-shrink: 0; }
+    .profile-avatar {
+      width: 100px; height: 100px; border-radius: 50%;
+      border: 4px solid white;
+      object-fit: cover;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+      background: linear-gradient(135deg, #1262b8, #5b8def);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px; font-weight: 700; color: white;
+    }
+    .profile-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .avatar-upload-btn {
+      position: absolute; bottom: 2px; right: 2px;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--primary); color: white;
+      border: 2px solid white; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; transition: background 0.2s;
+    }
+    .avatar-upload-btn:hover { background: var(--primary-dark); }
+
+    .hero-info { flex: 1; min-width: 0; padding-bottom: 4px; margin-top: 56px; }
+    .hero-name { font-size: 1.4rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .hero-meta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+    .hero-meta-item { display: flex; align-items: center; gap: 5px; font-size: 0.82rem; color: var(--muted); }
+    .hero-meta-item i { color: var(--primary); font-size: 12px; }
+    .emp-id-badge {
+      font-family: var(--mono);
+      background: var(--primary-glow);
+      border: 1px solid rgba(0,120,215,0.2);
+      color: var(--primary-dark);
+      font-size: 0.78rem; font-weight: 600;
+      padding: 3px 10px; border-radius: 6px;
+    }
+
+    .hero-actions { display: flex; gap: 10px; align-items: center; margin-top: 56px; padding-bottom: 4px; }
+
+    .btn-edit-toggle {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, #1a85e8, var(--primary-dark));
+      color: white; border: none; border-radius: 10px;
+      padding: 10px 22px; font-family: 'Sora', sans-serif;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,120,215,0.28);
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .btn-edit-toggle:hover { transform: translateY(-2px); box-shadow: 0 7px 22px rgba(0,120,215,0.36); }
+
+    .btn-save {
+      display: none; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, #16a34a, #14532d);
+      color: white; border: none; border-radius: 10px;
+      padding: 10px 22px; font-family: 'Sora', sans-serif;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(22,163,74,0.28);
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 7px 22px rgba(22,163,74,0.36); }
+
+    .btn-cancel {
+      display: none; align-items: center; gap: 7px;
+      background: #f1f5f9; color: var(--label);
+      border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 9px 18px; font-family: 'Sora', sans-serif;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      transition: background 0.18s;
+    }
+    .btn-cancel:hover { background: #e2e8f0; }
+
+    /* edit mode states */
+    body.edit-mode .btn-edit-toggle { display: none; }
+    body.edit-mode .btn-save        { display: inline-flex; }
+    body.edit-mode .btn-cancel      { display: inline-flex; }
+
+    /* ── SECTION CARDS ── */
+    .section-card {
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: 0 2px 14px rgba(0,50,120,0.07);
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+      overflow: hidden;
+      animation: fadeUp 0.45s ease both;
+    }
+    .section-card:nth-child(2){ animation-delay:0.06s; }
+    .section-card:nth-child(3){ animation-delay:0.12s; }
+    .section-card:nth-child(4){ animation-delay:0.18s; }
+    .section-card:nth-child(5){ animation-delay:0.22s; }
+    .section-card:nth-child(6){ animation-delay:0.26s; }
+    .section-card:nth-child(7){ animation-delay:0.30s; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(18px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .sc-head {
+      display: flex; align-items: center; gap: 13px;
+      padding: 16px 24px;
+      border-bottom: 1.5px solid var(--border);
+    }
+    .sc-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .i-blue    { background: #eff6ff; color: var(--primary); }
+    .i-green   { background: var(--success-bg); color: var(--success); }
+    .i-amber   { background: #fffbeb; color: var(--warning); }
+    .i-violet  { background: #f5f3ff; color: #7c3aed; }
+    .i-teal    { background: #ecfeff; color: #0891b2; }
+    .i-rose    { background: #fff1f2; color: #e11d48; }
+
+    .sc-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .sc-sub   { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+    .sc-table-label {
+      font-family: var(--mono); font-size: 0.68rem;
+      background: #f0f5ff; color: var(--primary-dark);
+      border: 1px solid #c7dff7; border-radius: 5px;
+      padding: 2px 8px; margin-left: auto; white-space: nowrap;
+    }
+
+    /* ── FIELD GRID ── */
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0;
+    }
+
+    .field-row {
+      display: flex; flex-direction: column;
+      padding: 14px 24px;
+      border-bottom: 1px solid #f1f5f9;
+      border-right: 1px solid #f1f5f9;
+      transition: background 0.15s;
+    }
+    .field-row:hover { background: #fafbff; }
+
+    .field-label {
+      font-size: 0.71rem; font-weight: 600;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.7px; margin-bottom: 5px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .field-col-tag {
+      font-family: var(--mono); font-size: 0.63rem;
+      background: #f0f5ff; color: var(--primary-dark);
+      padding: 1px 5px; border-radius: 3px;
+    }
+
+    /* VIEW mode */
+    .field-value {
+      font-size: 0.9rem; font-weight: 500;
+      color: var(--text); word-break: break-word;
+      min-height: 22px;
+    }
+    .field-value.empty { color: #b0bec5; font-style: italic; font-size: 0.82rem; }
+    .field-value.mono-val { font-family: var(--mono); font-size: 0.82rem; letter-spacing: 0.5px; }
+
+    /* EDIT mode inputs */
+    .field-input {
+      display: none;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.88rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      background: #f8fafc;
+      color: var(--text);
+      width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    .field-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    textarea.field-input { resize: vertical; min-height: 80px; }
+    select.field-input { cursor: pointer; }
+
+    /* In edit mode: show input, hide value */
+    body.edit-mode .field-value { display: none; }
+    body.edit-mode .field-input { display: block; }
+    body.edit-mode .field-row { background: #fdfeff; }
+
+    /* Readonly fields stay visible in edit mode too */
+    .field-row.readonly .field-input { display: none !important; }
+    body.edit-mode .field-row.readonly .field-value { display: block; }
+    body.edit-mode .field-row.readonly { background: #f9fafb; }
+    .readonly-badge {
+      font-size: 0.6rem; background: #f1f5f9; color: var(--muted);
+      border: 1px solid var(--border); border-radius: 3px;
+      padding: 1px 5px; margin-left: auto;
+    }
+
+    /* Full-width fields */
+    .field-row.full { grid-column: 1 / -1; }
+
+    /* ── STATUS BADGES ── */
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.75rem; font-weight: 700;
+      padding: 3px 11px; border-radius: 20px;
+    }
+    .sp-active   { background: var(--success-bg); color: var(--success);  border: 1px solid var(--success-bdr); }
+    .sp-pending  { background: #fffbeb; color: var(--warning); border: 1px solid #fde68a; }
+    .sp-inactive { background: #f8fafc; color: var(--muted);   border: 1px solid var(--border); }
+
+    /* ── SAVE TOAST ── */
+    .toast-bar {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #0f1a2e; color: white;
+      padding: 13px 26px; border-radius: 12px;
+      font-size: 0.88rem; font-weight: 600;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+      display: flex; align-items: center; gap: 9px;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 9999;
+    }
+    .toast-bar.show { transform: translateX(-50%) translateY(0); }
+    .toast-bar i { color: #4ade80; }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:640px){
+      .field-grid { grid-template-columns: 1fr; }
+      .hero-body  { flex-direction: column; align-items: flex-start; }
+      .hero-actions { margin-top: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="page-header">
+  <div class="header-left">
+    <img src="https://chakrahub-stud.s3.eu-north-2.amazonaws.com/img.jpeg" alt="ChakoraHub" class="header-logo" onerror="this.style.display='none'">
+    <div>
+      <div class="header-title">Employee Profile</div>
+      <div class="header-sub">ChakoraHub Employee Portal</div>
+    </div>
+  </div>
+  <a href="{{ url_for('employee_resources') }}" class="header-back">
+    <i class="fas fa-arrow-left"></i> Back to Resources
+  </a>
+</div>
+
+<div class="main-wrap">
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div style="background:{{ '#f0fdf4' if cat=='success' else '#fff1f2' }};border:1px solid {{ '#bbf7d0' if cat=='success' else '#fecdd3' }};color:{{ '#15803d' if cat=='success' else '#be123c' }};border-radius:12px;padding:12px 16px;margin-bottom:18px;font-size:0.88rem;display:flex;align-items:center;gap:9px;">
+          <i class="fas fa-{{ 'check-circle' if cat=='success' else 'exclamation-circle' }}"></i>{{ msg }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- ══════════════════════════════
+       HERO — PROFILE IDENTITY
+  ══════════════════════════════ -->
+  <form method="POST" action="{{ url_for('update_employee_profile') }}" enctype="multipart/form-data" id="profileForm">
+
+  <div class="hero-card">
+    <div class="hero-banner"></div>
+    <div class="hero-body">
+
+      <!-- Avatar -->
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar" id="avatarEl">
+          <img src="{{ url_for('static', filename=(profile_pic if profile_pic else 'profile_photo/defaultpicture.jpg')) }}"
+               alt="Profile" id="avatarImg"
+               onerror="this.style.display='none'; document.getElementById('avatarInitial').style.display='flex';">
+          <span id="avatarInitial" style="display:none;">
+            {{ (emp.FIRST_NAME[0] if emp.FIRST_NAME else '') | upper }}{{ (emp.LAST_NAME[0] if emp.LAST_NAME else '') | upper }}
+          </span>
+        </div>
+        <label class="avatar-upload-btn" for="profilePicInput" title="Change photo">
+          <i class="fas fa-camera"></i>
+        </label>
+        <input type="file" id="profilePicInput" name="PROFILE_PIC" accept="image/*" style="display:none" onchange="previewAvatar(event)">
+      </div>
+
+      <!-- Identity info -->
+      <div class="hero-info">
+        <div class="hero-name">{{ emp.FIRST_NAME }} {{ emp.LAST_NAME }}</div>
+        <div class="hero-meta">
+          <div class="hero-meta-item">
+            <i class="fas fa-id-badge"></i>
+            <span class="emp-id-badge">{{ job.JOB_ID or emp.USER_ID }}</span>
+          </div>
+          <div class="hero-meta-item">
+            <i class="fas fa-building"></i>
+            <span>{{ dept.DEPT_NAME or 'Department N/A' }}</span>
+          </div>
+          <div class="hero-meta-item">
+            <i class="fas fa-briefcase"></i>
+            <span>{{ desig.TITLE or 'Designation N/A' }}</span>
+          </div>
+          <div class="hero-meta-item">
+            <i class="fas fa-envelope"></i>
+            <span>{{ user.EMAIL }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="hero-actions">
+        <button type="button" class="btn-edit-toggle" onclick="enterEditMode()">
+          <i class="fas fa-pen"></i> Edit Profile
+        </button>
+        <button type="submit" class="btn-save">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+        <button type="button" class="btn-cancel" onclick="cancelEdit()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SECTION 1 — ACCOUNT INFO
+       Table: nrm_users + nrm_logins
+  ══════════════════════════════ -->
+  <div class="section-card">
+    <div class="sc-head">
+      <div class="sc-icon i-blue"><i class="fas fa-user-circle"></i></div>
+      <div>
+        <div class="sc-title">Account Information</div>
+        <div class="sc-sub">Login credentials and account settings</div>
+      </div>
+      <span class="sc-table-label">nrm_users · nrm_logins</span>
+    </div>
+    <div class="field-grid">
+
+      <div class="field-row readonly">
+        <div class="field-label">
+          <i class="fas fa-hashtag" style="font-size:9px;"></i> User ID
+          <span class="field-col-tag">ID</span>
+          <span class="readonly-badge">read-only</span>
+        </div>
+        <div class="field-value mono-val">{{ user.ID }}</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label"><i class="fas fa-at" style="font-size:9px;"></i> Username <span class="field-col-tag">USERNAME</span></div>
+        <div class="field-value">{{ user.USERNAME or '—' }}</div>
+        <input class="field-input" type="text" name="USERNAME" value="{{ user.USERNAME or '' }}" placeholder="username">
+      </div>
+
+      <div class="field-row">
+        <div class="field-label"><i class="fas fa-envelope" style="font-size:9px;"></i> Email <span class="field-col-tag">EMAIL</span></div>
+        <div class="field-value">{{ user.EMAIL or '—' }}</div>
+        <input class="field-input" type="email" name="EMAIL" value="{{ user.EMAIL or '' }}" placeholder="email@example.com">
+      </div>
+
+      <div class="field-row">
+        <div class="field-label"><i class="fas fa-phone" style="font-size:9px;"></i> Phone <span class="field-col-tag">PHONE</span></div>
+        <div class="field-value">{{ user.PHONE or '—' }}</div>
+        <input class="field-input" type="text" name="PHONE" value="{{ user.PHONE or '' }}" placeholder="+91 XXXXX XXXXX">
+      </div>
+
+      <div class="field-row">
+        <div class="field-label"><i class="fas fa-user-tag" style="font-size:9px;"></i> User Type <span class="field-col-tag">USERTYPE</span></div>
+        <div class="field-value">{{ user.USERTYPE or 'employee' }}</div>
+        <select class="field-input" name="USERTYPE">
+          <option value="student" {{ 'selected' if user.USERTYPE=='student' }}>Student</option>
+          <option value="employee" {{ 'selected' if user.USERTYPE=='employee' }}>Employee</option>
+          <option value="admin" {{ 'selected' if user.USERTYPE=='admin' }}>Admin</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label"><i class="fas fa-toggle-on" style="font-size:9px;"></i> Account Active <span class="field-col-tag">IS_ACTIVE</span></div>
+        <div class="field-value">
+          {% if login.IS_ACTIVE == 'Y' %}
+            <span class="status-pill sp-active"><i class="fas fa-circle" style="font-size:7px;"></i> Active</span>
+          {% else %}
+            <span class="status-pill sp-inactive"><i class="fas fa-circle" style="font-size:7px;"></i> Inactive</span>
+          {% endif %}
+        </div>
+        <select class="field-input" name="IS_ACTIVE">
+          <option value="Y" {{ 'selected' if login.IS_ACTIVE=='Y' }}>Active (Y)</option>
+          <option value="N" {{ 'selected' if login.IS_ACTIVE=='N' }}>Inactive (N)</option>
+        </select>
+      </div>
+
+      <div class="field-row readonly">
+        <div class="field-label"><i class="fas fa-clock" style="font-size:9px;"></i> Last Login <span class="field-col-tag">LAST_LOGIN</span> <span class="readonly-badge">read-only</span></div>
+        <div class="field-value">{{ login.LAST_LOGIN.strftime('%d %b %Y, %H:%M') if login.LAST_LOGIN else '—' }}</div>
+      </div>
+
+      <div class="field-row readonly">
+        <div class="field-label"><i class="fas fa-exclamation-triangle" style="font-size:9px;"></i> Failed Login Attempts <span class="field-col-tag">FAILED_LOGIN_ATTEMPTS</span> <span class="readonly-badge">read-only</span></div>
+        <div class="field-value mono-val">{{ login.FAILED_LOGIN_ATTEMPTS or 0 }}</div>
+      </div>
+
+      <div class="field-row readonly">
+        <div class="field-label"><i class="fas fa-calendar-plus" style="font-size:9px;"></i> Account Created <span class="field-col-tag">CREATED_AT</span> <span class="readonly-badge">read-only</span></div>
+        <div class="field-value">{{ user.CREATED_AT.strftime('%d %b %Y') if user.CREATED_AT else '—' }}</div>
+      </div>
+
+      <div class="field-row readonly">
+        <div class="field-label"><i class="fas fa-edit" style="font-size:9px;"></i> Last Updated <span class="field-col-tag">UPDATED_AT</span> <span class="readonly-badge">read-only</span></div>
+        <div class="field-value">{{ user.UPDATED_AT.strftime('%d %b %Y') if user.UPDATED_AT else '—' }}</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SECTION 2 — PERSONAL DETAILS
+       Table: nrm_users + nrm_students (GOTHRAM, ADDRESS, etc.)
+  ══════════════════════════════ -->
+  <div class="section-card">
+    <div class="sc-head">
+      <div class="sc-icon i-violet"><i class="fas fa-person"></i></div>
+      <div>
+        <div class="sc-title">Personal Details</div>
+        <div class="sc-sub">Personal information and demographics</div>
+      </div>
+      <span class="sc-table-label">nrm_users · nrm_students</span>
+    </div>
+    <div class="field-grid">
+
+      <div class="field-row">
+        <div class="field-label">First Name <span class="field-col-tag">FIRST_NAME</span></div>
+        <div class="field-value">{{ emp.FIRST_NAME or '—' }}</div>
+        <input class="field-input" type="text" name="FIRST_NAME" value="{{ emp.FIRST_NAME or '' }}" placeholder="First name">
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Last Name <span class="field-col-tag">LAST_NAME</span></div>
+        <div class="field-value">{{ emp.LAST_NAME or '—' }}</div>
+        <input class="field-input" type="text" name="LAST_NAME" value="{{ emp.LAST_NAME or '' }}" placeholder="Last name">
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Gothram <span class="field-col-tag">GOTHRAM</span></div>
+        <div class="field-value">{{ emp.GOTHRAM or '—' }}</div>
+        <input class="field-input" type="text" name="GOTHRAM" value="{{ emp.GOTHRAM or '' }}" placeholder="e.g. Vasishtha">
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Gender <span class="field-col-tag">GENDER</span></div>
+        <div class="field-value">{{ emp.GENDER or '—' }}</div>
+        <select class="field-input" name="GENDER">
+          <option value="">— Select —</option>
+          <option value="Male"   {{ 'selected' if emp.GENDER=='Male' }}>Male</option>
+          <option value="Female" {{ 'selected' if emp.GENDER=='Female' }}>Female</option>
+          <option value="Other"  {{ 'selected' if emp.GENDER=='Other' }}>Other</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Employment Status <span class="field-col-tag">EMPLOYED</span></div>
+        <div class="field-value">
+          {% if emp.EMPLOYED == 'Yes' %}
+            <span class="status-pill sp-active">✓ Employed</span>
+          {% else %}
+            <span class="status-pill sp-pending">Not Employed</span>
+          {% endif %}
+        </div>
+        <select class="field-input" name="EMPLOYED">
+          <option value="Yes" {{ 'selected' if emp.EMPLOYED=='Yes' }}>Yes</option>
+          <option value="No"  {{ 'selected' if emp.EMPLOYED=='No'  }}>No</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Experience <span class="field-col-tag">EXPERIENCE</span></div>
+        <div class="field-value">{{ emp.EXPERIENCE or '—' }}</div>
+        <input class="field-input" type="text" name="EXPERIENCE" value="{{ emp.EXPERIENCE or '' }}" placeholder="e.g. 3 years">
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Registration Source <span class="field-col-tag">REGISTRATION_SOURCE</span></div>
+        <div class="field-value">{{ emp.REGISTRATION_SOURCE or '—' }}</div>
+        <input class="field-input" type="text" name="REGISTRATION_SOURCE" value="{{ emp.REGISTRATION_SOURCE or '' }}" placeholder="e.g. Website, Referral">
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Location <span class="field-col-tag">LOCATION</span></div>
+        <div class="field-value">{{ emp.LOCATION or '—' }}</div>
+        <input class="field-input" type="text" name="LOCATION" value="{{ emp.LOCATION or '' }}" placeholder="City, State">
+      </div>
+
+      <div class="field-row full">
+        <div class="field-label">Address <span class="field-col-tag">ADDRESS</span></div>
+        <div class="field-value">{{ emp.ADDRESS or '—' }}</div>
+        <textarea class="field-input" name="ADDRESS" placeholder="Full address…">{{ emp.ADDRESS or '' }}</textarea>
+      </div>
+
+      <div class="field-row full">
+        <div class="field-label">Skill Set <span class="field-col-tag">SKILL_SET</span></div>
+        <div class="field-value">{{ emp.SKILL_SET or '—' }}</div>
+        <textarea class="field-input" name="SKILL_SET" placeholder="e.g. Python, SQL, Informatica…">{{ emp.SKILL_SET or '' }}</textarea>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Resume File <span class="field-col-tag">RESUME_FILE_PATH</span></div>
+        <div class="field-value">
+          {% if emp.RESUME_FILE_PATH %}
+            <a href="{{ emp.RESUME_FILE_PATH }}" target="_blank" style="color:var(--primary);font-size:0.82rem;">
+              <i class="fas fa-file-pdf me-1"></i>View Resume
+            </a>
+          {% else %}
+            <span class="empty">No resume uploaded</span>
+          {% endif %}
+        </div>
+        <input class="field-input" type="file" name="RESUME_FILE_PATH" accept=".pdf,.doc,.docx">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SECTION 3 — JOB & ORG INFO
+       Table: EMP_NRM_JOB_WORK · EMP_NRM_DEPARTMENTS · EMP_NRM_DESIGNATIONS
+  ══════════════════════════════ -->
+  <div class="section-card">
+    <div class="sc-head">
+      <div class="sc-icon i-teal"><i class="fas fa-building"></i></div>
+      <div>
+        <div class="sc-title">Job & Organisation</div>
+        <div class="sc-sub">Role, department, designation and reporting</div>
+      </div>
+      <span class="sc-table-label">EMP_NRM_JOB_WORK · EMP_NRM_DEPARTMENTS · EMP_NRM_DESIGNATIONS</span>
+    </div>
+    <div class="field-grid">
+
+      <div class="field-row readonly">
+        <div class="field-label">Job ID <span class="field-col-tag">JOB_ID</span> <span class="readonly-badge">read-only</span></div>
+        <div class="field-value mono-val">{{ job.JOB_ID or '—' }}</div>
+      </div>
+
+      <div class="field-row readonly">
+        <div class="field-label">Employee ID <span class="field-col-tag">EMPLOYEE_ID</span> <span class="readonly-badge">read-only</span></div>
+        <div class="field-value mono-val">{{ job.EMPLOYEE_ID or '—' }}</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Department <span class="field-col-tag">DEPT_ID → DEPT_NAME</span></div>
+        <div class="field-value">{{ dept.DEPT_NAME or '—' }}</div>
+        <select class="field-input" name="DEPT_ID">
+          <option value="">— Select Department —</option>
+          {% for d in all_departments %}
+            <option value="{{ d.DEPT_ID }}" {{ 'selected' if job.DEPT_ID == d.DEPT_ID }}>{{ d.DEPT_NAME }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Designation <span class="field-col-tag">DESIGNATION_ID → TITLE</span></div>
+        <div class="field-value">{{ desig.TITLE or '—' }}</div>
+        <select class="field-input" name="DESIGNATION_ID">
+          <option value="">— Select Designation —</option>
+          {% for dg in all_designations %}
+            <option value="{{ dg.DESIGNATION_ID }}" {{ 'selected' if job.DESIGNATION_ID == dg.DESIGNATION_ID }}>{{ dg.TITLE }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Designation Level <span class="field-col-tag">LEVEL</span></div>
+        <div class="field-value">{{ desig.LEVEL or '—' }}</div>
+        <select class="field-input" name="DESIGNATION_LEVEL">
+          <option value="">— Select Level —</option>
+          <option value="Junior"   {{ 'selected' if desig.LEVEL=='Junior' }}>Junior</option>
+          <option value="Mid"      {{ 'selected' if desig.LEVEL=='Mid' }}>Mid</option>
+          <option value="Senior"   {{ 'selected' if desig.LEVEL=='Senior' }}>Senior</option>
+          <option value="Lead"     {{ 'selected' if desig.LEVEL=='Lead' }}>Lead</option>
+          <option value="Manager"  {{ 'selected' if desig.LEVEL=='Manager' }}>Manager</option>
+          <option value="Director" {{ 'selected' if desig.LEVEL=='Director' }}>Director</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Manager ID <span class="field-col-tag">MANAGER_ID</span></div>
+        <div class="field-value mono-val">{{ job.MANAGER_ID or '—' }}</div>
+        <input class="field-input" type="text" name="MANAGER_ID" value="{{ job.MANAGER_ID or '' }}" placeholder="Manager employee ID">
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">Location <span class="field-col-tag">LOCATION_ID</span></div>
+        <div class="field-value">{{ job_location.LOCATION or '—' }}</div>
+        <select class="field-input" name="LOCATION_ID">
+          <option value="">— Select Location —</option>
+          {% for loc in all_locations %}
+            <option value="{{ loc.ID }}" {{ 'selected' if job.LOCATION_ID == loc.ID|string }}>{{ loc.LOCATION }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field-row readonly">
+        <div class="field-label">Job Created <span class="field-col-tag">CREATED_AT</span> <span class="readonly-badge">read-only</span></div>
+        <div class="field-value">{{ job.CREATED_AT.strftime('%d %b %Y') if job.CREATED_AT else '—' }}</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SECTION 4 — APPRAISAL SUMMARY
+       Table: EMP_NRM_APPRAISAL_SUMMARY
+  ══════════════════════════════ -->
+  <div class="section-card">
+    <div class="sc-head">
+      <div class="sc-icon i-amber"><i class="fas fa-chart-line"></i></div>
+      <div>
+        <div class="sc-title">Appraisal Summary</div>
+        <div class="sc-sub">Performance rating and review</div>
+      </div>
+      <span class="sc-table-label">EMP_NRM_APPRAISAL_SUMMARY</span>
+    </div>
+    <div class="field-grid">
+
+      <div class="field-row readonly">
+        <div class="field-label">Summary ID <span class="field-col-tag">SUMMARY_ID</span> <span class="readonly-badge">read-only</span></div>
+        <div class="field-value mono-val">{{ appraisal.SUMMARY_ID or '—' }}</div>
+      </div>
+
+      <div class="field-row readonly">
+        <div class="field-label">Employee ID <span class="field-col-tag">EMPLOYEE_ID</span> <span class="readonly-badge">read-only</span></div>
+        <div class="field-value mono-val">{{ appraisal.EMPLOYEE_ID or '—' }}</div>
+      </div>
+
+      <div class="field-row readonly">
+        <div class="field-label">Final Rating <span class="field-col-tag">FINAL_RATING</span></div>
+        <div class="field-value">
+          {% if appraisal.FINAL_RATING %}
+            <span style="font-size:1.1rem;font-weight:700;color:var(--warning);">
+              ⭐ {{ appraisal.FINAL_RATING }} / 5.0
+            </span>
+          {% else %}
+            <span class="empty">Not rated yet</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="field-row readonly">
+        <div class="field-label">Appraisal Date <span class="field-col-tag">APPRAISAL_DATE</span> <span class="readonly-badge">read-only</span></div>
+        <div class="field-value">{{ appraisal.APPRAISAL_DATE.strftime('%d %b %Y') if appraisal.APPRAISAL_DATE else '—' }}</div>
+      </div>
+
+      <div class="field-row full readonly">
+        <div class="field-label">Comments <span class="field-col-tag">COMMENTS</span></div>
+        <div class="field-value">{{ appraisal.COMMENTS or '—' }}</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SECTION 5 — APPRAISAL GOALS
+       Table: EMP_NRM_APPRAISAL_GOALS
+  ══════════════════════════════ -->
+  <div class="section-card">
+    <div class="sc-head">
+      <div class="sc-icon i-green"><i class="fas fa-bullseye"></i></div>
+      <div>
+        <div class="sc-title">Appraisal Goals</div>
+        <div class="sc-sub">Performance goals and targets</div>
+      </div>
+      <span class="sc-table-label">EMP_NRM_APPRAISAL_GOALS</span>
+    </div>
+    <div style="padding: 16px 24px;">
+      {% if goals %}
+        {% for goal in goals %}
+        <div style="border:1.5px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:12px;background:#fafbff;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+            <div style="font-size:0.82rem;font-weight:700;color:var(--text);">
+              <span style="font-family:var(--mono);font-size:0.72rem;color:var(--muted);">GOAL_ID: {{ goal.GOAL_ID }}</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              {% if goal.TARGET_DATE %}
+                <span style="font-size:0.75rem;color:var(--muted);"><i class="fas fa-calendar me-1"></i>{{ goal.TARGET_DATE }}</span>
+              {% endif %}
+              <span class="status-pill {{ 'sp-active' if goal.STATUS=='Completed' else 'sp-pending' if goal.STATUS=='In Progress' else 'sp-inactive' }}">
+                {{ goal.STATUS or 'Pending' }}
+              </span>
+            </div>
+          </div>
+          <div style="font-size:0.88rem;color:var(--text);line-height:1.6;">{{ goal.GOAL_DESCRIPTION }}</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align:center;padding:32px;color:var(--muted);">
+          <i class="fas fa-bullseye" style="font-size:28px;color:#c7d2e7;display:block;margin-bottom:10px;"></i>
+          <p style="font-size:0.88rem;">No goals set yet.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SECTION 6 — TRAININGS
+       Table: EMP_NRM_APPRAISAL_TRAININGS
+  ══════════════════════════════ -->
+  <div class="section-card">
+    <div class="sc-head">
+      <div class="sc-icon i-violet"><i class="fas fa-graduation-cap"></i></div>
+      <div>
+        <div class="sc-title">Training Records</div>
+        <div class="sc-sub">Completed and ongoing training programmes</div>
+      </div>
+      <span class="sc-table-label">EMP_NRM_APPRAISAL_TRAININGS</span>
+    </div>
+    <div style="overflow-x:auto;">
+      {% if trainings %}
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+        <thead>
+          <tr style="background:#f0f5ff;">
+            <th style="padding:10px 16px;text-align:left;color:var(--primary-dark);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1.5px solid var(--border);">Training Name <span style="font-family:var(--mono);font-weight:400;color:var(--muted);">TRAINING_NAME</span></th>
+            <th style="padding:10px 16px;text-align:left;color:var(--primary-dark);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1.5px solid var(--border);">Completion Date <span style="font-family:var(--mono);font-weight:400;color:var(--muted);">COMPLETION_DATE</span></th>
+            <th style="padding:10px 16px;text-align:left;color:var(--primary-dark);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1.5px solid var(--border);">Status <span style="font-family:var(--mono);font-weight:400;color:var(--muted);">STATUS</span></th>
+            <th style="padding:10px 16px;text-align:left;color:var(--primary-dark);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1.5px solid var(--border);">Skills Acquired <span style="font-family:var(--mono);font-weight:400;color:var(--muted);">SKILLS_ACQUIRED</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in trainings %}
+          <tr style="border-bottom:1px solid #f1f5f9;transition:background 0.15s;" onmouseover="this.style.background='#fafbff'" onmouseout="this.style.background='transparent'">
+            <td style="padding:12px 16px;font-weight:600;color:var(--text);">{{ t.TRAINING_NAME }}</td>
+            <td style="padding:12px 16px;color:var(--muted);">{{ t.COMPLETION_DATE or '—' }}</td>
+            <td style="padding:12px 16px;">
+              <span class="status-pill {{ 'sp-active' if t.STATUS=='Completed' else 'sp-pending' }}">{{ t.STATUS or 'In Progress' }}</span>
+            </td>
+            <td style="padding:12px 16px;color:var(--label);font-size:0.82rem;">{{ t.SKILLS_ACQUIRED or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <div style="text-align:center;padding:32px;color:var(--muted);">
+          <i class="fas fa-graduation-cap" style="font-size:28px;color:#c7d2e7;display:block;margin-bottom:10px;"></i>
+          <p style="font-size:0.88rem;">No training records found.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SECTION 7 — LEAVE BALANCE
+       Table: EMP_NRM_LEAVE_BALANCE · EMP_NRM_LEAVE_TYPES
+  ══════════════════════════════ -->
+  <div class="section-card">
+    <div class="sc-head">
+      <div class="sc-icon i-rose"><i class="fas fa-umbrella-beach"></i></div>
+      <div>
+        <div class="sc-title">Leave Balance</div>
+        <div class="sc-sub">Annual leave allocation and usage</div>
+      </div>
+      <span class="sc-table-label">EMP_NRM_LEAVE_BALANCE · EMP_NRM_LEAVE_TYPES</span>
+    </div>
+    <div style="padding:20px 24px;">
+      {% if leave_balances %}
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;">
+        {% for lb in leave_balances %}
+        <div style="border:1.5px solid var(--border);border-radius:14px;padding:18px;background:#fafbff;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,50,120,0.1)'" onmouseout="this.style.boxShadow='none'">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px;">
+            {{ lb.LEAVE_TYPE }}
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <div style="font-size:1.5rem;font-weight:700;color:var(--primary);">{{ lb.ALLOCATED or 0 }}</div>
+              <div style="font-size:0.7rem;color:var(--muted);">ALLOCATED</div>
+            </div>
+            <div>
+              <div style="font-size:1.5rem;font-weight:700;color:var(--danger);">{{ lb.USED or 0 }}</div>
+              <div style="font-size:0.7rem;color:var(--muted);">USED</div>
+            </div>
+            <div>
+              <div style="font-size:1.5rem;font-weight:700;color:var(--warning);">{{ lb.PENDING or 0 }}</div>
+              <div style="font-size:0.7rem;color:var(--muted);">PENDING</div>
+            </div>
+            <div>
+              <div style="font-size:1.5rem;font-weight:700;color:var(--success);">{{ lb.AVAILABLE or 0 }}</div>
+              <div style="font-size:0.7rem;color:var(--muted);">AVAILABLE</div>
+            </div>
+          </div>
+          {% if lb.CARRY_FORWARD %}
+          <div style="margin-top:10px;font-size:0.75rem;color:var(--muted);border-top:1px solid var(--border);padding-top:8px;">
+            Carry Forward: <strong>{{ lb.CARRY_FORWARD }}</strong>
+            {% if lb.EXPIRES_ON %} · Expires: <strong>{{ lb.EXPIRES_ON }}</strong>{% endif %}
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+        <div style="text-align:center;padding:32px;color:var(--muted);">
+          <i class="fas fa-calendar-xmark" style="font-size:28px;color:#c7d2e7;display:block;margin-bottom:10px;"></i>
+          <p style="font-size:0.88rem;">No leave balance records found.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  </form><!-- /profileForm -->
+
+</div><!-- /main-wrap -->
+
+<!-- ── SAVE TOAST ── -->
+<div class="toast-bar" id="saveToast">
+  <i class="fas fa-check-circle"></i> Profile updated successfully!
+</div>
+
+<script>
+  /* ── EDIT MODE ── */
+  function enterEditMode() {
+    document.body.classList.add('edit-mode');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function cancelEdit() {
+    document.body.classList.remove('edit-mode');
+  }
+
+  /* ── PROFILE PICTURE PREVIEW ── */
+  function previewAvatar(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = document.getElementById('avatarImg');
+      const init = document.getElementById('avatarInitial');
+      img.src = e.target.result;
+      img.style.display = 'block';
+      if (init) init.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ── SHOW TOAST IF FLASHED SUCCESS ── */
+  {% if flashed_success %}
+    document.addEventListener('DOMContentLoaded', function() {
+      const toast = document.getElementById('saveToast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    });
+  {% endif %}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

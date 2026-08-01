@@ -5,130 +5,486 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Register - ChakoraHub</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    body {
+    * {
       margin: 0;
       padding: 0;
-      background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb');
-      background-size: cover;
-      background-position: center;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
     }
 
+    /* Animated background pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      animation: gradientShift 15s ease infinite;
+      pointer-events: none;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Top navigation bar */
     .top-bar {
       width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 15px 30px;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
       display: flex;
-      justify-content: flex-start;
+      justify-content: space-between;
       align-items: center;
-      padding: 10px 20px;
     }
 
     .logo {
-      height: 80px;
+      height: 60px;
+      transition: transform 0.3s ease;
     }
 
+    .logo:hover {
+      transform: scale(1.05);
+    }
+
+    .top-bar-right {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .nav-link-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 10px 24px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .nav-link-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      color: white;
+    }
+
+    /* Main container */
     .container {
-      background-color: rgba(255, 255, 255, 0.95);
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      padding: 45px;
+      border-radius: 24px;
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
       width: 100%;
-      max-width: 500px;
-      margin-top: 20px;
+      max-width: 600px;
+      margin: 30px auto;
+      position: relative;
+      overflow: hidden;
     }
 
+    /* Decorative elements */
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+      background-size: 200% 100%;
+      animation: gradientMove 3s linear infinite;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    /* Header */
     h2 {
       text-align: center;
-      color: #007BFF;
-      margin-bottom: 20px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+      font-size: 2rem;
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
     }
 
+    .subtitle {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.95rem;
+      margin-bottom: 30px;
+      font-weight: 500;
+    }
+
+    /* Form labels */
     label {
       display: block;
-      margin-top: 12px;
-      font-weight: bold;
+      margin-top: 18px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #1e293b;
+      font-size: 0.9rem;
+      letter-spacing: 0.2px;
     }
 
     .required::after {
       content: " *";
-      color: red;
+      color: #ef4444;
+      font-weight: 700;
     }
 
+    /* Form inputs */
     input[type="text"],
     input[type="email"],
     input[type="tel"],
+    input[type="number"],
     input[type="password"],
     select {
       width: 100%;
-      padding: 10px;
+      padding: 14px 18px;
       margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      background: #f8fafc;
+      font-family: 'Inter', sans-serif;
     }
 
-    input[type="submit"] {
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      padding: 12px;
-      font-size: 1rem;
-      border-radius: 5px;
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    input[type="number"]:focus,
+    input[type="password"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      transform: translateY(-1px);
+    }
+
+    /* Select dropdown */
+    select {
       cursor: pointer;
-      margin-top: 20px;
-      width: 100%;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 18px center;
+      padding-right: 45px;
     }
 
-    input[type="submit"]:hover {
-      background-color: #0056b3;
-    }
-
-    .error-msg {
-      color: red;
-      font-size: 0.85rem;
-      margin-top: 3px;
-    }
-
-    .strength {
-      margin-top: 5px;
+    /* Alert messages */
+    .alert {
+      border-radius: 12px;
+      border: none;
+      padding: 16px 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
       font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .alert::before {
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      font-size: 1.2rem;
+    }
+
+    .alert-danger {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #991b1b;
+    }
+
+    .alert-danger::before {
+      content: '\f06a';
+    }
+
+    .alert-success {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      color: #065f46;
+    }
+
+    .alert-success::before {
+      content: '\f058';
+    }
+
+    .alert-warning {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      color: #92400e;
+    }
+
+    .alert-warning::before {
+      content: '\f071';
+    }
+
+    .alert-info {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      color: #1e40af;
+    }
+
+    .alert-info::before {
+      content: '\f05a';
+    }
+
+    /* Error messages */
+    .error-msg {
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .error-msg::before {
+      content: '⚠';
+      font-size: 1rem;
+    }
+
+    /* Password strength */
+    .strength {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 8px;
+      display: inline-block;
     }
 
     .weak {
-      color: red;
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #991b1b;
     }
 
     .medium {
-      color: orange;
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      color: #92400e;
     }
 
     .strong {
-      color: green;
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      color: #065f46;
     }
 
+    .strong::before {
+      content: '✓ ';
+      font-weight: 900;
+    }
+
+    /* Fee display */
+    #fee-display {
+      margin-top: 12px;
+      padding: 16px 20px;
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border: 2px solid #86efac;
+      border-radius: 12px;
+      font-weight: 600;
+      color: #16a34a;
+      font-size: 1rem;
+      box-shadow: 0 2px 12px rgba(134, 239, 172, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #fee-display::before {
+      content: '₹';
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+
+    #fee-free-note {
+      color: #2563eb;
+      background: rgba(37, 99, 235, 0.1);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      margin-left: auto;
+    }
+
+    /* Register button */
+    #payBtn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 30px;
+      width: 100%;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    #payBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    #payBtn:active {
+      transform: translateY(0);
+    }
+
+    #payBtn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Bottom navigation */
     .home-button-container {
       margin: 30px 0;
       text-align: center;
     }
 
     .home-button {
-      background-color: #4cafef;
-      color: white;
+      background: rgba(255, 255, 255, 0.95);
+      color: #667eea;
       text-decoration: none;
-      padding: 10px 25px;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 8px;
-      transition: background-color 0.3s ease;
+      padding: 14px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.2);
     }
 
     .home-button:hover {
-      background-color: #2196f3;
+      background: white;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
+      color: #667eea;
+    }
+
+    .home-button::before {
+      content: '←';
+      font-size: 1.3rem;
+      font-weight: 900;
+    }
+
+    /* Input icons */
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      pointer-events: none;
+    }
+
+    .input-wrapper input,
+    .input-wrapper select {
+      padding-left: 48px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 30px 25px;
+        margin: 20px 15px;
+        border-radius: 20px;
+      }
+
+      h2 {
+        font-size: 1.75rem;
+      }
+
+      .top-bar {
+        padding: 12px 20px;
+      }
+
+      .logo {
+        height: 50px;
+      }
+
+      .nav-link-btn {
+        padding: 8px 18px;
+        font-size: 0.85rem;
+      }
+    }
+
+    /* Loading animation */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    /* Form grid for better layout */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 576px) {
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+
+    /* Smooth transitions */
+    * {
+      transition: border-color 0.2s ease;
     }
   </style>
 </head>
@@ -138,10 +494,16 @@
     <a href="/">
       <img src="{{ url_for('static', filename='logo.png') }}" alt="ChakoraHub Logo" class="logo">
     </a>
+    <div class="top-bar-right">
+      <a href="/resources" class="nav-link-btn">
+        <i class="fas fa-home"></i> Resources
+      </a>
+    </div>
   </div>
 
   <div class="container">
-    <h2>Register</h2>
+    <h2><i class="fas fa-user-plus"></i> Register</h2>
+    <p class="subtitle">Complete ChakoraHub Register to unlock learning resources</p>
 
     <!-- ✅ Flash messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -156,45 +518,119 @@
     {% endwith %}
 
     <form id="registerForm" action="/register" method="POST">
-      <label class="required">User Type</label>
-      <select id="usertype" name="usertype" required>
-        <option value="">Select Type</option>
-        <option value="student">Student</option>
-        <option value="public">Public</option>
-      </select>
+      <!-- User Type -->
+      <label class="required"><i class="fas fa-user-tag"></i> User Type</label>
+      <div class="input-wrapper">
+        <i class="fas fa-users input-icon"></i>
+        <select id="usertype" name="usertype" required>
+          <option value="">Select Type</option>
+          <option value="student" selected>Student</option>
+        </select>
+      </div>
 
-      <label class="required">User Name</label>
-      <input type="text" name="username" placeholder="Choose a username" required />
+      <!-- Full Name -->
+      <label class="required"><i class="fas fa-signature"></i> Full Name</label>
+      <div class="input-wrapper">
+        <i class="fas fa-user input-icon"></i>
+        <input type="text" id="username" name="username" placeholder="Enter your full name" value="{{ prefill.username if prefill else '' }}" required />
+      </div>
 
-      <label class="required">Email</label>
-      <input type="email" id="email" name="email" required>
-      <div id="email-error" class="error-msg"></div>
+      <!-- Email and Phone in row -->
+      <div class="form-row">
+        <div>
+          <label class="required"><i class="fas fa-envelope"></i> Email</label>
+          <div class="input-wrapper">
+            <i class="fas fa-at input-icon"></i>
+            <input type="email" id="email" name="email" placeholder="you@example.com" value="{{ prefill.email if prefill else '' }}" required>
+          </div>
+          <div id="email-error" class="error-msg"></div>
+        </div>
 
-      <label class="required">Phone No</label>
-      <input type="tel" id="phone" name="phone" pattern="\d{10}" maxlength="10" required>
-      <div id="phone-error" class="error-msg"></div>
+        <div>
+          <label class="required"><i class="fas fa-phone"></i> Phone No</label>
+          <div class="input-wrapper">
+            <i class="fas fa-mobile-alt input-icon"></i>
+            <input type="tel" id="phone" name="phone" pattern="\d{10}" maxlength="10" placeholder="10-digit number" value="{{ prefill.phone if prefill else '' }}" required>
+          </div>
+          <div id="phone-error" class="error-msg"></div>
+        </div>
+      </div>
 
-      <label class="required">Location</label>
-      <input type="text" name="location" required>
+      <!-- Location and Gothram in row -->
+      <div class="form-row">
+        <div>
+          <label class="required"><i class="fas fa-map-marker-alt"></i> Location</label>
+          <div class="input-wrapper">
+            <i class="fas fa-map-pin input-icon"></i>
+            <input type="text" name="location" placeholder="Your city" value="{{ prefill.location if prefill else '' }}" required>
+          </div>
+        </div>
 
-      <label class="required">Gothram</label>
-      <input type="text" name="gothram" required>
+        <div>
+          <label class="required"><i class="fas fa-home"></i> Gothram</label>
+          <div class="input-wrapper">
+            <i class="fas fa-bookmark input-icon"></i>
+            <input type="text" name="gothram" placeholder="Enter gothram" value="{{ prefill.gothram if prefill else '' }}" required>
+          </div>
+        </div>
+      </div>
 
-      <label class="required">Password</label>
-      <input type="password" id="password" name="password" required>
+      <!-- Employment details -->
+      <div class="form-row">
+        <div>
+          <label class="required"><i class="fas fa-briefcase"></i> Employed</label>
+          <div class="input-wrapper">
+            <i class="fas fa-user-tie input-icon"></i>
+            <select id="employed" name="employed" required>
+              <option value="">Select</option>
+              <option value="Yes" {% if prefill and prefill.employed == 'Yes' %}selected{% endif %}>Yes</option>
+              <option value="No" {% if prefill and prefill.employed == 'No' %}selected{% endif %}>No</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="required"><i class="fas fa-hourglass-half"></i> Experience (Years)</label>
+          <div class="input-wrapper">
+            <i class="fas fa-business-time input-icon"></i>
+            <input type="number" id="experience" name="experience" min="0" step="0.5" placeholder="Years of experience" value="{{ prefill.experience if prefill else '' }}" required>
+          </div>
+        </div>
+      </div>
+
+      <label class="required"><i class="fas fa-tools"></i> Skill Set</label>
+      <div class="input-wrapper">
+        <i class="fas fa-code input-icon"></i>
+        <input type="text" id="skill_set" name="skill_set" placeholder="Example: SQL, Python, Informatica" value="{{ prefill.skill_set if prefill else '' }}" required>
+      </div>
+
+      <!-- Password -->
+      <label class="required"><i class="fas fa-lock"></i> Password</label>
+      <div class="input-wrapper">
+        <i class="fas fa-key input-icon"></i>
+        <input type="password" id="password" name="password" placeholder="Create strong password" required>
+      </div>
       <div id="password-strength" class="strength"></div>
       <div id="password-error" class="error-msg"></div>
 
-      <label class="required">Confirm Password</label>
-      <input type="password" id="confirm_password" name="confirm_password" required>
+      <!-- Confirm Password -->
+      <label class="required"><i class="fas fa-check-circle"></i> Confirm Password</label>
+      <div class="input-wrapper">
+        <i class="fas fa-lock input-icon"></i>
+        <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter password" required>
+      </div>
       <div id="confirm-error" class="error-msg"></div>
 
-      <input type="submit" value="Register">
+      <!-- Register Button -->
+      <button type="button" id="payBtn">
+        <i class="fas fa-user-check"></i> Register
+      </button>
     </form>
+
   </div>
 
   <div class="home-button-container">
-    <a href="/" class="home-button">Home</a>
+    <a href="/resources" class="home-button">Back to Resources</a>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -207,6 +643,9 @@
       const email = document.getElementById("email");
       const phone = document.getElementById("phone");
       const userType = document.getElementById("usertype");
+      const employed = document.getElementById("employed");
+      const experience = document.getElementById("experience");
+      const payBtn = document.getElementById("payBtn");
 
       const emailError = document.getElementById("email-error");
       const phoneError = document.getElementById("phone-error");
@@ -214,79 +653,68 @@
       const passError = document.getElementById("password-error");
       const confirmError = document.getElementById("confirm-error");
 
-      // Email validation (only for public users)
-      email.addEventListener("blur", () => {
-        if (!email.value || !userType.value) return;
-
-        if (userType.value === "public") {
-          fetch(`/check_email?email=${email.value}&usertype=public`)
-            .then(res => res.json())
-            .then(data => {
-              emailError.textContent = data.exists ? "This email is already registered." : "";
-            });
-        } else {
-          emailError.textContent = ""; // ignore for students
-        }
-      });
-
-      // Phone validation (only for public users)
-      phone.addEventListener("blur", () => {
-        if (!phone.value || !userType.value) return;
-
-        if (userType.value === "public") {
-          fetch(`/check_phone?phone=${phone.value}&usertype=public`)
-            .then(res => res.json())
-            .then(data => {
-              phoneError.textContent = data.exists ? "This phone number is already registered." : "";
-            });
-        } else {
-          phoneError.textContent = ""; // ignore for students
-        }
-      });
-
-      // Password strength
+      // ── Password strength ─────────────────────────────────────────
       password.addEventListener("input", () => {
         const val = password.value;
         const special = val.match(/[\W_]/g) || [];
         const hasUpper = /[A-Z]/.test(val);
         const hasNumber = /\d/.test(val);
-
         passError.textContent = "";
         if (special.length === 1 && hasUpper && hasNumber && val.length >= 8) {
           passStrength.textContent = "Strong Password";
           passStrength.className = "strength strong";
         } else {
-          passStrength.textContent = "Password should have exactly 1 special character, 1 capital letter, and at least 1 number.";
+          passStrength.textContent = "Must have exactly 1 special character, 1 capital letter, 1 number, min 8 chars.";
           passStrength.className = "strength weak";
         }
       });
 
-      // Confirm password
       confirmPassword.addEventListener("blur", () => {
         confirmError.textContent = password.value !== confirmPassword.value ? "Passwords do not match." : "";
       });
 
-      // Form submit validation
-      form.addEventListener("submit", (e) => {
+      function toggleExperienceByEmployment() {
+        if (employed.value === "No") {
+          experience.value = "0";
+          experience.readOnly = true;
+        } else {
+          experience.readOnly = false;
+          if (experience.value === "0") {
+            experience.value = "";
+          }
+        }
+      }
+
+      employed.addEventListener("change", toggleExperienceByEmployment);
+      toggleExperienceByEmployment();
+
+      // ── Helper: validate form fields ──────────────────────────────
+      function validateForm() {
         const val = password.value;
         const special = val.match(/[\W_]/g) || [];
-        const hasUpper = /[A-Z]/.test(val);
-        const hasNumber = /\d/.test(val);
-
-        if (special.length !== 1 || !hasUpper || !hasNumber || val.length < 8) {
-          e.preventDefault();
-          passError.textContent = "Password should contain exactly one special character, at least one uppercase letter, and at least one number.";
-          return;
+        if (special.length !== 1 || !/[A-Z]/.test(val) || !/\d/.test(val) || val.length < 8) {
+          passError.textContent = "Password must have exactly 1 special character, 1 uppercase letter, 1 number, min 8 chars.";
+          return false;
         }
-
         if (password.value !== confirmPassword.value) {
-          e.preventDefault();
           confirmError.textContent = "Passwords do not match.";
-          return;
+          return false;
         }
+        return true;
+      }
+
+      // ── Register button ───────────────────────────────────────────
+      payBtn.addEventListener("click", () => {
+        if (!document.getElementById("registerForm").reportValidity()) return;
+        if (!validateForm()) return;
+        
+        // Show loading state
+        payBtn.disabled = true;
+        payBtn.innerHTML = '<span class="loading"></span> Processing...';
+        
+        document.getElementById("registerForm").submit();
       });
     });
   </script>
 </body>
 </html>
-

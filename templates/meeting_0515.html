@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Meeting Session - ChakoraHub</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        /* MAIN CONTAINER */
+        .main-container { 
+            max-width: 1400px; 
+            margin: auto; 
+            background: white; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .page-header { 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            color: white; 
+            padding: 40px; 
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .user-info { 
+            background: rgba(255, 255, 255, 0.2); 
+            padding: 12px 24px; 
+            border-radius: 25px; 
+            display: inline-block;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* FEEDBACK CAROUSEL */
+        .feedback-wrapper {
+            width: 100%;
+            max-width: 800px;
+            height: 80px;
+            overflow: hidden;
+            position: relative;
+            margin: 30px auto;
+            background: #f4f8ff;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .feedback-track {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .feedback-item {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 15px;
+            padding: 0 20px;
+        }
+
+        .feedback-content {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: #003366;
+            text-align: center;
+            animation: slideFeedback 9s linear infinite;
+            opacity: 0;
+        }
+
+        .feedback-item:nth-child(1) .feedback-content {
+            animation-delay: 0s;
+        }
+
+        .feedback-item:nth-child(2) .feedback-content {
+            animation-delay: 3s;
+        }
+
+        .feedback-item:nth-child(3) .feedback-content {
+            animation-delay: 6s;
+        }
+
+        @keyframes slideFeedback {
+            0% { transform: translateX(100%); opacity: 0; }
+            10% { transform: translateX(0); opacity: 1; }
+            30% { transform: translateX(0); opacity: 1; }
+            40% { transform: translateX(-100%); opacity: 0; }
+            100% { transform: translateX(-100%); opacity: 0; }
+        }
+
+        /* CONTENT AREA */
+        .content { 
+            padding: 40px;
+        }
+
+        /* FORM SECTIONS */
+        .booking-form { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 30px;
+        }
+
+        .form-section { 
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 30px; 
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #dee2e6;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ML SECTION */
+        .ml-section {
+            background: linear-gradient(135deg, #e8f4f8, #d1ecf1);
+            border-left: 5px solid #2196F3;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: none;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+        }
+
+        .ml-section.show {
+            display: block;
+        }
+
+        .ml-section h3 {
+            color: #1976D2;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        .info-badge {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(33, 150, 243, 0.3);
+        }
+
+        /* FORM GROUPS */
+        .form-group { 
+            margin-bottom: 25px;
+        }
+
+        .form-group label { 
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .required::after {
+            content: " *";
+            color: #ef4444;
+            font-weight: 700;
+        }
+
+        .form-control, .form-select, textarea { 
+            width: 100%; 
+            padding: 14px 18px; 
+            border-radius: 12px; 
+            border: 2px solid #dee2e6;
+            font-size: 1rem; 
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus, .form-select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .char-counter {
+            font-size: 0.85rem;
+            color: #6c757d;
+            text-align: right;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        /* EMPLOYEE AUTOCOMPLETE */
+        .employee-selector {
+            position: relative;
+        }
+
+        .employee-input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .employee-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+        }
+
+        .autocomplete-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid var(--primary);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .autocomplete-dropdown.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 12px 18px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .autocomplete-item::before {
+            content: "👤";
+            font-size: 1.1rem;
+        }
+
+        .autocomplete-item:hover {
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            padding-left: 25px;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item.no-results {
+            color: #999;
+            cursor: default;
+        }
+
+        .autocomplete-item.no-results:hover {
+            background: white;
+            padding-left: 18px;
+        }
+
+        /* SELECTED EMPLOYEES */
+        .selected-employees {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+            min-height: 50px;
+            padding: 12px;
+            background: white;
+            border-radius: 12px;
+            border: 2px dashed #dee2e6;
+        }
+
+        .employee-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .employee-chip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .employee-chip .remove-btn {
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.3rem;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+
+        .employee-chip .remove-btn:hover {
+            color: #ffcccc;
+        }
+
+        .employee-count {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* TIME SLOTS */
+        .slots-grid {
+            background: white; 
+            padding: 20px; 
+            border-radius: 15px;
+            max-height: 350px; 
+            overflow-y: auto;
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+            gap: 12px;
+            border: 2px solid #dee2e6;
+        }
+
+        .slot-button {
+            padding: 14px; 
+            border: 2px solid #dee2e6;
+            background: white; 
+            border-radius: 12px;
+            cursor: pointer; 
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .slot-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .slot-button.selected { 
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; 
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .slot-button:disabled { 
+            opacity: 0.4; 
+            cursor: not-allowed; 
+            background: #f5f5f5;
+        }
+
+        /* PRICE DISPLAY */
+        .price-display { 
+            padding: 30px; 
+            border-radius: 20px; 
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white; 
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .price-display h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .price-display .amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        /* INFO BOX */
+        .info-box {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            padding: 20px; 
+            border-radius: 15px;
+            margin-top: 20px;
+            border-left: 5px solid #f59e0b;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+        }
+
+        .info-box strong {
+            color: #92400e;
+        }
+
+        /* BUTTONS */
+        .btn { 
+            padding: 16px 40px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            border: none; 
+            font-size: 1.05rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-home {
+            background: linear-gradient(135deg, #3949ab, #283593);
+            color: white;
+            padding: 16px 40px; 
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(57, 73, 171, 0.3);
+        }
+
+        .btn-home:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(57, 73, 171, 0.4);
+            color: white;
+        }
+
+        .button-row { 
+            text-align: center; 
+            margin-top: 40px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* ALERTS */
+        .alert { 
+            padding: 16px 20px; 
+            border-radius: 12px; 
+            display: none; 
+            margin-bottom: 25px;
+            font-weight: 500;
+            border-left: 5px solid;
+        }
+
+        .alert.show { 
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert.error { 
+            background: #fee2e2; 
+            color: #991b1b;
+            border-color: #ef4444;
+        }
+
+        .alert.success { 
+            background: #d1fae5; 
+            color: #065f46;
+            border-color: #10b981;
+        }
+
+        /* OFFCANVAS */
+        .offcanvas {
+            width: 450px !important;
+        }
+
+        .offcanvas-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+        }
+
+        .offcanvas-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .offcanvas-body {
+            background: #f8f9fa;
+            padding: 25px;
+        }
+
+        .checkout-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .checkout-section h6 {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 18px;
+            border-bottom: 3px solid #e9ecef;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 0.95rem;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .summary-value {
+            color: #212529;
+            font-weight: 500;
+        }
+
+        .summary-total {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success);
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 3px solid var(--success);
+        }
+
+        /* LOGOUT MODAL */
+        .logout-modal {
+            display: none;
+            position: fixed;
+            z-index: 10001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .logout-modal-content {
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 380px;
+            animation: popIn 0.3s ease;
+        }
+
+        .logout-modal-content h3 {
+            margin-bottom: 25px;
+            color: #3949ab;
+            font-weight: 700;
+        }
+
+        .modal-actions button {
+            margin: 10px;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-btn {
+            background: linear-gradient(135deg, #3949ab, #283593);
+            color: white;
+            box-shadow: 0 4px 12px rgba(57, 73, 171, 0.3);
+        }
+
+        .cancel-btn {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(57, 73, 171, 0.4);
+        }
+
+        .cancel-btn:hover {
+            background: #dee2e6;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 992px) {
+            .booking-form {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .offcanvas {
+                width: 350px !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .content {
+                padding: 20px;
+            }
+
+            .form-section {
+                padding: 20px;
+            }
+
+            .button-row {
+                flex-direction: column;
+            }
+
+            .btn, .btn-home {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <!-- Razorpay Payment SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+
+<body>
+
+<!-- LOGOUT MODAL -->
+<div id="logoutModal" class="logout-modal">
+    <div class="logout-modal-content">
+        <h3><i class="bi bi-question-circle"></i> Confirm Logout</h3>
+        <p>Are you sure you want to logout?</p>
+        <div class="modal-actions">
+            <button class="confirm-btn" id="confirmLogout">
+                <i class="bi bi-check-lg"></i> Yes, Logout
+            </button>
+            <button class="cancel-btn" onclick="closeLogoutModal()">
+                <i class="bi bi-x-lg"></i> Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- FEEDBACK CAROUSEL -->
+<!-- <div class="container">
+    <div class="feedback-wrapper">
+        <div class="feedback-track">
+            <div class="feedback-item">
+                <div class="feedback-content">"Very helpful!" – Ravi ⭐⭐⭐⭐⭐</div>
+            </div>
+            <div class="feedback-item">
+                <div class="feedback-content">"Clear explanation" – Anitha ⭐⭐⭐⭐⭐</div>
+            </div>
+            <div class="feedback-item">
+                <div class="feedback-content">"Worth attending" – Suresh ⭐⭐⭐⭐⭐</div>
+            </div>
+        </div>
+    </div>
+</div> -->
+
+<!-- MAIN CONTAINER -->
+<div class="container">
+    <div class="main-container">
+        <div class="page-header">
+            <h1><i class="bi bi-calendar-check"></i> Book Meeting Session</h1>
+            <div class="user-info">
+                <i class="bi bi-person-circle"></i> Welcome, <span id="usernameDisplay">Guest</span>
+                <span id="roleDisplay"></span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="alertBox" class="alert"></div>
+
+            <form id="bookingForm">
+                <div class="booking-form">
+                    <!-- LEFT COLUMN -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="bi bi-calendar3"></i> Booking Details
+                        </div>
+
+                        <!-- ML DATA SECTION -->
+                        <div class="ml-section" id="mlSection">
+                            <h3>
+                                <i class="bi bi-robot"></i> Meeting Information 
+                                <span class="info-badge">ML Training Data</span>
+                            </h3>
+                            
+                            <div class="form-group">
+                                <label class="required">
+                                    <i class="bi bi-people"></i> Select Employees (Attendees)
+                                </label>
+                                <div class="employee-selector">
+                                    <input type="text" 
+                                           id="employeeInput" 
+                                           class="employee-input"
+                                         placeholder="Type any attendee email and press Enter"
+                                           autocomplete="off">
+                                    <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
+                                </div>
+                                <div id="selectedEmployees" class="selected-employees">
+                                    <span style="color: #999; font-size: 0.95rem;">
+                                        <i class="bi bi-info-circle"></i> No employees selected
+                                    </span>
+                                </div>
+                                <div class="employee-count">
+                                    <i class="bi bi-person-badge"></i> <span id="employeeCount">0</span> employee(s) selected
+                                </div>
+                                <small style="color: #6c757d; font-size: 0.9rem;">
+                                    <i class="bi bi-person-check"></i> Organizer: <strong id="organizerDisplay">You</strong>
+                                </small>
+                                <small style="color: #6c757d; font-size: 0.85rem; display:block; margin-top:6px;">
+                                    You can add both ChakoraHub and external email IDs as attendees.
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="required">
+                                    <i class="bi bi-bullseye"></i> Meeting Purpose
+                                </label>
+                                <select id="purpose" class="form-select">
+                                    <option value="">-- Select Purpose --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="required">
+                                    <i class="bi bi-card-text"></i> Issue Description
+                                </label>
+                                <textarea id="issueDescription" 
+                                          placeholder="Describe your issue in detail (min 10 chars)"
+                                          maxlength="1000"></textarea>
+                                <div class="char-counter">
+                                    <span id="charCount">0</span> / 1000 characters
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- BASIC FIELDS -->
+                        <div class="form-group">
+                            <label class="required">
+                                <i class="bi bi-calendar-date"></i> Select Date
+                            </label>
+                            <input type="date" id="bookingDate" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required">
+                                <i class="bi bi-envelope"></i> Your Email
+                            </label>
+                            <input type="email" id="studentEmail" class="form-control" placeholder="you@example.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required">
+                                <i class="bi bi-clock"></i> Available Slots
+                            </label>
+                            <div class="slots-grid" id="slotsGrid">
+                                <p style="color: #999; text-align: center; grid-column: 1/-1;">
+                                    <i class="bi bi-calendar-event"></i> Select date first
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="bi bi-gear"></i> Session Configuration
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required">
+                                <i class="bi bi-speedometer2"></i> Issue Complexity
+                            </label>
+                            <select id="complexity" class="form-select">
+                                <option value="Easy">🟢 Easy - Quick question</option>
+                                <option value="Medium" selected>🟡 Medium - Standard troubleshooting</option>
+                                <option value="Difficult">🔴 Difficult - Complex problem</option>
+                            </select>
+                            <small style="color: #6c757d; font-size: 0.85rem; display: block; margin-top: 8px;">
+                                <strong>Easy:</strong> Quick question<br>
+                                <strong>Medium:</strong> Standard troubleshooting<br>
+                                <strong>Difficult:</strong> Complex problem
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required">
+                                <i class="bi bi-hourglass-split"></i> Duration
+                            </label>
+                            <select id="duration" class="form-select">
+                                <option value="5">5 minutes</option>
+                                <option value="15">15 minutes</option>
+                                <option value="30" selected>30 minutes</option>
+                                <option value="45">45 minutes</option>
+                                <option value="60">60 minutes</option>
+                            </select>
+                            <small style="color: #6c757d; font-size: 0.85rem; display: block; margin-top: 8px;">
+                                Note: quick touchpoint logic may auto-adjust duration to 5 minutes.
+                            </small>
+                        </div>
+
+                        <div class="price-display">
+                            <h3>Estimated Cost</h3>
+                            <div class="amount">
+                                ₹<span id="calculatedPrice">250</span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-box">
+                            <strong><i class="bi bi-info-circle"></i> Note:</strong>
+                            <span id="noteText">Your booking will be reviewed and confirmed by our team.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-row">
+                    <button class="btn btn-primary" type="button" onclick="openCheckout()">
+                        <i class="bi bi-cart-check"></i> Review & Proceed to Checkout
+                    </button>
+                    <a href="{{ url_for('aboutus') }}" class="btn-home">
+                        <i class="bi bi-house"></i> Home
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- BOOTSTRAP OFFCANVAS - CHECKOUT SIDEBAR -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="checkoutOffcanvas" aria-labelledby="checkoutLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="checkoutLabel">
+            <i class="bi bi-cart-check"></i> Checkout Summary
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        
+        <div class="checkout-section">
+            <h6><i class="bi bi-calendar3"></i> Booking Details</h6>
+            <div class="summary-row">
+                <span class="summary-label">Date:</span>
+                <span class="summary-value" id="checkout-date">-</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Time Slot:</span>
+                <span class="summary-value" id="checkout-time">-</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Duration:</span>
+                <span class="summary-value" id="checkout-duration">-</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Complexity:</span>
+                <span class="summary-value" id="checkout-complexity">-</span>
+            </div>
+        </div>
+
+        <div class="checkout-section">
+            <h6><i class="bi bi-envelope"></i> Contact Information</h6>
+            <div class="summary-row">
+                <span class="summary-label">Email:</span>
+                <span class="summary-value" id="checkout-email">-</span>
+            </div>
+        </div>
+
+        <div class="checkout-section" id="checkout-internal" style="display: none;">
+            <h6><i class="bi bi-people"></i> Meeting Participants</h6>
+            <div class="summary-row">
+                <span class="summary-label">Organizer:</span>
+                <span class="summary-value" id="checkout-organizer">-</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Attendees:</span>
+                <span class="summary-value" id="checkout-attendees">-</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Purpose:</span>
+                <span class="summary-value" id="checkout-purpose">-</span>
+            </div>
+        </div>
+
+        <div class="checkout-section">
+            <h6><i class="bi bi-cash-stack"></i> Payment</h6>
+            <div class="summary-row summary-total">
+                <span class="summary-label">Total Amount:</span>
+                <span class="summary-value">₹<span id="checkout-price">0</span></span>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+            <button type="button" class="btn btn-success btn-lg" onclick="confirmBooking()">
+                <i class="bi bi-check-circle"></i> Confirm & Book Session
+            </button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">
+                <i class="bi bi-arrow-left"></i> Back to Edit
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// ========================================
+// ALL JAVASCRIPT - UNCHANGED FROM ORIGINAL
+// ========================================
+const API_BASE = "https://m7ul4xf1e3.execute-api.eu-north-1.amazonaws.com/Prod";
+let AUTH_USER = null;
+let AUTH_PASS = null;
+let selectedEmployees = [];
+let allEmployees = [];
+let currentUserType = "external";
+
+function authHeader() { 
+    return "Basic " + btoa(`${AUTH_USER}:${AUTH_PASS}`); 
+}
+
+function getCachedData(key, ttlMinutes) {
+    const cached = localStorage.getItem(key);
+    if (!cached) return null;
+    const data = JSON.parse(cached);
+    const now = new Date().getTime();
+    if (now > data.expiry) {
+        localStorage.removeItem(key);
+        return null;
+    }
+    return data.value;
+}
+
+function setCachedData(key, value, ttlMinutes) {
+    const now = new Date().getTime();
+    const item = {
+        value: value,
+        expiry: now + (ttlMinutes * 60 * 1000)
+    };
+    localStorage.setItem(key, JSON.stringify(item));
+}
+
+async function secureFetch(url, options = {}) {
+    if (AUTH_USER && AUTH_PASS) {
+        options.headers = options.headers || {};
+        options.headers["Authorization"] = authHeader();
+    }
+    const response = await fetch(url, options);
+    if (response.status === 401 && !url.includes('/whoami')) {
+        console.error("Authentication failed");
+        showAlert("Session expired. Please login again.", "error");
+        setTimeout(() => {
+            document.getElementById("loginModal").style.display = "flex";
+        }, 2000);
+    }
+    return response;
+}
+
+function openLogoutModal() { 
+    document.getElementById("logoutModal").style.display = "flex"; 
+}
+
+function closeLogoutModal() { 
+    document.getElementById("logoutModal").style.display = "none"; 
+}
+
+document.getElementById("confirmLogout").onclick = function() {
+    window.location.href = "{{ url_for('logout') }}";
+};
+
+const issueDescEl = document.getElementById("issueDescription");
+if (issueDescEl) {
+    issueDescEl.addEventListener("input", function() {
+        const count = this.value.length;
+        const charCountEl = document.getElementById("charCount");
+        if (charCountEl) {
+            charCountEl.textContent = count;
+            const counter = charCountEl.parentElement;
+            if (count < 10) {
+                counter.style.color = "#d32f2f";
+            } else if (count > 950) {
+                counter.style.color = "#ff9800";
+            } else {
+                counter.style.color = "#666";
+            }
+        }
+    });
+}
+
+async function loadEmployees() {
+    const cachedEmployees = getCachedData('employee_list_cache', 60); 
+    if (cachedEmployees) {
+        console.log("📦 Layer 1 Cache Hit: Employee list from LocalStorage");
+        allEmployees = cachedEmployees;
+        return;
+    }
+    try {
+        console.log("🌐 Layer 1 Cache Miss: Calling FastAPI/Redis...");
+        const res = await fetch(`${API_BASE}/employees/list`);
+        const data = await res.json();
+        allEmployees = data.employees || [];
+        setCachedData('employee_list_cache', allEmployees, 60);
+    } catch(err) {
+        console.error("Error loading employees:", err);
+    }
+}
+
+async function loadPurposes() {
+    const cachedPurposes = getCachedData('purposes_cache', 1440);
+    if (cachedPurposes) {
+        console.log("📦 Layer 1 Cache Hit: Purposes from LocalStorage");
+        renderPurposes(cachedPurposes);
+        return;
+    }
+    try {
+        const res = await fetch(`${API_BASE}/meeting-purposes`);
+        const data = await res.json();
+        renderPurposes(data.purposes);
+        setCachedData('purposes_cache', data.purposes, 1440);
+    } catch(err) {
+        console.error("Failed to load purposes:", err);
+    }
+}
+
+function setupAutocomplete() {
+    const employeeInput = document.getElementById("employeeInput");
+    const dropdown = document.getElementById("autocompleteDropdown");
+    
+    if (!employeeInput || !dropdown) {
+        console.error("❌ Autocomplete elements not found!");
+        return;
+    }
+    
+    employeeInput.addEventListener("input", function(e) {
+        const query = this.value.trim().toLowerCase();
+        
+        if (query.length === 0) {
+            dropdown.classList.remove("show");
+            return;
+        }
+        
+        const matches = allEmployees.filter(email => {
+            const emailLower = email.toLowerCase();
+            const matchesQuery = emailLower.includes(query);
+            const notSelected = !selectedEmployees.includes(email);
+            return matchesQuery && notSelected;
+        });
+        
+        if (matches.length > 0) {
+            dropdown.innerHTML = matches.slice(0, 10).map(email => 
+                `<div class="autocomplete-item" data-email="${email}">${email}</div>`
+            ).join('');
+            dropdown.classList.add("show");
+        } else {
+            dropdown.innerHTML = '<div class="autocomplete-item no-results">No matching employees found</div>';
+            dropdown.classList.add("show");
+        }
+    });
+
+    employeeInput.addEventListener("keydown", function(e) {
+        if (e.key === "Enter" || e.key === ",") {
+            e.preventDefault();
+            const email = this.value.trim().replace(/,$/, "").toLowerCase();
+            if (!email) return;
+
+            if (!isValidEmail(email)) {
+                showAlert("Please enter a valid email address", "error");
+                return;
+            }
+
+            addEmployee(email);
+            this.value = "";
+            dropdown.classList.remove("show");
+        }
+    });
+
+    dropdown.addEventListener("click", function(e) {
+        const item = e.target.closest(".autocomplete-item");
+        if (item && item.dataset.email) {
+            const email = item.dataset.email;
+            addEmployee(email);
+            employeeInput.value = "";
+            dropdown.classList.remove("show");
+        }
+    });
+
+    document.addEventListener("click", function(e) {
+        if (!e.target.closest(".employee-selector")) {
+            dropdown.classList.remove("show");
+        }
+    });
+}
+
+function isValidEmail(email) {
+    return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(String(email || "").trim());
+}
+
+function addEmployee(email) {
+    const normalizedEmail = String(email || "").trim().toLowerCase();
+    if (!normalizedEmail) {
+        return;
+    }
+
+    if (!isValidEmail(normalizedEmail)) {
+        showAlert("Please enter a valid email address", "error");
+        return;
+    }
+
+    if (selectedEmployees.includes(normalizedEmail)) {
+        showAlert("Employee already added", "error");
+        return;
+    }
+    selectedEmployees.push(normalizedEmail);
+    updateEmployeeDisplay();
+}
+
+function removeEmployee(email) {
+    selectedEmployees = selectedEmployees.filter(e => e !== email);
+    updateEmployeeDisplay();
+}
+
+function updateEmployeeDisplay() {
+    const container = document.getElementById("selectedEmployees");
+    const countSpan = document.getElementById("employeeCount");
+    
+    if (!container || !countSpan) return;
+    
+    if (selectedEmployees.length === 0) {
+        container.innerHTML = '<span style="color:#999; font-size:0.95rem;"><i class="bi bi-info-circle"></i> No employees selected</span>';
+        countSpan.textContent = "0";
+    } else {
+        container.innerHTML = selectedEmployees.map(email => `
+            <div class="employee-chip">
+                <span>${email}</span>
+                <span class="remove-btn" onclick="removeEmployee('${email}')">&times;</span>
+            </div>
+        `).join('');
+        countSpan.textContent = selectedEmployees.length;
+    }
+}
+
+function calculatePrice() {
+    // Internal ChakoraHub employees are charged a flat ₹1
+    if (currentUserType === 'internal') {
+        document.getElementById("calculatedPrice").textContent = "1";
+        return;
+    }
+    const factor = { Easy:0.875, Medium:1.0, Difficult:1.125 };
+    const mins = parseInt(document.getElementById("duration").value);
+    const comp = document.getElementById("complexity").value;
+    const price = Math.ceil((mins / 60) * (575 * factor[comp]));
+    document.getElementById("calculatedPrice").textContent = price;
+}
+document.getElementById("duration").onchange = calculatePrice;
+document.getElementById("complexity").onchange = calculatePrice;
+
+async function loadSlots() {
+    const date = document.getElementById("bookingDate").value;
+    const grid = document.getElementById("slotsGrid");
+    if (!date) return;
+    grid.innerHTML = "<p style='text-align:center; grid-column: 1/-1;'><i class='bi bi-hourglass-split'></i> Loading...</p>";
+    
+    try {
+        console.log("📅 Loading slots for date:", date);
+        const res = await fetch(`${API_BASE}/meeting-slots?date=${date}`);
+        
+        console.log("📡 Response status:", res.status);
+        
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error("❌ Slots API error:", errorText);
+            grid.innerHTML = "<p style='color:red;text-align:center; grid-column: 1/-1;'>Error loading slots. Please try another date.</p>";
+            return;
+        }
+        
+        const data = await res.json();
+        console.log("✅ Slots data:", data);
+        
+        grid.innerHTML = "";
+        window.selectedSlot = null;
+        
+        if (!data.slots || data.slots.length === 0) {
+            grid.innerHTML = "<p style='color:#999;text-align:center; grid-column: 1/-1;'>No slots available for this date</p>";
+            return;
+        }
+        
+        data.slots.forEach(s => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "slot-button";
+            btn.textContent = s.start;
+            btn.disabled = !s.available;
+            
+            if (s.available) {
+                btn.onclick = () => {
+                    document.querySelectorAll(".slot-button").forEach(x => x.classList.remove("selected"));
+                    btn.classList.add("selected");
+                    window.selectedSlot = s.start;
+                };
+            }
+            grid.appendChild(btn);
+        });
+    } catch(err) {
+        console.error("❌ Load slots error:", err);
+        grid.innerHTML = "<p style='color:red;text-align:center; grid-column: 1/-1;'>Network error loading slots</p>";
+    }
+}
+
+document.getElementById("bookingDate").onchange = loadSlots;
+
+function openCheckout() {
+    const email = document.getElementById("studentEmail").value.trim();
+    const date = document.getElementById("bookingDate").value;
+    const slot = window.selectedSlot;
+    const minDate = document.getElementById("bookingDate").min;
+    
+    if (!email) {
+        showAlert("Please enter your email", "error");
+        return;
+    }
+    
+    if (!date) {
+        showAlert("Please select a date", "error");
+        return;
+    }
+
+    if (minDate && date < minDate) {
+        showAlert("Bookings must be at least 1 day ahead", "error");
+        return;
+    }
+    
+    if (!slot) {
+        showAlert("Please select a time slot", "error");
+        return;
+    }
+    
+    if (currentUserType === 'internal') {
+        if (selectedEmployees.length === 0) {
+            showAlert("Please select at least one employee", "error");
+            return;
+        }
+        
+        const purposeEl = document.getElementById("purpose");
+        if (!purposeEl || !purposeEl.value) {
+            showAlert("Please select a meeting purpose", "error");
+            return;
+        }
+        
+        const issueDescEl = document.getElementById("issueDescription");
+        if (!issueDescEl || issueDescEl.value.trim().length < 10) {
+            showAlert("Issue description must be at least 10 characters", "error");
+            return;
+        }
+    }
+    
+    document.getElementById("checkout-date").textContent = date;
+    document.getElementById("checkout-time").textContent = slot;
+    document.getElementById("checkout-duration").textContent = document.getElementById("duration").value + " min";
+    document.getElementById("checkout-complexity").textContent = document.getElementById("complexity").value;
+    document.getElementById("checkout-email").textContent = email;
+    document.getElementById("checkout-price").textContent = document.getElementById("calculatedPrice").textContent;
+    
+    if (currentUserType === 'internal') {
+        document.getElementById("checkout-internal").style.display = 'block';
+        document.getElementById("checkout-organizer").textContent = document.getElementById("usernameDisplay").textContent;
+        document.getElementById("checkout-attendees").textContent = selectedEmployees.length + " employee(s)";
+        document.getElementById("checkout-purpose").textContent = document.getElementById("purpose").value;
+    } else {
+        document.getElementById("checkout-internal").style.display = 'none';
+    }
+    
+    const offcanvas = new bootstrap.Offcanvas(document.getElementById('checkoutOffcanvas'));
+    offcanvas.show();
+}
+
+function showAlert(msg, type) {
+    const box = document.getElementById("alertBox");
+    box.textContent = msg;
+    box.className = "alert show " + type;
+    setTimeout(() => box.classList.remove("show"), 5000);
+}
+
+// ── submitBooking: called after payment is confirmed (or bypassed for internal) ──
+async function submitBooking(payload) {
+    try {
+        const res = await secureFetch(`${API_BASE}/meeting-book`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        let data = {};
+        try { data = await res.json(); } catch (_) { data = {}; }
+
+        if (!res.ok) {
+            const errMsg = data.detail || data.error || `Booking failed (HTTP ${res.status})`;
+            console.error("❌ Booking failed:", errMsg, payload);
+            showAlert(errMsg, "error");
+            return;
+        }
+
+        const offcanvasEl = document.getElementById('checkoutOffcanvas');
+        const offcanvasInst = bootstrap.Offcanvas.getInstance(offcanvasEl);
+        if (offcanvasInst) offcanvasInst.hide();
+
+        const finalDuration = data.final_duration_minutes || payload.duration_minutes;
+        const finalPrice = data.price || document.getElementById("calculatedPrice").textContent;
+        let successMsg = `✅ Booking submitted! Duration: ${finalDuration} min | Price: ₹${finalPrice}`;
+        if (data.quick_touchpoint_applied) {
+            successMsg += " (Auto-adjusted to 5 min quick touchpoint)";
+        }
+        showAlert(successMsg, "success");
+
+        document.getElementById("bookingForm").reset();
+        if (payload.booking_type === 'internal') {
+            selectedEmployees = [];
+            updateEmployeeDisplay();
+            const issueDescEl = document.getElementById("issueDescription");
+            const charCountEl = document.getElementById("charCount");
+            const purposeEl   = document.getElementById("purpose");
+            if (issueDescEl) issueDescEl.value = '';
+            if (charCountEl) charCountEl.textContent = '0';
+            if (purposeEl)   purposeEl.value = '';
+        }
+        window.selectedSlot = null;
+        loadSlots();
+    } catch(err) {
+        console.error("❌ Booking error:", err);
+        showAlert("Network error. Please try again.", "error");
+    }
+}
+
+// ── confirmBooking: entry point from "Confirm & Book" button ────────────
+async function confirmBooking() {
+    const confirmBtn = document.querySelector('#checkoutOffcanvas .btn.btn-success');
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.dataset.originalText = confirmBtn.innerHTML;
+        confirmBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
+    }
+
+    const selectedDate = document.getElementById("bookingDate").value;
+    const minDate = document.getElementById("bookingDate").min;
+    if (minDate && selectedDate < minDate) {
+        showAlert("Bookings must be at least 1 day ahead", "error");
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = confirmBtn.dataset.originalText || '<i class="bi bi-check-circle"></i> Confirm & Book Session';
+        }
+        return;
+    }
+
+    const payload = {
+        email: document.getElementById("studentEmail").value.trim(),
+        date: selectedDate,
+        start_time: window.selectedSlot,
+        duration_minutes: parseInt(document.getElementById("duration").value),
+        complexity: document.getElementById("complexity").value,
+        booking_type: currentUserType,
+        payment_id: "",
+        order_id:   "",
+        signature:  ""
+    };
+
+    if (currentUserType === 'internal') {
+        payload.employee_emails   = selectedEmployees;
+        payload.purpose           = document.getElementById("purpose").value;
+        payload.issue_description = document.getElementById("issueDescription").value.trim();
+    }
+
+    // ── All users: full Razorpay flow (internal bookings are charged ₹1) ──
+    try {
+        if (typeof Razorpay === "undefined") {
+            showAlert("Razorpay SDK not loaded. Please refresh and try again.", "error");
+            return;
+        }
+
+        // Step 1: get authoritative server-side price in paise
+        const previewQuery = new URLSearchParams({
+            date: payload.date,
+            start_time: payload.start_time,
+            duration_minutes: String(payload.duration_minutes),
+            complexity: payload.complexity,
+            booking_type: payload.booking_type
+        });
+        const previewRes = await secureFetch(`/meeting/api/price-preview?${previewQuery.toString()}`);
+        if (!previewRes.ok) {
+            const d = await previewRes.json().catch(() => ({}));
+            showAlert(d.detail || "Could not fetch price. Please try again.", "error");
+            return;
+        }
+        const previewData = await previewRes.json();
+        const amountPaise = previewData.price_paise;   // ₹ × 100
+
+        // Step 2: create Razorpay order on the server
+        const orderRes = await secureFetch(`/meeting/api/create-payment-order`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ amount: amountPaise, currency: "INR", notes: "Meeting Booking" })
+        });
+        if (!orderRes.ok) {
+            const d = await orderRes.json().catch(() => ({}));
+            showAlert(d.detail || d.message || "Could not create payment order. Please try again.", "error");
+            return;
+        }
+        const orderData = await orderRes.json();
+
+        // Step 3: open Razorpay checkout widget
+        const options = {
+            key:         orderData.payment_key_id,
+            amount:      orderData.amount,
+            currency:    orderData.currency || "INR",
+            name:        "ChakoraHub",
+            description: "Meeting Session Booking",
+            order_id:    orderData.order_id,
+            prefill:     { email: payload.email },
+            theme:       { color: "#667eea" },
+            modal: {
+                ondismiss: function() {
+                    showAlert("Payment cancelled. Your booking has not been confirmed.", "error");
+                }
+            },
+            handler: async function(response) {
+                // Step 4: payment succeeded — attach IDs and book
+                payload.payment_id = response.razorpay_payment_id;
+                payload.order_id   = response.razorpay_order_id;
+                payload.signature  = response.razorpay_signature;
+                await submitBooking(payload);
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on("payment.failed", function(response) {
+            showAlert("Payment failed: " + (response.error.description || "Please try again."), "error");
+        });
+        rzp.open();
+
+    } catch(err) {
+        console.error("❌ Payment flow error:", err);
+        showAlert("Network error. Please try again.", "error");
+    } finally {
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = confirmBtn.dataset.originalText || '<i class="bi bi-check-circle"></i> Confirm & Book Session';
+        }
+    }
+}
+
+function renderPurposes(purposes) {
+    const select = document.getElementById("purpose");
+    if (select) {
+        select.innerHTML = '<option value="">-- Select Purpose --</option>';
+        purposes.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p;
+            opt.textContent = p;
+            select.appendChild(opt);
+        });
+    }
+}
+
+function formatLocalDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+function getTomorrowLocalDateString() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return formatLocalDate(tomorrow);
+}
+
+const bookingDateEl = document.getElementById("bookingDate");
+const minBookingDate = getTomorrowLocalDateString();
+bookingDateEl.min = minBookingDate;
+bookingDateEl.value = minBookingDate;
+
+calculatePrice();
+
+console.log("✅ Page loaded successfully");
+</script>
+
+</body>
+</html>

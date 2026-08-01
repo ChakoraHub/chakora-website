@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Generate Payment Link — Internal</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Design tokens ── */
+    :root {
+      --navy:        #0d1b2a;
+      --navy-card:   #112240;
+      --navy-input:  #0a1628;
+      --gold:        #c8932f;
+      --gold-lt:     #e8b84b;
+      --gold-glow:   rgba(200,147,47,0.22);
+      --border:      rgba(255,255,255,0.10);
+      --border-focus:rgba(200,147,47,0.65);
+      --text:        #e2e8f0;
+      --muted:       #7f93ad;
+      --success-bg:  rgba(16,185,129,0.12);
+      --success-bdr: rgba(16,185,129,0.40);
+      --err-bg:      rgba(239,68,68,0.12);
+      --err-bdr:     rgba(239,68,68,0.40);
+      --radius:      14px;
+      --radius-sm:   9px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: var(--navy);
+      background-image:
+        radial-gradient(ellipse at 10% 15%,  rgba(200,147,47,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 90% 80%,  rgba(13,100,200,0.14) 0%, transparent 55%),
+        radial-gradient(ellipse at 55% 50%,  rgba(118,75,162,0.08) 0%, transparent 60%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1rem;
+    }
+
+    /* ── Header badge ── */
+    .admin-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      background: rgba(200,147,47,0.15);
+      border: 1px solid rgba(200,147,47,0.35);
+      color: var(--gold-lt);
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      padding: .3rem .85rem;
+      border-radius: 50px;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Card ── */
+    .pay-card {
+      width: 100%;
+      max-width: 500px;
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04),
+        0 24px 60px rgba(0,0,0,0.45),
+        0 0 80px rgba(200,147,47,0.06);
+      padding: 2.4rem 2.2rem 2rem;
+    }
+
+    /* ── Card header ── */
+    .card-icon {
+      width: 54px; height: 54px;
+      background: linear-gradient(135deg, rgba(200,147,47,0.22), rgba(200,147,47,0.08));
+      border: 1px solid rgba(200,147,47,0.3);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: .35rem;
+      letter-spacing: -.02em;
+    }
+
+    .card-subtitle {
+      font-size: .875rem;
+      color: var(--muted);
+      margin-bottom: 1.85rem;
+      line-height: 1.5;
+    }
+
+    /* ── Divider ── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.65rem 0;
+    }
+
+    /* ── Form labels ── */
+    .form-label-custom {
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: .5rem;
+    }
+
+    .form-label-custom i {
+      color: var(--gold);
+      font-size: .85rem;
+    }
+
+    .optional-tag {
+      font-size: .7rem;
+      font-weight: 500;
+      color: rgba(127,147,173,0.6);
+      text-transform: none;
+      letter-spacing: 0;
+      margin-left: auto;
+    }
+
+    /* ── Inputs ── */
+    .form-input {
+      width: 100%;
+      background: var(--navy-input);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: .95rem;
+      padding: .72rem 1rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      margin-bottom: 1.15rem;
+    }
+
+    .form-input::placeholder { color: rgba(127,147,173,0.55); }
+
+    .form-input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--gold-glow);
+    }
+
+    /* Amount + currency row */
+    .amount-row {
+      display: grid;
+      grid-template-columns: 1fr 110px;
+      gap: .75rem;
+    }
+
+    .currency-input {
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-align: center;
+    }
+
+    /* ── Submit button ── */
+    #submitBtn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      color: #0d1b2a;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: .82rem 1.5rem;
+      cursor: pointer;
+      margin-top: .5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .55rem;
+      transition: opacity .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(200,147,47,0.30);
+      letter-spacing: .01em;
+    }
+
+    #submitBtn:hover:not(:disabled) {
+      opacity: .92;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 28px rgba(200,147,47,0.38);
+    }
+
+    #submitBtn:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ── Result box ── */
+    #result {
+      margin-top: 1.4rem;
+      padding: 1.15rem 1.25rem;
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+      word-break: break-all;
+      display: none;
+      line-height: 1.65;
+      animation: fadeSlide .3s ease both;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    #result.ok {
+      background: var(--success-bg);
+      border: 1px solid var(--success-bdr);
+      color: #6ee7b7;
+    }
+
+    #result.ok strong { color: #a7f3d0; display: block; margin-bottom: .4rem; font-size: .95rem; }
+
+    #result.err {
+      background: var(--err-bg);
+      border: 1px solid var(--err-bdr);
+      color: #fca5a5;
+    }
+
+    #result a {
+      color: var(--gold-lt);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(232,184,75,0.5);
+      word-break: break-all;
+      display: inline-block;
+      margin: .35rem 0;
+      transition: color .15s;
+    }
+
+    #result a:hover { color: #fff; }
+
+    /* Copy link button — injected by JS */
+    #copyBtn {
+      margin-top: .65rem;
+      width: auto;
+      padding: .4rem 1rem;
+      font-size: .82rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.09);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    #copyBtn:hover { background: rgba(255,255,255,0.16); }
+
+    /* ── Footer note ── */
+    .footer-note {
+      margin-top: 1.5rem;
+      font-size: .78rem;
+      color: rgba(127,147,173,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .4rem;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 520px) {
+      .pay-card { padding: 1.8rem 1.3rem 1.5rem; }
+      .amount-row { grid-template-columns: 1fr 90px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-badge">
+    <i class="bi bi-shield-lock-fill"></i>
+    Internal Admin Tool
+  </div>
+
+  <div class="pay-card">
+
+    <!-- Card header -->
+    <div class="card-icon">
+      <i class="bi bi-link-45deg" style="color:var(--gold-lt)"></i>
+    </div>
+    <div class="card-title">Generate payment link</div>
+    <div class="card-subtitle">
+      Create a one-time secure payment URL to share with a student or client.
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ═══ FORM — only wrapper markup added; all id/name/type/required unchanged ═══ -->
+    <form id="linkForm">
+
+      <!-- Article / Order ID -->
+      <div>
+        <div class="form-label-custom">
+          <i class="bi bi-hash"></i> Article / Order ID
+        </div>
+        <input class="form-input" type="text" id="articleId" placeholder="e.g. ORD-20250120-001" required />
+      </div>
+
+      <!-- Amount + Currency -->
+      <div class="form-label-custom">
+        <i class="bi bi-currency-dollar"></i> Amount &amp; Currency
+      </div>
+      <div class="amount-row">
+        <input class="form-input" type="number" id="amount" step="0.01" min="0.01" placeholder="0.00" required style="margin-bottom:0" />
+        <input class="form-input currency-input" type="text" id="currency" value="USD" required minlength="3" maxlength="3" pattern="[A-Za-z]{3}" style="margin-bottom:0" />
+      </div>
+      <div style="height:.85rem"></div><!-- spacer -->
+      <div style="font-size:.78rem;color:rgba(127,147,173,0.85);margin-top:-.35rem;margin-bottom:1.1rem;">
+        Use a valid 3-letter currency code configured in CURRENCY_LOOKUP.
+      </div>
+
+      <!-- Client reference -->
+      <div>
+        <div class="form-label-custom">
+          <i class="bi bi-person"></i> Client reference
+          <span class="optional-tag">optional</span>
+        </div>
+        <input class="form-input" type="text" id="clientReference" placeholder="Name or email address" />
+      </div>
+
+      <hr class="section-divider" style="margin-top:.4rem">
+
+      <!-- Submit -->
+      <button type="submit" id="submitBtn">
+        <i class="bi bi-send-fill"></i>
+        Generate link
+      </button>
+
+    </form>
+
+    <!-- Result area — JS writes into this; class names .ok / .err preserved exactly -->
+    <div id="result"></div>
+
+    <div class="footer-note">
+      <i class="bi bi-lock-fill"></i>
+      Links expire automatically after the set window.
+    </div>
+
+  </div>
+
+  <!-- Bootstrap JS (optional utilities) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- ═══════════════════════════════════════════════
+       ORIGINAL JS — ZERO CHANGES
+  ═══════════════════════════════════════════════ -->
+  <script>
+    const form = document.getElementById('linkForm');
+    const resultBox = document.getElementById('result');
+    const submitBtn = document.getElementById('submitBtn');
+    const currencyInput = document.getElementById('currency');
+
+    currencyInput.addEventListener('input', () => {
+      currencyInput.value = currencyInput.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3);
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Generating…';
+      resultBox.style.display = 'none';
+
+      const body = {
+        article_id: document.getElementById('articleId').value.trim(),
+        amount: parseFloat(document.getElementById('amount').value),
+        currency: document.getElementById('currency').value.trim(),
+        client_reference: document.getElementById('clientReference').value.trim() || null,
+      };
+
+      try {
+        const res = await fetch('/admin/create-payment-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const rawText = await res.text();
+        let data = null;
+        try {
+          data = rawText ? JSON.parse(rawText) : {};
+        } catch (_) {
+          throw new Error(`Server returned non-JSON response (HTTP ${res.status}).`);
+        }
+
+        if (!res.ok) {
+          const detailMsg = typeof data.detail === 'string'
+            ? data.detail
+            : (data.detail && data.detail.message ? data.detail.message : null);
+          const msg = data.error || detailMsg || data.message || `Request failed (HTTP ${res.status})`;
+          throw new Error(msg);
+        }
+
+        resultBox.className = 'ok';
+        resultBox.innerHTML = `
+          <strong>Link created</strong> (expires ${new Date(data.expires_at).toLocaleString()})<br/>
+          <a href="${data.payment_url}" target="_blank" id="linkText">${data.payment_url}</a>
+          <br/><a href="/payment-link-status/${data.token_id}" target="_blank">Check payment status</a>
+          <br/><button id="copyBtn" type="button">Copy link</button>
+        `;
+        resultBox.style.display = 'block';
+
+        document.getElementById('copyBtn').addEventListener('click', () => {
+          navigator.clipboard.writeText(data.payment_url);
+        });
+      } catch (err) {
+        resultBox.className = 'err';
+        resultBox.textContent = 'Error: ' + err.message;
+        resultBox.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Generate link';
+      }
+    });
+  </script>
+</body>
+</html>

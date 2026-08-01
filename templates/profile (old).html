@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Your Profile</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e1f5fe, #ede7f6);
+      color: #333;
+    }
+
+    /* Header Styling */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background: linear-gradient(to right, #42a5f5, #7e57c2);
+      color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+    }
+    .logo img { height: 90px; }
+    .profile-wrapper { position: relative; cursor: pointer; }
+    .profile-pic {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 2px solid white;
+      object-fit: cover;
+    }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 55px;
+      right: 0;
+      background-color: white;
+      color: black;
+      border-radius: 6px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      min-width: 160px;
+    }
+    .dropdown-menu a {
+      display: block;
+      padding: 10px 15px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
+    .dropdown-menu a:last-child { border-bottom: none; }
+    .dropdown-menu a:hover { background-color: #f0f0f0; }
+
+    /* Profile Container */
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 30px;
+      background: #ffffff;
+      box-shadow: 0 0 15px rgba(0,0,0,0.15);
+      border-radius: 12px;
+      text-align: center;
+    }
+    .avatar img {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #673ab7;
+    }
+
+    h1 {
+      color: #4527a0;
+      margin: 20px 0 10px;
+      font-size: 26px;
+    }
+    p {
+      font-size: 16px;
+      margin: 6px 0;
+    }
+
+    /* Buttons */
+    .edit-button {
+      display: inline-block;
+      margin: 8px auto 12px;
+      padding: 8px 16px;
+      background-color: #1976d2;
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 6px;
+      transition: background-color 0.3s ease;
+    }
+    .edit-button:hover { background-color: #0d47a1; }
+
+    /* Address Section */
+    .address-input {
+      margin-top: 15px;
+      text-align: left;
+    }
+    .address-input label { font-weight: bold; }
+    .address-input textarea {
+      width: 100%;
+      padding: 10px;
+      font-size: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      resize: none;
+      margin-top: 8px;
+    }
+
+    /* Back Button */
+    .back-resources { text-align: center; margin: 40px 0; }
+    .back-btn {
+      background: #3949ab;
+      padding: 10px 25px;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background 0.3s ease;
+      cursor: pointer;
+    }
+    .back-btn:hover { background: #303f9f; }
+
+    /* Flash Messages */
+    .flash-message {
+      text-align:center;
+      margin-bottom: 15px;
+    }
+    .flash-message p {
+      display:inline-block;
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+
+    /* Logout Popup Styles */
+    .popup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+    .popup-content {
+      background: #fff;
+      padding: 25px 30px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 360px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      animation: scaleIn 0.3s ease;
+    }
+    @keyframes scaleIn {
+      from { transform: scale(0.7); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .popup-content h3 {
+      margin-bottom: 15px;
+      color: #4527a0;
+    }
+    .popup-buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-around;
+    }
+    .popup-buttons button {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .confirm-btn { background: #e53935; color: white; }
+    .confirm-btn:hover { background: #c62828; }
+    .cancel-btn { background: #9e9e9e; color: white; }
+    .cancel-btn:hover { background: #616161; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" />
+    </div>
+    <div class="profile-wrapper" onclick="toggleDropdown()">
+      <img class="profile-pic"
+           src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}"
+           alt="Profile" />
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="{{ url_for('profile') }}">Profile</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+        <a href="#" onclick="openPopup('logoutPopup')">Logout</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="flash-message">
+        {% for message in messages %}
+          {% if "Role: Admin" not in message %}
+            <p>{{ message }}</p>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Profile Box -->
+  <div class="container">
+    <div class="avatar">
+      <img src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}" alt="Profile Photo">
+    </div>
+    <a href="{{ url_for('settings') }}" class="edit-button">Edit Photo</a>
+
+    <h1>{{ session.get('display_name', 'Welcome') }}</h1>
+    <a href="{{ url_for('settings') }}" class="edit-button">Edit Name</a>
+
+    <p><strong>Email:</strong> {{ session.get('user', '') }}</p>
+
+    <form action="{{ url_for('save_address') }}" method="post">
+      <div class="address-input">
+        <label for="address">Address:</label><br>
+        <textarea id="address" name="address" rows="4" required>{{ address or '' }}</textarea>
+      </div>
+      <button type="submit" class="edit-button" style="margin-top: 12px;">Save Address</button>
+    </form>
+  </div>
+
+  <!-- Back to Resources (direct, no popup) -->
+  <div class="back-resources">
+    <a href="{{ url_for('resources') }}" class="back-btn">← Back to Resources</a>
+  </div>
+
+  <!-- Logout Popup -->
+  <div id="logoutPopup" class="popup">
+    <div class="popup-content">
+      <h3>Are you sure you want to logout?</h3>
+      <div class="popup-buttons">
+        <button class="confirm-btn" onclick="window.location.href='{{ url_for('logout') }}'">Yes, Logout</button>
+        <button class="cancel-btn" onclick="closePopup('logoutPopup')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdownMenu');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+    document.addEventListener('click', function(event) {
+      const dropdown = document.getElementById('dropdownMenu');
+      const wrapper = document.querySelector('.profile-wrapper');
+      if (!wrapper.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    function openPopup(id) {
+      document.getElementById(id).style.display = 'flex';
+    }
+    function closePopup(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>

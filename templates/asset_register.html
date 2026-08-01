@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Asset Registration Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f0f2f7;
+      --surface: #ffffff;
+      --surface-2: #f7f8fc;
+      --border: #e2e5ef;
+      --border-focus: #3b5bdb;
+      --accent: #3b5bdb;
+      --accent-light: #eef1fd;
+      --accent-dark: #2f4ac0;
+      --text-primary: #1a1d2e;
+      --text-secondary: #5a6282;
+      --text-muted: #9399b2;
+      --success: #2f9e44;
+      --success-light: #ebfbee;
+      --warning: #e67700;
+      --warning-light: #fff9db;
+      --danger: #c92a2a;
+      --danger-light: #fff5f5;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --shadow: 0 2px 12px rgba(59,91,219,0.07);
+      --shadow-lg: 0 8px 32px rgba(59,91,219,0.12);
+      --transition: 0.18s ease;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      max-width: 860px;
+      margin: 0 auto 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .page-header .logo-icon {
+      width: 44px; height: 44px;
+      background: var(--accent);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .page-header .logo-icon svg { width: 22px; height: 22px; fill: #fff; }
+    .page-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+    .page-header p {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      max-width: 860px;
+      margin: 0 auto 20px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 18px 28px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--surface-2);
+    }
+    .card-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .section-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+    .card-body { padding: 24px 28px; }
+
+    /* ── Grid layouts ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+    .col-span-2 { grid-column: span 2; }
+    .col-span-3 { grid-column: span 3; }
+
+    /* ── Form fields ── */
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    label .req { color: var(--accent); margin-left: 2px; }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="email"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      background: var(--surface);
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      appearance: none;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="date"]:focus,
+    input[type="email"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59,91,219,0.12);
+      background: #fff;
+    }
+    input::placeholder, textarea::placeholder { color: var(--text-muted); }
+    textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+    /* Custom select arrow */
+    .select-wrap { position: relative; }
+    .select-wrap select { padding-right: 34px; cursor: pointer; }
+    .select-wrap::after {
+      content: '';
+      position: absolute;
+      right: 12px; top: 50%;
+      transform: translateY(-50%);
+      width: 0; height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* ── Ownership Toggle ── */
+    .ownership-toggle {
+      display: flex;
+      gap: 0;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .ownership-toggle input[type="radio"] { display: none; }
+    .ownership-toggle label {
+      flex: 1;
+      text-align: center;
+      padding: 10px 0;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--text-secondary);
+      cursor: pointer;
+      background: var(--surface);
+      transition: all var(--transition);
+      border: none;
+    }
+    .ownership-toggle input[type="radio"]:checked + label {
+      background: var(--accent);
+      color: #fff;
+    }
+    .ownership-toggle label:hover { background: var(--accent-light); color: var(--accent); }
+    .ownership-toggle input[type="radio"]:checked + label:hover { background: var(--accent); color: #fff; }
+
+    /* ── Condition dots ── */
+    .condition-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .condition-group input[type="radio"] { display: none; }
+    .condition-group label {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 99px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--text-secondary);
+      cursor: pointer;
+      background: var(--surface);
+      transition: all var(--transition);
+    }
+    .condition-group input[type="radio"]:checked + label { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+    .condition-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-new { background: var(--success); }
+    .dot-good { background: #74c0fc; }
+    .dot-fair { background: var(--warning); }
+    .dot-poor { background: var(--danger); }
+
+    /* ── Status pills ── */
+    .status-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .status-group input[type="radio"] { display: none; }
+    .status-group label {
+      padding: 7px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 99px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--text-secondary);
+      cursor: pointer;
+      background: var(--surface);
+      transition: all var(--transition);
+    }
+    .status-group input#status_active:checked + label   { border-color: var(--success); background: var(--success-light); color: var(--success); }
+    .status-group input#status_inactive:checked + label { border-color: var(--text-muted); background: #f3f4f6; color: var(--text-secondary); }
+    .status-group input#status_repair:checked + label   { border-color: var(--warning); background: var(--warning-light); color: var(--warning); }
+    .status-group input#status_retired:checked + label  { border-color: var(--danger); background: var(--danger-light); color: var(--danger); }
+
+    /* ── Edit mode banner ── */
+    #edit-banner {
+      display: none;
+      max-width: 860px;
+      margin: 0 auto 16px;
+      background: var(--warning-light);
+      border: 1.5px solid #ffd43b;
+      border-radius: var(--radius);
+      padding: 12px 20px;
+      align-items: center;
+      gap: 12px;
+    }
+    #edit-banner.show { display: flex; }
+    #edit-banner svg { width: 20px; height: 20px; flex-shrink: 0; fill: var(--warning); }
+    #edit-banner span { font-size: 0.88rem; color: var(--warning); font-weight: 500; flex: 1; }
+    #edit-banner button {
+      background: none;
+      border: 1.5px solid var(--warning);
+      border-radius: var(--radius-sm);
+      color: var(--warning);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    #edit-banner button:hover { background: var(--warning); color: #fff; }
+
+    /* ── Asset ID lookup ── */
+    .lookup-wrap { display: flex; gap: 10px; }
+    .lookup-wrap input { flex: 1; }
+    .btn-lookup {
+      padding: 10px 18px;
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition);
+    }
+    .btn-lookup:hover { background: var(--accent-light); border-color: var(--accent); }
+
+    /* ── Action bar ── */
+    .action-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 24px;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all var(--transition);
+      letter-spacing: 0.1px;
+    }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-outline {
+      background: var(--surface);
+      color: var(--text-secondary);
+      border: 1.5px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .btn-danger { background: var(--danger-light); color: var(--danger); border: 1.5px solid #ffc9c9; }
+    .btn-danger:hover { background: var(--danger); color: #fff; }
+    .btn-ghost {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      padding: 10px 12px;
+    }
+    .btn-ghost:hover { color: var(--accent); }
+    .spacer { flex: 1; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 28px; right: 28px;
+      background: var(--text-primary);
+      color: #fff;
+      padding: 13px 20px;
+      border-radius: var(--radius);
+      font-size: 0.88rem;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.28s ease;
+      pointer-events: none;
+      z-index: 999;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.success { background: var(--success); }
+    #toast.warning { background: var(--warning); }
+
+    /* ── Back to resources ── */
+    .footer-nav {
+      max-width: 860px;
+      margin: 28px auto 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+    .back-link:hover { color: var(--accent); }
+    .back-link svg { width: 16px; height: 16px; }
+    .footer-note { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* ── Divider ── */
+    .divider { height: 1px; background: var(--border); margin: 6px 0 18px; }
+
+    /* ── Helper text ── */
+    .hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .col-span-2, .col-span-3 { grid-column: span 1; }
+      .card-body { padding: 18px 16px; }
+      .card-header { padding: 14px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="logo-icon">
+    <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+  </div>
+  <div>
+    <h1>Asset Registration Portal</h1>
+    <p>Register and manage company assets assigned to employees</p>
+  </div>
+</div>
+
+<!-- Edit Mode Banner -->
+<div id="edit-banner">
+  <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+  <span id="edit-banner-text">Editing asset — <strong id="edit-asset-id-label"></strong>. Changes will update the existing record.</span>
+  <button onclick="cancelEdit()">Cancel Edit</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECTION 1 — EDIT EXISTING ASSET
+════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <h2>Edit Existing Asset</h2>
+    <span class="section-badge">Optional</span>
+  </div>
+  <div class="card-body">
+    <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:14px;">
+      Already registered an asset? Enter its <strong>Asset ID</strong> to load and edit the record inline below.
+    </p>
+    <div class="field">
+      <label>Asset ID to Edit</label>
+      <div class="lookup-wrap">
+        <input type="text" id="edit_asset_id_input" placeholder="e.g. AST-20240001" />
+        <button class="btn-lookup" onclick="loadAssetForEdit()">Load Asset →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECTION 2 — ASSET DETAILS
+════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <h2>Asset Details</h2>
+    <span class="section-badge">Core Info</span>
+  </div>
+  <div class="card-body">
+
+    <!-- Ownership type -->
+    <div class="field" style="margin-bottom:20px;">
+      <label>Asset Ownership <span class="req">*</span></label>
+      <div class="ownership-toggle">
+        <input type="radio" name="OWNED_BY" id="owned_individual" value="Individual" checked />
+        <label for="owned_individual">👤 Individual</label>
+        <input type="radio" name="OWNED_BY" id="owned_org" value="Organization" />
+        <label for="owned_org">🏢 Organization</label>
+      </div>
+      <p class="hint">Individual = assigned to a specific person. Organization = shared/pooled asset.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="grid-2">
+      <!-- Asset ID -->
+      <div class="field">
+        <label>Asset ID <span class="req">*</span></label>
+        <input type="text" id="ASSET_ID" name="ASSET_ID" placeholder="Auto-generated on submit" readonly
+               style="background:var(--surface-2);color:var(--text-muted);" />
+        <p class="hint">System-generated. Leave blank for new assets.</p>
+      </div>
+
+      <!-- Asset Type -->
+      <div class="field">
+        <label>Asset Type <span class="req">*</span></label>
+        <div class="select-wrap">
+          <select id="TYPE_ID" name="TYPE_ID">
+            <option value="">— Select type —</option>
+            <option value="1">Laptop</option>
+            <option value="2">Desktop</option>
+            <option value="3">Mobile Phone</option>
+            <option value="4">Tablet</option>
+            <option value="5">Monitor</option>
+            <option value="6">Keyboard / Mouse</option>
+            <option value="7">Headset</option>
+            <option value="8">Other Peripheral</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Model (free text) -->
+      <div class="field">
+        <label>Model Name <span class="req">*</span></label>
+        <input type="text" id="MODEL_ID" name="MODEL_ID" placeholder="e.g. MacBook Pro 14-inch M3" />
+        <p class="hint">Type the exact model name.</p>
+      </div>
+
+      <!-- Serial -->
+      <div class="field">
+        <label>Serial Number</label>
+        <input type="text" id="SERIAL_ID" name="SERIAL_ID" placeholder="e.g. C02XG0JHJGH5" />
+      </div>
+
+      <!-- Vendor (free text) -->
+      <div class="field">
+        <label>Vendor / Supplier</label>
+        <input type="text" id="VENDOR_ID" name="VENDOR_ID" placeholder="e.g. Apple, Dell, Logitech" />
+      </div>
+
+      <!-- OS -->
+      <div class="field">
+        <label>Operating System</label>
+        <input type="text" id="OS" name="OS" placeholder="e.g. macOS 14.4, Windows 11 Pro" />
+      </div>
+
+      <!-- RAM -->
+      <div class="field">
+        <label>RAM</label>
+        <input type="text" id="RAM" name="RAM" placeholder="e.g. 16 GB" />
+      </div>
+
+      <!-- SSD / Storage -->
+      <div class="field">
+        <label>Storage (SSD / HDD)</label>
+        <input type="text" id="SSD" name="SSD" placeholder="e.g. 512 GB SSD" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECTION 3 — ASSIGNMENT & LOCATION
+════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <h2>Assignment &amp; Location</h2>
+    <span class="section-badge">Who &amp; Where</span>
+  </div>
+  <div class="card-body">
+    <div class="grid-2">
+      <!-- Assigned To -->
+      <div class="field">
+        <label>Assigned To</label>
+        <input type="text" id="ASSIGNED_TO" name="ASSIGNED_TO" placeholder="Full name or Employee ID" />
+        <p class="hint">Leave blank for unassigned / pooled assets.</p>
+      </div>
+
+      <!-- Location -->
+      <div class="field">
+        <label>Location</label>
+        <input type="text" id="LOCATION" name="LOCATION" placeholder="e.g. Hyderabad HQ – Floor 3" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECTION 4 — PURCHASE & WARRANTY
+════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <h2>Purchase &amp; Warranty</h2>
+    <span class="section-badge">Finance</span>
+  </div>
+  <div class="card-body">
+    <div class="grid-3">
+      <div class="field">
+        <label>Purchase Date</label>
+        <input type="date" id="PURCHASE_DATE" name="PURCHASE_DATE" />
+      </div>
+      <div class="field">
+        <label>Warranty Expiry</label>
+        <input type="date" id="WARRANTY_EXPIRY" name="WARRANTY_EXPIRY" />
+      </div>
+      <div class="field">
+        <label>Price (₹)</label>
+        <input type="number" id="PRICE" name="PRICE" placeholder="0.00" min="0" step="0.01" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECTION 5 — CONDITION & STATUS
+════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <h2>Condition &amp; Status</h2>
+    <span class="section-badge">Current State</span>
+  </div>
+  <div class="card-body">
+    <div class="grid-2">
+      <div class="field">
+        <label>Condition <span class="req">*</span></label>
+        <div class="condition-group">
+          <input type="radio" name="CONDITION" id="cond_new"  value="New"  checked />
+          <label for="cond_new"><span class="condition-dot dot-new"></span>New</label>
+
+          <input type="radio" name="CONDITION" id="cond_good" value="Good" />
+          <label for="cond_good"><span class="condition-dot dot-good"></span>Good</label>
+
+          <input type="radio" name="CONDITION" id="cond_fair" value="Fair" />
+          <label for="cond_fair"><span class="condition-dot dot-fair"></span>Fair</label>
+
+          <input type="radio" name="CONDITION" id="cond_poor" value="Poor" />
+          <label for="cond_poor"><span class="condition-dot dot-poor"></span>Poor</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Status <span class="req">*</span></label>
+        <div class="status-group">
+          <input type="radio" name="STATUS" id="status_active"   value="Active"   checked />
+          <label for="status_active">Active</label>
+
+          <input type="radio" name="STATUS" id="status_inactive" value="Inactive" />
+          <label for="status_inactive">Inactive</label>
+
+          <input type="radio" name="STATUS" id="status_repair"   value="In Repair" />
+          <label for="status_repair">In Repair</label>
+
+          <input type="radio" name="STATUS" id="status_retired"  value="Retired" />
+          <label for="status_retired">Retired</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECTION 6 — NOTES
+════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-header">
+    <h2>Additional Notes</h2>
+    <span class="section-badge">Optional</span>
+  </div>
+  <div class="card-body">
+    <div class="field">
+      <label>Notes / Remarks</label>
+      <textarea id="NOTES" name="NOTES" placeholder="Any additional information about this asset…"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     ACTION BAR
+════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-body" style="padding:18px 28px;">
+    <div class="action-bar">
+      <button class="btn btn-primary" onclick="submitForm()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        <span id="submit-btn-text">Register Asset</span>
+      </button>
+      <button class="btn btn-outline" onclick="resetForm()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+        Reset All Fields
+      </button>
+      <div class="spacer"></div>
+      <span style="font-size:0.78rem;color:var(--text-muted);">Fields marked <strong style="color:var(--accent);">*</strong> are required</span>
+    </div>
+  </div>
+</div>
+
+<!-- Footer Nav -->
+<div class="footer-nav">
+  <a href="#" class="back-link">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    Back to Resources
+  </a>
+  <span class="footer-note">Assets Portal · IT Department</span>
+</div>
+
+<!-- Toast notification -->
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════  JS  ══ -->
+<script>
+  /* ── helpers ── */
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + type;
+    setTimeout(() => { t.className = ''; }, 3200);
+  }
+
+  function getField(id) { return document.getElementById(id); }
+
+  /* ── Collect all form values into an object ── */
+  function collectFormData() {
+    const rawPrice = getField('PRICE').value;
+    const priceVal = rawPrice === '' ? null : Number(rawPrice);
+    const typeIdRaw = getField('TYPE_ID').value;
+    const typeIdVal = typeIdRaw === '' ? null : Number(typeIdRaw);
+
+    return {
+      ASSET_ID:        getField('ASSET_ID').value.trim() || null,
+      TYPE_ID:         typeIdVal,
+      MODEL_ID:        getField('MODEL_ID').value.trim(),
+      SERIAL_ID:       getField('SERIAL_ID').value.trim() || null,
+      VENDOR_ID:       getField('VENDOR_ID').value.trim() || null,
+      OS:              getField('OS').value.trim() || null,
+      RAM:             getField('RAM').value.trim() || null,
+      SSD:             getField('SSD').value.trim() || null,
+      OWNED_BY:        document.querySelector('input[name="OWNED_BY"]:checked')?.value || '',
+      PURCHASE_DATE:   getField('PURCHASE_DATE').value || null,
+      WARRANTY_EXPIRY: getField('WARRANTY_EXPIRY').value || null,
+      LOCATION:        getField('LOCATION').value.trim() || null,
+      CONDITION:       document.querySelector('input[name="CONDITION"]:checked')?.value || '',
+      STATUS:          document.querySelector('input[name="STATUS"]:checked')?.value || '',
+      PRICE:           Number.isFinite(priceVal) ? priceVal : null,
+      ASSIGNED_TO:     getField('ASSIGNED_TO').value.trim() || null,
+      NOTES:           getField('NOTES').value.trim() || null,
+    };
+  }
+
+  /* ── Populate form from an object ── */
+  function populateForm(data) {
+    getField('ASSET_ID').value        = data.ASSET_ID        || '';
+    getField('TYPE_ID').value         = data.TYPE_ID         || '';
+    getField('MODEL_ID').value        = data.MODEL_ID        || '';
+    getField('SERIAL_ID').value       = data.SERIAL_ID       || '';
+    getField('VENDOR_ID').value       = data.VENDOR_ID       || '';
+    getField('OS').value              = data.OS              || '';
+    getField('RAM').value             = data.RAM             || '';
+    getField('SSD').value             = data.SSD             || '';
+    getField('PURCHASE_DATE').value   = data.PURCHASE_DATE   || '';
+    getField('WARRANTY_EXPIRY').value = data.WARRANTY_EXPIRY || '';
+    getField('LOCATION').value        = data.LOCATION        || '';
+    getField('PRICE').value           = data.PRICE           || '';
+    getField('ASSIGNED_TO').value     = data.ASSIGNED_TO     || '';
+    getField('NOTES').value           = data.NOTES           || '';
+
+    if (data.OWNED_BY) {
+      const r = document.querySelector(`input[name="OWNED_BY"][value="${data.OWNED_BY}"]`);
+      if (r) r.checked = true;
+    }
+    if (data.CONDITION) {
+      const r = document.querySelector(`input[name="CONDITION"][value="${data.CONDITION}"]`);
+      if (r) r.checked = true;
+    }
+    if (data.STATUS) {
+      const r = document.querySelector(`input[name="STATUS"][value="${data.STATUS}"]`);
+      if (r) r.checked = true;
+    }
+  }
+
+  /* ── Edit mode state ── */
+  let editMode = false;
+
+  /* ── Load asset for editing (simulated lookup) ── */
+  async function loadAssetForEdit() {
+    const id = getField('edit_asset_id_input').value.trim();
+    if (!id) { showToast('Please enter an Asset ID to load.', 'warning'); return; }
+
+    try {
+      const response = await fetch(`/asset/${encodeURIComponent(id)}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+      });
+
+      const result = await response.json();
+      if (!response.ok || !result.success || !result.asset) {
+        showToast(result.detail || result.message || `No asset found with ID "${id}".`, 'warning');
+        return;
+      }
+
+      const record = result.asset;
+      populateForm(record);
+
+    } catch (err) {
+      showToast(`Unable to load asset: ${err}`, 'warning');
+      return;
+    }
+
+    editMode = true;
+
+    // Show edit banner
+    const banner = document.getElementById('edit-banner');
+    document.getElementById('edit-asset-id-label').textContent = id.toUpperCase();
+    banner.classList.add('show');
+    document.getElementById('submit-btn-text').textContent = 'Update Asset';
+
+    // Lock the ASSET_ID field styling
+    getField('ASSET_ID').style.background = 'var(--warning-light)';
+    getField('ASSET_ID').style.color = 'var(--warning)';
+    getField('ASSET_ID').style.fontWeight = '600';
+
+    // Scroll to form
+    document.querySelector('.card:nth-of-type(2)').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showToast(`Asset ${id.toUpperCase()} loaded for editing.`, 'success');
+  }
+
+  /* ── Cancel edit ── */
+  function cancelEdit() {
+    editMode = false;
+    document.getElementById('edit-banner').classList.remove('show');
+    document.getElementById('submit-btn-text').textContent = 'Register Asset';
+    getField('ASSET_ID').style.background = '';
+    getField('ASSET_ID').style.color = '';
+    getField('ASSET_ID').style.fontWeight = '';
+    getField('edit_asset_id_input').value = '';
+    resetForm(false); // reset without toast
+  }
+
+  /* ── Submit ── */
+  async function submitForm() {
+    const data = collectFormData();
+
+    // Basic validation
+    if (!data.TYPE_ID) { showToast('Please select an Asset Type.', 'warning'); return; }
+    if (!data.MODEL_ID) { showToast('Please enter the Model Name.', 'warning'); return; }
+    if (!data.OWNED_BY) { showToast('Please select Asset Ownership.', 'warning'); return; }
+
+    try {
+      const response = await fetch('/asset/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        showToast(result.detail || result.message || 'Asset save failed.', 'warning');
+        return;
+      }
+
+      const savedAssetId = result.asset_id || data.ASSET_ID || '';
+      if (editMode) {
+        showToast(result.message || `Asset ${savedAssetId} updated successfully.`, 'success');
+        cancelEdit();
+      } else {
+        showToast(result.message || `Asset registered successfully (${savedAssetId}).`, 'success');
+        resetForm(false);
+      }
+    } catch (err) {
+      showToast(`Unable to submit asset: ${err}`, 'warning');
+    }
+  }
+
+  /* ── Reset ── */
+  function resetForm(notify = true) {
+    // Text / number / date / textarea inputs
+    ['ASSET_ID','MODEL_ID','SERIAL_ID','VENDOR_ID','OS','RAM','SSD',
+     'PURCHASE_DATE','WARRANTY_EXPIRY','LOCATION','PRICE','ASSIGNED_TO','NOTES']
+      .forEach(id => { getField(id).value = ''; });
+
+    getField('TYPE_ID').value = '';
+
+    // Radio defaults
+    document.getElementById('owned_individual').checked = true;
+    document.getElementById('cond_new').checked = true;
+    document.getElementById('status_active').checked = true;
+
+    // Reset ASSET_ID styling
+    getField('ASSET_ID').style.background = '';
+    getField('ASSET_ID').style.color = '';
+    getField('ASSET_ID').style.fontWeight = '';
+
+    if (notify) showToast('All fields have been cleared.');
+  }
+</script>
+</body>
+</html>

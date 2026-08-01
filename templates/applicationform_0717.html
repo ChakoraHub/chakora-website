@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Application Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:"Poppins",Arial,sans-serif;
+  min-height:100vh;
+  background:linear-gradient(135deg,#6b73ff,#7f53ac);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.card{
+  width:100%;
+  max-width:520px;
+  background:#fff;
+  border-radius:16px;
+  padding:30px;
+  box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
+
+/* ===== Top Navigation ===== */
+.top-nav{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:20px;
+}
+
+.top-nav button{
+  padding:8px 14px;
+  border:none;
+  border-radius:8px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  background:#f1f2ff;
+  color:#5a5fe0;
+}
+
+.top-nav button:hover{
+  background:#e2e4ff;
+}
+
+/* ===== Form Content ===== */
+.card h2{
+  text-align:center;
+  margin-bottom:6px;
+  font-size:24px;
+}
+
+.card p{
+  text-align:center;
+  color:#666;
+  margin-bottom:25px;
+  font-size:14px;
+}
+
+label{
+  display:block;
+  font-weight:600;
+  margin-bottom:6px;
+  font-size:14px;
+}
+
+input, select, textarea{
+  width:100%;
+  padding:12px 14px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  margin-bottom:18px;
+  font-size:14px;
+}
+
+textarea{resize:vertical}
+
+input:focus, select:focus, textarea:focus{
+  outline:none;
+  border-color:#6b73ff;
+}
+
+/* ===== Submit Button ===== */
+.submit-btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(135deg,#6b73ff,#7f53ac);
+  color:#fff;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.submit-btn:hover{opacity:.9}
+
+/* ===== Flash Messages ===== */
+.flash{
+  padding:12px;
+  border-radius:8px;
+  margin-bottom:15px;
+  font-size:14px;
+}
+.flash.success{background:#e6ffed;color:#067a33}
+.flash.error{background:#ffe6e6;color:#a00000}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <!-- 🔹 Top Navigation -->
+  <div class="top-nav">
+    <button onclick="window.location.href='/'">🏠 Home</button>
+    
+    <button onclick="window.location.href='/industry/brs'">📄 Submit BRS Form</button>
+    <button onclick="window.location.href='/track-project'">📊 Track Status</button>
+    <button onclick="window.location.href='/organization-signoff'">🏢 Organization Sign Off</button>
+  </div>
+
+  <h2>Application Form</h2>
+  <p>Please fill the details and submit your application</p>
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" action="/submit-application">
+
+    <label>Full Name *</label>
+    <input type="text" name="full_name" required>
+
+    <label>Email *</label>
+    <input type="email" name="email" required>
+
+    <label>Phone Number *</label>
+    <input type="tel" name="phone" required>
+
+    <label>Organisation / Institute *</label>
+    <input type="text" name="organisation" required>
+
+    <label>Collaboration Type *</label>
+    <select name="collaboration_type" required>
+      <option disabled selected>Select collaboration type</option>
+      <option>Internships</option>
+      <option>Live Projects</option>
+      <option>Training / Workshops</option>
+      <option>Research Collaboration</option>
+      <option>Other</option>
+    </select>
+
+    <label>Project / Proposal Title *</label>
+    <input type="text" name="project_title" required>
+
+    <label>Brief Description *</label>
+    <textarea name="description" rows="4" required></textarea>
+
+    <label>Preferred Start Date</label>
+    <input type="date" name="start_date">
+
+    <button type="submit" class="submit-btn">Submit Application</button>
+
+  </form>
+
+</div>
+
+</body>
+</html>

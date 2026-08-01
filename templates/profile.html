@@ -1,284 +1,1095 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Your Profile</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Profile — ChakoraHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --ink:         #0d1b2a;
+      --ink-muted:   #4e6278;
+      --ink-light:   #7a92a8;
+      --teal:        #0891b2;
+      --teal-dark:   #0e6a8a;
+      --teal-deep:   #0c4a6e;
+      --teal-glow:   rgba(8,145,178,0.10);
+      --amber:       #d97706;
+      --amber-bg:    #fffbeb;
+      --amber-bdr:   #fde68a;
+      --emerald:     #059669;
+      --emerald-bg:  #ecfdf5;
+      --emerald-bdr: #a7f3d0;
+      --rose:        #e11d48;
+      --rose-bg:     #fff1f2;
+      --rose-bdr:    #fecdd3;
+      --violet:      #7c3aed;
+      --violet-bg:   #f5f3ff;
+      --bg:          #f0f5f9;
+      --card:        #ffffff;
+      --border:      #dde8f0;
+      --mono:        'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #e1f5fe, #ede7f6);
-      color: #333;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
     }
 
-    /* Header Styling */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 30px;
-      background: linear-gradient(to right, #42a5f5, #7e57c2);
-      color: white;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #b8ccd8; border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--teal); }
+
+    /* ═══════════════════════════════
+       HEADER
+    ═══════════════════════════════ */
+    .page-header {
+      background: linear-gradient(135deg, #0891b2 0%, #0e6a8a 55%, #0c4a6e 100%);
+      padding: 13px 30px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 24px rgba(8,70,110,0.22);
+      position: sticky; top: 0; z-index: 100;
+      gap: 14px; flex-wrap: wrap;
     }
-    .logo img { height: 90px; }
-    .profile-wrapper { position: relative; cursor: pointer; }
-    .profile-pic {
-      width: 45px;
-      height: 45px;
+    .header-left { display: flex; align-items: center; gap: 13px; }
+    .header-logo {
+      height: 44px; width: 44px; border-radius: 10px;
+      object-fit: cover; border: 2px solid rgba(255,255,255,0.25);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+    .header-title { font-size: 1rem; font-weight: 700; color: #fff; }
+    .header-sub   { font-size: 0.72rem; color: rgba(255,255,255,0.58); margin-top: 1px; }
+    .header-back  {
+      color: #baeeff; text-decoration: none; font-size: 0.83rem;
+      font-weight: 500; display: flex; align-items: center; gap: 6px;
+      transition: color 0.2s;
+    }
+    .header-back:hover { color: #fff; }
+
+    /* ═══════════════════════════════
+       MAIN
+    ═══════════════════════════════ */
+    .main-wrap { max-width: 1060px; margin: 30px auto 80px; padding: 0 18px; }
+
+    /* ═══════════════════════════════
+       HERO CARD
+    ═══════════════════════════════ */
+    .hero-card {
+      background: var(--card);
+      border-radius: 22px;
+      box-shadow: 0 4px 32px rgba(8,70,110,0.10);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-bottom: 20px;
+      animation: popUp 0.45s cubic-bezier(0.34,1.3,0.64,1) both;
+    }
+    @keyframes popUp {
+      from { opacity:0; transform:translateY(22px) scale(0.98); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    .hero-banner {
+      height: 110px;
+      background: linear-gradient(135deg, #0891b2, #0e6a8a 45%, #0c4a6e);
+      position: relative; overflow: hidden;
+    }
+    /* Decorative dots pattern */
+    .hero-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+    .hero-banner::after {
+      content: '';
+      position: absolute; bottom: -24px; left: 0; right: 0;
+      height: 50px;
+      background: var(--card);
+      clip-path: ellipse(55% 100% at 50% 100%);
+    }
+
+    .hero-body {
+      padding: 0 26px 24px;
+      display: flex; align-items: flex-end; gap: 18px;
+      margin-top: -42px; flex-wrap: wrap;
+    }
+
+    /* Avatar */
+    .avatar-wrap { position: relative; flex-shrink: 0; }
+    .avatar-ring {
+      width: 94px; height: 94px;
       border-radius: 50%;
-      border: 2px solid white;
-      object-fit: cover;
+      border: 4px solid white;
+      box-shadow: 0 4px 18px rgba(8,70,110,0.2);
+      background: linear-gradient(135deg, #0891b2, #0c4a6e);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px; font-weight: 800; color: white;
+      overflow: hidden;
+      position: relative;
     }
-    .dropdown-menu {
+    .avatar-ring img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .avatar-cam {
+      position: absolute; bottom: 2px; right: 2px;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--teal); color: white;
+      border: 2.5px solid white; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; transition: background 0.18s;
+    }
+    .avatar-cam:hover { background: var(--teal-dark); }
+
+    .hero-info { flex: 1; min-width: 200px; margin-top: 52px; }
+    .hero-name { font-size: 1.35rem; font-weight: 800; color: var(--ink); margin-bottom: 6px; }
+    .hero-chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .hero-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.76rem; font-weight: 600;
+      padding: 4px 11px; border-radius: 20px;
+      border: 1px solid;
+    }
+    .chip-teal   { background: var(--teal-glow); color: var(--teal-dark); border-color: rgba(8,145,178,0.2); }
+    .chip-violet { background: var(--violet-bg);  color: var(--violet);    border-color: #c4b5fd; }
+    .chip-amber  { background: var(--amber-bg);   color: var(--amber);     border-color: var(--amber-bdr); }
+    .chip-mono   { font-family: var(--mono); font-size: 0.72rem; }
+
+    .hero-actions { display: flex; gap: 9px; margin-top: 52px; flex-wrap: wrap; }
+
+    .btn-edit {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: linear-gradient(135deg, #0ca5c8, var(--teal-dark));
+      color: white; border: none; border-radius: 10px;
+      padding: 9px 22px; font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.87rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(8,145,178,0.28);
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .btn-edit:hover { transform: translateY(-2px); box-shadow: 0 7px 22px rgba(8,145,178,0.38); }
+
+    .btn-save {
+      display: none; align-items: center; gap: 7px;
+      background: linear-gradient(135deg, #059669, #065f46);
+      color: white; border: none; border-radius: 10px;
+      padding: 9px 22px; font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.87rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(5,150,105,0.28);
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 7px 22px rgba(5,150,105,0.38); }
+
+    .btn-cancel {
+      display: none; align-items: center; gap: 6px;
+      background: #f1f5f9; color: var(--ink-muted);
+      border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 8px 18px; font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.87rem; font-weight: 600; cursor: pointer;
+      transition: background 0.18s;
+    }
+    .btn-cancel:hover { background: #e2eaf2; }
+
+    body.edit-mode .btn-edit   { display: none; }
+    body.edit-mode .btn-save   { display: inline-flex; }
+    body.edit-mode .btn-cancel { display: inline-flex; }
+
+    /* ═══════════════════════════════
+       SECTION CARDS
+    ═══════════════════════════════ */
+    .sc {
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: 0 2px 14px rgba(8,70,110,0.07);
+      border: 1px solid var(--border);
+      margin-bottom: 18px;
+      overflow: hidden;
+      animation: fadeUp 0.4s ease both;
+    }
+    .sc:nth-child(2){ animation-delay:.05s; }
+    .sc:nth-child(3){ animation-delay:.10s; }
+    .sc:nth-child(4){ animation-delay:.15s; }
+    .sc:nth-child(5){ animation-delay:.20s; }
+    .sc:nth-child(6){ animation-delay:.25s; }
+    .sc:nth-child(7){ animation-delay:.30s; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(16px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .sc-head {
+      display: flex; align-items: center; gap: 12px;
+      padding: 15px 22px;
+      border-bottom: 1.5px solid var(--border);
+    }
+    .sc-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; flex-shrink: 0;
+    }
+    .i-teal    { background: #e0f7fa; color: var(--teal); }
+    .i-violet  { background: var(--violet-bg); color: var(--violet); }
+    .i-amber   { background: var(--amber-bg); color: var(--amber); }
+    .i-emerald { background: var(--emerald-bg); color: var(--emerald); }
+    .i-rose    { background: var(--rose-bg); color: var(--rose); }
+    .i-ink     { background: #edf2f7; color: var(--ink); }
+
+    .sc-title { font-size: 0.93rem; font-weight: 700; color: var(--ink); }
+    .sc-sub   { font-size: 0.73rem; color: var(--ink-light); margin-top: 1px; }
+    .sc-dbtag {
+      margin-left: auto;
+      font-family: var(--mono); font-size: 0.65rem;
+      background: #e8f4fb; color: var(--teal-dark);
+      border: 1px solid #b3d9ed; border-radius: 5px;
+      padding: 2px 8px; white-space: nowrap;
+    }
+
+    /* ═══════════════════════════════
+       FIELD GRID
+    ═══════════════════════════════ */
+    .fgrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    }
+    .frow {
+      display: flex; flex-direction: column;
+      padding: 13px 22px;
+      border-bottom: 1px solid #f0f5f9;
+      border-right: 1px solid #f0f5f9;
+      transition: background 0.15s;
+    }
+    .frow:hover { background: #fafdff; }
+    .frow.full  { grid-column: 1 / -1; }
+    .frow.readonly { background: #f8fafb; }
+
+    .flabel {
+      font-size: 0.69rem; font-weight: 700;
+      color: var(--ink-light); text-transform: uppercase;
+      letter-spacing: 0.7px; margin-bottom: 5px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .fctag {
+      font-family: var(--mono); font-size: 0.6rem;
+      background: #e8f4fb; color: var(--teal-dark);
+      padding: 1px 5px; border-radius: 3px;
+    }
+    .ro-badge {
+      font-size: 0.58rem; background: #f1f5f9; color: var(--ink-light);
+      border: 1px solid var(--border); border-radius: 3px;
+      padding: 1px 5px; margin-left: auto;
+    }
+
+    /* View value */
+    .fval {
+      font-size: 0.88rem; font-weight: 500;
+      color: var(--ink); word-break: break-word; min-height: 20px;
+    }
+    .fval.empty { color: #b0bec5; font-style: italic; font-size: 0.8rem; }
+    .fval.mono  { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.4px; }
+
+    /* Edit inputs */
+    .finput {
       display: none;
-      position: absolute;
-      top: 55px;
-      right: 0;
-      background-color: white;
-      color: black;
-      border-radius: 6px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-      min-width: 160px;
-    }
-    .dropdown-menu a {
-      display: block;
-      padding: 10px 15px;
-      text-decoration: none;
-      color: #333;
-      font-weight: 500;
-      border-bottom: 1px solid #eee;
-      cursor: pointer;
-    }
-    .dropdown-menu a:last-child { border-bottom: none; }
-    .dropdown-menu a:hover { background-color: #f0f0f0; }
-
-    /* Profile Container */
-    .container {
-      max-width: 600px;
-      margin: 40px auto;
-      padding: 30px;
-      background: #ffffff;
-      box-shadow: 0 0 15px rgba(0,0,0,0.15);
-      border-radius: 12px;
-      text-align: center;
-    }
-    .avatar img {
-      width: 130px;
-      height: 130px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid #673ab7;
-    }
-
-    h1 {
-      color: #4527a0;
-      margin: 20px 0 10px;
-      font-size: 26px;
-    }
-    p {
-      font-size: 16px;
-      margin: 6px 0;
-    }
-
-    /* Buttons */
-    .edit-button {
-      display: inline-block;
-      margin: 8px auto 12px;
-      padding: 8px 16px;
-      background-color: #1976d2;
-      color: white;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: bold;
-      border-radius: 6px;
-      transition: background-color 0.3s ease;
-    }
-    .edit-button:hover { background-color: #0d47a1; }
-
-    /* Address Section */
-    .address-input {
-      margin-top: 15px;
-      text-align: left;
-    }
-    .address-input label { font-weight: bold; }
-    .address-input textarea {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.87rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 11px;
+      background: #f7fbff;
+      color: var(--ink);
       width: 100%;
-      padding: 10px;
-      font-size: 15px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      resize: none;
-      margin-top: 8px;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
     }
-
-    /* Back Button */
-    .back-resources { text-align: center; margin: 40px 0; }
-    .back-btn {
-      background: #3949ab;
-      padding: 10px 25px;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
-      transition: background 0.3s ease;
-      cursor: pointer;
-    }
-    .back-btn:hover { background: #303f9f; }
-
-    /* Flash Messages */
-    .flash-message {
-      text-align:center;
-      margin-bottom: 15px;
-    }
-    .flash-message p {
-      display:inline-block;
-      background-color: #e8f5e9;
-      color: #2e7d32;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: bold;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-    }
-
-    /* Logout Popup Styles */
-    .popup {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6);
-      z-index: 2000;
-      justify-content: center;
-      align-items: center;
-    }
-    .popup-content {
+    .finput:focus {
+      outline: none;
+      border-color: var(--teal);
       background: #fff;
-      padding: 25px 30px;
-      border-radius: 12px;
-      text-align: center;
-      max-width: 360px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-      animation: scaleIn 0.3s ease;
+      box-shadow: 0 0 0 3px var(--teal-glow);
     }
-    @keyframes scaleIn {
-      from { transform: scale(0.7); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+    textarea.finput { resize: vertical; min-height: 80px; }
+    select.finput   { cursor: pointer; }
+
+    body.edit-mode .fval              { display: none; }
+    body.edit-mode .finput            { display: block; }
+    body.edit-mode .frow              { background: #f9fdff; }
+    body.edit-mode .frow.readonly .fval   { display: block; }
+    body.edit-mode .frow.readonly .finput { display: none !important; }
+    body.edit-mode .frow.readonly         { background: #f8fafb; }
+
+    /* ═══════════════════════════════
+       STATUS PILLS
+    ═══════════════════════════════ */
+    .pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.72rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px; border: 1px solid;
     }
-    .popup-content h3 {
-      margin-bottom: 15px;
-      color: #4527a0;
+    .pill-green  { background: var(--emerald-bg); color: var(--emerald); border-color: var(--emerald-bdr); }
+    .pill-amber  { background: var(--amber-bg);   color: var(--amber);   border-color: var(--amber-bdr); }
+    .pill-rose   { background: var(--rose-bg);    color: var(--rose);    border-color: var(--rose-bdr); }
+    .pill-teal   { background: var(--teal-glow);  color: var(--teal-dark); border-color: rgba(8,145,178,0.25); }
+    .pill-grey   { background: #f1f5f9; color: var(--ink-muted); border-color: var(--border); }
+
+    /* ═══════════════════════════════
+       REGISTRATION TIMELINE
+    ═══════════════════════════════ */
+    .reg-table {
+      width: 100%; border-collapse: collapse; font-size: 0.84rem;
     }
-    .popup-buttons {
-      margin-top: 20px;
-      display: flex;
-      justify-content: space-around;
+    .reg-table thead th {
+      background: #edf7fb;
+      color: var(--teal-dark);
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding: 10px 16px; text-align: left;
+      border-bottom: 1.5px solid var(--border);
     }
-    .popup-buttons button {
-      padding: 8px 18px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
+    .reg-table tbody td {
+      padding: 12px 16px; border-bottom: 1px solid #f0f5f9;
+      color: var(--ink); vertical-align: middle;
     }
-    .confirm-btn { background: #e53935; color: white; }
-    .confirm-btn:hover { background: #c62828; }
-    .cancel-btn { background: #9e9e9e; color: white; }
-    .cancel-btn:hover { background: #616161; }
+    .reg-table tbody tr:last-child td { border-bottom: none; }
+    .reg-table tbody tr:hover td { background: #f7fbff; }
+
+    /* ═══════════════════════════════
+       INTERNSHIP SECTION
+    ═══════════════════════════════ */
+    .intern-card {
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      background: #fafdff;
+      transition: box-shadow 0.2s;
+    }
+    .intern-card:hover { box-shadow: 0 4px 18px rgba(8,70,110,0.09); }
+    .intern-card-top {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 10px;
+      flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .intern-id {
+      font-family: var(--mono); font-size: 0.7rem;
+      color: var(--ink-light); margin-bottom: 3px;
+    }
+    .intern-domain {
+      font-size: 1rem; font-weight: 700; color: var(--ink);
+    }
+    .intern-meta {
+      display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px;
+    }
+    .intern-meta-item {
+      font-size: 0.78rem; color: var(--ink-muted);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .intern-meta-item i { color: var(--teal); font-size: 11px; }
+
+    /* ═══════════════════════════════
+       DOCUMENTS
+    ═══════════════════════════════ */
+    .doc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px; padding: 18px 22px;
+    }
+    .doc-card {
+      border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      background: #fafdff; transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .doc-card:hover { box-shadow: 0 4px 14px rgba(8,70,110,0.1); border-color: var(--teal); }
+    .doc-icon {
+      width: 38px; height: 38px; border-radius: 9px;
+      background: #e0f7fa; color: var(--teal);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .doc-name { font-size: 0.78rem; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+    .doc-type { font-size: 0.68rem; color: var(--ink-light); font-family: var(--mono); }
+
+    /* ═══════════════════════════════
+       TOAST
+    ═══════════════════════════════ */
+    .toast-bar {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--ink); color: white;
+      padding: 13px 26px; border-radius: 12px;
+      font-size: 0.86rem; font-weight: 600;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+      display: flex; align-items: center; gap: 9px;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 9999; white-space: nowrap;
+    }
+    .toast-bar.show { transform: translateX(-50%) translateY(0); }
+    .toast-bar i { color: #6ee7b7; }
+
+    /* ═══════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════ */
+    @media(max-width:600px){
+      .fgrid { grid-template-columns: 1fr; }
+      .hero-body { flex-direction: column; align-items: flex-start; }
+      .hero-actions { margin-top: 12px; }
+      .doc-grid { grid-template-columns: 1fr 1fr; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <div class="header">
-    <div class="logo">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" />
-    </div>
-    <div class="profile-wrapper" onclick="toggleDropdown()">
-      <img class="profile-pic"
-           src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}"
-           alt="Profile" />
-      <div class="dropdown-menu" id="dropdownMenu">
-        <a href="{{ url_for('profile') }}">Profile</a>
-        <a href="{{ url_for('settings') }}">Settings</a>
-        <a href="#" onclick="openPopup('logoutPopup')">Logout</a>
-      </div>
+<!-- ── HEADER ── -->
+<div class="page-header">
+  <div class="header-left">
+    <img src="https://chakrahub-stud.s3.eu-north-2.amazonaws.com/img.jpeg"
+         alt="ChakoraHub" class="header-logo" onerror="this.style.display='none'">
+    <div>
+      <div class="header-title">Student Profile</div>
+      <div class="header-sub">ChakoraHub Learning Portal</div>
     </div>
   </div>
+  <a href="{{ url_for('resources') }}" class="header-back">
+    <i class="fas fa-arrow-left"></i> Back to Resources
+  </a>
+</div>
 
-  <!-- Flash Messages -->
-  {% with messages = get_flashed_messages() %}
+<div class="main-wrap">
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-      <div class="flash-message">
-        {% for message in messages %}
-          {% if "Role: Admin" not in message %}
-            <p>{{ message }}</p>
-          {% endif %}
-        {% endfor %}
-      </div>
+      {% for cat, msg in messages %}
+        <div style="background:{{ '#ecfdf5' if cat=='success' else '#fff1f2' }};border:1px solid {{ '#a7f3d0' if cat=='success' else '#fecdd3' }};color:{{ '#065f46' if cat=='success' else '#be123c' }};border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:0.86rem;display:flex;align-items:center;gap:9px;">
+          <i class="fas fa-{{ 'check-circle' if cat=='success' else 'exclamation-circle' }}"></i>{{ msg }}
+        </div>
+      {% endfor %}
     {% endif %}
   {% endwith %}
 
-  <!-- Profile Box -->
-  <div class="container">
-    <div class="avatar">
-      <img src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}" alt="Profile Photo">
-    </div>
-    <a href="{{ url_for('settings') }}" class="edit-button">Edit Photo</a>
+  <form method="POST" action="{{ url_for('update_student_profile') }}" enctype="multipart/form-data" id="studentForm">
 
-    <h1>{{ session.get('display_name', 'Welcome') }}</h1>
-    <a href="{{ url_for('settings') }}" class="edit-button">Edit Name</a>
+  <!-- ══════════════════════════════════
+       HERO — STUDENT IDENTITY
+  ══════════════════════════════════ -->
+  <div class="hero-card">
+    <div class="hero-banner"></div>
+    <div class="hero-body">
 
-    <p><strong>Email:</strong> {{ session.get('user', '') }}</p>
-
-    <form action="{{ url_for('save_address') }}" method="post">
-      <div class="address-input">
-        <label for="address">Address:</label><br>
-        <textarea id="address" name="address" rows="4" required>{{ address or '' }}</textarea>
+      <!-- Avatar -->
+      <div class="avatar-wrap">
+        <div class="avatar-ring" id="avatarRing">
+          <img src="{{ url_for('static', filename=(profile_pic if profile_pic else 'profile_photo/defaultpicture.jpg')) }}"
+               alt="Profile" id="avatarImg"
+               onerror="this.style.display='none'; document.getElementById('avatarInit').style.display='flex';">
+          <span id="avatarInit" style="display:none; position:absolute; inset:0; align-items:center; justify-content:center;">
+            {{ (student.USERNAME[0] if student.USERNAME else 'S') | upper }}
+          </span>
+        </div>
+        <label class="avatar-cam" for="picInput" title="Change photo">
+          <i class="fas fa-camera"></i>
+        </label>
+        <input type="file" id="picInput" name="PROFILE_PIC" accept="image/*" style="display:none" onchange="previewPic(event)">
       </div>
-      <button type="submit" class="edit-button" style="margin-top: 12px;">Save Address</button>
-    </form>
-  </div>
 
-  <!-- Back to Resources (direct, no popup) -->
-  <div class="back-resources">
-    <a href="{{ url_for('resources') }}" class="back-btn">← Back to Resources</a>
-  </div>
-
-  <!-- Logout Popup -->
-  <div id="logoutPopup" class="popup">
-    <div class="popup-content">
-      <h3>Are you sure you want to logout?</h3>
-      <div class="popup-buttons">
-        <button class="confirm-btn" onclick="window.location.href='{{ url_for('logout') }}'">Yes, Logout</button>
-        <button class="cancel-btn" onclick="closePopup('logoutPopup')">Cancel</button>
+      <!-- Info -->
+      <div class="hero-info">
+        <div class="hero-name">{{ student.USERNAME or 'Student Name' }}</div>
+        <div class="hero-chips">
+          <span class="hero-chip chip-mono chip-teal">
+            <i class="fas fa-id-card" style="font-size:9px;"></i> ID: {{ student.ID }}
+          </span>
+          <span class="hero-chip chip-violet">
+            <i class="fas fa-user-tag" style="font-size:9px;"></i> {{ student.USERTYPE or 'student' }}
+          </span>
+          <span class="hero-chip chip-amber">
+            <i class="fas fa-envelope" style="font-size:9px;"></i> {{ student.EMAIL or 'No email' }}
+          </span>
+          {% if registration %}
+          <span class="hero-chip chip-teal">
+            <i class="fas fa-book-open" style="font-size:9px;"></i> {{ registration.REGISTRATION_ID }}
+          </span>
+          {% endif %}
+        </div>
       </div>
+
+      <!-- Actions -->
+      <div class="hero-actions">
+        <button type="button" class="btn-edit" onclick="enterEdit()">
+          <i class="fas fa-pen-to-square"></i> Edit Profile
+        </button>
+        <button type="submit" class="btn-save">
+          <i class="fas fa-floppy-disk"></i> Save Changes
+        </button>
+        <button type="button" class="btn-cancel" onclick="cancelEdit()">
+          <i class="fas fa-xmark"></i> Cancel
+        </button>
+      </div>
+
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script>
-    function toggleDropdown() {
-      const dropdown = document.getElementById('dropdownMenu');
-      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-    }
-    document.addEventListener('click', function(event) {
-      const dropdown = document.getElementById('dropdownMenu');
-      const wrapper = document.querySelector('.profile-wrapper');
-      if (!wrapper.contains(event.target)) {
-        dropdown.style.display = 'none';
-      }
-    });
+  <!-- ══════════════════════════════════
+       SECTION 1 — ACCOUNT DETAILS
+       Tables: nrm_users · nrm_logins
+  ══════════════════════════════════ -->
+  <div class="sc">
+    <div class="sc-head">
+      <div class="sc-icon i-teal"><i class="fas fa-user-circle"></i></div>
+      <div>
+        <div class="sc-title">Account Details</div>
+        <div class="sc-sub">Login credentials and account settings</div>
+      </div>
+      <span class="sc-dbtag">nrm_users · nrm_logins</span>
+    </div>
+    <div class="fgrid">
 
-    function openPopup(id) {
-      document.getElementById(id).style.display = 'flex';
-    }
-    function closePopup(id) {
-      document.getElementById(id).style.display = 'none';
-    }
-  </script>
+      <div class="frow readonly">
+        <div class="flabel">User ID <span class="fctag">ID</span> <span class="ro-badge">read-only</span></div>
+        <div class="fval mono">{{ student.ID }}</div>
+      </div>
 
+      <div class="frow">
+        <div class="flabel">Username <span class="fctag">USERNAME</span></div>
+        <div class="fval">{{ student.USERNAME or '—' }}</div>
+        <input class="finput" type="text" name="USERNAME" value="{{ student.USERNAME or '' }}" placeholder="username">
+      </div>
+
+      <div class="frow">
+        <div class="flabel">Email <span class="fctag">EMAIL</span></div>
+        <div class="fval">{{ student.EMAIL or '—' }}</div>
+        <input class="finput" type="email" name="EMAIL" value="{{ student.EMAIL or '' }}" placeholder="email@example.com">
+      </div>
+
+      <div class="frow">
+        <div class="flabel">Phone <span class="fctag">PHONE</span></div>
+        <div class="fval">{{ student.PHONE or '—' }}</div>
+        <input class="finput" type="text" name="PHONE" value="{{ student.PHONE or '' }}" placeholder="+91 XXXXX XXXXX">
+      </div>
+
+      <div class="frow">
+        <div class="flabel">User Type <span class="fctag">USERTYPE</span></div>
+        <div class="fval">
+          <span class="pill pill-teal">{{ student.USERTYPE or 'student' }}</span>
+        </div>
+        <select class="finput" name="USERTYPE">
+          <option value="student"  {{ 'selected' if student.USERTYPE=='student'  }}>Student</option>
+          <option value="employee" {{ 'selected' if student.USERTYPE=='employee' }}>Employee</option>
+        </select>
+      </div>
+
+      <div class="frow">
+        <div class="flabel">Account Status <span class="fctag">IS_ACTIVE</span></div>
+        <div class="fval">
+          {% if login.IS_ACTIVE == 'Y' %}
+            <span class="pill pill-green"><i class="fas fa-circle" style="font-size:6px;"></i> Active</span>
+          {% else %}
+            <span class="pill pill-grey">Inactive</span>
+          {% endif %}
+        </div>
+        <select class="finput" name="IS_ACTIVE">
+          <option value="Y" {{ 'selected' if login.IS_ACTIVE=='Y' }}>Active (Y)</option>
+          <option value="N" {{ 'selected' if login.IS_ACTIVE=='N' }}>Inactive (N)</option>
+        </select>
+      </div>
+
+      <div class="frow">
+        <div class="flabel">Gothram <span class="fctag">GOTHRAM</span></div>
+        <div class="fval">{{ student.GOTHRAM or '—' }}</div>
+        <input class="finput" type="text" name="GOTHRAM" value="{{ student.GOTHRAM or '' }}" placeholder="e.g. Vasishtha">
+      </div>
+
+      <div class="frow">
+        <div class="flabel">Registration Source <span class="fctag">REGISTRATION_SOURCE</span></div>
+        <div class="fval">{{ student.REGISTRATION_SOURCE or '—' }}</div>
+        <input class="finput" type="text" name="REGISTRATION_SOURCE" value="{{ student.REGISTRATION_SOURCE or '' }}" placeholder="e.g. Website, Referral">
+      </div>
+
+      <div class="frow readonly">
+        <div class="flabel">Last Login <span class="fctag">LAST_LOGIN</span> <span class="ro-badge">read-only</span></div>
+        <div class="fval">{{ login.LAST_LOGIN.strftime('%d %b %Y, %H:%M') if login.LAST_LOGIN else '—' }}</div>
+      </div>
+
+      <div class="frow readonly">
+        <div class="flabel">Failed Login Attempts <span class="fctag">FAILED_LOGIN_ATTEMPTS</span> <span class="ro-badge">read-only</span></div>
+        <div class="fval mono">{{ login.FAILED_LOGIN_ATTEMPTS or 0 }}</div>
+      </div>
+
+      <div class="frow readonly">
+        <div class="flabel">Account Created <span class="fctag">CREATED_AT</span> <span class="ro-badge">read-only</span></div>
+        <div class="fval">{{ student.CREATED_AT.strftime('%d %b %Y') if student.CREATED_AT else '—' }}</div>
+      </div>
+
+      <div class="frow readonly">
+        <div class="flabel">Last Updated <span class="fctag">UPDATED_AT</span> <span class="ro-badge">read-only</span></div>
+        <div class="fval">{{ student.UPDATED_AT.strftime('%d %b %Y') if student.UPDATED_AT else '—' }}</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SECTION 2 — PERSONAL DETAILS
+       Table: nrm_students
+  ══════════════════════════════════ -->
+  <div class="sc">
+    <div class="sc-head">
+      <div class="sc-icon i-violet"><i class="fas fa-person"></i></div>
+      <div>
+        <div class="sc-title">Personal Details</div>
+        <div class="sc-sub">Personal background and demographics</div>
+      </div>
+      <span class="sc-dbtag">nrm_students</span>
+    </div>
+    <div class="fgrid">
+
+      <div class="frow readonly">
+        <div class="flabel">Student Record ID <span class="fctag">ID (nrm_students)</span> <span class="ro-badge">read-only</span></div>
+        <div class="fval mono">{{ stu_rec.ID or '—' }}</div>
+      </div>
+
+      <div class="frow readonly">
+        <div class="flabel">User ID (FK) <span class="fctag">USER_ID</span> <span class="ro-badge">read-only</span></div>
+        <div class="fval mono">{{ stu_rec.USER_ID or '—' }}</div>
+      </div>
+
+      <div class="frow">
+        <div class="flabel">First Name <span class="fctag">FIRST_NAME</span></div>
+        <div class="fval">{{ stu_rec.FIRST_NAME or '—' }}</div>
+        <input class="finput" type="text" name="FIRST_NAME" value="{{ stu_rec.FIRST_NAME or '' }}" placeholder="First name">
+      </div>
+
+      <div class="frow">
+        <div class="flabel">Last Name <span class="fctag">LAST_NAME</span></div>
+        <div class="fval">{{ stu_rec.LAST_NAME or '—' }}</div>
+        <input class="finput" type="text" name="LAST_NAME" value="{{ stu_rec.LAST_NAME or '' }}" placeholder="Last name">
+      </div>
+
+      <div class="frow">
+        <div class="flabel">Gothram <span class="fctag">GOTHRAM</span></div>
+        <div class="fval">{{ stu_rec.GOTHRAM or '—' }}</div>
+        <input class="finput" type="text" name="STU_GOTHRAM" value="{{ stu_rec.GOTHRAM or '' }}" placeholder="e.g. Vasishtha">
+      </div>
+
+      <div class="frow">
+        <div class="flabel">Employment Status <span class="fctag">EMPLOYED</span></div>
+        <div class="fval">
+          {% if stu_rec.EMPLOYED == 'Yes' %}
+            <span class="pill pill-green">✓ Employed</span>
+          {% else %}
+            <span class="pill pill-grey">Not Employed</span>
+          {% endif %}
+        </div>
+        <select class="finput" name="EMPLOYED">
+          <option value="Yes" {{ 'selected' if stu_rec.EMPLOYED=='Yes' }}>Yes</option>
+          <option value="No"  {{ 'selected' if stu_rec.EMPLOYED=='No'  }}>No</option>
+        </select>
+      </div>
+
+      <div class="frow">
+        <div class="flabel">Experience <span class="fctag">EXPERIENCE</span></div>
+        <div class="fval">{{ stu_rec.EXPERIENCE or '—' }}</div>
+        <input class="finput" type="text" name="EXPERIENCE" value="{{ stu_rec.EXPERIENCE or '' }}" placeholder="e.g. 1 year, Fresher">
+      </div>
+
+      <div class="frow">
+        <div class="flabel">Location <span class="fctag">LOCATION</span></div>
+        <div class="fval">{{ stu_rec.LOCATION or '—' }}</div>
+        <input class="finput" type="text" name="STU_LOCATION" value="{{ stu_rec.LOCATION or '' }}" placeholder="City, State">
+      </div>
+
+      <div class="frow">
+        <div class="flabel">Registration Source <span class="fctag">REGISTRATION_SOURCE</span></div>
+        <div class="fval">{{ stu_rec.REGISTRATION_SOURCE or '—' }}</div>
+        <input class="finput" type="text" name="STU_REGISTRATION_SOURCE" value="{{ stu_rec.REGISTRATION_SOURCE or '' }}" placeholder="e.g. Website, Friend">
+      </div>
+
+      <div class="frow full">
+        <div class="flabel">Address <span class="fctag">ADDRESS</span></div>
+        <div class="fval">{{ stu_rec.ADDRESS or '—' }}</div>
+        <textarea class="finput" name="STU_ADDRESS" placeholder="Full address…">{{ stu_rec.ADDRESS or '' }}</textarea>
+      </div>
+
+      <div class="frow full">
+        <div class="flabel">Skill Set <span class="fctag">SKILL_SET</span></div>
+        <div class="fval">{{ stu_rec.SKILL_SET or '—' }}</div>
+        <textarea class="finput" name="SKILL_SET" placeholder="e.g. Python, SQL, Power BI…">{{ stu_rec.SKILL_SET or '' }}</textarea>
+      </div>
+
+      <div class="frow">
+        <div class="flabel">Resume <span class="fctag">RESUME_FILE_PATH</span></div>
+        <div class="fval">
+          {% if stu_rec.RESUME_FILE_PATH %}
+            <a href="{{ stu_rec.RESUME_FILE_PATH }}" target="_blank" style="color:var(--teal);font-size:0.82rem;">
+              <i class="fas fa-file-pdf me-1"></i>View Resume
+            </a>
+          {% else %}
+            <span class="empty">Not uploaded</span>
+          {% endif %}
+        </div>
+        <input class="finput" type="file" name="RESUME_FILE_PATH" accept=".pdf,.doc,.docx">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SECTION 3 — ACADEMIC DETAILS
+       Table: nrm_registrations
+  ══════════════════════════════════ -->
+  <div class="sc">
+    <div class="sc-head">
+      <div class="sc-icon i-amber"><i class="fas fa-graduation-cap"></i></div>
+      <div>
+        <div class="sc-title">Academic & Course Details</div>
+        <div class="sc-sub">Enrolled courses and registration information</div>
+      </div>
+      <span class="sc-dbtag">nrm_registrations · nrm_courses</span>
+    </div>
+    {% if registrations %}
+    <div style="overflow-x:auto;">
+      <table class="reg-table">
+        <thead>
+          <tr>
+            <th>Registration ID <span style="font-family:var(--mono);font-weight:400;color:var(--ink-light);">REGISTRATION_ID</span></th>
+            <th>Course <span style="font-family:var(--mono);font-weight:400;color:var(--ink-light);">COURSE_ID</span></th>
+            <th>Language <span style="font-family:var(--mono);font-weight:400;color:var(--ink-light);">LANGUAGE_ID</span></th>
+            <th>Start Date <span style="font-family:var(--mono);font-weight:400;color:var(--ink-light);">START_DATE</span></th>
+            <th>Status <span style="font-family:var(--mono);font-weight:400;color:var(--ink-light);">STATUS_ID</span></th>
+            <th>Joined <span style="font-family:var(--mono);font-weight:400;color:var(--ink-light);">CREATED_DT</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reg in registrations %}
+          <tr>
+            <td style="font-family:var(--mono);font-size:0.78rem;font-weight:600;color:var(--teal-dark);">{{ reg.REGISTRATION_ID }}</td>
+            <td style="font-weight:600;">{{ reg.COURSE_NAME or reg.COURSE_ID }}</td>
+            <td>{{ reg.LANGUAGE or reg.LANGUAGE_ID }}</td>
+            <td>{{ reg.START_DATE.strftime('%d %b %Y') if reg.START_DATE else '—' }}</td>
+            <td>
+              <span class="pill {{ 'pill-green' if reg.STATUS_ID==1 else 'pill-amber' if reg.STATUS_ID==2 else 'pill-grey' }}">
+                {{ reg.STATUS or ('Active' if reg.STATUS_ID==1 else 'Pending') }}
+              </span>
+            </td>
+            <td style="color:var(--ink-light);font-size:0.8rem;">{{ reg.CREATED_DT.strftime('%d %b %Y') if reg.CREATED_DT else '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:36px;color:var(--ink-light);">
+      <i class="fas fa-book-open" style="font-size:30px;color:#b8ccd8;display:block;margin-bottom:10px;"></i>
+      <p style="font-size:0.86rem;">No course registrations found.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ══════════════════════════════════
+       SECTION 4 — INTERNSHIP APPLICATIONS
+       Table: nrm_internship_applications
+  ══════════════════════════════════ -->
+  <div class="sc">
+    <div class="sc-head">
+      <div class="sc-icon i-emerald"><i class="fas fa-briefcase"></i></div>
+      <div>
+        <div class="sc-title">Internship Applications</div>
+        <div class="sc-sub">Applied internship details and status</div>
+      </div>
+      <span class="sc-dbtag">nrm_internship_applications</span>
+    </div>
+    <div style="padding:16px 20px;">
+      {% if internships %}
+        {% for intern in internships %}
+        <div class="intern-card">
+          <div class="intern-card-top">
+            <div>
+              <div class="intern-id">INTERN_ID: {{ intern.INTERN_ID }}</div>
+              <div class="intern-domain">{{ intern.INTERNSHIP_DOMAIN }}</div>
+            </div>
+            <span class="pill {{ 'pill-green' if intern.STATUS=='APPROVED' else 'pill-amber' if intern.STATUS=='PENDING' else 'pill-rose' if intern.STATUS=='REJECTED' else 'pill-teal' }}">
+              {{ intern.STATUS or 'PENDING' }}
+            </span>
+          </div>
+
+          <div class="fgrid" style="border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:12px;">
+
+            <div class="frow readonly">
+              <div class="flabel">Full Name <span class="fctag">FULL_NAME</span></div>
+              <div class="fval">{{ intern.FULL_NAME }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">Email <span class="fctag">EMAIL</span></div>
+              <div class="fval">{{ intern.EMAIL }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">Mobile <span class="fctag">MOBILE</span></div>
+              <div class="fval">{{ intern.MOBILE }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">Date of Birth <span class="fctag">DATE_OF_BIRTH</span></div>
+              <div class="fval">{{ intern.DATE_OF_BIRTH.strftime('%d %b %Y') if intern.DATE_OF_BIRTH else '—' }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">Gender <span class="fctag">GENDER</span></div>
+              <div class="fval">{{ intern.GENDER or '—' }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">College <span class="fctag">COLLEGE_NAME</span></div>
+              <div class="fval">{{ intern.COLLEGE_NAME }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">Branch <span class="fctag">BRANCH</span></div>
+              <div class="fval">{{ intern.BRANCH }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">Year of Study <span class="fctag">YEAR_OF_STUDY</span></div>
+              <div class="fval">{{ intern.YEAR_OF_STUDY }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">CGPA <span class="fctag">CGPA</span></div>
+              <div class="fval mono">{{ intern.CGPA or '—' }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">Graduation Year <span class="fctag">GRADUATION_YEAR</span></div>
+              <div class="fval">{{ intern.GRADUATION_YEAR }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">Duration <span class="fctag">INTERNSHIP_DURATION</span></div>
+              <div class="fval">{{ intern.INTERNSHIP_DURATION }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">Start Date <span class="fctag">START_DATE</span></div>
+              <div class="fval">{{ intern.START_DATE.strftime('%d %b %Y') if intern.START_DATE else '—' }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">Mode <span class="fctag">MODE</span></div>
+              <div class="fval">{{ intern.MODE or '—' }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">Portfolio URL <span class="fctag">PORTFOLIO_URL</span></div>
+              <div class="fval">
+                {% if intern.PORTFOLIO_URL %}
+                  <a href="{{ intern.PORTFOLIO_URL }}" target="_blank" style="color:var(--teal);font-size:0.82rem;word-break:break-all;">
+                    <i class="fas fa-link me-1"></i>{{ intern.PORTFOLIO_URL }}
+                  </a>
+                {% else %}—{% endif %}
+              </div>
+            </div>
+            <div class="frow readonly full">
+              <div class="flabel">Skills <span class="fctag">SKILLS</span></div>
+              <div class="fval">{{ intern.SKILLS or '—' }}</div>
+            </div>
+            <div class="frow readonly full">
+              <div class="flabel">Why ChakoraHub <span class="fctag">WHY_CHAKORA</span></div>
+              <div class="fval">{{ intern.WHY_CHAKORA or '—' }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">Address <span class="fctag">ADDRESS</span></div>
+              <div class="fval">{{ intern.ADDRESS or '—' }}</div>
+            </div>
+            <div class="frow readonly">
+              <div class="flabel">Submitted At <span class="fctag">SUBMITTED_AT</span></div>
+              <div class="fval">{{ intern.SUBMITTED_AT.strftime('%d %b %Y, %H:%M') if intern.SUBMITTED_AT else '—' }}</div>
+            </div>
+            {% if intern.REVIEW_REASON %}
+            <div class="frow readonly full">
+              <div class="flabel">Review Reason <span class="fctag">REVIEW_REASON</span></div>
+              <div class="fval">{{ intern.REVIEW_REASON }}</div>
+            </div>
+            {% endif %}
+
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div style="text-align:center;padding:36px;color:var(--ink-light);">
+        <i class="fas fa-briefcase" style="font-size:30px;color:#b8ccd8;display:block;margin-bottom:10px;"></i>
+        <p style="font-size:0.86rem;">No internship applications found.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SECTION 5 — INTERNSHIP DOCUMENTS
+       Table: nrm_internship_documents
+  ══════════════════════════════════ -->
+  <div class="sc">
+    <div class="sc-head">
+      <div class="sc-icon i-teal"><i class="fas fa-folder-open"></i></div>
+      <div>
+        <div class="sc-title">Uploaded Documents</div>
+        <div class="sc-sub">Files submitted with internship applications</div>
+      </div>
+      <span class="sc-dbtag">nrm_internship_documents</span>
+    </div>
+    {% if intern_docs %}
+    <div class="doc-grid">
+      {% for doc in intern_docs %}
+      <a href="{{ doc.S3_URL }}" target="_blank" style="text-decoration:none;">
+        <div class="doc-card">
+          <div class="doc-icon">
+            <i class="fas fa-{{ 'file-pdf' if 'pdf' in (doc.ORIGINAL_NAME or '').lower() else 'file-image' if doc.DOC_TYPE=='photo' else 'file-lines' }}"></i>
+          </div>
+          <div>
+            <div class="doc-name">{{ doc.ORIGINAL_NAME or doc.DOC_TYPE }}</div>
+            <div class="doc-type">{{ doc.DOC_TYPE }}</div>
+            <div style="font-size:0.65rem;color:var(--ink-light);margin-top:3px;">
+              {{ doc.UPLOADED_AT.strftime('%d %b %Y') if doc.UPLOADED_AT else '' }}
+            </div>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:36px;color:var(--ink-light);">
+      <i class="fas fa-folder-open" style="font-size:30px;color:#b8ccd8;display:block;margin-bottom:10px;"></i>
+      <p style="font-size:0.86rem;">No documents uploaded.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ══════════════════════════════════
+       SECTION 6 — ENQUIRIES
+       Table: nrm_enquiries
+  ══════════════════════════════════ -->
+  <div class="sc">
+    <div class="sc-head">
+      <div class="sc-icon i-rose"><i class="fas fa-message"></i></div>
+      <div>
+        <div class="sc-title">Enquiries Submitted</div>
+        <div class="sc-sub">Questions and queries raised by the student</div>
+      </div>
+      <span class="sc-dbtag">nrm_enquiries</span>
+    </div>
+    {% if enquiries %}
+    <div style="overflow-x:auto;">
+      <table class="reg-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Enquiry <span style="font-family:var(--mono);font-weight:400;color:var(--ink-light);">ENQUIRY</span></th>
+            <th>Name <span style="font-family:var(--mono);font-weight:400;color:var(--ink-light);">NAME</span></th>
+            <th>Phone <span style="font-family:var(--mono);font-weight:400;color:var(--ink-light);">PHONE</span></th>
+            <th>Guest <span style="font-family:var(--mono);font-weight:400;color:var(--ink-light);">IS_GUEST_ENQUIRY</span></th>
+            <th>Submitted <span style="font-family:var(--mono);font-weight:400;color:var(--ink-light);">CREATED_AT</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for enq in enquiries %}
+          <tr>
+            <td style="font-family:var(--mono);font-size:0.75rem;color:var(--ink-light);">{{ enq.ID }}</td>
+            <td style="max-width:280px;">{{ enq.ENQUIRY }}</td>
+            <td>{{ enq.NAME or '—' }}</td>
+            <td>{{ enq.PHONE or '—' }}</td>
+            <td>
+              <span class="pill {{ 'pill-amber' if enq.IS_GUEST_ENQUIRY else 'pill-teal' }}">
+                {{ 'Guest' if enq.IS_GUEST_ENQUIRY else 'Student' }}
+              </span>
+            </td>
+            <td style="color:var(--ink-light);font-size:0.78rem;">
+              {{ enq.CREATED_AT.strftime('%d %b %Y') if enq.CREATED_AT else '—' }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:36px;color:var(--ink-light);">
+      <i class="fas fa-message" style="font-size:30px;color:#b8ccd8;display:block;margin-bottom:10px;"></i>
+      <p style="font-size:0.86rem;">No enquiries found.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ══════════════════════════════════
+       SECTION 7 — FEEDBACK
+       Table: nrm_feedback
+  ══════════════════════════════════ -->
+  <div class="sc">
+    <div class="sc-head">
+      <div class="sc-icon i-amber"><i class="fas fa-star-half-stroke"></i></div>
+      <div>
+        <div class="sc-title">Feedback Given</div>
+        <div class="sc-sub">Course and session feedback submitted by student</div>
+      </div>
+      <span class="sc-dbtag">nrm_feedback</span>
+    </div>
+    {% if feedbacks %}
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px;">
+      {% for fb in feedbacks %}
+      <div style="border:1.5px solid var(--border);border-radius:12px;padding:16px 18px;background:#fffdf7;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+          <div style="font-size:0.72rem;font-family:var(--mono);color:var(--ink-light);">ID: {{ fb.ID }}</div>
+          <div style="font-size:0.75rem;color:var(--ink-light);">
+            <i class="fas fa-clock me-1"></i>{{ fb.SUBMITTED_AT.strftime('%d %b %Y') if fb.SUBMITTED_AT else '—' }}
+          </div>
+        </div>
+        <div style="font-size:0.9rem;color:var(--ink);line-height:1.65;">{{ fb.FEEDBACK_MESSAGE }}</div>
+        {% if fb.NAME %}
+        <div style="margin-top:10px;font-size:0.75rem;color:var(--ink-muted);">
+          <i class="fas fa-user me-1"></i>{{ fb.NAME }}
+          {% if fb.EMAIL %} · {{ fb.EMAIL }}{% endif %}
+          {% if fb.PHONE %} · {{ fb.PHONE }}{% endif %}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:36px;color:var(--ink-light);">
+      <i class="fas fa-star" style="font-size:30px;color:#b8ccd8;display:block;margin-bottom:10px;"></i>
+      <p style="font-size:0.86rem;">No feedback submitted yet.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  </form><!-- /studentForm -->
+
+</div><!-- /main-wrap -->
+
+<!-- ── TOAST ── -->
+<div class="toast-bar" id="saveToast">
+  <i class="fas fa-circle-check"></i> Profile saved successfully!
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function enterEdit() {
+    document.body.classList.add('edit-mode');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function cancelEdit() {
+    document.body.classList.remove('edit-mode');
+  }
+
+  function previewPic(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = document.getElementById('avatarImg');
+      const init = document.getElementById('avatarInit');
+      img.src = e.target.result;
+      img.style.display = 'block';
+      if (init) init.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  {% if flashed_success %}
+  document.addEventListener('DOMContentLoaded', function() {
+    const t = document.getElementById('saveToast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  });
+  {% endif %}
+</script>
 </body>
 </html>

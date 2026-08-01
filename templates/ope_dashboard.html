@@ -1,0 +1,719 @@
+{% extends "base.html" %}
+{% block title %}Administrator Dashboard - OPE{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="text-gradient-blue mb-1">Control Center</h1>
+            <p class="text-secondary mb-0">Manage exam sessions, design questions, and monitor security telemetry.</p>
+        </div>
+        <div>
+            <button class="btn btn-premium d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createExamModal">
+                <i class="bi bi-plus-circle"></i> Create New Exam
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Stats -->
+<div class="row g-4 mb-5">
+    <div class="col-12 col-md-4">
+        <div class="glass-card p-4 stat-card">
+            <span class="d-block text-secondary text-uppercase mb-2 font-monospace" style="font-size: 0.8rem; letter-spacing: 0.05em;">Published Assessments</span>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fs-1 fw-extrabold text-white">{{ exams | length }}</span>
+                <i class="bi bi-journal-text text-gradient-blue" style="font-size: 2rem;"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="glass-card p-4 stat-card">
+            <span class="d-block text-secondary text-uppercase mb-2 font-monospace" style="font-size: 0.8rem; letter-spacing: 0.05em;">Submissions Graded</span>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fs-1 fw-extrabold text-white">{{ results | length }}</span>
+                <i class="bi bi-award text-gradient-purple" style="font-size: 2rem;"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="glass-card p-4 stat-card">
+            <span class="d-block text-secondary text-uppercase mb-2 font-monospace" style="font-size: 0.8rem; letter-spacing: 0.05em;">Security Infractions</span>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fs-1 fw-extrabold text-danger">{{ violations | length }}</span>
+                <i class="bi bi-shield-slash text-danger" style="font-size: 2rem;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation Tabs -->
+<div class="row mb-4">
+    <div class="col-12">
+        <ul class="nav nav-tabs border-secondary border-opacity-10 gap-2" id="adminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active text-white px-4 py-3" id="exams-tab" data-bs-toggle="tab" data-bs-target="#exams-panel" type="button" role="tab" style="border: none; background: transparent;">
+                    <i class="bi bi-journal-check me-2"></i> Manage Exams
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-secondary px-4 py-3" id="results-tab" data-bs-toggle="tab" data-bs-target="#results-panel" type="button" role="tab" style="border: none; background: transparent;">
+                    <i class="bi bi-people me-2"></i> Candidate Results
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-secondary px-4 py-3" id="violations-tab" data-bs-toggle="tab" data-bs-target="#violations-panel" type="button" role="tab" style="border: none; background: transparent;">
+                    <i class="bi bi-shield-exclamation me-2"></i> Proctoring Audits
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-secondary px-4 py-3" id="questions-tab" data-bs-toggle="tab" data-bs-target="#questions-panel" type="button" role="tab" style="border: none; background: transparent;">
+                    <i class="bi bi-database me-2"></i> Question Bank
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-secondary px-4 py-3" id="mocktests-tab" data-bs-toggle="tab" data-bs-target="#mocktests-panel" type="button" role="tab" style="border: none; background: transparent;">
+                    <i class="bi bi-journal-check me-2"></i> Mock Tests
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Tab Content -->
+<div class="tab-content" id="adminTabsContent">
+    
+    <!-- Exams Panel -->
+    <div class="tab-pane fade show active" id="exams-panel" role="tabpanel" aria-labelledby="exams-tab">
+        <div class="glass-card p-4">
+            <h4 class="mb-4 text-white">Active Examinations</h4>
+            {% if exams %}
+                <div class="table-responsive">
+                    <table class="table table-premium">
+                        <thead>
+                            <tr>
+                                <th>Exam ID</th>
+                                <th>Title</th>
+                                <th>Duration</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for exam in exams %}
+                                <tr>
+                                    <td>#{{ exam.id }}</td>
+                                    <td>
+                                        <strong class="text-white">{{ exam.title }}</strong>
+                                        <small class="d-block text-secondary mt-1">{{ exam.description or 'No description' }}</small>
+                                    </td>
+                                    <td>{{ exam.duration_minutes }} Minutes</td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-premium-outline btn-sm" onclick="openAddQuestionModal({{ exam.id }}, '{{ exam.title }}')">
+                                                <i class="bi bi-question-circle"></i> Add Question
+                                            </button>
+                                            <button class="btn btn-premium-outline btn-sm text-info border-info border-opacity-25" onclick="openEditExamModal({{ exam.id }}, '{{ exam.title }}', '{{ exam.description }}', {{ exam.duration_minutes }})">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </button>
+                                            <button class="btn btn-danger-premium btn-sm py-1 px-3" onclick="deleteExam({{ exam.id }})">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center text-secondary py-5">
+                    <i class="bi bi-journals mb-3" style="font-size: 2.5rem;"></i>
+                    <p class="mb-0">No exams created yet. Click "Create New Exam" above to start.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Results Panel -->
+    <div class="tab-pane fade" id="results-panel" role="tabpanel" aria-labelledby="results-tab">
+        <div class="glass-card p-4">
+            <h4 class="mb-4 text-white">Candidate Grades & Summaries</h4>
+            {% if results %}
+                <div class="table-responsive">
+                    <table class="table table-premium">
+                        <thead>
+                            <tr>
+                                <th>Candidate</th>
+                                <th>Exam</th>
+                                <th>Date/Time</th>
+                                <th>Raw Score</th>
+                                <th>Percentage</th>
+                                <th>Violations</th>
+                                <th>Status</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in results %}
+                                <tr>
+                                    <td><strong class="text-white">{{ r.username }}</strong></td>
+                                    <td>{{ r.exam_title }}</td>
+                                    <td class="text-secondary" style="font-size: 0.9rem;">{{ r.completed_at }}</td>
+                                    <td>{{ r.score | int }} / {{ r.total_questions | int }}</td>
+                                    <td>{{ r.percentage | round(1) }}%</td>
+                                    <td>
+                                        <span class="badge {% if r.violations_count > 0 %}bg-danger-subtle text-danger{% else %}bg-success-subtle text-success{% endif %} border-0 px-2 py-1">
+                                            {{ r.violations_count }} Violations
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if r.status == 'PASS' %}bg-success text-success bg-opacity-10{% else %}bg-danger text-danger bg-opacity-10{% endif %} border-0 px-3 py-2">
+                                            {{ r.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="/exam/attempt/{{ r.attempt_id }}/result" class="btn btn-premium-outline btn-sm py-1 px-3">
+                                            View Report
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center text-secondary py-5">
+                    <i class="bi bi-people mb-3" style="font-size: 2.5rem;"></i>
+                    <p class="mb-0">No exam attempts have been completed yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Violations Panel -->
+    <div class="tab-pane fade" id="violations-panel" role="tabpanel" aria-labelledby="violations-tab">
+        <div class="glass-card p-4">
+            <h4 class="mb-4 text-white">Proctor Violation Audits</h4>
+            {% if violations %}
+                <div class="table-responsive">
+                    <table class="table table-premium">
+                        <thead>
+                            <tr>
+                                <th>Candidate</th>
+                                <th>Exam</th>
+                                <th>Violation</th>
+                                <th>Telemetry Details</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for v in violations %}
+                                <tr>
+                                    <td><strong class="text-white">{{ v.username }}</strong></td>
+                                    <td>{{ v.exam_title }}</td>
+                                    <td>
+                                        <span class="badge bg-danger text-danger bg-opacity-10 border border-danger border-opacity-25 px-2 py-1">
+                                            {{ v.violation_type }}
+                                        </span>
+                                    </td>
+                                    <td class="text-secondary" style="font-size: 0.9rem;">{{ v.description }}</td>
+                                    <td class="font-monospace text-secondary" style="font-size: 0.85rem;">{{ v.timestamp }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center text-secondary py-5">
+                    <i class="bi bi-shield-check text-success mb-3" style="font-size: 2.5rem;"></i>
+                    <p class="mb-0">Zero violations registered. All exams running securely.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Question Bank Panel -->
+    <div class="tab-pane fade" id="questions-panel" role="tabpanel" aria-labelledby="questions-tab">
+        <div class="glass-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="text-white mb-0">Question Bank Overview</h4>
+                <div>
+                    <a href="{{ url_for('admin_upload_questions') }}" class="btn btn-premium me-2">
+                        <i class="bi bi-upload"></i> Upload Questions
+                    </a>
+                    <a href="{{ url_for('admin_question_bank') }}" class="btn btn-premium-outline">
+                        <i class="bi bi-database"></i> Manage Bank
+                    </a>
+                </div>
+            </div>
+            <div id="quickStats" class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="text-center p-3 bg-dark bg-opacity-25 rounded">
+                        <h3 class="text-white" id="statTotal">-</h3>
+                        <p class="text-secondary mb-0">Total Questions</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center p-3 bg-dark bg-opacity-25 rounded">
+                        <h3 class="text-white" id="statCategories">-</h3>
+                        <p class="text-secondary mb-0">Categories</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center p-3 bg-dark bg-opacity-25 rounded">
+                        <h3 class="text-white" id="statTests">-</h3>
+                        <p class="text-secondary mb-0">Mock Tests</p>
+                    </div>
+                </div>
+            </div>
+            <div id="recentQuestions" class="mt-3">
+                <h5 class="text-white mb-3">Recently Added Questions</h5>
+                <div class="table-responsive">
+                    <table class="table table-premium">
+                        <thead>
+                            <tr><th>Question</th><th>Category</th><th>Added</th></tr>
+                        </thead>
+                        <tbody id="recentQuestionsBody">
+                            <tr><td colspan="3" class="text-center py-3">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mock Tests Panel -->
+    <div class="tab-pane fade" id="mocktests-panel" role="tabpanel" aria-labelledby="mocktests-tab">
+        <div class="glass-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="text-white mb-0">Mock Tests Management</h4>
+                <a href="{{ url_for('admin_create_mock_test') }}" class="btn btn-premium">
+                    <i class="bi bi-plus-circle"></i> Create Test
+                </a>
+            </div>
+            <div id="mockTestsList">
+                <div class="text-center py-5">Loading...</div>
+            </div>
+            <div class="mt-3 text-center">
+                <a href="{{ url_for('admin_manage_tests') }}" class="btn btn-premium-outline">
+                    View All Tests →
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Exam Modal -->
+<div class="modal fade" id="createExamModal" tabindex="-1" aria-hidden="true" style="background: rgba(0,0,0,0.85);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card" style="border-color: var(--accent-blue);">
+            <div class="modal-header border-bottom border-secondary border-opacity-10 p-4">
+                <h5 class="modal-title text-white">Create New Assessment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="createExamForm">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Exam Title</label>
+                        <input type="text" class="form-control form-control-premium" id="newExamTitle" placeholder="e.g. SQL Database Advanced" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Description</label>
+                        <textarea class="form-control form-control-premium" id="newExamDesc" rows="3" placeholder="Provide instructions..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Duration (Minutes)</label>
+                        <input type="number" class="form-control form-control-premium" id="newExamDuration" min="1" max="180" placeholder="e.g. 60" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top border-secondary border-opacity-10 p-4">
+                <button type="button" class="btn btn-premium-outline py-2" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-premium py-2" onclick="createExam()">Publish Exam</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Exam Modal -->
+<div class="modal fade" id="editExamModal" tabindex="-1" aria-hidden="true" style="background: rgba(0,0,0,0.85);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card" style="border-color: var(--accent-indigo);">
+            <div class="modal-header border-bottom border-secondary border-opacity-10 p-4">
+                <h5 class="modal-title text-white">Edit Assessment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="editExamForm">
+                    <input type="hidden" id="editExamId">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Exam Title</label>
+                        <input type="text" class="form-control form-control-premium" id="editExamTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Description</label>
+                        <textarea class="form-control form-control-premium" id="editExamDesc" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Duration (Minutes)</label>
+                        <input type="number" class="form-control form-control-premium" id="editExamDuration" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top border-secondary border-opacity-10 p-4">
+                <button type="button" class="btn btn-premium-outline py-2" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-premium py-2" onclick="updateExam()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Question Modal -->
+<div class="modal fade" id="addQuestionModal" tabindex="-1" aria-hidden="true" style="background: rgba(0,0,0,0.85);">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content glass-card" style="border-color: var(--accent-purple);">
+            <div class="modal-header border-bottom border-secondary border-opacity-10 p-4">
+                <h5 class="modal-title text-white" id="questionModalTitle">Add Question</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="addQuestionForm">
+                    <input type="hidden" id="qExamId">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Question Text</label>
+                        <textarea class="form-control form-control-premium" id="qText" rows="3" placeholder="Enter the multiple choice question..." required></textarea>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-secondary">Option A</label>
+                            <input type="text" class="form-control form-control-premium" id="qOptA" placeholder="Option A text" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-secondary">Option B</label>
+                            <input type="text" class="form-control form-control-premium" id="qOptB" placeholder="Option B text" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-secondary">Option C</label>
+                            <input type="text" class="form-control form-control-premium" id="qOptC" placeholder="Option C text" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-secondary">Option D</label>
+                            <input type="text" class="form-control form-control-premium" id="qOptD" placeholder="Option D text" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary">Correct Option</label>
+                        <select class="form-select form-control-premium" id="qCorrect" required>
+                            <option value="" disabled selected>Select Correct Option</option>
+                            <option value="A">Option A</option>
+                            <option value="B">Option B</option>
+                            <option value="C">Option C</option>
+                            <option value="D">Option D</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top border-secondary border-opacity-10 p-4">
+                <button type="button" class="btn btn-premium-outline py-2" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-premium py-2" onclick="addQuestion()">Save Question</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    // Tab switching style toggle
+    var triggerTabList = document.querySelectorAll('#adminTabs button');
+    for (var i = 0; i < triggerTabList.length; i++) {
+        var triggerEl = triggerTabList[i];
+        triggerEl.addEventListener('click', function(event) {
+            event.preventDefault();
+            for (var j = 0; j < triggerTabList.length; j++) {
+                var btn = triggerTabList[j];
+                btn.classList.remove('active', 'text-white');
+                btn.classList.add('text-secondary');
+            }
+            this.classList.add('active', 'text-white');
+            this.classList.remove('text-secondary');
+        });
+    }
+
+    // 1. Create Exam AJAX Call
+    window.createExam = function() {
+        var title = document.getElementById('newExamTitle').value.trim();
+        var desc = document.getElementById('newExamDesc').value.trim();
+        var duration = parseInt(document.getElementById('newExamDuration').value);
+
+        if (!title || !duration) {
+            alert('Please fill out all required fields.');
+            return;
+        }
+
+        fetch('/api/proxy/exams', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: title,
+                description: desc,
+                duration_minutes: duration
+            })
+        })
+        .then(function(res) {
+            if (res.ok) {
+                location.reload();
+            } else {
+                res.json().then(function(data) {
+                    alert('Error: ' + (data.error || 'Failed to create exam'));
+                });
+            }
+        })
+        .catch(function(err) {
+            alert('Network error: ' + err.message);
+        });
+    };
+
+    // 2. Open Edit Exam Modal
+    window.openEditExamModal = function(id, title, desc, duration) {
+        document.getElementById('editExamId').value = id;
+        document.getElementById('editExamTitle').value = title;
+        document.getElementById('editExamDesc').value = desc;
+        document.getElementById('editExamDuration').value = duration;
+
+        var editModal = new bootstrap.Modal(document.getElementById('editExamModal'));
+        editModal.show();
+    };
+
+    // 3. Update Exam AJAX Call
+    window.updateExam = function() {
+        var id = document.getElementById('editExamId').value;
+        var title = document.getElementById('editExamTitle').value.trim();
+        var desc = document.getElementById('editExamDesc').value.trim();
+        var duration = parseInt(document.getElementById('editExamDuration').value);
+
+        if (!title || !duration) {
+            alert('Please fill out all required fields.');
+            return;
+        }
+
+        fetch('/api/proxy/exams/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: title,
+                description: desc,
+                duration_minutes: duration
+            })
+        })
+        .then(function(res) {
+            if (res.ok) {
+                location.reload();
+            } else {
+                res.json().then(function(data) {
+                    alert('Error: ' + (data.error || 'Failed to update exam'));
+                });
+            }
+        })
+        .catch(function(err) {
+            alert('Network error: ' + err.message);
+        });
+    };
+
+    // 4. Delete Exam AJAX Call
+    window.deleteExam = function(id) {
+        if (!confirm('Are you absolutely sure you want to delete this exam? This will erase all related questions and candidate results permanently.')) {
+            return;
+        }
+
+        fetch('/api/proxy/exams/' + id, {
+            method: 'DELETE'
+        })
+        .then(function(res) {
+            if (res.ok) {
+                location.reload();
+            } else {
+                res.json().then(function(data) {
+                    alert('Error: ' + (data.error || 'Failed to delete'));
+                });
+            }
+        })
+        .catch(function(err) {
+            alert('Network error: ' + err.message);
+        });
+    };
+
+    // 5. Open Add Question Modal
+    window.openAddQuestionModal = function(examId, title) {
+        document.getElementById('qExamId').value = examId;
+        document.getElementById('questionModalTitle').innerText = 'Add Question to: ' + title;
+        document.getElementById('addQuestionForm').reset();
+
+        var qModal = new bootstrap.Modal(document.getElementById('addQuestionModal'));
+        qModal.show();
+    };
+
+    // 6. Add Question AJAX Call
+    window.addQuestion = function() {
+        var examId = document.getElementById('qExamId').value;
+        var text = document.getElementById('qText').value.trim();
+        var optA = document.getElementById('qOptA').value.trim();
+        var optB = document.getElementById('qOptB').value.trim();
+        var optC = document.getElementById('qOptC').value.trim();
+        var optD = document.getElementById('qOptD').value.trim();
+        var correct = document.getElementById('qCorrect').value;
+
+        if (!text || !optA || !optB || !optC || !optD || !correct) {
+            alert('Please fill out all fields for the question.');
+            return;
+        }
+
+        fetch('/api/proxy/exams/' + examId + '/questions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                question_text: text,
+                option_a: optA,
+                option_b: optB,
+                option_c: optC,
+                option_d: optD,
+                correct_option: correct
+            })
+        })
+        .then(function(res) {
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('addQuestionModal')).hide();
+                alert('Question added successfully!');
+            } else {
+                res.json().then(function(data) {
+                    alert('Error: ' + (data.error || 'Failed to save question'));
+                });
+            }
+        })
+        .catch(function(err) {
+            alert('Network error: ' + err.message);
+        });
+    };
+
+    // Load dashboard stats
+    function loadDashboardStats() {
+        fetch('/api/proxy/admin/question-bank?limit=1')
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (Array.isArray(data)) {
+                    var statTotal = document.getElementById('statTotal');
+                    if (statTotal) statTotal.innerText = data.length;
+                }
+            })
+            .catch(function(err) { console.error('Error loading stats:', err); });
+        
+        fetch('/api/proxy/admin/categories')
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                var statCategories = document.getElementById('statCategories');
+                if (statCategories) statCategories.innerText = data.length;
+            })
+            .catch(function(err) { console.error('Error loading categories:', err); });
+        
+        fetch('/api/proxy/admin/mock-tests')
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                var statTests = document.getElementById('statTests');
+                if (statTests) statTests.innerText = data.length;
+                displayMockTestsDashboard(data);
+            })
+            .catch(function(err) { console.error('Error loading mock tests:', err); });
+        
+        // Load recent questions
+        fetch('/api/proxy/admin/question-bank?limit=5')
+            .then(function(res) { return res.json(); })
+            .then(function(questions) {
+                var tbody = document.getElementById('recentQuestionsBody');
+                if (tbody) {
+                    if (questions && questions.length > 0) {
+                        var html = '';
+                        for (var i = 0; i < questions.length; i++) {
+                            var q = questions[i];
+                            var questionText = q.question_text ? q.question_text.substring(0, 80) : '';
+                            html += '<tr>' +
+                                '<td class="text-white">' + escapeHtml(questionText) + '...</td>' +
+                                '<td><span class="badge bg-primary bg-opacity-10 text-primary">' + escapeHtml(q.category || 'Uncategorized') + '</span></td>' +
+                                '<td class="text-secondary">' + (q.created_at ? new Date(q.created_at).toLocaleDateString() : '') + '</td>' +
+                                '</tr>';
+                        }
+                        tbody.innerHTML = html;
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-secondary">No questions yet</td></tr>';
+                    }
+                }
+            })
+            .catch(function(err) { console.error('Error loading recent questions:', err); });
+    }
+
+    function displayMockTestsDashboard(tests) {
+        var container = document.getElementById('mockTestsList');
+        if (!container) return;
+        
+        if (!tests || tests.length === 0) {
+            container.innerHTML = '<div class="text-center text-secondary py-4">No mock tests created yet</div>';
+            return;
+        }
+        
+        var html = '';
+        var limit = Math.min(3, tests.length);
+        for (var i = 0; i < limit; i++) {
+            var test = tests[i];
+            var publishBtn = test.is_published 
+                ? '<button class="btn btn-sm btn-warning py-1 px-2" onclick="togglePublish(' + test.id + ', ' + test.is_published + ')" title="Unpublish"><i class="bi bi-eye-slash"></i> Unpublish</button>'
+                : '<button class="btn btn-sm btn-success py-1 px-2" onclick="togglePublish(' + test.id + ', ' + test.is_published + ')" title="Publish"><i class="bi bi-eye"></i> Publish</button>';
+
+            html += '<div class="glass-card p-3 mb-3">' +
+                '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">' +
+                '<div>' +
+                '<h6 class="text-white mb-1">' + escapeHtml(test.title || '') + '</h6>' +
+                '<small class="text-secondary">' + (test.total_questions || 0) + ' questions | ' + (test.duration_minutes || 0) + ' min</small>' +
+                '<div><small class="text-secondary">' + (test.scheduled_date || '') + ' ' + (test.start_time || '') + '</small></div>' +
+                '</div>' +
+                '<div class="d-flex align-items-center gap-2">' +
+                '<span class="badge ' + (test.is_published ? 'bg-success' : 'bg-secondary') + '">' + (test.is_published ? 'Published' : 'Draft') + '</span>' +
+                publishBtn +
+                '</div>' +
+                '</div>' +
+                '</div>';
+        }
+        container.innerHTML = html;
+    }
+
+    window.togglePublish = function(id, currentStatus) {
+        var action = currentStatus ? 'unpublish' : 'publish';
+        if (!confirm('Are you sure you want to ' + action + ' this mock test?')) return;
+        
+        fetch('/api/proxy/admin/mock-tests/' + id + '/publish', {
+            method: 'PUT'
+        })
+        .then(function(res) {
+            if (res.ok) {
+                location.reload();
+            } else {
+                alert('Failed to ' + action + ' test');
+            }
+        })
+        .catch(function(err) {
+            console.error('Error:', err);
+            alert('Error: ' + err.message);
+        });
+    };
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Call on page load
+    loadDashboardStats();
+})();
+</script>
+{% endblock %}

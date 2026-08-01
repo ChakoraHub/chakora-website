@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Batches — ChakoraHub Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root { --primary: #0078D7; --primary-dark: #0e4fa0; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f6fb; min-height: 100vh; }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      background: linear-gradient(135deg, #1a6fd4, #0e4fa0);
+      color: #fff;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    .page-header-left { display: flex; align-items: center; gap: 16px; }
+    .header-logo {
+      height: 52px; width: 52px; border-radius: 10px; object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .page-header h1 { font-size: 1.3rem; margin: 0; }
+    .page-header a { color: #cfe8ff; text-decoration: none; font-size: 0.9rem; }
+    .page-header a:hover { color: #fff; }
+
+    .main-wrap { max-width: 1100px; margin: 36px auto; padding: 0 20px; }
+
+    /* ── FORM CARD ── */
+    .form-card {
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 28px 32px; margin-bottom: 36px;
+    }
+    .form-card h2 {
+      font-size: 1.1rem; font-weight: 700; color: #0e4fa0;
+      margin-bottom: 20px; border-bottom: 2px solid #e5eaf2; padding-bottom: 10px;
+    }
+    .form-label { font-weight: 600; font-size: 0.87rem; color: #444; }
+    .form-control, .form-select { font-size: 0.93rem; }
+    .btn-create {
+      background: linear-gradient(135deg, #1a6fd4, #0e4fa0);
+      color: #fff; border: none; padding: 10px 28px;
+      border-radius: 7px; font-weight: 600; font-size: 0.95rem;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-create:hover { opacity: 0.88; }
+
+    /* ── TABLE CARD ── */
+    .table-card {
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 24px 28px;
+    }
+    .table-card h2 {
+      font-size: 1.1rem; font-weight: 700; color: #0e4fa0;
+      margin-bottom: 18px; border-bottom: 2px solid #e5eaf2; padding-bottom: 10px;
+    }
+    .table { font-size: 0.88rem; }
+    .table thead th { background: #f0f5ff; color: #0e4fa0; font-weight: 700; }
+    .badge-upcoming  { background: #dbeafe; color: #1e40af; }
+    .badge-current   { background: #dcfce7; color: #166534; }
+    .badge-completed { background: #f3f4f6; color: #6b7280; }
+    .badge-workshop  { background: #fef9c3; color: #854d0e; }
+
+    .action-btn {
+      border: none; padding: 5px 12px; border-radius: 6px;
+      font-size: 0.8rem; cursor: pointer; font-weight: 600;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    .action-btn:hover { opacity: 0.82; transform: translateY(-1px); }
+    .btn-edit     { background: #e0f2fe; color: #0369a1; }
+    .btn-complete { background: #dcfce7; color: #166534; }
+    .btn-delete   { background: #fee2e2; color: #991b1b; }
+    .alert { border-radius: 8px; font-size: 0.92rem; }
+
+    /* ═══════════════════════════════════════
+       MODAL SYSTEM
+    ═══════════════════════════════════════ */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(10,30,60,0.55);
+      backdrop-filter: blur(4px);
+      z-index: 1050;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 28px 70px rgba(0,0,0,0.22);
+      padding: 38px 42px;
+      max-width: 460px;
+      width: 92%;
+      position: relative;
+      animation: modalPop 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes modalPop {
+      from { transform: scale(0.85) translateY(24px); opacity: 0; }
+      to   { transform: scale(1) translateY(0);        opacity: 1; }
+    }
+
+    .modal-close {
+      position: absolute; top: 14px; right: 18px;
+      background: none; border: none; font-size: 1.1rem;
+      color: #94a3b8; cursor: pointer; line-height: 1;
+      transition: color 0.2s;
+    }
+    .modal-close:hover { color: #1e293b; }
+
+    .modal-icon {
+      width: 58px; height: 58px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin: 0 auto 20px;
+    }
+    .icon-danger  { background: #fee2e2; color: #dc2626; }
+    .icon-success { background: #dcfce7; color: #16a34a; }
+    .icon-info    { background: #dbeafe; color: #2563eb; }
+
+    .modal-box h3 {
+      font-size: 1.18rem; font-weight: 700; color: #1e293b;
+      text-align: center; margin-bottom: 10px;
+    }
+    .modal-box .modal-desc {
+      font-size: 0.91rem; color: #64748b;
+      text-align: center; margin-bottom: 28px; line-height: 1.6;
+    }
+    .modal-actions { display: flex; gap: 12px; justify-content: center; }
+    .modal-btn {
+      padding: 10px 26px; border-radius: 8px; border: none;
+      font-size: 0.92rem; font-weight: 600; cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .modal-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-cancel          { background: #f1f5f9; color: #475569; }
+    .btn-confirm-danger  { background: #dc2626; color: #fff; }
+    .btn-confirm-success { background: #16a34a; color: #fff; }
+    .btn-confirm-info    { background: #2563eb; color: #fff; }
+
+    /* ── EDIT MODAL (wider) ── */
+    .modal-box.edit-modal {
+      max-width: 680px;
+      padding: 32px 38px;
+    }
+    .edit-modal .modal-header-row {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 6px;
+    }
+    .edit-modal .modal-icon { margin: 0; width: 46px; height: 46px; font-size: 18px; flex-shrink: 0; }
+    .edit-modal h3 { text-align: left; margin: 0; }
+    .edit-modal .modal-desc { text-align: left; margin-bottom: 22px; }
+    .edit-modal .modal-actions { justify-content: flex-end; }
+
+    .edit-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px 20px; margin-bottom: 24px;
+    }
+    .edit-grid .full { grid-column: 1 / -1; }
+    .field-label { font-size: 0.82rem; font-weight: 600; color: #475569; margin-bottom: 5px; }
+    .edit-input, .edit-select {
+      width: 100%; padding: 8px 12px;
+      border: 1.5px solid #e2e8f0; border-radius: 8px;
+      font-size: 0.9rem; color: #1e293b; background: #f8fafc;
+      transition: border-color 0.2s;
+    }
+    .edit-input:focus, .edit-select:focus {
+      outline: none; border-color: #0078D7; background: #fff;
+      box-shadow: 0 0 0 3px rgba(0,120,215,0.1);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+  <div class="page-header-left">
+    <img src="https://chakorahub-student.s3.eu-north-1.amazonaws.com/logo.jpeg"
+         alt="ChakoraHub" class="header-logo"
+         onerror="this.style.display='none'">
+    <h1><i class="fas fa-calendar-plus me-2"></i>Manage Batches &amp; Workshops</h1>
+  </div>
+  <a href="{{ url_for('resources') }}"><i class="fas fa-arrow-left me-1"></i>Back to Resources</a>
+</div>
+
+<div class="main-wrap">
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+          {{ msg }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- ── CREATE FORM ── -->
+  <div class="form-card">
+    <h2><i class="fas fa-plus-circle me-2"></i>Schedule New Batch / Workshop</h2>
+    <form method="POST" action="{{ url_for('batch_schedule') }}">
+      <div class="row g-3">
+        <div class="col-md-5">
+          <label class="form-label">Course / Workshop Name <span class="text-danger">*</span></label>
+          <select class="form-select" name="course_id" id="courseSelect" required>
+            <option value="">— Select Course —</option>
+            <option value="0">✍ Custom (type below)</option>
+            {% for c in courses %}
+            <option value="{{ c.ID }}">{{ c.COURSE_NAME }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-5" id="customNameWrap" style="display:none;">
+          <label class="form-label">Custom Name <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="custom_name" id="customName" placeholder="e.g. Workshop on GitHub Copilot">
+        </div>
+        <div class="col-md-3" id="customCodeWrap" style="display:none;">
+          <label class="form-label">Course Code <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="custom_course_code" id="customCourseCode" placeholder="e.g. REDIS">
+        </div>
+        <div class="col-md-2" id="customFeeWrap" style="display:none;">
+          <label class="form-label">Course Fee</label>
+          <input type="number" min="0" class="form-control" name="custom_course_fee" id="customCourseFee" placeholder="e.g. 4999">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Batch Type <span class="text-danger">*</span></label>
+          <select class="form-select" name="batch_type" required>
+            <option value="regular">Regular</option>
+            <option value="workshop">Workshop</option>
+            <option value="bootcamp">Bootcamp</option>
+            <option value="demo">Demo / Free</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Language</label>
+          <select class="form-select" name="language">
+            <option value="Telugu">Telugu</option>
+            <option value="English">English</option>
+            <option value="Hindi">Hindi</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Start Date <span class="text-danger">*</span></label>
+          <input type="date" class="form-control" name="start_date" required>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">End Date <small class="text-muted">(optional)</small></label>
+          <input type="date" class="form-control" name="end_date">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Status</label>
+          <select class="form-select" name="status">
+            <option value="upcoming">Upcoming</option>
+            <option value="current">Currently Running</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Notes <small class="text-muted">(shown on home page)</small></label>
+          <input type="text" class="form-control" name="notes" placeholder="e.g. Free for existing students · Join via Zoom · Limited seats">
+        </div>
+      </div>
+      <div class="mt-4">
+        <button type="submit" class="btn-create">
+          <i class="fas fa-save me-1"></i> Save &amp; Publish to Home Page
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ── BATCH LIST ── -->
+  <div class="table-card">
+    <h2><i class="fas fa-list me-2"></i>All Scheduled Batches</h2>
+
+    {% if batches %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Course / Workshop</th>
+            <th>Type</th>
+            <th>Language</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in batches %}
+          <tr>
+            <td><strong>{{ b.DISPLAY_NAME }}</strong></td>
+            <td>
+              {% if b.BATCH_TYPE == 'workshop' %}
+                <span class="badge badge-workshop px-2 py-1 rounded-pill">Workshop</span>
+              {% elif b.BATCH_TYPE == 'bootcamp' %}
+                <span class="badge" style="background:#ede9fe;color:#6d28d9;">Bootcamp</span>
+              {% elif b.BATCH_TYPE == 'demo' %}
+                <span class="badge" style="background:#e0f2fe;color:#0369a1;">Demo</span>
+              {% else %}
+                <span class="badge" style="background:#f1f5f9;color:#475569;">Regular</span>
+              {% endif %}
+            </td>
+            <td>{{ b.LANGUAGE }}</td>
+            <td>{{ b.START_DATE.strftime('%d %b %Y') if b.START_DATE else '—' }}</td>
+            <td>{{ b.END_DATE.strftime('%d %b %Y') if b.END_DATE else '—' }}</td>
+            <td>
+              {% if b.STATUS == 'current' %}
+                <span class="badge badge-current px-2 py-1 rounded-pill">🟢 Running</span>
+              {% elif b.STATUS == 'upcoming' %}
+                <span class="badge badge-upcoming px-2 py-1 rounded-pill">🔵 Upcoming</span>
+              {% else %}
+                <span class="badge badge-completed px-2 py-1 rounded-pill">✓ Completed</span>
+              {% endif %}
+            </td>
+            <td>{{ b.NOTES or '—' }}</td>
+            <td style="white-space:nowrap;">
+
+              <!-- EDIT -->
+              <button type="button" class="action-btn btn-edit me-1" title="Edit"
+                onclick="openEditModal({
+                  id:'{{ b.ID }}',
+                  name:'{{ b.DISPLAY_NAME | replace("'","\\'")|replace('"','\\"') }}',
+                  type:'{{ b.BATCH_TYPE }}',
+                  lang:'{{ b.LANGUAGE }}',
+                  start:'{{ b.START_DATE.strftime("%Y-%m-%d") if b.START_DATE else "" }}',
+                  end:'{{ b.END_DATE.strftime("%Y-%m-%d") if b.END_DATE else "" }}',
+                  status:'{{ b.STATUS }}',
+                  notes:'{{ (b.NOTES or "") | replace("'","\\'")|replace('"','\\"') }}'
+                })">
+                <i class="fas fa-pen"></i> Edit
+              </button>
+
+              <!-- COMPLETE -->
+              <button type="button" class="action-btn btn-complete me-1" title="Mark as Completed"
+                onclick="openCompleteModal('{{ b.ID }}','{{ b.DISPLAY_NAME | replace("'","\\'") }}')">
+                <i class="fas fa-check"></i>
+              </button>
+
+              <!-- DELETE -->
+              <button type="button" class="action-btn btn-delete" title="Delete"
+                onclick="openDeleteModal('{{ b.ID }}','{{ b.DISPLAY_NAME | replace("'","\\'") }}')">
+                <i class="fas fa-trash"></i>
+              </button>
+
+              <!-- Hidden forms (submitted by modal confirms) -->
+              <form id="form-complete-{{ b.ID }}" method="POST"
+                    action="{{ url_for('batch_schedule_action', batch_id=b.ID) }}" style="display:none;">
+                <input type="hidden" name="action" value="complete">
+              </form>
+              <form id="form-delete-{{ b.ID }}" method="POST"
+                    action="{{ url_for('batch_schedule_action', batch_id=b.ID) }}" style="display:none;">
+                <input type="hidden" name="action" value="delete">
+              </form>
+              <form id="form-edit-{{ b.ID }}" method="POST"
+                    action="{{ url_for('batch_schedule_action', batch_id=b.ID) }}" style="display:none;">
+                <input type="hidden" name="action"            value="edit">
+                <input type="hidden" name="edit_display_name" id="ef-name-{{ b.ID }}">
+                <input type="hidden" name="edit_batch_type"   id="ef-type-{{ b.ID }}">
+                <input type="hidden" name="edit_language"     id="ef-lang-{{ b.ID }}">
+                <input type="hidden" name="edit_start_date"   id="ef-start-{{ b.ID }}">
+                <input type="hidden" name="edit_end_date"     id="ef-end-{{ b.ID }}">
+                <input type="hidden" name="edit_status"       id="ef-status-{{ b.ID }}">
+                <input type="hidden" name="edit_notes"        id="ef-notes-{{ b.ID }}">
+              </form>
+
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted mb-0">
+      <i class="fas fa-info-circle me-1"></i>No batches scheduled yet. Use the form above to add one.
+    </p>
+    {% endif %}
+  </div>
+
+</div><!-- /main-wrap -->
+
+
+<!-- ═══════════════════════════════════════════════
+     MODAL 1 — MARK AS COMPLETE
+═══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="completeModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('completeModal')" title="Close">✕</button>
+    <div class="modal-icon icon-success"><i class="fas fa-check-circle"></i></div>
+    <h3>Mark as Completed?</h3>
+    <p class="modal-desc" id="completeModalMsg">This batch will be marked as completed.</p>
+    <div class="modal-actions">
+      <button class="modal-btn btn-cancel" onclick="closeModal('completeModal')">Cancel</button>
+      <button class="modal-btn btn-confirm-success" id="completeConfirmBtn">
+        <i class="fas fa-check me-1"></i>Yes, Mark Completed
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     MODAL 2 — DELETE
+═══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('deleteModal')" title="Close">✕</button>
+    <div class="modal-icon icon-danger"><i class="fas fa-trash-alt"></i></div>
+    <h3>Delete this Batch?</h3>
+    <p class="modal-desc" id="deleteModalMsg">This action is permanent. If this is the last unused batch for a course, the linked course may also be removed.</p>
+    <div class="modal-actions">
+      <button class="modal-btn btn-cancel" onclick="closeModal('deleteModal')">Cancel</button>
+      <button class="modal-btn btn-confirm-danger" id="deleteConfirmBtn">
+        <i class="fas fa-trash me-1"></i>Yes, Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     MODAL 3 — EDIT
+═══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box edit-modal">
+    <button class="modal-close" onclick="closeModal('editModal')" title="Close">✕</button>
+
+    <div class="modal-header-row">
+      <div class="modal-icon icon-info"><i class="fas fa-pen"></i></div>
+      <h3>Edit Batch</h3>
+    </div>
+    <p class="modal-desc">Update the details below and save your changes.</p>
+
+    <div class="edit-grid">
+      <div class="full">
+        <div class="field-label">Course / Workshop Name <span style="color:#dc2626">*</span></div>
+        <input type="text" class="edit-input" id="em-name" placeholder="Display name">
+      </div>
+      <div>
+        <div class="field-label">Batch Type</div>
+        <select class="edit-select" id="em-type">
+          <option value="regular">Regular</option>
+          <option value="workshop">Workshop</option>
+          <option value="bootcamp">Bootcamp</option>
+          <option value="demo">Demo / Free</option>
+        </select>
+      </div>
+      <div>
+        <div class="field-label">Language</div>
+        <select class="edit-select" id="em-lang">
+          <option value="Telugu">Telugu</option>
+          <option value="English">English</option>
+          <option value="Hindi">Hindi</option>
+        </select>
+      </div>
+      <div>
+        <div class="field-label">Start Date <span style="color:#dc2626">*</span></div>
+        <input type="date" class="edit-input" id="em-start">
+      </div>
+      <div>
+        <div class="field-label">End Date <span style="color:#94a3b8;font-weight:400;">(optional)</span></div>
+        <input type="date" class="edit-input" id="em-end">
+      </div>
+      <div>
+        <div class="field-label">Status</div>
+        <select class="edit-select" id="em-status">
+          <option value="upcoming">Upcoming</option>
+          <option value="current">Currently Running</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+      <div class="full">
+        <div class="field-label">Notes <span style="color:#94a3b8;font-weight:400;">(shown on home page)</span></div>
+        <input type="text" class="edit-input" id="em-notes" placeholder="e.g. Free for existing students · Limited seats">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-btn btn-cancel" onclick="closeModal('editModal')">Cancel</button>
+      <button class="modal-btn btn-confirm-info" id="editSaveBtn">
+        <i class="fas fa-save me-1"></i>Save Changes
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  /* ── Course select toggle ── */
+  document.getElementById("courseSelect").addEventListener("change", function () {
+    const show = this.value === "0";
+    ["customNameWrap","customCodeWrap","customFeeWrap"].forEach(id =>
+      document.getElementById(id).style.display = show ? "block" : "none");
+    document.getElementById("customName").required = show;
+    document.getElementById("customCourseCode").required = show;
+    if (!show) {
+      document.getElementById("customName").value = "";
+      document.getElementById("customCourseCode").value = "";
+      document.getElementById("customCourseFee").value = "";
+    }
+  });
+
+  /* ── Modal helpers ── */
+  function openModal(id)  { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  // Click outside to close
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+  });
+  // Escape key to close
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape')
+      document.querySelectorAll('.modal-overlay.open').forEach(el => el.classList.remove('open'));
+  });
+
+  /* ── COMPLETE modal ── */
+  let pendingCompleteId = null;
+  function openCompleteModal(id, name) {
+    pendingCompleteId = id;
+    document.getElementById('completeModalMsg').textContent =
+      `"${name}" will be marked as completed and removed from active listings.`;
+    openModal('completeModal');
+  }
+  document.getElementById('completeConfirmBtn').onclick = function () {
+    if (pendingCompleteId) document.getElementById('form-complete-' + pendingCompleteId).submit();
+  };
+
+  /* ── DELETE modal ── */
+  let pendingDeleteId = null;
+  function openDeleteModal(id, name) {
+    pendingDeleteId = id;
+    document.getElementById('deleteModalMsg').textContent =
+      `"${name}" will be permanently deleted. This action cannot be undone.`;
+    openModal('deleteModal');
+  }
+  document.getElementById('deleteConfirmBtn').onclick = function () {
+    if (pendingDeleteId) document.getElementById('form-delete-' + pendingDeleteId).submit();
+  };
+
+  /* ── EDIT modal ── */
+  let pendingEditId = null;
+  function openEditModal(data) {
+    pendingEditId = data.id;
+    document.getElementById('em-name').value  = data.name;
+    document.getElementById('em-start').value = data.start;
+    document.getElementById('em-end').value   = data.end;
+    document.getElementById('em-notes').value = data.notes;
+    setSelect('em-type',   data.type);
+    setSelect('em-lang',   data.lang);
+    setSelect('em-status', data.status);
+    openModal('editModal');
+  }
+  function setSelect(id, val) {
+    const el = document.getElementById(id);
+    for (let o of el.options) o.selected = (o.value === val);
+  }
+  document.getElementById('editSaveBtn').onclick = function () {
+    if (!pendingEditId) return;
+    const name = document.getElementById('em-name').value.trim();
+    if (!name) { document.getElementById('em-name').focus(); return; }
+
+    const id = pendingEditId;
+    document.getElementById('ef-name-'   + id).value = name;
+    document.getElementById('ef-type-'   + id).value = document.getElementById('em-type').value;
+    document.getElementById('ef-lang-'   + id).value = document.getElementById('em-lang').value;
+    document.getElementById('ef-start-'  + id).value = document.getElementById('em-start').value;
+    document.getElementById('ef-end-'    + id).value = document.getElementById('em-end').value;
+    document.getElementById('ef-status-' + id).value = document.getElementById('em-status').value;
+    document.getElementById('ef-notes-'  + id).value = document.getElementById('em-notes').value;
+    document.getElementById('form-edit-' + id).submit();
+  };
+</script>
+</body>
+</html>

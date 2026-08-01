@@ -3,217 +3,1507 @@
 <head>
   <meta charset="UTF-8">
   <title>Admin Upload Portal - ChakoraHub</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- <link href="{{ STATIC_CDN }}/css/bootstrap.min.css" rel="stylesheet"> -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- <link href="{{ STATIC_CDN }}/css/fontawesome.css" rel="stylesheet"> -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
+    :root {
+      --primary: #667eea;
+      --primary-dark: #5568d3;
+      --secondary: #764ba2;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --dark: #1e293b;
+      --light-bg: #f8fafc;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to right, #e3f2fd, #ffffff); color: #222; }
-
-    .header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 25px; background: linear-gradient(to right, #64b5f6, #9575cd);
-      height: 120px; box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding-bottom: 3rem;
     }
-    .logo img { height: 90px; margin: 15px 0; }
 
-    .profile-wrapper { position: relative; cursor: pointer; }
-    .profile-pic { width: 44px; height: 44px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
+    /* MODERN HEADER */
+    .header {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 1.25rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo img { 
+      height: 55px; 
+      transition: transform 0.3s;
+    }
+    
+    .logo img:hover { 
+      transform: scale(1.05);
+    }
+
+    .header-title {
+      flex: 1;
+      text-align: center;
+      font-size: 1.75rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .profile-wrapper {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .profile-pic {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 3px solid var(--primary);
+      object-fit: cover;
+      transition: all 0.3s;
+    }
+
+    .profile-pic:hover {
+      border-color: var(--secondary);
+      transform: scale(1.1);
+    }
 
     .dropdown-menu {
-      display: none; position: absolute; top: 52px; right: 0; background: #fff;
-      border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-      z-index: 1000; min-width: 130px;
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 70px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      min-width: 180px;
+      overflow: hidden;
+      animation: slideDown 0.3s ease;
     }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .dropdown-menu a {
-      display: block; padding: 8px 12px; color: #444; text-decoration: none;
-      font-weight: 500; border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 12px 20px;
+      color: var(--dark);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
+      border-bottom: 1px solid var(--light-bg);
     }
+
     .dropdown-menu a:last-child { border-bottom: none; }
-    .dropdown-menu a:hover { background: #f0f0f0; }
+    
+    .dropdown-menu a:hover {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+    }
 
-    .content-area { max-width: 1100px; margin: 30px auto; padding: 10px; }
-    h1 { text-align: center; color: #333; font-size: 24px; margin-bottom: 10px; }
-    .admin-msg { text-align: center; font-weight: bold; color: #6a1b9a; margin-bottom: 15px; }
+    /* CONTENT AREA */
+    .content-area {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
 
+    .page-title {
+      text-align: center;
+      color: white;
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .admin-badge {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .admin-badge span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: white;
+      padding: 0.75rem 2rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+    }
+
+    /* FLASH MESSAGE */
+    .flash-msg {
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      border-left: 4px solid var(--danger);
+      border-radius: 12px;
+      color: #991b1b;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* UPLOAD WRAPPER */
     .upload-wrapper {
-      background: #f5f5fc; padding: 30px; border-radius: 12px;
-      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-    }
-    .form-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
-
-    form {
-      background: #e8eaf6; padding: 12px; border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    form:hover { transform: translateY(-3px); box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1); }
-
-    h2 { color: #3f51b5; margin-bottom: 10px; font-size: 16px; text-align: center; }
-
-    select, input[type="file"] {
-      width: 100%; padding: 6px; margin-bottom: 10px;
-      border-radius: 5px; border: 1px solid #ccc; font-size: 14px;
+      background: white;
+      padding: 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
     }
 
-    button, .btn {
-      background: #43a047; color: #fff; border: none;
-      padding: 8px 16px; font-weight: bold; border-radius: 6px;
-      cursor: pointer; font-size: 14px; display: block; margin: 0 auto;
-      transition: background 0.3s ease; text-decoration: none; text-align: center;
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 3px solid var(--primary);
+      display: inline-block;
     }
-    button:hover, .btn:hover { background: #2e7d32; }
 
-    .flash-msg { text-align: center; font-weight: bold; color: #d32f2f; margin-bottom: 20px; }
+    /* ADD NEW COURSE / COURSE MANAGEMENT BLOCK */
+    .course-panels {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
 
-    .file-list { margin-top: 30px; }
+    .course-frame {
+      background: linear-gradient(145deg, #f9f2dd, #fff9e8);
+      border: 1px solid rgba(197, 170, 117, 0.45);
+      border-radius: 18px;
+      padding: 1.15rem;
+      box-shadow: 0 8px 20px rgba(31, 41, 55, 0.18);
+    }
+
+    .course-manage-card {
+      background: linear-gradient(135deg, #f8fafc, #eff6ff);
+      border: 2px solid #dbeafe;
+      border-radius: 16px;
+      padding: 1.5rem;
+      min-height: 100%;
+    }
+
+    .course-list-card {
+      background: linear-gradient(135deg, #f8fafc, #eff6ff);
+      border: 2px solid #dbeafe;
+      border-radius: 16px;
+      padding: 1.5rem;
+      min-height: 100%;
+    }
+
+    .course-manage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .course-manage-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .course-manage-hint {
+      font-size: 0.8rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .course-form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .course-field label {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-size: 0.82rem;
+      color: #475569;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .course-field input,
+    .course-field select,
+    .course-field textarea {
+      width: 100%;
+      border: 2px solid #dbe2ef;
+      background: #fff;
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      font-size: 0.92rem;
+      transition: all 0.2s;
+    }
+
+    .course-field input:focus,
+    .course-field select:focus,
+    .course-field textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+    }
+
+    .course-field textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+
+    .course-field.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .course-field-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding-top: 1.6rem;
+    }
+
+    .course-field-checkbox input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .course-field-checkbox label {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #334155;
+      text-transform: none;
+      letter-spacing: normal;
+      margin-bottom: 0;
+      cursor: pointer;
+    }
+
+    .add-course-btn {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      padding: 0.85rem 2rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .add-course-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Existing courses mini-table */
+    .course-list {
+      margin-top: 0;
+      border-top: none;
+      padding-top: 0;
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    #existingCoursesList {
+      max-height: 390px;
+      overflow-y: auto;
+      padding-right: 0.35rem;
+    }
+
+    #existingCoursesList::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #existingCoursesList::-webkit-scrollbar-thumb {
+      background: #c7d2fe;
+      border-radius: 999px;
+    }
+
+    #existingCoursesList::-webkit-scrollbar-track {
+      background: #eef2ff;
+      border-radius: 999px;
+    }
+
+    .course-list h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .course-row {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      transition: all 0.2s;
+    }
+
+    .course-row:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+    }
+
+    .course-row-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .course-row-name {
+      font-weight: 700;
+      color: var(--dark);
+      font-size: 0.95rem;
+    }
+
+    .course-row-meta {
+      font-size: 0.78rem;
+      color: #64748b;
+    }
+
+    .course-row-delete {
+      background: linear-gradient(135deg, var(--danger), #dc2626);
+      color: white;
+      border: none;
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .course-row-delete:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .course-list-empty {
+      text-align: center;
+      padding: 1.5rem;
+      color: #94a3b8;
+      font-size: 0.88rem;
+    }
+
+    .unified-upload-wrap {
+      margin-bottom: 2rem;
+    }
+
+    .unified-upload-card {
+      background: linear-gradient(135deg, #f8fafc, #eff6ff);
+      border: 2px solid #dbeafe;
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .unified-upload-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .unified-upload-title {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .unified-upload-grid {
+      display: grid;
+      grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+      gap: 1rem;
+      align-items: end;
+      margin-bottom: 1rem;
+    }
+
+    .upload-action-switch {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.4rem;
+    }
+
+    .upload-action-btn {
+      border: 2px solid #dbeafe;
+      background: white;
+      color: #334155;
+      border-radius: 999px;
+      padding: 0.5rem 0.95rem;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .upload-action-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .upload-action-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-color: transparent;
+      color: white;
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.25);
+    }
+
+    .unified-upload-footer {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 1rem;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .unified-file-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      background: white;
+    }
+
+    .unified-file-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .upload-submit-btn {
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: white;
+      border: none;
+      padding: 0.9rem 1.7rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    .upload-submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .upload-action-caption {
+      font-size: 0.82rem;
+      color: #64748b;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    /* UPLOAD FORM CARDS */
+    .upload-form {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      padding: 1.75rem;
+      border-radius: 16px;
+      border: 2px solid #e2e8f0;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-form::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+
+    .upload-form:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+      border-color: var(--primary);
+    }
+
+    .upload-form:hover::before {
+      transform: scaleX(1);
+    }
+
+    .upload-form h2 {
+      color: var(--primary);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .upload-form select,
+    .upload-form input[type="file"] {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      margin-bottom: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+      background: white;
+    }
+
+    .upload-form select:focus,
+    .upload-form input[type="file"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .upload-form button {
+      width: 100%;
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: white;
+      border: none;
+      padding: 0.875rem;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .upload-form button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    /* FILE LIST */
+    .file-list {
+      margin-top: 3rem;
+    }
+
+    .file-list h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 3px solid var(--primary);
+    }
+
+    .file-list h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
     .file-card {
-      background: #fff; padding: 10px; border-radius: 8px; margin-bottom: 8px;
-      display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      background: white;
+      padding: 1.25rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      border: 2px solid #e2e8f0;
+      transition: all 0.3s;
     }
-    .file-card a { color: #3949ab; font-weight: bold; text-decoration: none; }
-    .file-card a:hover { text-decoration: underline; }
-    .delete-btn { background: #d32f2f; border: none; padding: 6px 12px; border-radius: 6px; color: #fff; cursor: pointer; }
-    .delete-btn:hover { background: #b71c1c; }
 
-    .back-resources { text-align: center; margin: 40px 0; }
+    .file-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+      transform: translateX(5px);
+    }
+
+    .file-card a {
+      color: var(--dark);
+      font-weight: 600;
+      text-decoration: none;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: color 0.3s;
+    }
+
+    .file-card a:hover {
+      color: var(--primary);
+    }
+
+    .file-card a::before {
+      content: '\f15b';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      color: var(--primary);
+      font-size: 1.25rem;
+    }
+
+    .delete-btn {
+      background: linear-gradient(135deg, var(--danger), #dc2626);
+      color: white;
+      border: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .delete-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    /* BACK BUTTON */
+    .back-resources {
+      text-align: center;
+      margin-top: 3rem;
+    }
+
     .back-btn {
-      background: #3949ab; padding: 10px 25px; color: white; text-decoration: none;
-      border-radius: 8px; font-weight: bold; display: inline-block; transition: background 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     }
-    .back-btn:hover { background: #303f9f; }
 
-    /* Modal Styles */
+    .back-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    /* MODAL */
     .modal {
-      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000;
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      backdrop-filter: blur(4px);
     }
+
     .modal-content {
-      background: #fff; padding: 20px; border-radius: 10px; text-align: center;
-      max-width: 320px; width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      background: white;
+      padding: 2.5rem;
+      border-radius: 20px;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: modalSlide 0.3s ease;
     }
-    .modal-buttons { margin-top: 20px; display: flex; justify-content: space-between; gap: 10px; }
-    .modal-btn { flex: 1; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; }
-    .yes-btn { background: #3949ab; color: #fff; }
-    .yes-btn:hover { background: #303f9f; }
-    .cancel-btn { background: #e0e0e0; color: #333; }
-    .cancel-btn:hover { background: #bdbdbd; }
+
+    @keyframes modalSlide {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-content p {
+      font-size: 1.15rem;
+      color: var(--dark);
+      margin-bottom: 2rem;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 0.875rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s;
+      font-size: 1rem;
+    }
+
+    .yes-btn {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+    }
+
+    .yes-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .cancel-btn {
+      background: #e2e8f0;
+      color: var(--dark);
+    }
+
+    .cancel-btn:hover {
+      background: #cbd5e1;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .page-title { font-size: 1.75rem; }
+      .form-row { grid-template-columns: 1fr; }
+      .header-title { font-size: 1.25rem; }
+      .upload-wrapper { padding: 1.5rem; }
+      .course-panels { grid-template-columns: 1fr; gap: 1rem; }
+      .course-list { width: 100%; }
+      .unified-upload-grid { grid-template-columns: 1fr; }
+      .unified-upload-footer { grid-template-columns: 1fr; }
+      .upload-submit-btn { width: 100%; justify-content: center; }
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: #94a3b8;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+
+    /* ══════════════════════════════════════════════
+       ORGANISATION DOCUMENTS — deliberately separated
+       Uses a dark slate palette to stand apart from
+       the purple/green course-upload zone above.
+    ══════════════════════════════════════════════ */
+
+    /* Outer "island" — sits outside the white card */
+    .org-docs-island {
+      max-width: 1400px;
+      margin: 3rem auto 0;
+      padding: 0 1rem;
+    }
+
+    /* Divider ribbon between the two zones */
+    .org-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .org-divider-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.25);
+    }
+    .org-divider-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: rgba(255,255,255,0.12);
+      border: 1.5px solid rgba(255,255,255,0.22);
+      color: rgba(255,255,255,0.85);
+      padding: 0.55rem 1.4rem;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      backdrop-filter: blur(6px);
+      white-space: nowrap;
+    }
+
+    /* Main org card — slate/charcoal so it reads as "different zone" */
+    .org-docs-card {
+      background: linear-gradient(160deg, #1e293b 0%, #0f172a 100%);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.07),
+        0 20px 50px rgba(0,0,0,0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Subtle corner watermark */
+    .org-docs-card::after {
+      content: '\f1ad';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      bottom: -20px;
+      right: 20px;
+      font-size: 9rem;
+      color: rgba(255,255,255,0.03);
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    /* Top accent stripe */
+    .org-docs-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #f59e0b, #f97316, #ef4444);
+      border-radius: 20px 20px 0 0;
+    }
+
+    .org-docs-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .org-docs-header-left { display: flex; align-items: center; gap: 1rem; }
+
+    .org-icon-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(245,158,11,0.35);
+    }
+
+    .org-docs-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+    .org-docs-subtitle {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
+    }
+
+    .org-restricted-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.35);
+      color: #fca5a5;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.4rem 0.9rem;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* Upload form grid inside org section */
+    .org-form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .org-upload-form {
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 1.5rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Amber left-border accent on hover */
+    .org-upload-form::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, #f59e0b, #f97316);
+      transform: scaleY(0);
+      transition: transform 0.3s;
+      transform-origin: bottom;
+      border-radius: 0 2px 2px 0;
+    }
+
+    .org-upload-form:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(245,158,11,0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    }
+
+    .org-upload-form:hover::before {
+      transform: scaleY(1);
+    }
+
+    .org-upload-form h2 {
+      color: #f59e0b;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1.15rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .org-upload-form select,
+    .org-upload-form input[type="file"] {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.9rem;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 9px;
+      font-size: 0.9rem;
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.85);
+      transition: all 0.25s;
+    }
+
+    .org-upload-form select option { background: #1e293b; color: #fff; }
+
+    .org-upload-form select:focus,
+    .org-upload-form input[type="file"]:focus {
+      outline: none;
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+    }
+
+    .org-upload-form input[type="file"]::file-selector-button {
+      background: rgba(245,158,11,0.15);
+      color: #fcd34d;
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 8px;
+      transition: background 0.2s;
+    }
+    .org-upload-form input[type="file"]::file-selector-button:hover {
+      background: rgba(245,158,11,0.28);
+    }
+
+    .org-upload-form button {
+      width: 100%;
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: white;
+      border: none;
+      padding: 0.8rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 14px rgba(245,158,11,0.25);
+    }
+
+    .org-upload-form button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 20px rgba(245,158,11,0.4);
+    }
+
+    /* Org file listing */
+    .org-file-list {
+      margin-top: 0.5rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 1.75rem;
+    }
+
+    .org-file-list h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      letter-spacing: 0.3px;
+    }
+
+    .org-file-subhead {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #f59e0b;
+      margin: 1rem 0 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      opacity: 0.85;
+    }
+
+    .org-file-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 0.9rem 1.1rem;
+      margin-bottom: 0.6rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.2s;
+    }
+
+    .org-file-card:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(245,158,11,0.3);
+      transform: translateX(4px);
+    }
+
+    .org-file-card a {
+      color: rgba(255,255,255,0.8);
+      font-weight: 600;
+      font-size: 0.88rem;
+      text-decoration: none;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: color 0.2s;
+    }
+    .org-file-card a::before {
+      content: '\f15b';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      color: #f59e0b;
+      font-size: 1rem;
+    }
+    .org-file-card a:hover { color: #fcd34d; }
+
+    .org-empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: rgba(255,255,255,0.2);
+    }
+    .org-empty-state i { font-size: 2.5rem; display: block; margin-bottom: 0.6rem; }
+    .org-empty-state p { font-size: 0.82rem; }
+
+    @media (max-width: 768px) {
+      .org-form-row { grid-template-columns: 1fr; }
+      .org-docs-card { padding: 1.5rem; }
+    }
   </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="header">
-  <div class="logo"><a href="/"><img src="{{ url_for('static', filename='logo.png') }}" alt="Logo"></a></div>
-  <div class="profile-wrapper" onclick="toggleDropdown()">
-    <img class="profile-pic" src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}" alt="Profile">
-    <div class="dropdown-menu" id="dropdownMenu">
-      <a href="{{ url_for('profile') }}">Profile</a>
-      <a href="{{ url_for('settings') }}">Settings</a>
-      <a href="#" onclick="openLogoutModal(event)">Logout</a>
+  <div class="header-content">
+    <div class="logo">
+      <a href="/"><img src="/static/images/logo.png" alt="Logo"></a>
+    </div>
+    <div class="header-title">
+      <i class="fas fa-cloud-upload-alt"></i> Admin Upload Portal
+    </div>
+    <div class="profile-wrapper" onclick="toggleDropdown()">
+       {% set profile_pic = (session.get('profile_pic') or '').strip() %}
+      <img class="profile-pic" 
+         src="{{ profile_pic if profile_pic else url_for('static', filename='profile_photo/defaultpicture.jpg') }}" 
+           alt="Profile">
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="{{ url_for('profile') }}">
+          <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="{{ url_for('settings') }}">
+          <i class="fas fa-cog"></i> Settings
+        </a>
+        <a href="#" onclick="openLogoutModal(event)">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
     </div>
   </div>
 </div>
 
 <div class="content-area">
-  <h1>Admin Upload Portal</h1>
-  <div class="admin-msg">Logged in as Admin</div>
+  <h1 class="page-title">Upload Center</h1>
+  
+  <div class="admin-badge">
+    <span>
+      <i class="fas fa-shield-alt"></i> Logged in as Admin
+    </span>
+  </div>
 
   {% with messages = get_flashed_messages() %}
     {% if messages %}
-      <div class="flash-msg">{{ messages[0] }}</div>
+      <div class="flash-msg">
+        <i class="fas fa-exclamation-circle"></i> {{ messages[0] }}
+      </div>
     {% endif %}
   {% endwith %}
 
   <div class="upload-wrapper">
-    <!-- First Row (3 forms) -->
-    <div class="form-row">
-      {% for ftype, label, accept, options in [
-        ('ppt', 'Upload PPT', '.ppt,.pptx', ['Informatica','Informatica MDM','Informatica BDM','Unix','Oracle','IICS','Python for web development']),
-        ('syllabus', 'Upload Syllabus', '.pdf', ['Informatica & IICS','IICS source syllabus','PLSQL_syllabus','Python web development','SQL_PLSQL_Syllabus','MDM_syllabus']),
-        ('interview', 'Upload Interview Questions', '.pdf,.txt', ['Informatica','Informatica MDM','Informatica BDM','Unix','Oracle','IICS','Python for web development'])
-      ] %}
-      <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_file_handler', file_type=ftype) }}">
-        <h2>{{ label }}</h2>
-        <select name="category" required>
-          <option value="" disabled selected>-- Select Category --</option>
-          {% for option in options %}
-            <option value="{{ option }}">{{ option }}</option>
-          {% endfor %}
-        </select>
-        <input type="file" name="file" accept="{{ accept }}" required>
-        <button type="submit">Upload</button>
-      </form>
-      {% endfor %}
+    <div class="section-title">
+      <i class="fas fa-upload"></i> Upload Files
     </div>
 
-    <!-- Second Row (3 forms) -->
-    <div class="form-row">
-      {% for ftype, label, accept, options in [
-        ('code', 'Upload Code', '.py,.java,.cpp,.c,.txt,.xml,.json,.properties,.sh,.sql,.conf,.map,.xiwz', ['Informatica','Informatica MDM','Informatica BDM','Unix','Oracle','IICS','Python for web development'])
-      ] %}
-      <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_file_handler', file_type=ftype) }}">
-        <h2>{{ label }}</h2>
-        <select name="category" required>
-          <option value="" disabled selected>-- Select Category --</option>
-          {% for option in options %}
-            <option value="{{ option }}">{{ option }}</option>
-          {% endfor %}
-        </select>
-        <input type="file" name="file" accept="{{ accept }}" required>
-        <button type="submit">Upload</button>
-      </form>
-      {% endfor %}
-
-      <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_practice_test') }}">
-        <h2>Upload Practice Tests</h2>
-        <select name="subject" required>
-          <option value="" disabled selected>-- Select Subject --</option>
-          {% for option in ['Informatica','Informatica MDM','Informatica BDM','Unix','Oracle','IICS','Python for web development'] %}
-            <option value="{{ option }}">{{ option }}</option>
-          {% endfor %}
-        </select>
-        <input type="file" name="file" accept=".pdf,.txt,.docx,.xlsx" required>
-        <button type="submit">Upload</button>
-      </form>
-
-      <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_blogger') }}">
-        <h2>Upload Blog</h2>
-        <input type="file" name="file" accept=".pdf,.txt,.docx,.md" required>
-        <button type="submit">Upload</button>
-      </form>
-    </div>
-
-    <!-- File Listing -->
-    <div class="file-list">
-      <h2>Manage Uploaded Files</h2>
-      {% for file_type, files in uploaded_files.items() %}
-        <h3>{{ file_type | title }}</h3>
-        {% if files %}
-          {% for f in files %}
-          <div class="file-card">
-            <a href="{{ url_for('serve_uploaded_file', subpath=file_type ~ '/' ~ f.category, filename=f.name) }}" target="_blank">{{ f.name }} ({{ f.category }})</a>
-            <form method="POST" action="{{ url_for('delete_file') }}" style="margin:0;" onsubmit="return openDeleteModal(event, '{{ f.name }}', this)">
-              <input type="hidden" name="file_path" value="{{ file_type }}/{{ f.category }}/{{ f.name }}">
-              <button type="submit" class="delete-btn">Delete</button>
-            </form>
+    <div class="course-panels">
+      <div class="course-frame">
+        <div class="course-manage-card">
+          <div class="course-manage-header">
+            <div class="course-manage-header-left">
+              <i class="fas fa-graduation-cap"></i> Add New Course
+            </div>
+            <div class="course-manage-hint">Courses added here become available across all upload sections below.</div>
           </div>
-          {% endfor %}
-        {% else %}
-          <p>No {{ file_type }} files uploaded yet.</p>
-        {% endif %}
-      {% endfor %}
+
+          <form method="POST" action="{{ url_for('add_course') }}">
+            <div class="course-form-grid">
+              <div class="course-field">
+                <label for="courseName">Course Name</label>
+                <input type="text" id="courseName" name="course_name" placeholder="e.g. Informatica, Python Full Stack" required>
+              </div>
+              <div class="course-field">
+                <label for="courseCode">Course Code</label>
+                <input type="text" id="courseCode" name="course_code" placeholder="e.g. IICS" style="text-transform:uppercase;" required>
+              </div>
+              <div class="course-field">
+                <label for="registrationCategory">Registration Category</label>
+                <select id="registrationCategory" name="registration_category" required>
+                  <option value="" disabled selected>-- Select Category --</option>
+                  <option value="student_co">Live Course</option>
+                  <option value="student_pl">Placement Preparation</option>
+                  <option value="student_ws">Workshop</option>
+                </select>
+                <div class="course-manage-hint" style="margin-top: 0.35rem;">Used for registration/offering mapping (stored in offerings).</div>
+              </div>
+              <div class="course-field">
+                <label for="courseFee">Course Fee (₹)</label>
+                <input type="number" id="courseFee" name="course_fee" min="0" step="0.01" placeholder="e.g. 15000" required>
+              </div>
+              <div class="course-field-checkbox">
+                <input type="checkbox" id="courseActive" name="is_active" value="Y" checked>
+                <label for="courseActive">Active (visible for registration)</label>
+              </div>
+            </div>
+            <button type="submit" class="add-course-btn">
+              <i class="fas fa-plus"></i> Add Course
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="course-frame">
+        <div class="course-list-card">
+          <div class="course-list">
+            <h3><i class="fas fa-list-check"></i> Existing Courses</h3>
+            <div id="existingCoursesList">
+              <div class="course-list-empty">
+                <i class="fas fa-spinner fa-spin"></i> Loading courses...
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <div class="unified-upload-wrap">
+      <div class="course-frame">
+        <div class="unified-upload-card">
+          <div class="unified-upload-header">
+            <div class="unified-upload-title">
+              <i class="fas fa-cloud-arrow-up"></i> Course Content Uploads
+            </div>
+            <div class="course-manage-hint">Choose category once, then switch upload type below.</div>
+          </div>
+
+          <form id="unifiedUploadForm" method="POST" enctype="multipart/form-data" action="{{ url_for('upload_file_handler', file_type='ppt') }}">
+            <div class="unified-upload-grid">
+              <div class="course-field">
+                <label for="unifiedCategory">Category</label>
+                <select id="unifiedCategory" data-course-source="name" required>
+                  <option value="" disabled selected>-- Select Category --</option>
+                </select>
+              </div>
+
+              <div class="course-field">
+                <label>Upload Type</label>
+                <div class="upload-action-switch" id="uploadActionSwitch">
+                  <button type="button" class="upload-action-btn active" data-action="ppt" data-accept=".ppt,.pptx"><i class="fas fa-file-powerpoint"></i> Upload PPT</button>
+                  <button type="button" class="upload-action-btn" data-action="interview" data-accept=".pdf,.txt,.docx"><i class="fas fa-clipboard-question"></i> Interview Questions</button>
+                  <button type="button" class="upload-action-btn" data-action="syllabus" data-accept=".pdf,.docx"><i class="fas fa-book"></i> Syllabus</button>
+                  <button type="button" class="upload-action-btn" data-action="code" data-accept=".py,.java,.cpp,.c,.txt,.xml,.json,.properties,.sh,.sql,.conf,.map,.xiwz"><i class="fas fa-code"></i> Code</button>
+                  <button type="button" class="upload-action-btn" data-action="practice" data-accept=".pdf,.txt,.docx,.xlsx"><i class="fas fa-file-lines"></i> Practice Tests</button>
+                </div>
+                <div class="upload-action-caption" id="uploadActionCaption">Current action: Upload PPT</div>
+              </div>
+            </div>
+
+            <div class="unified-upload-footer">
+              <input class="unified-file-input" id="unifiedFileInput" type="file" name="file" accept=".ppt,.pptx" required>
+              <button type="submit" class="upload-submit-btn"><i class="fas fa-upload"></i> Upload</button>
+            </div>
+
+            <input type="hidden" name="category" id="hiddenCategoryName">
+            <input type="hidden" name="subject" id="hiddenSubjectName">
+            <input type="hidden" name="course_id" id="hiddenCourseId">
+            <input type="hidden" id="hiddenUploadAction" value="ppt">
+          </form>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <div class="back-resources"><a href="{{ url_for('resources') }}" class="back-btn">← Back to Resources</a></div>
+  <!-- ══════════════════════════════════════════════════════════════
+       ORGANISATION DOCUMENTS
+       Intentionally placed OUTSIDE the white upload-wrapper card
+       and styled in a dark slate palette so it reads as a
+       separate, restricted zone from the course-content uploads.
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="org-docs-island">
+
+    <!-- Visual divider separating the two zones -->
+    <div class="org-divider">
+      <div class="org-divider-line"></div>
+      <div class="org-divider-pill">
+        <i class="fas fa-building"></i> Organisation Documents
+      </div>
+      <div class="org-divider-line"></div>
+    </div>
+
+    <div class="org-docs-card">
+
+      <!-- Header -->
+      <div class="org-docs-header">
+        <div class="org-docs-header-left">
+          <div class="org-icon-badge">
+            <i class="fas fa-building-columns"></i>
+          </div>
+          <div>
+            <div class="org-docs-title">Organisation Document Vault</div>
+            <div class="org-docs-subtitle">Policies · HR Docs · Legal · Finance · Compliance · Contracts</div>
+          </div>
+        </div>
+        <span class="org-restricted-badge">
+          <i class="fas fa-lock"></i> Admin Access Only
+        </span>
+      </div>
+
+      <!-- Upload Forms Row -->
+      <div class="org-form-row">
+
+        <!-- HR & Policy Documents -->
+        <form method="POST" enctype="multipart/form-data"
+              action="{{ url_for('upload_org_doc', doc_type='hr_policy') }}"
+              class="org-upload-form">
+          <h2><i class="fas fa-users-gear"></i> HR & Policy Docs</h2>
+          <select name="org_doc_category" required>
+            <option value="" disabled selected>-- Select Category --</option>
+            <option value="Offer Letter">Offer Letter</option>
+            <option value="Appointment Letter">Appointment Letter</option>
+            <option value="Employment Contract">Employment Contract</option>
+            <option value="HR Policy">HR Policy</option>
+            <option value="Leave Policy">Leave Policy</option>
+            <option value="Code of Conduct">Code of Conduct</option>
+            <option value="Appraisal Form">Appraisal Form</option>
+            <option value="Resignation Letter">Resignation Letter</option>
+            <option value="Experience Certificate">Experience Certificate</option>
+            <option value="Other HR">Other HR Document</option>
+          </select>
+          <input type="file" name="file" accept=".pdf,.docx,.doc,.xlsx" required>
+          <button type="submit">
+            <i class="fas fa-upload"></i> Upload
+          </button>
+        </form>
+
+        <!-- Legal & Compliance -->
+        <form method="POST" enctype="multipart/form-data"
+              action="{{ url_for('upload_org_doc', doc_type='legal') }}"
+              class="org-upload-form">
+          <h2><i class="fas fa-scale-balanced"></i> Legal & Compliance</h2>
+          <select name="org_doc_category" required>
+            <option value="" disabled selected>-- Select Category --</option>
+            <option value="MOU">MOU / Agreement</option>
+            <option value="NDA">NDA</option>
+            <option value="Client Contract">Client Contract</option>
+            <option value="Vendor Contract">Vendor Contract</option>
+            <option value="Compliance Certificate">Compliance Certificate</option>
+            <option value="GST Document">GST Document</option>
+            <option value="Company Registration">Company Registration</option>
+            <option value="Trademark">Trademark / IP</option>
+            <option value="Other Legal">Other Legal Document</option>
+          </select>
+          <input type="file" name="file" accept=".pdf,.docx,.doc" required>
+          <button type="submit">
+            <i class="fas fa-upload"></i> Upload
+          </button>
+        </form>
+
+        <!-- Finance & Accounts -->
+        <form method="POST" enctype="multipart/form-data"
+              action="{{ url_for('upload_org_doc', doc_type='finance') }}"
+              class="org-upload-form">
+          <h2><i class="fas fa-file-invoice-dollar"></i> Finance & Accounts</h2>
+          <select name="org_doc_category" required>
+            <option value="" disabled selected>-- Select Category --</option>
+            <option value="Invoice">Invoice</option>
+            <option value="Receipt">Receipt</option>
+            <option value="Salary Slip">Salary Slip</option>
+            <option value="Balance Sheet">Balance Sheet</option>
+            <option value="P&L Statement">P&L Statement</option>
+            <option value="Tax Filing">Tax Filing</option>
+            <option value="Audit Report">Audit Report</option>
+            <option value="Budget">Budget Document</option>
+            <option value="Other Finance">Other Finance Doc</option>
+          </select>
+          <input type="file" name="file" accept=".pdf,.xlsx,.csv,.docx" required>
+          <button type="submit">
+            <i class="fas fa-upload"></i> Upload
+          </button>
+        </form>
+
+        <!-- Internal Operations -->
+        <form method="POST" enctype="multipart/form-data"
+              action="{{ url_for('upload_org_doc', doc_type='operations') }}"
+              class="org-upload-form">
+          <h2><i class="fas fa-gears"></i> Internal Operations</h2>
+          <select name="org_doc_category" required>
+            <option value="" disabled selected>-- Select Category --</option>
+            <option value="SOP">Standard Operating Procedure</option>
+            <option value="Meeting Minutes">Meeting Minutes</option>
+            <option value="Project Plan">Project Plan</option>
+            <option value="Asset Register">Asset Register</option>
+            <option value="IT Policy">IT Policy</option>
+            <option value="Training Plan">Training Plan</option>
+            <option value="Org Chart">Organisation Chart</option>
+            <option value="Other Ops">Other Operations Doc</option>
+          </select>
+          <input type="file" name="file" accept=".pdf,.docx,.xlsx,.pptx,.doc" required>
+          <button type="submit">
+            <i class="fas fa-upload"></i> Upload
+          </button>
+        </form>
+
+      </div><!-- /org-form-row -->
+
+    </div><!-- /org-docs-card -->
+  </div><!-- /org-docs-island -->
+
+  <div class="back-resources">
+    <a href="{{ url_for('employee_resources') }}" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Back to Resources
+    </a>
+  </div>
 </div>
 
 <!-- Logout Modal -->
 <div class="modal" id="logoutModal">
   <div class="modal-content">
-    <p>Are you sure you want to logout?</p>
+    <p><i class="fas fa-sign-out-alt" style="color: var(--warning); font-size: 2rem; margin-bottom: 1rem;"></i><br>
+    Are you sure you want to logout?</p>
     <div class="modal-buttons">
-      <button class="modal-btn yes-btn" onclick="doLogout()">Yes</button>
+      <button class="modal-btn yes-btn" onclick="doLogout()">Yes, Logout</button>
       <button class="modal-btn cancel-btn" onclick="closeModal('logoutModal')">Cancel</button>
     </div>
   </div>
@@ -222,19 +1512,23 @@
 <!-- Delete Modal -->
 <div class="modal" id="deleteModal">
   <div class="modal-content">
+    <i class="fas fa-trash-alt" style="color: var(--danger); font-size: 2.5rem; margin-bottom: 1rem;"></i>
     <p id="deleteMessage">Are you sure you want to delete this file?</p>
     <div class="modal-buttons">
-      <button class="modal-btn yes-btn" onclick="confirmDelete()">Yes</button>
+      <button class="modal-btn yes-btn" onclick="confirmDelete()">Yes, Delete</button>
       <button class="modal-btn cancel-btn" onclick="closeModal('deleteModal')">Cancel</button>
     </div>
   </div>
 </div>
 
+<!-- <script src="{{ STATIC_CDN }}/js/bootstrap.bundle.min.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   function toggleDropdown() {
     const d = document.getElementById('dropdownMenu');
     d.style.display = d.style.display === 'block' ? 'none' : 'block';
   }
+  
   document.addEventListener('click', function(e) {
     const d = document.getElementById('dropdownMenu');
     const w = document.querySelector('.profile-wrapper');
@@ -245,24 +1539,265 @@
     e.preventDefault();
     document.getElementById('logoutModal').style.display = 'flex';
   }
-  function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-  function doLogout() { window.location.href = "{{ url_for('logout') }}"; }
+  
+  function closeModal(id) { 
+    document.getElementById(id).style.display = 'none'; 
+  }
+  
+  function doLogout() { 
+    window.location.href = "{{ url_for('logout') }}"; 
+  }
+
+  const profilePicEl = document.querySelector('.profile-pic');
+  if (profilePicEl) {
+    const defaultProfilePic = "{{ url_for('static', filename='profile_photo/defaultpicture.jpg') }}";
+    profilePicEl.addEventListener('error', function() {
+      if (this.getAttribute('src') !== defaultProfilePic) {
+        this.setAttribute('src', defaultProfilePic);
+      }
+    });
+  }
 
   // Delete Modal Logic
   let deleteFormRef = null;
+  
   function openDeleteModal(e, fileName, form) {
     e.preventDefault();
     deleteFormRef = form;
+    deleteCourseFormRef = null;
     document.getElementById('deleteMessage').innerText = "Are you sure you want to delete '" + fileName + "'?";
     document.getElementById('deleteModal').style.display = 'flex';
     return false;
   }
+  
   function confirmDelete() {
     if (deleteFormRef) {
       deleteFormRef.submit();
+    } else if (deleteCourseFormRef) {
+      deleteCourseFormRef.submit();
     }
+    deleteFormRef = null;
+    deleteCourseFormRef = null;
     closeModal('deleteModal');
   }
+
+  function syncCategoryToForms(value) {
+    const unifiedCategory = document.getElementById('unifiedCategory');
+    if (unifiedCategory && value) {
+      unifiedCategory.value = value;
+    }
+  }
+
+  function normalizeCourse(course) {
+    const id = course.id ?? course.ID ?? '';
+    const name = course.course_name ?? course.COURSE_NAME ?? '';
+
+    return {
+      id: String(id),
+      name: String(name).trim()
+    };
+  }
+
+  function populateCourseSelect(selectEl, courses) {
+    const mode = selectEl.dataset.courseSource || 'name';
+    const placeholder = selectEl.options[0];
+    const previousValue = selectEl.value;
+
+    selectEl.innerHTML = '';
+    if (placeholder) {
+      selectEl.appendChild(placeholder);
+    }
+
+    courses.forEach(course => {
+      if (!course.name) {
+        return;
+      }
+
+      const option = document.createElement('option');
+      option.value = mode === 'id' ? course.id : course.name;
+      option.textContent = course.name;
+      option.setAttribute('data-course-id', course.id);
+      selectEl.appendChild(option);
+    });
+
+    if (previousValue) {
+      const hasPreviousValue = Array.from(selectEl.options).some(option => option.value === previousValue);
+      if (hasPreviousValue) {
+        selectEl.value = previousValue;
+      }
+    }
+  }
+
+  function initUnifiedUploader() {
+    const form = document.getElementById('unifiedUploadForm');
+    if (!form) {
+      return;
+    }
+
+    const actionSwitch = document.getElementById('uploadActionSwitch');
+    const actionButtons = actionSwitch ? actionSwitch.querySelectorAll('.upload-action-btn') : [];
+    const categorySelect = document.getElementById('unifiedCategory');
+    const fileInput = document.getElementById('unifiedFileInput');
+    const actionCaption = document.getElementById('uploadActionCaption');
+    const hiddenCategory = document.getElementById('hiddenCategoryName');
+    const hiddenSubject = document.getElementById('hiddenSubjectName');
+    const hiddenCourseId = document.getElementById('hiddenCourseId');
+    const hiddenUploadAction = document.getElementById('hiddenUploadAction');
+
+    const endpoints = {
+      ppt: "{{ url_for('upload_file_handler', file_type='ppt') }}",
+      interview: "{{ url_for('upload_file_handler', file_type='interview') }}",
+      syllabus: "{{ url_for('upload_file_handler', file_type='syllabus') }}",
+      code: "{{ url_for('upload_file_handler', file_type='code') }}",
+      practice: "{{ url_for('upload_practice_test') }}"
+    };
+
+    function setActiveAction(action, accept, label) {
+      actionButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.action === action));
+      hiddenUploadAction.value = action;
+      form.action = endpoints[action] || endpoints.ppt;
+      if (fileInput && accept) {
+        fileInput.setAttribute('accept', accept);
+        fileInput.value = '';
+      }
+      if (actionCaption && label) {
+        actionCaption.textContent = `Current action: ${label}`;
+      }
+    }
+
+    actionButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        setActiveAction(this.dataset.action, this.dataset.accept, this.textContent.trim());
+      });
+    });
+
+    form.addEventListener('submit', function() {
+      const selectedOption = categorySelect ? categorySelect.options[categorySelect.selectedIndex] : null;
+      const categoryName = selectedOption ? String(selectedOption.value || '').trim() : '';
+      const courseId = selectedOption ? String(selectedOption.getAttribute('data-course-id') || '').trim() : '';
+
+      hiddenCategory.value = categoryName;
+      hiddenSubject.value = categoryName;
+      hiddenCourseId.value = courseId;
+    });
+  }
+
+  async function loadCourseOptions() {
+    const courseSelects = document.querySelectorAll('select[data-course-source]');
+    if (!courseSelects.length) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/courses', {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to load courses');
+      }
+
+      const data = await response.json();
+      const courses = Array.isArray(data)
+        ? data.map(normalizeCourse).filter(course => course.id || course.name)
+        : [];
+
+      courseSelects.forEach(selectEl => populateCourseSelect(selectEl, courses));
+    } catch (error) {
+      console.error('Unable to load course options:', error);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadCourseOptions);
+  document.addEventListener('DOMContentLoaded', initUnifiedUploader);
+
+  // ── Existing Courses management (Add New Course panel) ──
+  let deleteCourseFormRef = null;
+
+  function renderCourseList(courses) {
+    const container = document.getElementById('existingCoursesList');
+    if (!container) return;
+
+    if (!courses.length) {
+      container.innerHTML = '<div class="course-list-empty"><i class="fas fa-folder-open"></i> No courses added yet.</div>';
+      return;
+    }
+
+    container.innerHTML = '';
+    courses.forEach(course => {
+      const row = document.createElement('div');
+      row.className = 'course-row';
+
+      const info = document.createElement('div');
+      info.className = 'course-row-info';
+      const name = document.createElement('div');
+      name.className = 'course-row-name';
+      name.textContent = course.name || '(Unnamed course)';
+      const meta = document.createElement('div');
+      meta.className = 'course-row-meta';
+      meta.textContent = course.code ? `Code: ${course.code}` : `ID: ${course.id}`;
+      info.appendChild(name);
+      info.appendChild(meta);
+
+      const form = document.createElement('form');
+      form.method = 'POST';
+      const deleteCourseBaseUrl = "{{ url_for('delete_course', course_id=0) }}";
+      form.action = deleteCourseBaseUrl.replace(/0$/, encodeURIComponent(course.id));
+
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'course-row-delete';
+      delBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Delete';
+      delBtn.onclick = function(e) {
+        openDeleteCourseModal(e, name.textContent, form);
+      };
+
+      row.appendChild(info);
+      row.appendChild(delBtn);
+      row.appendChild(form);
+      container.appendChild(row);
+    });
+  }
+
+  function openDeleteCourseModal(e, courseName, form) {
+    e.preventDefault();
+    deleteFormRef = null;
+    deleteCourseFormRef = form;
+    document.getElementById('deleteMessage').innerText = "Are you sure you want to delete course '" + courseName + "'?";
+    document.getElementById('deleteModal').style.display = 'flex';
+  }
+
+  async function loadExistingCourses() {
+    const container = document.getElementById('existingCoursesList');
+    if (!container) return;
+
+    try {
+      const response = await fetch('/api/courses', {
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to load courses');
+      }
+
+      const data = await response.json();
+      const courses = Array.isArray(data)
+        ? data.map(normalizeCourse).filter(course => course.id || course.name).map(course => {
+            const raw = data.find(c => String(c.id ?? c.ID ?? '') === course.id) || {};
+            return { ...course, code: raw.course_code ?? raw.COURSE_CODE ?? '' };
+          })
+        : [];
+
+      renderCourseList(courses);
+    } catch (error) {
+      console.error('Unable to load existing courses:', error);
+      container.innerHTML = '<div class="course-list-empty"><i class="fas fa-triangle-exclamation"></i> Could not load courses.</div>';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadExistingCourses);
 </script>
 
 </body>

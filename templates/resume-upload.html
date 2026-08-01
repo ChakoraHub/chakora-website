@@ -6,6 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume Upload</title>
     <style>
+        .top-header {
+            background: linear-gradient(90deg, #3e70d6, #4b8bff);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+        }
+
+        .top-header img.logo {
+            height: 55px;
+        }
+
+        .top-header .title {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .top-header .spacer {
+            width: 55px;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -16,6 +39,11 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding: 0;
+        }
+
+        .page-content {
+            min-height: calc(100vh - 85px);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -181,6 +209,13 @@
     </style>
 </head>
 <body>
+    <div class="top-header">
+        <img src="/static/images/logo.png" class="logo" alt="ChakoraHub">
+        <div class="title">Resume Upload</div>
+        <div class="spacer"></div>
+    </div>
+
+    <div class="page-content">
     <div class="container">
         <h1>Upload Your Resume</h1>
         <p class="subtitle">Submit your resume and we'll get back to you soon</p>
@@ -195,6 +230,46 @@
                 <label for="email">Email Address *</label>
                 <input type="email" id="email" name="email" required>
             </div>
+
+            <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="text" id="phone" name="phone">
+        </div>
+
+        <div class="form-group">
+            <label for="experience_years">Years of Experience *</label>
+            <input type="text" id="experience_years" name="experience_years" required>
+        </div>
+
+        <div class="form-group">
+            <label for="qualification">Highest Qualification *</label>
+            <select id="qualification" name="qualification" required style="width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;">
+                <option value="">-- Select --</option>
+                <option value="B.Tech">B.Tech</option>
+                <option value="M.Tech">M.Tech</option>
+                <option value="B.Sc">B.Sc</option>
+                <option value="B.Com">B.Com</option>
+                <option value="BBA">BBA</option>
+                <option value="MBA">MBA</option>
+                <option value="M.Sc">M.Sc</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="source">From where did you know about the job posting / company? *</label>
+            <select id="source" name="source" required style="width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:6px;font-size:14px;">
+                <option value="">-- Select --</option>
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Naukri">Naukri</option>
+                <option value="Indeed">Indeed</option>
+                <option value="Referral">Referral</option>
+                <option value="Website">Website</option>
+                <option value="Instagram">Instagram</option>
+                <option value="Facebook">Facebook</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
 
             <div class="form-group">
                 <label>Resume (PDF, DOC, DOCX) *</label>
@@ -223,9 +298,10 @@
 
         <div class="message" id="message"></div>
     </div>
+    </div>
 
     <script>
-const API_BASE_URL = 'https://7j03rxamm1.execute-api.eu-north-1.amazonaws.com/Prod';
+const API_BASE_URL = '';
 
 const form = document.getElementById('resumeForm');
 const fileInput = document.getElementById('resume');
@@ -249,6 +325,10 @@ form.addEventListener('submit', async function(e) {
     const file = fileInput.files[0];
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    const experience_years = parseFloat(document.getElementById('experience_years').value) || 0;
+    const qualification = document.getElementById('qualification').value;
+    const source = document.getElementById('source').value;
 
     // Validate file size
     if (file.size > 10 * 1024 * 1024) {
@@ -273,12 +353,16 @@ form.addEventListener('submit', async function(e) {
             const payload = JSON.stringify({
                 name: name,
                 email: email,
+                phone: phone,
+                experience_years: experience_years,
+                qualification: qualification,
+                source: source,
                 filename: file.name,
                 resume: base64Data
             });
 
             // Send to API
-            const response = await fetch(`${API_BASE_URL}/upload-resume`, {
+            const response = await fetch('/api/onboarding/upload-resume', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

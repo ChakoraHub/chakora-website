@@ -1,0 +1,966 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Student Registration</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --accent1: #42a5f5;
+      --accent2: #5e35b1;
+      --danger: #e53935;
+      --success: #28a745;
+      --warning: #ffca28;
+      --muted: #6b7280;
+      --card-bg: rgba(255,255,255,0.92);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background: linear-gradient(120deg,#e6f0fb 0%, #f6f2fb 100%);
+      color:#222;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* Header */
+    .header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 26px;
+      background: linear-gradient(90deg,var(--accent1),var(--accent2));
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(18,18,18,0.12);
+      position:sticky;
+      top:0;
+      z-index:100;
+    }
+    .logo img{ height:66px; display:block; }
+
+    /* Container */
+    .container{
+      max-width:760px;
+      margin:44px auto;
+      background:var(--card-bg);
+      padding:34px 42px;
+      border-radius:14px;
+      box-shadow: 0 18px 38px rgba(15,15,15,0.09);
+      backdrop-filter: blur(4px);
+    }
+    h1{ text-align:center; color:#41207a; margin:0 0 18px; font-size:26px; font-weight:600; }
+
+    /* Flash */
+    .flash{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 16px;
+      border-radius:10px;
+      font-weight:600;
+      margin-bottom:18px;
+      font-size:15px;
+      animation: pop .28s ease;
+    }
+    .flash.success{ background:#e6f6ea; color:var(--success); border-left:6px solid var(--success); }
+    .flash.warning{ background:#fff9e6; color:var(--warning); border-left:6px solid var(--warning); }
+    .flash.danger, .flash.error{ background:#fbeaea; color:var(--danger); border-left:6px solid var(--danger); }
+    @keyframes pop{ from{opacity:0; transform:translateY(-6px) scale(.99)} to{opacity:1; transform:none} }
+
+    /* Form */
+    form{ margin-top:6px; }
+    .row{ display:flex; gap:18px; }
+    .col{ flex:1; }
+
+    label{ display:block; margin-top:14px; color:#2b2b2b; font-weight:600; font-size:14px; }
+    .required::after{ content:" *"; color:var(--danger); margin-left:3px; font-weight:700; }
+
+    input[type="text"], input[type="email"], input[type="date"], select{
+      width:100%;
+      padding:12px 14px;
+      margin-top:8px;
+      border-radius:10px;
+      border:1px solid #d1d5db;
+      background:#fff;
+      font-size:15px;
+      transition: box-shadow .18s, border-color .18s;
+    }
+    input:focus, select:focus{
+      outline:none;
+      border-color:var(--accent2);
+      box-shadow: 0 6px 18px rgba(94,53,177,0.08);
+    }
+
+    .error-msg{ color:var(--danger); font-weight:600; font-size:13px; margin-top:8px; min-height:18px; }
+    .ok-msg{ color:var(--success); font-weight:600; font-size:13px; margin-top:8px; min-height:18px; }
+
+    /* Buttons */
+    .button-row{ display:flex; gap:18px; margin-top:22px; }
+    button{
+      flex:1;
+      padding:12px 14px;
+      font-size:15px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .submit-btn{
+      background: linear-gradient(90deg,var(--accent1),var(--accent2));
+      color:white;
+      box-shadow: 0 6px 18px rgba(69,39,160,0.12);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .submit-btn:disabled{
+      opacity:.56; cursor:not-allowed; transform:none; box-shadow:none;
+    }
+    .submit-btn:hover:not(:disabled){ transform:translateY(-2px); }
+
+    .cancel-btn{ background:#ef5350; color:white; }
+    .cancel-btn:hover{ transform:translateY(-2px); box-shadow: 0 8px 18px rgba(229,57,53,0.12); }
+
+    .home-btn{
+      background:linear-gradient(90deg,#0284c7,#4f46e5);
+      color:white;
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:10px;
+      font-size:15px;
+      font-weight:700;
+      padding:12px 14px;
+      min-width:120px;
+      box-shadow:0 8px 18px rgba(37,99,235,0.18);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .home-btn:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(37,99,235,0.24); }
+
+    .top-actions{
+      display:flex;
+      justify-content:flex-end;
+      margin-bottom:14px;
+    }
+
+    .page-actions{
+      max-width:760px;
+      margin:20px auto 0;
+      padding:0 4px;
+      display:flex;
+      justify-content:center;
+    }
+
+    .fee-payment-row{
+      align-items:flex-start;
+    }
+
+    .payment-col{
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+    }
+
+    .reg-success-meta{
+      text-align:left;
+      background:#f8fafc;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      padding:14px 16px;
+      margin-bottom:14px;
+    }
+
+    .reg-success-meta .meta-row{
+      display:grid;
+      grid-template-columns:110px 1fr;
+      gap:12px;
+      padding:6px 0;
+      border-bottom:1px solid #eceff3;
+    }
+
+    .reg-success-meta .meta-row:last-child{
+      border-bottom:none;
+    }
+
+    .reg-success-meta .meta-label{
+      color:#6b7280;
+      font-weight:600;
+    }
+
+    .reg-success-meta .meta-value{
+      color:#111827;
+      font-weight:600;
+      word-break:break-word;
+    }
+
+    .reg-success-meta .meta-value.password{
+      color:#d6274d;
+      font-weight:700;
+    }
+
+    .pay-btn{
+      width:100%;
+      background: linear-gradient(90deg,#0ea5e9,#2563eb);
+      color:white;
+      margin-top:8px;
+    }
+    .payment-status{ margin-top:8px; font-size:13px; font-weight:600; }
+    .payment-status.ok{ color:var(--success); }
+    .payment-status.bad{ color:var(--danger); }
+
+    .payment-note {
+      margin-top: 8px;
+      color: #5b6475;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .processing-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #eef6ff;
+      color: #1d4ed8;
+      font-size: 13px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .review-offcanvas {
+      width: min(100%, 460px) !important;
+    }
+
+    .summary-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: #fff;
+      margin-bottom: 14px;
+    }
+
+    .summary-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #41207a;
+      margin-bottom: 12px;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 8px 0;
+      border-bottom: 1px solid #eef1f5;
+      font-size: 14px;
+    }
+
+    .summary-item:last-child {
+      border-bottom: none;
+    }
+
+    .summary-label {
+      color: #6b7280;
+      font-weight: 600;
+    }
+
+    .summary-value {
+      color: #111827;
+      font-weight: 700;
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .offcanvas-footer {
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    /* .back { margin-top:20px; text-align:center; }
+    .back a{ text-decoration:none; color:#fff; background:#3949ab; padding:10px 18px; border-radius:8px; font-weight:600; } */
+
+    @media (max-width:720px){
+      .row{ flex-direction:column; }
+      .header{ padding:12px 14px; }
+      .container{ margin:20px 12px; padding:22px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo"><img src="{{ url_for('static', filename='logo.png') }}" alt="Logo"></div>
+  </div>
+
+  <div class="page-actions">
+    <a href="/" class="home-btn">Home</a>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+
+    <h1>Student Registration</h1>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="flash {{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Registration Form -->
+    <form method="POST" action="{{ url_for('admin_register') }}" novalidate id="adminRegisterForm">
+
+      <!-- Row 1: First + Last -->
+      <div class="row">
+        <div class="col">
+          <label class="required">First name</label>
+          <input type="text" name="first_name" id="firstName"/>
+          <div id="firstNameError" class="error-msg"></div>
+        </div>
+
+        <div class="col">
+          <label class="required">Last name</label>
+          <input type="text" name="last_name" id="lastName"/>
+          <div id="lastNameError" class="error-msg"></div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <label class="required">Email</label>
+      <input type="email" name="email" id="email"/>
+      <div id="emailError" class="error-msg"></div>
+      <div id="emailOk" class="ok-msg" style="display:none;"></div>
+
+      <!-- Phone -->
+      <label class="required">Phone (10 digits)</label>
+      <input type="text" name="phone" id="phone" maxlength="10" inputmode="numeric"/>
+      <div id="phoneError" class="error-msg"></div>
+      <div id="phoneOk" class="ok-msg" style="display:none;"></div>
+
+      <!-- Location -->
+      <label class="required">Location</label>
+      <input type="text" name="location" id="location"/>
+      <div id="locationError" class="error-msg"></div>
+
+      <!-- Course + Language -->
+<div class="row">
+  <div class="col">
+    <label class="required">Course</label>
+    <select name="course" id="courseSelect">
+      <option value="">-- Select Course --</option>
+      {% for c in courses %}
+        <option value="{{ c.ID }}" data-fee="{{ c.COURSE_FEE or 0 }}">{{ c.COURSE_NAME }}</option>
+      {% endfor %}
+    </select>
+    <div id="courseError" class="error-msg"></div>
+  </div>
+
+  <div class="col">
+    <label class="required">Language</label>
+    <select name="language" id="languageSelect">
+      <option value="">-- Select Language --</option>
+      {% for l in languages %}
+        <option value="{{ l.ID }}">{{ l.LANGUAGE }}</option>
+      {% endfor %}
+    </select>
+    <div id="languageError" class="error-msg"></div>
+  </div>
+</div>
+
+
+      <!-- Start Date -->
+      <label class="required">Start date</label>
+      <input type="date" name="start_date" id="startDate"/>
+      <div id="dateError" class="error-msg"></div>
+
+      <input type="hidden" id="payment_id" name="payment_id" value="">
+      <input type="hidden" id="order_id" name="order_id" value="">
+      <input type="hidden" id="signature" name="signature" value="">
+
+      <div class="row fee-payment-row">
+        <div class="col">
+          <label>Course Fee</label>
+          <input type="text" id="courseFeeDisplay" value="INR 0" readonly>
+        </div>
+        <div class="col payment-col">
+          <label>Payment</label>
+          <div id="paymentStatus" class="payment-status">Select course to continue.</div>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="button-row">
+        <button type="button" class="cancel-btn" onclick="window.location.href='/'">Cancel</button>
+        <button type="submit" id="submitBtn" class="submit-btn" disabled>Proceed to Pay &amp; Register</button>
+      </div>
+
+      <!-- <div class="back">
+        <a href="{{ url_for('resources') }}">← Back to Resources</a>
+      </div> -->
+
+    </form>
+  </div>
+
+  <div class="offcanvas offcanvas-end review-offcanvas" tabindex="-1" id="registrationReviewCanvas" aria-labelledby="registrationReviewCanvasLabel">
+    <div class="offcanvas-header">
+      <h2 class="offcanvas-title fs-5 fw-bold" id="registrationReviewCanvasLabel">Review Registration Details</h2>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <p class="text-muted mb-3">Please validate all details before proceeding to payment.</p>
+
+      <div class="summary-card">
+        <h3>Student Details</h3>
+        <div class="summary-item"><span class="summary-label">First name</span><span class="summary-value" id="summaryFirstName"></span></div>
+        <div class="summary-item"><span class="summary-label">Last name</span><span class="summary-value" id="summaryLastName"></span></div>
+        <div class="summary-item"><span class="summary-label">Email</span><span class="summary-value" id="summaryEmail"></span></div>
+        <div class="summary-item"><span class="summary-label">Phone</span><span class="summary-value" id="summaryPhone"></span></div>
+        <div class="summary-item"><span class="summary-label">Location</span><span class="summary-value" id="summaryLocation"></span></div>
+      </div>
+
+      <div class="summary-card">
+        <h3>Course Details</h3>
+        <div class="summary-item"><span class="summary-label">Course</span><span class="summary-value" id="summaryCourse"></span></div>
+        <div class="summary-item"><span class="summary-label">Language</span><span class="summary-value" id="summaryLanguage"></span></div>
+        <div class="summary-item"><span class="summary-label">Start date</span><span class="summary-value" id="summaryStartDate"></span></div>
+        <div class="summary-item"><span class="summary-label">Course fee</span><span class="summary-value" id="summaryCourseFee"></span></div>
+      </div>
+
+      <div id="offcanvasPaymentStatus" class="payment-status">Review complete. Proceed when ready.</div>
+      <div id="processingNote" class="processing-note">Payment received. Finalizing registration and generating your Registration ID. Please do not close or refresh this page.</div>
+    </div>
+    <div class="offcanvas-footer">
+      <button type="button" class="cancel-btn" data-bs-dismiss="offcanvas">Back</button>
+      <button type="button" class="submit-btn" id="offcanvasProceedBtn">Pay &amp; Register</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+/* --------------- VALIDATION --------------- */
+
+const firstName=document.getElementById('firstName');
+const lastName=document.getElementById('lastName');
+const email=document.getElementById('email');
+const phone=document.getElementById('phone');
+const locationF=document.getElementById('location');
+const course=document.getElementById('courseSelect');
+const language=document.getElementById('languageSelect');
+const startDate=document.getElementById('startDate');
+const submitBtn=document.getElementById('submitBtn');
+const courseFeeDisplay=document.getElementById('courseFeeDisplay');
+const paymentStatus=document.getElementById('paymentStatus');
+const paymentIdInput=document.getElementById('payment_id');
+const orderIdInput=document.getElementById('order_id');
+const signatureInput=document.getElementById('signature');
+const offcanvasPaymentStatus=document.getElementById('offcanvasPaymentStatus');
+const offcanvasProceedBtn=document.getElementById('offcanvasProceedBtn');
+const processingNote=document.getElementById('processingNote');
+
+const reviewCanvasEl = document.getElementById('registrationReviewCanvas');
+const reviewCanvas = bootstrap.Offcanvas.getOrCreateInstance(reviewCanvasEl);
+
+const firstNameError=document.getElementById('firstNameError');
+const lastNameError=document.getElementById('lastNameError');
+const emailError=document.getElementById('emailError');
+const emailOk=document.getElementById('emailOk');
+const phoneError=document.getElementById('phoneError');
+const phoneOk=document.getElementById('phoneOk');
+const locationError=document.getElementById('locationError');
+const courseError=document.getElementById('courseError');
+const languageError=document.getElementById('languageError');
+const dateError=document.getElementById('dateError');
+
+const summaryFirstName=document.getElementById('summaryFirstName');
+const summaryLastName=document.getElementById('summaryLastName');
+const summaryEmail=document.getElementById('summaryEmail');
+const summaryPhone=document.getElementById('summaryPhone');
+const summaryLocation=document.getElementById('summaryLocation');
+const summaryCourse=document.getElementById('summaryCourse');
+const summaryLanguage=document.getElementById('summaryLanguage');
+const summaryStartDate=document.getElementById('summaryStartDate');
+const summaryCourseFee=document.getElementById('summaryCourseFee');
+
+const state={firstName:false,lastName:false,email:false,phone:false,location:false,course:false,language:false,date:false,payment:false};
+
+function getSelectedCourseFee() {
+  const selectedOption = course.options[course.selectedIndex];
+  if (!selectedOption) return 0;
+  return Number(selectedOption.getAttribute('data-fee') || 0);
+}
+
+function formatInr(value) {
+  return `INR ${Number(value || 0).toLocaleString('en-IN')}`;
+}
+
+function resetPaymentState() {
+  paymentIdInput.value = '';
+  orderIdInput.value = '';
+  signatureInput.value = '';
+  state.payment = false;
+}
+
+function updatePaymentUI() {
+  const fee = getSelectedCourseFee();
+  courseFeeDisplay.value = formatInr(fee);
+
+  if (!course.value) {
+    paymentStatus.className = 'payment-status';
+    paymentStatus.textContent = 'Select course to continue.';
+    state.payment = false;
+    return;
+  }
+
+  if (fee <= 0) {
+    paymentStatus.className = 'payment-status ok';
+    paymentStatus.textContent = 'No payment required for this course.';
+    state.payment = true;
+    paymentIdInput.value = 'FREE';
+    orderIdInput.value = 'FREE';
+    signatureInput.value = 'FREE';
+    return;
+  }
+
+  if (state.payment) {
+    paymentStatus.className = 'payment-status ok';
+    paymentStatus.textContent = 'Payment completed successfully.';
+  } else {
+    paymentStatus.className = 'payment-status';
+    paymentStatus.textContent = 'Payment pending.';
+  }
+}
+
+function isReviewReady() {
+  return state.firstName && state.lastName && state.email && state.phone && state.location && state.course && state.language && state.date;
+}
+
+function updateReviewButtonState() {
+  submitBtn.disabled = !isReviewReady();
+}
+
+function setError(node,msg){node.textContent=msg;node.style.display=msg?'block':'none';}
+function setOk(node,msg){if(msg){node.style.display='block';node.textContent=msg;}else{node.style.display='none';node.textContent='';}}
+
+function validEmailDomain(v){
+  const lower=v.toLowerCase().trim();
+  const domainValid=lower.endsWith("@gmail.com")||lower.endsWith("@chakorahub.com");
+  const formatValid=/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(lower);
+  return domainValid&&formatValid;
+}
+
+function validateFirstName(){const v=firstName.value.trim();if(!v){state.firstName=false;setError(firstNameError,"First name is required.");} else{state.firstName=true;setError(firstNameError,"");}toggleSubmit();}
+function validateLastName(){if(!state.firstName){setError(lastNameError,"Please fill first name first.");state.lastName=false;toggleSubmit();return;}const v=lastName.value.trim();if(!v){state.lastName=false;setError(lastNameError,"Last name is required.");} else{state.lastName=true;setError(lastNameError,"");}toggleSubmit();}
+function validateEmail(){if(!state.firstName||!state.lastName){setError(emailError,"Complete name first.");state.email=false;setOk(emailOk,"");toggleSubmit();return;}const v=email.value.trim();if(!v){state.email=false;setError(emailError,"Email is required.");setOk(emailOk,"");} else if(!validEmailDomain(v)){state.email=false;setError(emailError,"Must end with @gmail.com or @chakorahub.com");setOk(emailOk,"");} else{state.email=true;setError(emailError,"");setOk(emailOk,"Email looks good.");}validatePhone();toggleSubmit();}
+function validatePhone(){const v=phone.value.trim();if(!v){state.phone=false;setError(phoneError,"Phone required.");setOk(phoneOk,"");} else if(!/^\d+$/.test(v)){state.phone=false;setError(phoneError,"Digits only.");setOk(phoneOk,"");} else if(v.length!==10){state.phone=false;setError(phoneError,"Must be exactly 10 digits.");setOk(phoneOk,"");} else{state.phone=true;setError(phoneError,"");setOk(phoneOk,"Phone looks good.");}validateLocation();toggleSubmit();}
+function validateLocation(){const v=locationF.value.trim();if(!v){state.location=false;setError(locationError,"Location required.");} else{state.location=true;setError(locationError,"");}toggleSubmit();}
+
+function validateCourse() {
+    const v = course.value; 
+    if (!v) {
+        state.course = false;
+        setError(courseError, "Select a course.");
+    } else {
+        state.course = true;
+        setError(courseError, "");
+    }
+  resetPaymentState();
+  updatePaymentUI();
+    // Re-run language validation in case it was blocked by a previous false course state
+    validateLanguage(); 
+    toggleSubmit();
+}
+
+function validateLanguage() {
+    const v = language.value; 
+    if (!v) {
+        state.language = false;
+        setError(languageError, "Select a language.");
+    } else {
+        state.language = true;
+        setError(languageError, "");
+    }
+    validateDate();
+    toggleSubmit();
+}
+
+function validateDate() {
+    const v = startDate.value;
+    if (!v) {
+        state.date = false;
+        setError(dateError, "Start date required.");
+    } else {
+        const d = new Date(v), t = new Date();
+        t.setHours(0,0,0,0);
+        if (d < t) {
+            state.date = false;
+            setError(dateError, "Date cannot be past.");
+         } else {
+            state.date = true;
+            setError(dateError, "");
+        } 
+        
+    }
+    state.date = true;
+    toggleSubmit();
+}
+
+function toggleSubmit(){updateReviewButtonState();}
+
+function getSelectedCourseName() {
+  const selectedOption = course.options[course.selectedIndex];
+  return selectedOption ? selectedOption.text : '';
+}
+
+function getSelectedLanguageName() {
+  const selectedOption = language.options[language.selectedIndex];
+  return selectedOption ? selectedOption.text : '';
+}
+
+function populateReviewSummary() {
+  const fee = getSelectedCourseFee();
+  summaryFirstName.textContent = firstName.value.trim();
+  summaryLastName.textContent = lastName.value.trim();
+  summaryEmail.textContent = email.value.trim();
+  summaryPhone.textContent = phone.value.trim();
+  summaryLocation.textContent = locationF.value.trim();
+  summaryCourse.textContent = getSelectedCourseName();
+  summaryLanguage.textContent = getSelectedLanguageName();
+  summaryStartDate.textContent = startDate.value;
+  summaryCourseFee.textContent = formatInr(fee);
+
+  if (fee > 0) {
+    offcanvasProceedBtn.textContent = `Pay ${formatInr(fee)} & Register`;
+    offcanvasPaymentStatus.className = 'payment-status';
+    offcanvasPaymentStatus.textContent = state.payment ? 'Payment already completed. Please wait for your Registration details' : 'After clicking below, Razorpay will open in a secure window.';
+  } else {
+    offcanvasProceedBtn.textContent = 'Confirm & Register';
+    offcanvasPaymentStatus.className = 'payment-status ok';
+    offcanvasPaymentStatus.textContent = 'This course is free. Registration will be submitted immediately.';
+  }
+}
+
+function buildPayload() {
+  return {
+    registration_type: 'student',
+    first_name: firstName.value.trim(),
+    last_name: lastName.value.trim(),
+    email: email.value.trim(),
+    phone: phone.value.trim(),
+    location: locationF.value.trim(),
+    course: course.value,
+    language: language.value,
+    start_date: startDate.value,
+    payment_id: paymentIdInput.value,
+    order_id: orderIdInput.value,
+    signature: signatureInput.value
+  };
+}
+
+function resetFormState(form) {
+  form.reset();
+  Object.keys(state).forEach(key => state[key] = false);
+  setOk(emailOk, '');
+  setOk(phoneOk, '');
+  [firstNameError,lastNameError,emailError,phoneError,locationError,courseError,languageError,dateError].forEach(node => setError(node, ''));
+  resetPaymentState();
+  updatePaymentUI();
+  processingNote.style.display = 'none';
+  updateReviewButtonState();
+}
+
+function submitRegistration(form) {
+  const payload = buildPayload();
+
+  return fetch('/registration', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(response => {
+    if (!response.ok) return response.json().then(e => Promise.reject(e));
+    return response.json();
+  })
+  .then(data => {
+    if (data.success) {
+      showSuccessPopup(
+        data.registration_id || 'N/A',
+        data.course || '',
+        data.email || payload.email || ''
+      );
+      reviewCanvas.hide();
+      resetFormState(form);
+    } else {
+      alert(`Registration failed:\n${data.message || 'Unknown error. Please try again.'}`);
+    }
+    return data;
+  })
+  .catch(err => {
+    const msg = (err && (err.message || err.detail)) ? (err.message || err.detail) : 'Could not reach server. Please try again.';
+    alert(`Error: ${msg}`);
+  });
+}
+
+function showSuccessPopup(registrationId, courseName, studentEmail) {
+  // Reuse existing Bootstrap modal element injected below, or create it once.
+  let el = document.getElementById('regSuccessModal');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'regSuccessModal';
+    el.className = 'modal fade';
+    el.tabIndex = -1;
+    el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = `
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header bg-success text-white border-0">
+            <h5 class="modal-title fw-bold"><i class="bi bi-check-circle-fill me-2"></i>Registration Successful!</h5>
+          </div>
+          <div class="modal-body text-center py-4">
+            <div class="display-4 mb-3">🎉</div>
+            <p class="text-muted mb-1">Your Registration ID is</p>
+            <div class="alert alert-info py-2 px-3 d-inline-block mb-3">
+              <span class="fw-bold font-monospace fs-5" id="regSuccessId"></span>
+            </div>
+            <div class="reg-success-meta">
+              <div class="meta-row">
+                <div class="meta-label">Course</div>
+                <div class="meta-value" id="regSuccessCourse"></div>
+              </div>
+              <div class="meta-row">
+                <div class="meta-label">Email</div>
+                <div class="meta-value" id="regSuccessEmail"></div>
+              </div>
+              <div class="meta-row">
+                <div class="meta-label">Password</div>
+                <div class="meta-value password">changeme123</div>
+              </div>
+            </div>
+            <p class="text-muted small mb-0">⚠️ Please change your password after first login.</p>
+            <p class="text-muted small">A confirmation email has been sent to your inbox.</p>
+          </div>
+          <div class="modal-footer border-0 justify-content-center pt-0">
+            <a href="/" class="btn btn-primary px-4">Go to Login</a>
+            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(el);
+  }
+
+  document.getElementById('regSuccessId').textContent    = registrationId;
+  document.getElementById('regSuccessCourse').textContent = courseName || '';
+  document.getElementById('regSuccessEmail').textContent  = studentEmail || '';
+
+  const bsModal = new bootstrap.Modal(el, { backdrop: 'static', keyboard: false });
+  bsModal.show();
+}
+
+async function loadCheckoutSdk() {
+  const ctor = window["Razor" + "pay"];
+  if (ctor) {
+    return ctor;
+  }
+
+  await new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.' + 'razor' + 'pay.com/v1/checkout.js';
+    script.onload = resolve;
+    script.onerror = () => reject(new Error('Unable to load payment gateway script.'));
+    document.head.appendChild(script);
+  });
+
+  return window["Razor" + "pay"];
+}
+
+async function startPayment() {
+  if (!course.value) {
+    setError(courseError, 'Select a course before payment.');
+    return;
+  }
+
+  const fee = getSelectedCourseFee();
+  if (fee <= 0) {
+    state.payment = true;
+    paymentIdInput.value = 'FREE';
+    orderIdInput.value = 'FREE';
+    signatureInput.value = 'FREE';
+    updatePaymentUI();
+    return true;
+  }
+
+  try {
+    offcanvasProceedBtn.disabled = true;
+    offcanvasProceedBtn.textContent = 'Preparing payment...';
+    offcanvasPaymentStatus.className = 'payment-status';
+    offcanvasPaymentStatus.textContent = 'Preparing Razorpay checkout...';
+
+    const orderRes = await fetch('/create-payment-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: Math.round(fee * 100),
+        currency: 'INR',
+        course: course.options[course.selectedIndex].text
+      })
+    });
+
+    const orderData = await orderRes.json();
+    if (!orderRes.ok || !orderData.order_id) {
+      throw new Error(orderData.error || 'Failed to create payment order.');
+    }
+
+    const checkoutCtor = await loadCheckoutSdk();
+
+    const options = {
+      key: '{{ payment_key_id }}',
+      amount: Math.round(fee * 100),
+      currency: 'INR',
+      name: 'ChakoraHub',
+      description: `Course Registration - ${course.options[course.selectedIndex].text}`,
+      order_id: orderData.order_id,
+      prefill: {
+        name: `${firstName.value.trim()} ${lastName.value.trim()}`.trim(),
+        email: email.value.trim(),
+        contact: phone.value.trim()
+      },
+      handler: function (response) {
+        paymentIdInput.value = response["razor" + "pay_payment_id"] || '';
+        orderIdInput.value = response["razor" + "pay_order_id"] || '';
+        signatureInput.value = response["razor" + "pay_signature"] || '';
+        state.payment = true;
+        updatePaymentUI();
+        offcanvasPaymentStatus.className = 'payment-status ok';
+        offcanvasPaymentStatus.textContent = 'Payment completed. Finalizing registration...';
+      },
+      modal: {
+        ondismiss: function () {
+          if (!state.payment) {
+            const form = document.getElementById('adminRegisterForm');
+            resetFormState(form);
+            reviewCanvas.hide();
+            alert('Payment cancelled. Form has been reset. Please fill details again.');
+          }
+        }
+      },
+      theme: { color: '#5e35b1' }
+    };
+
+    const checkout = new checkoutCtor(options);
+    checkout.open();
+    return await new Promise((resolve) => {
+      const timer = setInterval(() => {
+        if (state.payment) {
+          clearInterval(timer);
+          resolve(true);
+        }
+      }, 200);
+
+      reviewCanvasEl.addEventListener('hidden.bs.offcanvas', function stopWaiting() {
+        clearInterval(timer);
+        reviewCanvasEl.removeEventListener('hidden.bs.offcanvas', stopWaiting);
+        resolve(state.payment);
+      });
+    });
+  } catch (err) {
+    paymentStatus.className = 'payment-status bad';
+    paymentStatus.textContent = err.message || 'Unable to start payment.';
+    offcanvasPaymentStatus.className = 'payment-status bad';
+    offcanvasPaymentStatus.textContent = err.message || 'Unable to start payment.';
+    return false;
+  } finally {
+    offcanvasProceedBtn.disabled = false;
+    populateReviewSummary();
+  }
+}
+
+firstName.addEventListener('input',validateFirstName);
+lastName.addEventListener('input',validateLastName);
+email.addEventListener('input',validateEmail);
+phone.addEventListener('input',validatePhone);
+locationF.addEventListener('input',validateLocation);
+course.addEventListener('change',validateCourse);
+language.addEventListener('change',validateLanguage);
+startDate.addEventListener('change',validateDate);
+
+/* ---------------- FINAL SUBMIT HANDLER (FIXED) ---------------- */
+
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("adminRegisterForm");
+
+  console.log("JS Loaded. form=", form);
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    console.log("Submit clicked → running validation + JSON submit");
+
+    // Run validation again before submit
+    validateFirstName();
+    validateLastName();
+    validateEmail();
+    validatePhone();
+    validateLocation();
+    validateCourse();
+    validateLanguage();
+    validateDate();
+
+    if (!isReviewReady()) {
+      console.warn("Form invalid → not submitting");
+      return;
+    }
+
+    populateReviewSummary();
+    reviewCanvas.show();
+  });
+
+  offcanvasProceedBtn.addEventListener('click', async function () {
+    if (!isReviewReady()) {
+      reviewCanvas.hide();
+      return;
+    }
+
+    const selectedFee = getSelectedCourseFee();
+    if (selectedFee > 0 && !state.payment) {
+      const paid = await startPayment();
+      if (!paid) {
+        return;
+      }
+    }
+
+    if (selectedFee <= 0 || state.payment) {
+      offcanvasProceedBtn.disabled = true;
+      offcanvasProceedBtn.textContent = 'Submitting...';
+      processingNote.style.display = 'block';
+      offcanvasPaymentStatus.className = 'payment-status ok';
+      offcanvasPaymentStatus.textContent = 'Payment complete. Finalizing registration...';
+      try {
+        await submitRegistration(form);
+      } catch (err) {
+        console.error('Error:', err);
+      } finally {
+        offcanvasProceedBtn.disabled = false;
+        processingNote.style.display = 'none';
+        populateReviewSummary();
+      }
+    }
+  });
+
+  updatePaymentUI();
+  updateReviewButtonState();
+});
+</script>
+
+
+</body>
+</html>

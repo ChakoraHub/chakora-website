@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Online Proctored Exam System{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Core Custom Premium Styles -->
+    {% if request.path.startswith('/css/') %}
+    <!-- If CSS is requested directly, serve from static -->
+    {% else %}
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    {% endif %}
+
+    <style>
+        /* ============================================
+       PREMIUM TOAST NOTIFICATIONS
+       ============================================ */
+        .premium-toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .premium-toast {
+            background: rgba(18, 18, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transform-origin: right;
+            min-width: 280px;
+        }
+
+        .premium-toast.hiding {
+            animation: slideOutRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .premium-toast-icon {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .premium-toast-icon.success {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        .premium-toast-icon.error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        .premium-toast-icon.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+
+        .premium-toast-icon.info {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+
+        .premium-toast-content {
+            flex: 1;
+        }
+
+        .premium-toast-title {
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .premium-toast-message {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.82rem;
+            line-height: 1.4;
+        }
+
+        .premium-toast-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 1rem;
+            transition: color 0.2s;
+            flex-shrink: 0;
+            margin-top: -2px;
+        }
+
+        .premium-toast-close:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(80px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(80px) scale(0.95);
+            }
+        }
+
+        /* ============================================
+       PREMIUM MODAL
+       ============================================ */
+        .premium-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 99998;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .premium-modal-overlay.active {
+            display: flex;
+        }
+
+        .premium-modal {
+            background: rgba(18, 18, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            max-width: 480px;
+            width: 90%;
+            padding: 32px;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+            animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes modalPop {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .premium-modal-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 16px;
+        }
+
+        .premium-modal-icon.danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        .premium-modal-icon.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+
+        .premium-modal-icon.success {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        .premium-modal-icon.info {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+
+        .premium-modal-title {
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .premium-modal-message {
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .premium-modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .premium-modal-actions .btn {
+            min-width: 100px;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .premium-modal-actions .btn-cancel {
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .premium-modal-actions .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+        }
+
+        .premium-modal-actions .btn-danger {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .premium-modal-actions .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .premium-modal-actions .btn-success {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .premium-modal-actions .btn-success:hover {
+            background: #16a34a;
+        }
+
+        .premium-modal-actions .btn-primary {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .premium-modal-actions .btn-primary:hover {
+            background: #2563eb;
+        }
+    </style>
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-custom d-flex align-items-center gap-2" href="{{ url_for('login') }}">
+                <i class="bi bi-shield-lock-fill text-gradient-blue" style="font-size: 1.5rem;"></i>
+                <span>OPE SYSTEM</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                    {% if session.get('user_id') %}
+                    <li class="nav-item">
+                        <span class="nav-link text-white-50">
+                            <i class="bi bi-person-circle me-1"></i> {{ session.get('username') }} ({{
+                            session.get('role') | capitalize }})
+                        </span>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-premium-outline btn-sm py-1 px-3 d-flex align-items-center gap-1"
+                            href="{{ url_for('ope_logout') }}">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="py-5">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-auto border-top border-secondary border-opacity-10"
+        style="background: rgba(12, 10, 15, 0.5);">
+        <div class="container text-center text-secondary" style="font-size: 0.85rem;">
+            <p class="mb-0">&copy; 2026 Online Proctored Exam System. Designed with visual excellence & automated
+                proctoring protection.</p>
+        </div>
+    </footer>
+
+    <!-- Premium Toast Container -->
+    <div class="premium-toast-container" id="premiumToastContainer"></div>
+
+    <!-- Premium Modal -->
+    <div class="premium-modal-overlay" id="premiumModalOverlay">
+        <div class="premium-modal">
+            <div class="premium-modal-icon" id="premiumModalIcon">⚠️</div>
+            <h3 class="premium-modal-title" id="premiumModalTitle">Are you sure?</h3>
+            <p class="premium-modal-message" id="premiumModalMessage">This action cannot be undone.</p>
+            <div class="premium-modal-actions">
+                <button class="btn btn-cancel" id="premiumModalCancelBtn">Cancel</button>
+                <button class="btn btn-danger" id="premiumModalConfirmBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ============================================
+        // PREMIUM TOAST SYSTEM
+        // ============================================
+        function showPremiumToast(message, type = 'info', title = '') {
+            const container = document.getElementById('premiumToastContainer');
+            if (!container) return;
+
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+
+            const titles = {
+                success: 'Success',
+                error: 'Error',
+                warning: 'Warning',
+                info: 'Information'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = 'premium-toast';
+            toast.innerHTML = `
+                <div class="premium-toast-icon ${type}">${icons[type] || 'ℹ️'}</div>
+                <div class="premium-toast-content">
+                    <div class="premium-toast-title">${title || titles[type] || 'Info'}</div>
+                    <div class="premium-toast-message">${message}</div>
+                </div>
+                <button class="premium-toast-close" onclick="this.closest('.premium-toast').remove()">✕</button>
+            `;
+
+            container.appendChild(toast);
+
+            // Auto dismiss after 4 seconds
+            setTimeout(() => {
+                toast.classList.add('hiding');
+                setTimeout(() => {
+                    if (toast.parentNode) toast.remove();
+                }, 300);
+            }, 4000);
+        }
+
+        // ============================================
+        // PREMIUM MODAL SYSTEM - FULLY FIXED
+        // ============================================
+        let modalResolve = null;
+
+        function showPremiumModal(message, title = 'Are you sure?', type = 'warning', confirmText = 'Confirm') {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('premiumModalOverlay');
+                if (!overlay) {
+                    resolve(confirm(message));
+                    return;
+                }
+
+                const icon = document.getElementById('premiumModalIcon');
+                const titleEl = document.getElementById('premiumModalTitle');
+                const messageEl = document.getElementById('premiumModalMessage');
+                const confirmBtn = document.getElementById('premiumModalConfirmBtn');
+                const cancelBtn = document.getElementById('premiumModalCancelBtn');
+
+                const icons = {
+                    danger: '⚠️',
+                    warning: '⚠️',
+                    success: '✅',
+                    info: 'ℹ️'
+                };
+
+                icon.className = `premium-modal-icon ${type}`;
+                icon.textContent = icons[type] || '⚠️';
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+                confirmBtn.textContent = confirmText;
+                confirmBtn.className = `btn btn-${type === 'danger' ? 'danger' : type === 'success' ? 'success' : 'danger'}`;
+
+                // Store resolve function
+                modalResolve = resolve;
+
+                // Show modal
+                overlay.classList.add('active');
+
+                // Cancel button handler
+                const cancelHandler = function (e) {
+                    e.stopPropagation();
+                    overlay.classList.remove('active');
+                    if (modalResolve) {
+                        modalResolve(false);
+                        modalResolve = null;
+                    }
+                };
+
+                // Confirm button handler
+                const confirmHandler = function (e) {
+                    e.stopPropagation();
+                    overlay.classList.remove('active');
+                    if (modalResolve) {
+                        modalResolve(true);
+                        modalResolve = null;
+                    }
+                };
+
+                // Set button handlers directly
+                cancelBtn.onclick = cancelHandler;
+                confirmBtn.onclick = confirmHandler;
+            });
+        }
+
+        // Close modal function
+        function closePremiumModal() {
+            const overlay = document.getElementById('premiumModalOverlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+        }
+
+        // Close modal on overlay click
+        document.getElementById('premiumModalOverlay').addEventListener('click', function (e) {
+            if (e.target === this && this.classList.contains('active')) {
+                this.classList.remove('active');
+                if (modalResolve) {
+                    modalResolve(false);
+                    modalResolve = null;
+                }
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                const overlay = document.getElementById('premiumModalOverlay');
+                if (overlay && overlay.classList.contains('active')) {
+                    overlay.classList.remove('active');
+                    if (modalResolve) {
+                        modalResolve(false);
+                        modalResolve = null;
+                    }
+                }
+            }
+        });
+
+        // ============================================
+        // REPLACE DEFAULT ALERT/CONFIRM
+        // ============================================
+        // Override default alert
+        window.alert = function (message) {
+            showPremiumToast(message, 'warning', 'Notice');
+        };
+
+        // Override default confirm with premium modal
+        window.confirm = function (message, title = 'Are you sure?') {
+            return showPremiumModal(message, title, 'warning', 'Confirm');
+        };
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

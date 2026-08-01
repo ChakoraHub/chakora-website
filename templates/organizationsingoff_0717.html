@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Organization Sign-Off</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:"Poppins",sans-serif;
+  min-height:100vh;
+  background:linear-gradient(135deg,#6b73ff,#7f53ac);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+/* ===== Card ===== */
+.card{
+  width:100%;
+  max-width:650px;
+  background:#fff;
+  border-radius:18px;
+  padding:30px;
+  box-shadow:0 12px 35px rgba(0,0,0,.2);
+}
+
+/* ===== Top Navigation ===== */
+.top-nav{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:22px;
+}
+
+.top-nav button{
+  padding:9px 18px;
+  border:none;
+  border-radius:10px;
+  background:#eef0ff;
+  color:#5b5fe6;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.top-nav button:hover{
+  background:#dde0ff;
+}
+
+/* ===== Heading ===== */
+h2{
+  text-align:center;
+  color:#333;
+  margin-bottom:8px;
+}
+
+.subtitle{
+  text-align:center;
+  color:#666;
+  font-size:14px;
+  margin-bottom:25px;
+}
+
+/* ===== Inputs ===== */
+label{
+  font-weight:600;
+  display:block;
+  margin-top:16px;
+  font-size:14px;
+}
+
+input, textarea, select{
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  margin-top:6px;
+  font-size:14px;
+  background:#fafafa;
+}
+
+textarea{resize:vertical}
+
+input:focus, textarea:focus, select:focus{
+  outline:none;
+  border-color:#6b73ff;
+  background:#fff;
+}
+
+/* ===== Submit Button ===== */
+.submit-btn{
+  width:100%;
+  background:linear-gradient(135deg,#6b73ff,#7f53ac);
+  color:#fff;
+  padding:15px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:600;
+  margin-top:28px;
+  cursor:pointer;
+}
+
+.submit-btn:hover{opacity:.92}
+
+/* ===== Messages ===== */
+.success{
+  background:#e6ffed;
+  color:#067a33;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:18px;
+}
+
+.error{
+  background:#ffe6e6;
+  color:#a00000;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <!-- 🔹 Navigation Buttons -->
+  <div class="top-nav">
+    <button onclick="window.location.href='/'">🏠 Home</button>
+    <button onclick="window.location.href='/applicationform'">📄Application Form</button>
+    <button onclick="window.location.href='/industry/brs'">📄 Submit BRS Form</button>
+    <button onclick="window.location.href='/track-project'">📊 Track Status</button>
+    
+  </div>
+
+  <!-- Flash message -->
+  {% if message %}
+    <div class="{{ message_type }}">{{ message }}</div>
+  {% endif %}
+<!-- 🔐 LOGIN MODAL -->
+<div id="loginOverlay" style="
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.6);
+  display:none; align-items:center; justify-content:center;
+">
+  <div style="background:#fff;padding:30px;width:320px;border-radius:12px;text-align:center">
+    <h3>Login Required</h3>
+    <input id="loginUser" placeholder="Email / Phone" style="width:100%;padding:12px;margin:10px 0">
+    <input id="loginPass" type="password" placeholder="Password" style="width:100%;padding:12px">
+    <button onclick="doLogin()" style="width:100%;padding:12px;background:#6b73ff;color:#fff;border:none;margin-top:10px">
+      Login
+    </button>
+    <div id="loginError" style="color:red;margin-top:10px"></div>
+  </div>
+</div>
+  <h2>Organization Sign-Off</h2>
+  <p class="subtitle">Authorized approval for submitted BRS</p>
+
+  <form method="POST" action="/org-signoff" enctype="multipart/form-data">
+
+    <label>Organization Name *</label>
+    <input type="text" name="org_name" required>
+
+    <label>Authorized Person *</label>
+    <input type="text" name="authorized_person" required>
+
+    <label>BRS Reference ID *</label>
+    <input type="text" name="brs_id" required>
+
+    <label>Approval Notes</label>
+    <textarea name="approval_notes" rows="3"></textarea>
+
+    <label>Upload Signed Consent Form (PDF) *</label>
+    <input type="file" name="consent_form" accept="application/pdf" required>
+
+    <label>Approval Status *</label>
+    <select name="approval_status" required>
+      <option value="">-- Select --</option>
+      <option value="Approved">Approved</option>
+      <option value="Rejected">Rejected</option>
+    </select>
+
+    <button type="submit" class="submit-btn">Submit Sign-Off</button>
+
+  </form>
+
+</div>
+<script>
+async function checkOrgSession(){
+  const res = await fetch("/org-session-check");
+  const data = await res.json();
+  if(!data.logged_in){
+    loginOverlay.style.display="flex";
+  }
+}
+
+async function doLogin(){
+  const fd = new FormData();
+  fd.append("username", loginUser.value);
+  fd.append("password", loginPass.value);
+
+  const res = await fetch("/track-login",{method:"POST",body:fd});
+  const d = await res.json();
+
+  if(d.success){
+    loginOverlay.style.display="none";
+  }else{
+    loginError.innerText=d.error;
+  }
+}
+window.onload = checkOrgSession;
+</script>
+
+</body>
+</html>

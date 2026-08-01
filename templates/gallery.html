@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallery | ChakoraHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #0078d7;
+      --text-color: #1f2937;
+      --bg-gradient: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f2f7ff 0%, #e9eff8 45%, #fbfcff 100%);
+      background-image:
+        radial-gradient(circle at 20% 10%, rgba(0, 120, 215, 0.10) 0%, transparent 22%),
+        radial-gradient(circle at 80% 20%, rgba(103, 126, 234, 0.08) 0%, transparent 18%),
+        radial-gradient(circle at 50% 85%, rgba(0, 120, 215, 0.06) 0%, transparent 20%);
+      color: var(--text-color);
+      min-height: 100vh;
+    }
+
+    .gallery-header {
+      padding: 48px 0 28px;
+      text-align: center;
+    }
+
+    .gallery-header h1 {
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--primary-color);
+    }
+
+    .gallery-header p {
+      max-width: 760px;
+      margin: 0 auto;
+      color: #4b5563;
+      font-size: 1.04rem;
+    }
+
+    .gallery-card {
+      background: #ffffff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+      border: 1px solid #e8eef8;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      height: 100%;
+    }
+
+    .gallery-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.14);
+    }
+
+    .gallery-image {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      background: #f1f5f9;
+    }
+
+    .gallery-body {
+      padding: 20px;
+    }
+
+    .gallery-chip {
+      display: inline-block;
+      font-size: 0.78rem;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: #eaf4ff;
+      color: #0b63b0;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .gallery-title {
+      font-size: 1.22rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .gallery-desc {
+      color: #475569;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    .gallery-meta {
+      color: #64748b;
+      font-size: 0.92rem;
+      margin-bottom: 0;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .empty-state {
+      background: #ffffff;
+      border: 1px dashed #c7d7ee;
+      border-radius: 14px;
+      padding: 32px;
+      text-align: center;
+      color: #64748b;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container py-4 py-md-5">
+
+    <div class="top-actions">
+      <a href="/" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Home
+      </a>
+    </div>
+
+    <header class="gallery-header">
+      <h1>Gallery</h1>
+    </header>
+
+    <div class="row g-4 justify-content-center">
+
+      <!-- Certificate of Recognition -->
+      <div class="col-md-6 col-lg-4">
+        <div class="gallery-card">
+          <img src="/static/images/certificate.jpeg" alt="Certificate of Recognition"
+            class="gallery-image">
+
+          <div class="gallery-body">
+            <span class="gallery-chip">Certificate</span>
+
+            <h2 class="gallery-title">
+              Certificate of Recognition
+            </h2>
+
+            <p class="gallery-desc">
+              Awarded to Subhash Chandra Vidapanakal for commitment to quality delivery at Kaiser Permanente.
+            </p>
+
+            <p class="gallery-meta">
+              <i class="fas fa-calendar-alt me-2"></i>
+              RFS-BOS All Hands | August 2018
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DPIIT Certificate -->
+      <div class="col-md-6 col-lg-4">
+        <div class="gallery-card">
+          <img src="/static/images/DPIIT.jpg" alt="DPIIT Certificate"
+            class="gallery-image">
+
+          <div class="gallery-body">
+            <span class="gallery-chip">Certificate</span>
+
+            <h2 class="gallery-title">
+              Certificate of DPIIT
+            </h2>
+
+            <p class="gallery-desc">
+              Chakora Hub (OPC) Private Limited is officially recognized by the Department for Promotion of Industry and
+              Internal Trade (DPIIT), Government of India, under the Startup India initiative. This recognition reflects
+              our dedication to developing innovative EdTech solutions that empower learners, educators, and
+              institutions through technology, AI, and digital transformation.
+            </p>
+
+            <p class="gallery-meta">
+              <i class="fas fa-calendar-alt me-2"></i>
+              Startup India | May 2026
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

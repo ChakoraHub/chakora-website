@@ -1,500 +1,653 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Leave Tracker</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .page-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            color: white;
-            border-radius: 8px;
-        }
-        
-        .page-header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        
-        .employee-info {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
-        .content-card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 25px;
-            margin-bottom: 20px;
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .card-header h2 {
-            color: #2c3e50;
-            font-size: 1.5rem;
-        }
-        
-        .alert {
-            padding: 12px 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        /* Leave Application Form */
-        .leave-form {
-            display: grid;
-            grid-template-columns: 1fr 1fr 2fr auto;
-            gap: 15px;
-            margin-bottom: 30px;
-            align-items: end;
-        }
-        
-        .form-group {
-            margin-bottom: 0;
-        }
-        
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #2c3e50;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
-            text-decoration: none;
-        }
-        
-        .btn:hover {
-            background-color: #2980b9;
-        }
-        
-        .btn-success {
-            background-color: #28a745;
-        }
-        
-        .btn-success:hover {
-            background-color: #218838;
-        }
-        
-        .btn-secondary {
-            background-color: #6c757d;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #545b62;
-        }
-        
-        /* Calendar Styles */
-        .calendar-header {
-            text-align: center;
-            margin: 20px 0;
-        }
-        
-        .calendar-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .nav-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .calendar-table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #ddd;
-        }
-        
-        .calendar-table th, 
-        .calendar-table td {
-            border: 1px solid #ddd;
-            text-align: center;
-            vertical-align: top;
-            width: 14%;
-            height: 120px;
-            padding: 5px;
-        }
-        
-        .calendar-table th {
-            background-color: #007bff;
-            color: white;
-            font-weight: bold;
-            padding: 15px;
-        }
-        
-        .calendar-day {
-            height: 100%;
-            padding: 5px;
-        }
-        
-        .day-number {
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 1.1rem;
-        }
-        
-        .festival {
-            background-color: #ffcccc;
-        }
-        
-        .leave {
-            background-color: #ccffcc;
-        }
-        
-        .both {
-            background: linear-gradient(135deg, #ffcccc 50%, #ccffcc 50%);
-        }
-        
-        .empty {
-            background-color: #f9f9f9;
-        }
-        
-        .event {
-            font-size: 0.8rem;
-            margin: 2px 0;
-            padding: 2px 4px;
-            border-radius: 3px;
-            text-align: left;
-        }
-        
-        .festival-event {
-            background-color: #ff9999;
-            color: #721c24;
-        }
-        
-        .leave-event {
-            background-color: #99ff99;
-            color: #155724;
-        }
-        
-        .legend {
-            margin-top: 20px;
-            text-align: center;
-        }
-        
-        .legend span {
-            display: inline-block;
-            padding: 8px 15px;
-            margin-right: 15px;
-            border-radius: 5px;
-            font-weight: 500;
-        }
-        
-        .legend .festival { background-color: #ffcccc; }
-        .legend .leave { background-color: #ccffcc; }
-        .legend .both { background: linear-gradient(135deg, #ffcccc 50%, #ccffcc 50%); }
-        
-        /* Leave History */
-        .leave-history {
-            margin-top: 30px;
-        }
-        
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.85em;
-        }
-        
-        .status-approved {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.85em;
-        }
-        
-        .status-rejected {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.85em;
-        }
-        
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            color: #3498db;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 1.1rem;
-        }
-        
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        
-        table th, table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        table th {
-            background-color: #007bff;
-            color: white;
-        }
-        
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Leave Tracker — ChakoraHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:       #0078D7;
+      --primary-dark:  #0e4fa0;
+      --primary-glow:  rgba(0,120,215,0.12);
+      --success:       #16a34a;
+      --warning:       #d97706;
+      --danger:        #dc2626;
+      --festival-bg:   #fff1f2;
+      --festival-bdr:  #fecdd3;
+      --festival-text: #be123c;
+      --leave-bg:      #f0fdf4;
+      --leave-bdr:     #bbf7d0;
+      --leave-text:    #15803d;
+      --bg:            #f0f4f9;
+      --card:          #ffffff;
+      --border:        #e2e8f0;
+      --text:          #1a2340;
+      --muted:         #64748b;
+      --label:         #475569;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      background: linear-gradient(135deg, #1a6fd4 0%, #0e4fa0 55%, #083580 100%);
+      padding: 22px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+      flex-wrap: wrap;
+    }
+    .header-left   { display: flex; align-items: center; gap: 16px; }
+    .header-logo   {
+      height: 50px; width: 50px; border-radius: 12px;
+      object-fit: cover; border: 2px solid rgba(255,255,255,0.25);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .header-title  { font-size: 1.2rem; font-weight: 700; color: #fff; margin: 0; }
+    .header-sub    { font-size: 0.8rem; color: rgba(255,255,255,0.65); margin-top: 2px; }
+
+    .emp-pill {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50px;
+      padding: 8px 18px;
+    }
+    .emp-pill .avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; color: #fff; font-weight: 700; flex-shrink: 0;
+    }
+    .emp-pill-name { font-size: 0.9rem; font-weight: 600; color: #fff; }
+    .emp-pill-id   { font-size: 0.75rem; color: rgba(255,255,255,0.65); }
+
+    /* ── MAIN WRAP ── */
+    .main-wrap { max-width: 1180px; margin: 36px auto 80px; padding: 0 20px; }
+
+    /* ── STAT CARDS ── */
+    .stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+    @media(max-width:768px){ .stat-row { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:480px){ .stat-row { grid-template-columns: 1fr; } }
+
+    .stat-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 2px 12px rgba(0,60,140,0.07);
+      display: flex; align-items: center; gap: 14px;
+      animation: fadeUp 0.4s ease both;
+    }
+    .stat-card:nth-child(2){ animation-delay:0.05s; }
+    .stat-card:nth-child(3){ animation-delay:0.10s; }
+    .stat-card:nth-child(4){ animation-delay:0.15s; }
+
+    .stat-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .si-blue   { background:#eff6ff; color:var(--primary); }
+    .si-green  { background:#f0fdf4; color:var(--success); }
+    .si-amber  { background:#fffbeb; color:var(--warning); }
+    .si-red    { background:#fff1f2; color:var(--danger);  }
+
+    .stat-val  { font-size: 1.7rem; font-weight: 700; color: var(--text); line-height: 1; }
+    .stat-lbl  { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+
+    @keyframes fadeUp {
+      from{ opacity:0; transform:translateY(16px); }
+      to  { opacity:1; transform:translateY(0);    }
+    }
+
+    /* ── SECTION CARDS ── */
+    .section-card {
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: 0 2px 16px rgba(0,60,140,0.07);
+      margin-bottom: 24px;
+      overflow: hidden;
+      animation: fadeUp 0.45s ease both;
+    }
+    .section-card:nth-child(2){ animation-delay:0.1s; }
+    .section-card:nth-child(3){ animation-delay:0.18s; }
+    .section-card:nth-child(4){ animation-delay:0.24s; }
+
+    .sc-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 18px 26px;
+      border-bottom: 1.5px solid var(--border);
+    }
+    .sc-icon {
+      width: 40px; height: 40px; border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; flex-shrink: 0;
+    }
+    .sc-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .sc-sub   { font-size: 0.78rem; color: var(--muted); margin-top: 1px; }
+    .sc-body  { padding: 24px 26px; }
+
+    /* ── FLASH ALERTS ── */
+    .flash-alert {
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 0.88rem; line-height: 1.5;
+      animation: fadeUp 0.3s ease both;
+    }
+    .flash-alert i { margin-top: 1px; flex-shrink: 0; }
+    .flash-success { background:#f0fdf4; border:1px solid var(--leave-bdr);   color:#15803d; }
+    .flash-error   { background:#fff1f2; border:1px solid var(--festival-bdr); color:#be123c; }
+
+    /* ── LEAVE APPLICATION FORM ── */
+    .leave-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 2fr auto;
+      gap: 16px;
+      align-items: end;
+    }
+    @media(max-width:768px){ .leave-form-grid { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:480px){ .leave-form-grid { grid-template-columns: 1fr; } }
+
+    .field-label {
+      display: block;
+      font-size: 0.78rem; font-weight: 600;
+      color: var(--label); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 7px;
+    }
+    .field-label .req { color: var(--danger); margin-left: 2px; }
+
+    .form-control, .form-select {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      background: #f8fafc;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 0 0 4px var(--primary-glow);
+      outline: none;
+    }
+
+    .btn-apply {
+      background: linear-gradient(135deg, #1a85e8, var(--primary-dark));
+      color: white; border: none; border-radius: 11px;
+      padding: 11px 24px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem; font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 4px 16px rgba(0,120,215,0.28);
+      transition: transform 0.18s, box-shadow 0.18s;
+      white-space: nowrap;
+    }
+    .btn-apply:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,120,215,0.36); }
+    .btn-apply:active { transform: translateY(0); }
+
+    /* ── CALENDAR NAV ── */
+    .cal-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
+    }
+    .cal-month-label {
+      font-size: 1.15rem; font-weight: 700; color: var(--text);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .cal-month-label i { color: var(--primary); }
+
+    .btn-nav {
+      display: flex; align-items: center; gap: 6px;
+      background: white; border: 1.5px solid var(--border);
+      border-radius: 9px; padding: 8px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem; font-weight: 600;
+      color: var(--label); text-decoration: none;
+      transition: border-color 0.2s, background 0.2s, color 0.2s;
+    }
+    .btn-nav:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+
+    /* ── CALENDAR TABLE ── */
+    .cal-wrap { overflow-x: auto; border-radius: 14px; border: 1.5px solid var(--border); }
+
+    .calendar-table {
+      width: 100%; border-collapse: collapse;
+      min-width: 700px;
+    }
+    .calendar-table thead th {
+      background: #0078D7;
+      color: white; font-weight: 700; font-size: 0.82rem;
+      letter-spacing: 0.5px; text-transform: uppercase;
+      padding: 14px 8px; text-align: center; border: none;
+    }
+    .calendar-table thead th:first-child { border-radius: 14px 0 0 0; }
+    .calendar-table thead th:last-child  { border-radius: 0 14px 0 0; }
+
+    .calendar-table td {
+      border: 1px solid #e8edf4;
+      vertical-align: top;
+      width: 14.28%;
+      height: 110px;
+      padding: 0;
+    }
+    .calendar-table td.empty-cell { background: #fafbfd; }
+
+    .cal-day {
+      padding: 8px;
+      height: 100%;
+      display: flex; flex-direction: column; gap: 4px;
+      transition: background 0.15s;
+    }
+    .calendar-table td:hover .cal-day { background: #f7f9fc; }
+
+    .day-num {
+      font-size: 0.95rem; font-weight: 700; color: var(--text);
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .day-today .day-num {
+      background: var(--primary); color: white;
+      box-shadow: 0 2px 8px rgba(0,120,215,0.35);
+    }
+    .day-weekend .day-num { color: var(--muted); }
+
+    /* Cell type backgrounds */
+    .td-festival { background: #fff8f8; }
+    .td-leave    { background: #f5fff7; }
+    .td-both     { background: linear-gradient(135deg, #fff1f2 50%, #f0fdf4 50%); }
+
+    .cal-event {
+      font-size: 0.72rem; font-weight: 600;
+      padding: 3px 7px; border-radius: 6px;
+      display: flex; align-items: center; gap: 4px;
+      line-height: 1.3;
+    }
+    .ev-festival { background: var(--festival-bg); color: var(--festival-text); border: 1px solid var(--festival-bdr); }
+    .ev-leave    { background: var(--leave-bg);    color: var(--leave-text);    border: 1px solid var(--leave-bdr); }
+
+    /* ── LEGEND ── */
+    .cal-legend {
+      display: flex; align-items: center; gap: 16px;
+      flex-wrap: wrap; margin-top: 18px;
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 0.82rem; color: var(--label); font-weight: 500;
+    }
+    .legend-dot {
+      width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0;
+    }
+    .ld-festival { background: var(--festival-bg); border: 1.5px solid var(--festival-bdr); }
+    .ld-leave    { background: var(--leave-bg);    border: 1.5px solid var(--leave-bdr); }
+    .ld-today    { background: var(--primary); }
+
+    /* ── HISTORY TABLE ── */
+    .history-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .history-table thead th {
+      background: #f0f5ff; color: var(--primary-dark);
+      font-weight: 700; font-size: 0.78rem;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding: 12px 16px; text-align: left;
+      border-bottom: 2px solid #dde8f8;
+    }
+    .history-table tbody td {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .history-table tbody tr:last-child td { border-bottom: none; }
+    .history-table tbody tr:hover td { background: #f8fafc; }
+
+    /* ── STATUS BADGES ── */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.75rem; font-weight: 700;
+      padding: 4px 11px; border-radius: 20px;
+      white-space: nowrap;
+    }
+    .sb-pending  { background:#fffbeb; color:#b45309; border:1px solid #fde68a; }
+    .sb-approved { background:var(--leave-bg); color:var(--success); border:1px solid var(--leave-bdr); }
+    .sb-rejected { background:var(--festival-bg); color:var(--danger); border:1px solid var(--festival-bdr); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center; padding: 40px 20px;
+    }
+    .empty-state i { font-size: 36px; color: #c7d2e7; margin-bottom: 12px; display: block; }
+    .empty-state p { font-size: 0.9rem; color: var(--muted); }
+
+    /* ── BACK LINK ── */
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: var(--primary); text-decoration: none;
+      font-weight: 600; font-size: 0.9rem;
+      padding: 10px 20px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px; background: white;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .back-btn:hover { border-color: var(--primary); background: var(--primary-glow); }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Simple Page Header -->
-        <div class="page-header">
-            <h1><i class="fas fa-calendar-alt"></i> Employee Leave Tracker</h1>
-            <div class="employee-info">
-                <strong>{{ employee_name }}</strong> | {{ employee_id }}
-            </div>
-        </div>
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
-                        <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }}"></i>
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <!-- Leave Application Section -->
-        <div class="content-card">
-            <div class="card-header">
-                <h2><i class="fas fa-plus-circle"></i> Apply for Leave</h2>
-            </div>
-            
-            <form method="POST" class="leave-form">
-                <div class="form-group">
-                    <label for="start_date">Start Date</label>
-                    <input type="date" id="start_date" name="start_date" class="form-control" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="end_date">End Date</label>
-                    <input type="date" id="end_date" name="end_date" class="form-control" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="reason">Reason</label>
-                    <input type="text" id="reason" name="reason" class="form-control" placeholder="Enter reason for leave" required>
-                </div>
-                
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-paper-plane"></i> Apply for Leave
-                </button>
-            </form>
-        </div>
-
-        <!-- Calendar Section -->
-        <div class="content-card">
-            <div class="card-header">
-                <h2><i class="fas fa-calendar"></i> Leave Calendar - {{ month_name }} {{ year }}</h2>
-            </div>
-            
-            <div class="calendar-nav">
-                <div class="nav-buttons">
-                    <a href="{{ url_for('leave_tracker', month=prev_month, year=prev_year) }}" class="btn btn-secondary">
-                        <i class="fas fa-chevron-left"></i> Previous Month
-                    </a>
-                    <a href="{{ url_for('leave_tracker', month=next_month, year=next_year) }}" class="btn btn-secondary">
-                        Next Month <i class="fas fa-chevron-right"></i>
-                    </a>
-                </div>
-            </div>
-
-            <table class="calendar-table">
-                <thead>
-                    <tr>
-                        <th>Sunday</th>
-                        <th>Monday</th>
-                        <th>Tuesday</th>
-                        <th>Wednesday</th>
-                        <th>Thursday</th>
-                        <th>Friday</th>
-                        <th>Saturday</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for week in calendar_data %}
-                    <tr>
-                        {% for day in week %}
-                        <td class="{{ day.type }}">
-                            <div class="calendar-day">
-                                {% if day.date %}
-                                <div class="day-number">{{ day.date.day }}</div>
-                                {% if day.festival %}
-                                    <div class="event festival-event">
-                                        <i class="fas fa-star"></i> {{ day.festival }}
-                                    </div>
-                                {% endif %}
-                                {% if day.leave %}
-                                    <div class="event leave-event">
-                                        <i class="fas fa-user-clock"></i> On Leave
-                                    </div>
-                                {% endif %}
-                                {% endif %}
-                            </div>
-                        </td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
-            <div class="legend">
-                <span class="festival">Festival/Holiday</span>
-                <span class="leave">Your Leave</span>
-                <span class="both">Festival + Leave</span>
-            </div>
-        </div>
-
-        <!-- Leave History Section -->
-        <div class="content-card">
-            <div class="card-header">
-                <h2><i class="fas fa-history"></i> Leave History</h2>
-            </div>
-            
-            {% if leave_data %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Reason</th>
-                        <th>Status</th>
-                        <th>Applied On</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for leave in leave_data %}
-                    <tr>
-                        <td>{{ leave[1].strftime('%Y-%m-%d') if leave[1] else 'N/A' }}</td>
-                        <td>{{ leave[2].strftime('%Y-%m-%d') if leave[2] else 'N/A' }}</td>
-                        <td>{{ leave[3] if leave[3] else 'N/A' }}</td>
-                        <td>
-                            <span class="status-{{ leave[4].lower() if leave[4] else 'pending' }}">
-                                {{ leave[4] if leave[4] else 'Pending' }}
-                            </span>
-                        </td>
-                        <td>{{ leave[5].strftime('%Y-%m-%d %H:%M') if leave[5] else 'N/A' }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p>No leave applications found.</p>
-            {% endif %}
-        </div>
-
-        <!-- Back to Resources Link -->
-        <div style="text-align: center; margin-top: 30px;">
-            <a href="{{ url_for('employee_resources') }}" class="back-link">
-                <i class="fas fa-arrow-left"></i> Back to Employee Resources
-            </a>
-        </div>
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+  <div class="header-left">
+    <img src="https://chakrahub-stud.s3.eu-north-1.amazonaws.com/img.jpeg"
+         alt="ChakoraHub" class="header-logo" onerror="this.style.display='none'">
+    <div>
+      <div class="header-title"><i class="fas fa-calendar-alt me-2"></i>Leave Tracker</div>
+      <div class="header-sub">Employee Self-Service Portal</div>
     </div>
+  </div>
+  <div class="emp-pill">
+    <div class="avatar">{{ employee_name[0] | upper if employee_name else 'E' }}</div>
+    <div>
+      <div class="emp-pill-name">{{ employee_name }}</div>
+      <div class="emp-pill-id">{{ employee_id }}</div>
+    </div>
+  </div>
+</div>
 
-    <script>
-        // Set minimum date for leave application to today
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('start_date').min = today;
-        document.getElementById('end_date').min = today;
-        
-        // Auto-hide flash messages after 5 seconds
-        setTimeout(() => {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                alert.style.opacity = '0';
-                alert.style.transition = 'opacity 0.5s';
-                setTimeout(() => alert.remove(), 500);
-            });
-        }, 5000);
-        
-        // End date validation - cannot be before start date
-        document.getElementById('start_date').addEventListener('change', function() {
-            const endDate = document.getElementById('end_date');
-            endDate.min = this.value;
-            if (endDate.value && endDate.value < this.value) {
-                endDate.value = this.value;
-            }
-        });
-    </script>
+<div class="main-wrap">
+
+  <!-- ── FLASH MESSAGES ── -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash-alert flash-{{ 'error' if category == 'error' else 'success' }}">
+          <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'check-circle' }}"></i>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- ── STAT CARDS ── -->
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-icon si-blue"><i class="fas fa-calendar-check"></i></div>
+      <div>
+        <div class="stat-val">{{ leave_data | selectattr(4, 'equalto', 'Approved') | list | length if leave_data else 0 }}</div>
+        <div class="stat-lbl">Approved Leaves</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon si-amber"><i class="fas fa-hourglass-half"></i></div>
+      <div>
+        <div class="stat-val">{{ leave_data | selectattr(4, 'equalto', 'Pending') | list | length if leave_data else 0 }}</div>
+        <div class="stat-lbl">Pending Requests</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon si-red"><i class="fas fa-times-circle"></i></div>
+      <div>
+        <div class="stat-val">{{ leave_data | selectattr(4, 'equalto', 'Rejected') | list | length if leave_data else 0 }}</div>
+        <div class="stat-lbl">Rejected</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon si-green"><i class="fas fa-list-check"></i></div>
+      <div>
+        <div class="stat-val">{{ leave_data | length if leave_data else 0 }}</div>
+        <div class="stat-lbl">Total Applications</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SECTION 1 — APPLY FOR LEAVE
+  ══════════════════════════════ -->
+  <div class="section-card">
+    <div class="sc-header">
+      <div class="sc-icon si-blue"><i class="fas fa-paper-plane"></i></div>
+      <div>
+        <div class="sc-title">Apply for Leave</div>
+        <div class="sc-sub">Submit a new leave request</div>
+      </div>
+    </div>
+    <div class="sc-body">
+      <form method="POST" action="/apply-leave" class="leave-form-grid">
+
+        <div>
+          <label class="field-label" for="leave_type">Leave Type <span class="req">*</span></label>
+          <select id="leave_type" name="leave_type" class="form-control" required>
+            <option value="" selected disabled>Select leave type</option>
+            <option value="Sick">Sick</option>
+            <option value="Casual">Casual</option>
+            <option value="Paid">Paid</option>
+            <option value="Loss of Pay">Loss of Pay</option>
+            <option value="Work From Home">Work From Home</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="field-label" for="start_date">Start Date <span class="req">*</span></label>
+          <div style="position:relative;">
+            <input type="date" id="start_date" name="start_date" class="form-control" required>
+          </div>
+        </div>
+
+        <div>
+          <label class="field-label" for="end_date">End Date <span class="req">*</span></label>
+          <input type="date" id="end_date" name="end_date" class="form-control" required>
+        </div>
+
+        <div>
+          <label class="field-label" for="reason">Reason <span class="req">*</span></label>
+          <input type="text" id="reason" name="reason" class="form-control"
+                 placeholder="e.g. Medical appointment, Family function…" required>
+        </div>
+
+        <div>
+          <label class="field-label" style="visibility:hidden;">Submit</label>
+          <button type="submit" class="btn-apply">
+            <i class="fas fa-paper-plane"></i> Apply
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SECTION 2 — CALENDAR
+  ══════════════════════════════ -->
+  <div class="section-card">
+    <div class="sc-header">
+      <div class="sc-icon si-blue"><i class="fas fa-calendar"></i></div>
+      <div>
+        <div class="sc-title">Leave Calendar</div>
+        <div class="sc-sub">Visual overview of your leaves and holidays</div>
+      </div>
+    </div>
+    <div class="sc-body">
+
+      <!-- Month nav -->
+      <div class="cal-nav">
+        <a href="{{ url_for('leave_tracker', month=prev_month, year=prev_year) }}" class="btn-nav">
+          <i class="fas fa-chevron-left"></i> Previous
+        </a>
+        <div class="cal-month-label">
+          <i class="fas fa-calendar-days"></i>
+          {{ month_name }} {{ year }}
+        </div>
+        <a href="{{ url_for('leave_tracker', month=next_month, year=next_year) }}" class="btn-nav">
+          Next <i class="fas fa-chevron-right"></i>
+        </a>
+      </div>
+
+      <!-- Calendar grid -->
+      <div class="cal-wrap">
+        <table class="calendar-table">
+          <thead>
+            <tr>
+              <th>Sun</th><th>Mon</th><th>Tue</th>
+              <th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for week in calendar_data %}
+            <tr>
+              {% for day in week %}
+              <td class="{% if not day.date %}empty-cell{% elif day.type == 'festival' %}td-festival{% elif day.type == 'leave' %}td-leave{% elif day.type == 'both' %}td-both{% endif %}">
+                <div class="cal-day {% if day.date and day.date.weekday() >= 5 %}day-weekend{% endif %} {% if day.date and day.date.strftime('%Y-%m-%d') == today %}day-today{% endif %}">
+                  {% if day.date %}
+                    <div class="day-num">{{ day.date.day }}</div>
+                    {% if day.festival %}
+                      <div class="cal-event ev-festival">
+                        <i class="fas fa-star" style="font-size:9px;"></i>
+                        <span>{{ day.festival }}</span>
+                      </div>
+                    {% endif %}
+                    {% if day.leave %}
+                      <div class="cal-event ev-leave">
+                        <i class="fas fa-user-clock" style="font-size:9px;"></i>
+                        <span>On Leave</span>
+                      </div>
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Legend -->
+      <div class="cal-legend">
+        <div class="legend-item">
+          <div class="legend-dot ld-festival"></div> Festival / Holiday
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot ld-leave"></div> Your Leave
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot ld-today"></div> Today
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SECTION 3 — LEAVE HISTORY
+  ══════════════════════════════ -->
+  <div class="section-card">
+    <div class="sc-header">
+      <div class="sc-icon si-green"><i class="fas fa-clock-rotate-left"></i></div>
+      <div>
+        <div class="sc-title">Leave History</div>
+        <div class="sc-sub">All your past and pending leave applications</div>
+      </div>
+    </div>
+    <div class="sc-body" style="padding:0;">
+
+      {% if leave_data %}
+      <div style="overflow-x:auto;">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Applied On</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for leave in leave_data %}
+            <tr>
+              <td style="color:var(--muted); font-size:0.82rem;">{{ loop.index }}</td>
+              <td>
+                <span style="font-weight:600;">
+                  {{ leave[1].strftime('%d %b %Y') if leave[1] else 'N/A' }}
+                </span>
+              </td>
+              <td>{{ leave[2].strftime('%d %b %Y') if leave[2] else 'N/A' }}</td>
+              <td style="max-width:240px;">{{ leave[3] if leave[3] else '—' }}</td>
+              <td>
+                {% set st = (leave[4] or 'Pending').lower() %}
+                <span class="status-badge sb-{{ st }}">
+                  {% if st == 'approved' %}<i class="fas fa-check-circle"></i>
+                  {% elif st == 'rejected' %}<i class="fas fa-times-circle"></i>
+                  {% else %}<i class="fas fa-hourglass-half"></i>{% endif %}
+                  {{ leave[4] if leave[4] else 'Pending' }}
+                </span>
+              </td>
+              <td style="color:var(--muted); font-size:0.83rem;">
+                {{ leave[5].strftime('%d %b %Y, %H:%M') if leave[5] else 'N/A' }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <i class="fas fa-calendar-xmark"></i>
+        <p>No leave applications found.<br>Use the form above to apply for leave.</p>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- ── BACK LINK ── -->
+  <div style="text-align:center; margin-top:10px;">
+    <a href="{{ url_for('employee_resources') }}" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Back to Employee Resources
+    </a>
+  </div>
+
+</div><!-- /main-wrap -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Set min dates
+  const today = new Date().toISOString().split('T')[0];
+  // document.getElementById('start_date').min = today;
+  // document.getElementById('end_date').min   = today;
+
+  // End date ≥ start date
+  document.getElementById('start_date').addEventListener('change', function() {
+    const end = document.getElementById('end_date');
+    end.min = this.value;
+    if (end.value && end.value < this.value) end.value = this.value;
+  });
+
+  // Auto-fade flash alerts
+  setTimeout(() => {
+    document.querySelectorAll('.flash-alert').forEach(el => {
+      el.style.transition = 'opacity 0.6s';
+      el.style.opacity = '0';
+      setTimeout(() => el.remove(), 600);
+    });
+  }, 5000);
+</script>
 </body>
 </html>

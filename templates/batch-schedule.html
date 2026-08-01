@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Batches — ChakoraHub Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root { --primary: #0078D7; --primary-dark: #0e4fa0; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f6fb; min-height: 100vh; }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      background: linear-gradient(135deg, #1a6fd4, #0e4fa0);
+      color: #fff; padding: 14px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    .page-header-left { display: flex; align-items: center; gap: 16px; }
+    .header-logo {
+      height: 52px; width: 52px; border-radius: 10px; object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .page-header h1 { font-size: 1.3rem; margin: 0; }
+    .page-header-links { display: flex; align-items: center; gap: 20px; }
+    .page-header a  { color: #cfe8ff; text-decoration: none; font-size: 0.9rem; }
+    .page-header a:hover { color: #fff; }
+
+    .main-wrap { max-width: 1100px; margin: 36px auto; padding: 0 20px; }
+
+    /* ── INFO BANNER ── */
+    .info-banner {
+      display: flex; align-items: center; gap: 12px;
+      background: #eef4ff; border: 1px solid #cfe0fb; color: #0e4fa0;
+      border-radius: 10px; padding: 12px 18px; margin-bottom: 24px;
+      font-size: 0.88rem;
+    }
+    .info-banner i { font-size: 1rem; color: #1a6fd4; }
+    .info-banner a { color: #0e4fa0; font-weight: 700; text-decoration: underline; }
+
+    /* ── TOAST ── */
+    #toast-container {
+      position: fixed; top: 22px; right: 24px;
+      z-index: 9999; display: flex; flex-direction: column; gap: 10px;
+      pointer-events: none;
+    }
+    .toast-msg {
+      min-width: 260px; max-width: 400px;
+      padding: 14px 18px; border-radius: 10px;
+      font-size: 0.91rem; font-weight: 500;
+      box-shadow: 0 6px 22px rgba(0,0,0,0.14);
+      pointer-events: auto;
+      animation: toastIn 0.3s ease, toastOut 0.4s ease 3.6s forwards;
+    }
+    @keyframes toastIn  { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes toastOut { to   { opacity:0; transform:translateX(40px); } }
+    .toast-success { background: #dcfce7; color: #15803d; border-left: 4px solid #16a34a; }
+    .toast-error   { background: #fee2e2; color: #b91c1c; border-left: 4px solid #dc2626; }
+
+    /* ── FORM CARD ── */
+    .form-card {
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 28px 32px; margin-bottom: 36px;
+    }
+    .form-card h2 {
+      font-size: 1.1rem; font-weight: 700; color: #0e4fa0;
+      margin-bottom: 20px; border-bottom: 2px solid #e5eaf2; padding-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .form-card h2 .sub { font-size: 0.78rem; font-weight: 500; color: #8798b3; }
+    .form-label { font-weight: 600; font-size: 0.87rem; color: #444; }
+    .form-control, .form-select { font-size: 0.93rem; }
+    .btn-create {
+      background: linear-gradient(135deg, #1a6fd4, #0e4fa0);
+      color: #fff; border: none; padding: 10px 28px;
+      border-radius: 7px; font-weight: 600; font-size: 0.95rem;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-create:hover { opacity: 0.88; }
+    .btn-create:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .fee-preview {
+      font-size: 0.83rem; color: #64748b; margin-top: 6px; min-height: 18px;
+    }
+    .fee-preview strong { color: #166534; }
+
+    /* ── TABLE CARD ── */
+    .table-card {
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 24px 28px;
+    }
+    .table-card h2 {
+      font-size: 1.1rem; font-weight: 700; color: #0e4fa0;
+      margin-bottom: 18px; border-bottom: 2px solid #e5eaf2; padding-bottom: 10px;
+    }
+    .table { font-size: 0.88rem; }
+    .table thead th { background: #f0f5ff; color: #0e4fa0; font-weight: 700; }
+    .badge-upcoming  { background: #dbeafe; color: #1e40af; }
+    .badge-current   { background: #dcfce7; color: #166534; }
+    .badge-completed { background: #f3f4f6; color: #6b7280; }
+    .course-code-tag {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em;
+      color: #8798b3; text-transform: uppercase;
+    }
+
+    .action-btn {
+      border: none; padding: 5px 12px; border-radius: 6px;
+      font-size: 0.8rem; cursor: pointer; font-weight: 600;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    .action-btn:hover { opacity: 0.82; transform: translateY(-1px); }
+    .btn-edit     { background: #e0f2fe; color: #0369a1; }
+    .btn-complete { background: #dcfce7; color: #166534; }
+    .btn-delete   { background: #fee2e2; color: #991b1b; }
+
+    #batchTableBody tr.removing { opacity: 0; transition: opacity 0.3s; }
+
+    /* ── SPINNER ── */
+    .spin { display: inline-block; animation: spin 0.9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ═══════════════════════════════════════ MODAL SYSTEM ═══════════════ */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(10,30,60,0.55); backdrop-filter: blur(4px);
+      z-index: 1050; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 18px;
+      box-shadow: 0 28px 70px rgba(0,0,0,0.22);
+      padding: 38px 42px; max-width: 460px; width: 92%;
+      position: relative; animation: modalPop 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes modalPop {
+      from { transform: scale(0.85) translateY(24px); opacity: 0; }
+      to   { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    .modal-close {
+      position: absolute; top: 14px; right: 18px;
+      background: none; border: none; font-size: 1.1rem;
+      color: #94a3b8; cursor: pointer; transition: color 0.2s;
+    }
+    .modal-close:hover { color: #1e293b; }
+    .modal-icon {
+      width: 58px; height: 58px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin: 0 auto 20px;
+    }
+    .icon-danger  { background: #fee2e2; color: #dc2626; }
+    .icon-success { background: #dcfce7; color: #16a34a; }
+    .icon-info    { background: #dbeafe; color: #2563eb; }
+    .modal-box h3 {
+      font-size: 1.18rem; font-weight: 700; color: #1e293b;
+      text-align: center; margin-bottom: 10px;
+    }
+    .modal-box .modal-desc {
+      font-size: 0.91rem; color: #64748b;
+      text-align: center; margin-bottom: 28px; line-height: 1.6;
+    }
+    .modal-actions { display: flex; gap: 12px; justify-content: center; }
+    .modal-btn {
+      padding: 10px 26px; border-radius: 8px; border: none;
+      font-size: 0.92rem; font-weight: 600; cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .modal-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .modal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-cancel          { background: #f1f5f9; color: #475569; }
+    .btn-confirm-danger  { background: #dc2626; color: #fff; }
+    .btn-confirm-success { background: #16a34a; color: #fff; }
+    .btn-confirm-info    { background: #2563eb; color: #fff; }
+
+    /* ── EDIT MODAL (wider) ── */
+    .modal-box.edit-modal { max-width: 680px; padding: 32px 38px; }
+    .edit-modal .modal-header-row {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 6px;
+    }
+    .edit-modal .modal-icon { margin: 0; width: 46px; height: 46px; font-size: 18px; flex-shrink: 0; }
+    .edit-modal h3 { text-align: left; margin: 0; }
+    .edit-modal .modal-desc { text-align: left; margin-bottom: 22px; }
+    .edit-modal .modal-actions { justify-content: flex-end; }
+    .edit-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px 20px; margin-bottom: 24px;
+    }
+    .edit-grid .full { grid-column: 1 / -1; }
+    .field-label { font-size: 0.82rem; font-weight: 600; color: #475569; margin-bottom: 5px; }
+    .edit-input, .edit-select {
+      width: 100%; padding: 8px 12px;
+      border: 1.5px solid #e2e8f0; border-radius: 8px;
+      font-size: 0.9rem; color: #1e293b; background: #f8fafc;
+      transition: border-color 0.2s;
+    }
+    .edit-input:focus, .edit-select:focus {
+      outline: none; border-color: #0078D7; background: #fff;
+      box-shadow: 0 0 0 3px rgba(0,120,215,0.1);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── TOAST CONTAINER ── -->
+<div id="toast-container"></div>
+<div id="initialBatchesData" data-batches='{{ (batches or [])|tojson|safe }}' style="display:none;"></div>
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+  <div class="page-header-left">
+    <img src="https://chakorahub-student.s3.eu-north-1.amazonaws.com/logo.jpeg"
+         alt="ChakoraHub" class="header-logo" onerror="this.style.display='none'">
+    <h1><i class="fas fa-calendar-plus me-2"></i>Manage Batches &amp; Workshops</h1>
+  </div>
+  <div class="page-header-links">
+    <a href="/admin/courses" id="manageCoursesLink" onclick="ajaxNavigate(event, '/admin/courses')">
+      <i class="fas fa-book me-1"></i>Manage Courses
+    </a>
+    <a href="/resources" id="backToResources" onclick="ajaxNavigate(event, '/resources')">
+      <i class="fas fa-arrow-left me-1" id="backIcon"></i>
+      <span id="backLabel">Back to Resources</span>
+    </a>
+  </div>
+</div>
+
+<div class="main-wrap">
+
+  <div class="info-banner">
+    <i class="fas fa-circle-info"></i>
+    <span>Creating and editing courses now lives in <a href="/admin/courses" onclick="ajaxNavigate(event, '/admin/courses')">Manage Courses</a>. This page only schedules batches/workshops for courses that already exist.</span>
+  </div>
+
+  <!-- ── CREATE FORM ── -->
+  <div class="form-card">
+    <h2>
+      <span><i class="fas fa-plus-circle me-2"></i>Schedule New Batch / Workshop</span>
+      <span class="sub">Batch will link to an existing course offering</span>
+    </h2>
+    <form id="createBatchForm" novalidate>
+      <div class="row g-3">
+
+        <div class="col-md-4">
+          <label class="form-label">Course <span class="text-danger">*</span></label>
+          <select class="form-select" name="course_id" id="courseSelect" required>
+            <option value="">— Loading courses… —</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Offering / Category</label>
+          <select class="form-select" name="offering_id" id="offeringSelect" disabled>
+            <option value="">— Select a course first —</option>
+          </select>
+          <div class="fee-preview" id="feePreview"></div>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Batch Type <span class="text-danger">*</span></label>
+          <select class="form-select" name="batch_type" required>
+            <option value="regular">Regular</option>
+            <option value="workshop">Workshop</option>
+            <option value="bootcamp">Bootcamp</option>
+            <option value="demo">Demo / Free</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Language</label>
+          <select class="form-select" name="language">
+            <option value="Telugu">Telugu</option>
+            <option value="English">English</option>
+            <option value="Hindi">Hindi</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Start Date <span class="text-danger">*</span></label>
+          <input type="date" class="form-control" name="start_date" required>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">End Date <small class="text-muted">(optional)</small></label>
+          <input type="date" class="form-control" name="end_date">
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Status</label>
+          <select class="form-select" name="status">
+            <option value="upcoming">Upcoming</option>
+            <option value="current">Currently Running</option>
+          </select>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Notes <small class="text-muted">(shown on home page)</small></label>
+          <input type="text" class="form-control" name="notes"
+                 placeholder="e.g. Free for existing students · Join via Zoom · Limited seats">
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <button type="submit" class="btn-create" id="createBtn">
+          <i class="fas fa-save me-1"></i> Save &amp; Publish to Home Page
+        </button>
+      </div>
+    </form>
+  </div><!-- /form-card -->
+
+  <!-- ── BATCH LIST ── -->
+  <div class="table-card">
+    <h2><i class="fas fa-list me-2"></i>All Scheduled Batches</h2>
+    <div id="tableState" class="text-muted mb-3" style="font-size:0.9rem;">
+      <i class="fas fa-circle-notch spin me-1"></i>Loading batches…
+    </div>
+    <div class="table-responsive" id="tableWrap" style="display:none;">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Type</th>
+            <th>Language</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="batchTableBody"></tbody>
+      </table>
+    </div>
+    <p id="emptyState" class="text-muted mb-0" style="display:none;">
+      <i class="fas fa-info-circle me-1"></i>No batches scheduled yet. Use the form above to add one.
+    </p>
+  </div>
+
+</div><!-- /main-wrap -->
+
+
+<!-- ═══════════════════ MODAL 1 — COMPLETE ═══════════════════ -->
+<div class="modal-overlay" id="completeModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('completeModal')">✕</button>
+    <div class="modal-icon icon-success"><i class="fas fa-check-circle"></i></div>
+    <h3>Mark as Completed?</h3>
+    <p class="modal-desc" id="completeModalMsg">This batch will be marked as completed.</p>
+    <div class="modal-actions">
+      <button class="modal-btn btn-cancel" onclick="closeModal('completeModal')">Cancel</button>
+      <button class="modal-btn btn-confirm-success" id="completeConfirmBtn">
+        <i class="fas fa-check me-1"></i>Yes, Mark Completed
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MODAL 2 — DELETE ═══════════════════ -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('deleteModal')">✕</button>
+    <div class="modal-icon icon-danger"><i class="fas fa-trash-alt"></i></div>
+    <h3>Delete this Batch?</h3>
+    <p class="modal-desc" id="deleteModalMsg">This action is permanent.</p>
+    <div class="modal-actions">
+      <button class="modal-btn btn-cancel" onclick="closeModal('deleteModal')">Cancel</button>
+      <button class="modal-btn btn-confirm-danger" id="deleteConfirmBtn">
+        <i class="fas fa-trash me-1"></i>Yes, Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MODAL 3 — EDIT ═══════════════════ -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box edit-modal">
+    <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+    <div class="modal-header-row">
+      <div class="modal-icon icon-info"><i class="fas fa-pen"></i></div>
+      <h3>Edit Batch</h3>
+    </div>
+    <p class="modal-desc">Update the details below and save your changes.</p>
+
+    <div class="edit-grid">
+      <div>
+        <div class="field-label">Course <span style="color:#dc2626">*</span></div>
+        <select class="edit-select" id="em-course"></select>
+      </div>
+      <div>
+        <div class="field-label">Offering / Category</div>
+        <select class="edit-select" id="em-offering"></select>
+      </div>
+      <div>
+        <div class="field-label">Batch Type</div>
+        <select class="edit-select" id="em-type">
+          <option value="regular">Regular</option>
+          <option value="workshop">Workshop</option>
+          <option value="bootcamp">Bootcamp</option>
+          <option value="demo">Demo / Free</option>
+        </select>
+      </div>
+      <div>
+        <div class="field-label">Language</div>
+        <select class="edit-select" id="em-lang">
+          <option value="Telugu">Telugu</option>
+          <option value="English">English</option>
+          <option value="Hindi">Hindi</option>
+        </select>
+      </div>
+      <div>
+        <div class="field-label">Start Date <span style="color:#dc2626">*</span></div>
+        <input type="date" class="edit-input" id="em-start">
+      </div>
+      <div>
+        <div class="field-label">End Date <span style="color:#94a3b8;font-weight:400;">(optional)</span></div>
+        <input type="date" class="edit-input" id="em-end">
+      </div>
+      <div>
+        <div class="field-label">Status</div>
+        <select class="edit-select" id="em-status">
+          <option value="upcoming">Upcoming</option>
+          <option value="current">Currently Running</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+      <div class="full">
+        <div class="field-label">Notes <span style="color:#94a3b8;font-weight:400;">(shown on home page)</span></div>
+        <input type="text" class="edit-input" id="em-notes"
+               placeholder="e.g. Free for existing students · Limited seats">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-btn btn-cancel" onclick="closeModal('editModal')">Cancel</button>
+      <button class="modal-btn btn-confirm-info" id="editSaveBtn">
+        <i class="fas fa-save me-1"></i>Save Changes
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   BATCH-SCHEDULE  —  Full AJAX / fetch() implementation
+   API base: /admin/batch-schedule
+
+   Data model (post display_name drop):
+     NRM_COURSES(ID, COURSE_NAME, COURSE_CODE)
+     NRM_COURSE_OFFERINGS(OFFERING_ID, COURSE_ID, REGISTRATION_CATEGORY,
+                           COURSE_FEE, IS_ACTIVE, CREATED_AT, UPDATED_AT)
+     NRM_BATCH_SCHEDULE(ID, COURSE_ID, BATCH_TYPE, LANGUAGE, START_DATE,
+                         END_DATE, STATUS, NOTES) — display_name removed;
+                         the course name is always resolved via COURSE_ID.
+
+   Course creation is NOT handled here — see /admin/courses.
+═══════════════════════════════════════════════════════════ */
+
+const API = '/admin/batch-schedule';
+const INITIAL_BATCHES = JSON.parse(document.getElementById('initialBatchesData')?.dataset?.batches || '[]');
+
+/* Client-side caches, keyed by id (as string) */
+let COURSES = [];              // [{id, course_name, course_code}]
+let COURSE_MAP = {};           // id -> course
+let OFFERINGS = [];            // [{offering_id, course_id, registration_category, course_fee, is_active}]
+let OFFERINGS_BY_COURSE = {};  // course_id -> [offerings]
+let OFFERING_MAP = {};         // offering_id -> offering
+
+/* ── Toast ─────────────────────────────────────────────── */
+function showToast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = `toast-msg toast-${type}`;
+  el.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>${msg}`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 4200);
+}
+
+/* ── Modal helpers ─────────────────────────────────────── */
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(el =>
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); })
+);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape')
+    document.querySelectorAll('.modal-overlay.open').forEach(el => el.classList.remove('open'));
+});
+
+/* ── Helpers ────────────────────────────────────────────── */
+function fmtDate(s) {
+  if (!s) return '—';
+  const d = new Date(s + 'T00:00:00');
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function fmtFee(fee) {
+  if (fee === null || fee === undefined || fee === '') return '';
+  const n = Number(fee);
+  if (Number.isNaN(n)) return '';
+  return n === 0 ? 'Free' : `₹${n.toLocaleString('en-IN')}`;
+}
+function setSelect(id, val) {
+  const el = document.getElementById(id);
+  for (const o of el.options) o.selected = (o.value === String(val));
+}
+function typeBadge(t) {
+  const map = {
+    workshop: ['#fef9c3','#854d0e','Workshop'],
+    bootcamp: ['#ede9fe','#6d28d9','Bootcamp'],
+    demo:     ['#e0f2fe','#0369a1','Demo'],
+    regular:  ['#f1f5f9','#475569','Regular'],
+  };
+  const [bg, col, label] = map[t] || map.regular;
+  return `<span class="badge px-2 py-1 rounded-pill" style="background:${bg};color:${col};">${label}</span>`;
+}
+function statusBadge(s) {
+  if (s === 'current')   return '<span class="badge badge-current px-2 py-1 rounded-pill">🟢 Running</span>';
+  if (s === 'upcoming')  return '<span class="badge badge-upcoming px-2 py-1 rounded-pill">🔵 Upcoming</span>';
+  return                        '<span class="badge badge-completed px-2 py-1 rounded-pill">✓ Completed</span>';
+}
+function escAttr(s) { return String(s || '').replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+function normalizeDateValue(v) {
+  if (!v) return null;
+  const str = String(v);
+  if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0, 10);
+  const d = new Date(str);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString().slice(0, 10);
+}
+
+/* Course name is always resolved from COURSE_ID — no stored display_name */
+function courseNameFor(courseId) {
+  const c = COURSE_MAP[String(courseId)];
+  return c ? c.course_name : '(Unknown course)';
+}
+function courseCodeFor(courseId) {
+  const c = COURSE_MAP[String(courseId)];
+  return c ? c.course_code : '';
+}
+
+function normalizeBatch(row) {
+  return {
+    id: row.id ?? row.ID,
+    course_id: row.course_id ?? row.COURSE_ID,
+    offering_id: row.offering_id ?? row.OFFERING_ID ?? null,
+    batch_type: String(row.batch_type ?? row.BATCH_TYPE ?? 'regular').toLowerCase(),
+    language: row.language ?? row.LANGUAGE ?? 'Telugu',
+    start_date: normalizeDateValue(row.start_date ?? row.START_DATE),
+    end_date: normalizeDateValue(row.end_date ?? row.END_DATE),
+    status: String(row.status ?? row.STATUS ?? 'upcoming').toLowerCase(),
+    notes: row.notes ?? row.NOTES ?? '',
+  };
+}
+
+/* ── Render one table row ───────────────────────────────── */
+function renderRow(b) {
+  const d = JSON.stringify(b).replace(/'/g, "\\'");
+  const name = courseNameFor(b.course_id);
+  const code = courseCodeFor(b.course_id);
+  return `
+  <tr id="row-${b.id}">
+    <td>
+      <strong>${name}</strong>
+      ${code ? `<div class="course-code-tag">${code}</div>` : ''}
+    </td>
+    <td>${typeBadge(b.batch_type)}</td>
+    <td>${b.language}</td>
+    <td>${fmtDate(b.start_date)}</td>
+    <td>${fmtDate(b.end_date)}</td>
+    <td>${statusBadge(b.status)}</td>
+    <td>${b.notes || '—'}</td>
+    <td style="white-space:nowrap;">
+      <button class="action-btn btn-edit me-1"
+        onclick='openEditModal(${d})'>
+        <i class="fas fa-pen"></i> Edit
+      </button>
+      <button class="action-btn btn-complete me-1"
+        onclick="openCompleteModal(${b.id},'${escAttr(name)}')">
+        <i class="fas fa-check"></i>
+      </button>
+      <button class="action-btn btn-delete"
+        onclick="openDeleteModal(${b.id},'${escAttr(name)}')">
+        <i class="fas fa-trash"></i>
+      </button>
+    </td>
+  </tr>`;
+}
+
+/* ── Load batches ───────────────────────────────────────── */
+async function loadBatches() {
+  document.getElementById('tableState').style.display = '';
+  document.getElementById('tableWrap').style.display  = 'none';
+  document.getElementById('emptyState').style.display = 'none';
+
+  try {
+    const batches = (Array.isArray(INITIAL_BATCHES) ? INITIAL_BATCHES : []).map(normalizeBatch);
+
+    const tbody = document.getElementById('batchTableBody');
+    tbody.innerHTML = batches.map(renderRow).join('');
+
+    document.getElementById('tableState').style.display = 'none';
+    if (batches.length === 0) {
+      document.getElementById('emptyState').style.display = '';
+    } else {
+      document.getElementById('tableWrap').style.display  = '';
+    }
+  } catch (err) {
+    document.getElementById('tableState').innerHTML =
+      `<i class="fas fa-exclamation-triangle me-1 text-danger"></i>Failed to load batches: ${err.message}`;
+  }
+}
+
+/* ── Load courses dropdown (read-only lookup — no create-course here) ── */
+async function loadCourses() {
+  try {
+    const res  = await fetch('/api/courses');
+    const data = await res.json();
+    const raw  = Array.isArray(data) ? data : [];
+
+    COURSES = raw.map(c => ({
+      id: String(c.id ?? c.ID),
+      course_name: c.course_name ?? c.COURSE_NAME ?? '(Unnamed course)',
+      course_code: c.course_code ?? c.COURSE_CODE ?? '',
+    }));
+    COURSE_MAP = Object.fromEntries(COURSES.map(c => [c.id, c]));
+
+    const opts = '<option value="">— Select Course —</option>' +
+      COURSES.map(c => `<option value="${c.id}">${c.course_name}${c.course_code ? ' (' + c.course_code + ')' : ''}</option>`).join('');
+
+    document.getElementById('courseSelect').innerHTML = opts;
+    document.getElementById('em-course').innerHTML = opts;
+
+    // Batches may already be waiting to render (course names resolve via COURSE_MAP)
+    loadBatches();
+  } catch (err) {
+    document.getElementById('courseSelect').innerHTML =
+      '<option value="">— Could not load courses —</option>';
+    showToast('Could not load courses: ' + err.message, 'error');
+  }
+}
+
+/* ── Load course offerings (registration category / fee) ────────────── */
+async function loadOfferings() {
+  try {
+    const res  = await fetch('/api/course-offerings');
+    const data = await res.json();
+    const raw  = Array.isArray(data) ? data : [];
+
+    OFFERINGS = raw.map(o => ({
+      offering_id: String(o.offering_id ?? o.OFFERING_ID),
+      course_id: String(o.course_id ?? o.COURSE_ID),
+      registration_category: o.registration_category ?? o.REGISTRATION_CATEGORY ?? '',
+      course_fee: o.course_fee ?? o.COURSE_FEE,
+      is_active: (o.is_active ?? o.IS_ACTIVE ?? 'Y') !== 'N',
+    })).filter(o => o.is_active);
+
+    OFFERING_MAP = Object.fromEntries(OFFERINGS.map(o => [o.offering_id, o]));
+    OFFERINGS_BY_COURSE = {};
+    OFFERINGS.forEach(o => {
+      (OFFERINGS_BY_COURSE[o.course_id] ||= []).push(o);
+    });
+  } catch (err) {
+    // Offerings are optional metadata (fee/category) — fail silently, batch scheduling still works
+    OFFERINGS = []; OFFERING_MAP = {}; OFFERINGS_BY_COURSE = {};
+  }
+}
+
+function populateOfferingSelect(selectEl, previewEl, courseId, selectedOfferingId) {
+  const list = OFFERINGS_BY_COURSE[String(courseId)] || [];
+  if (!courseId || list.length === 0) {
+    selectEl.innerHTML = '<option value="">— No offerings —</option>';
+    selectEl.disabled = true;
+    if (previewEl) previewEl.textContent = '';
+    return;
+  }
+  selectEl.disabled = false;
+  selectEl.innerHTML = '<option value="">— None —</option>' + list.map(o =>
+    `<option value="${o.offering_id}">${o.registration_category || 'Standard'}${fmtFee(o.course_fee) ? ' — ' + fmtFee(o.course_fee) : ''}</option>`
+  ).join('');
+  if (selectedOfferingId) setSelect(selectEl.id, String(selectedOfferingId));
+
+  if (previewEl) {
+    const update = () => {
+      const o = OFFERING_MAP[selectEl.value];
+      previewEl.innerHTML = o ? `Fee: <strong>${fmtFee(o.course_fee) || 'Free'}</strong>` : '';
+    };
+    selectEl.onchange = update;
+    update();
+  }
+}
+
+/* ── Course select — populate matching offerings ─────────── */
+document.getElementById('courseSelect').addEventListener('change', function () {
+  populateOfferingSelect(
+    document.getElementById('offeringSelect'),
+    document.getElementById('feePreview'),
+    this.value,
+    null
+  );
+});
+
+/* ═══════════════════════════════════════════════════════════
+   CREATE — form submit → POST /admin/batch-schedule
+═══════════════════════════════════════════════════════════ */
+document.getElementById('createBatchForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const btn = document.getElementById('createBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch spin me-1"></i> Saving…';
+
+  const fd = new FormData(this);
+  const body = new URLSearchParams(fd);
+
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+      body: body.toString(),
+    });
+    if (!res.ok) throw new Error('Create failed');
+    window.location.reload();
+
+  } catch (err) {
+    showToast('Network error: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-save me-1"></i> Save &amp; Publish to Home Page';
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════
+   COMPLETE — PATCH /admin/batch-schedule/<id>/complete
+═══════════════════════════════════════════════════════════ */
+let pendingCompleteId = null;
+
+function openCompleteModal(id, name) {
+  pendingCompleteId = id;
+  document.getElementById('completeModalMsg').textContent =
+    `"${name}" will be marked as completed and removed from active listings.`;
+  openModal('completeModal');
+}
+
+document.getElementById('completeConfirmBtn').onclick = async function () {
+  if (!pendingCompleteId) return;
+  const btn = this;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch spin me-1"></i>Working…';
+
+  try {
+    const body = new URLSearchParams({ action: 'complete' });
+    const res = await fetch(`${API}/${pendingCompleteId}/action`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+      body: body.toString(),
+    });
+    if (!res.ok) throw new Error('Failed');
+    closeModal('completeModal');
+    window.location.reload();
+  } catch (err) {
+    showToast('Network error: ' + err.message, 'error');
+    closeModal('completeModal');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-check me-1"></i>Yes, Mark Completed';
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════
+   DELETE — DELETE /admin/batch-schedule/<id>
+═══════════════════════════════════════════════════════════ */
+let pendingDeleteId = null;
+
+function openDeleteModal(id, name) {
+  pendingDeleteId = id;
+  document.getElementById('deleteModalMsg').textContent =
+    `"${name}" will be permanently deleted. This action cannot be undone.`;
+  openModal('deleteModal');
+}
+
+document.getElementById('deleteConfirmBtn').onclick = async function () {
+  if (!pendingDeleteId) return;
+  const btn = this;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch spin me-1"></i>Deleting…';
+
+  try {
+    const body = new URLSearchParams({ action: 'delete' });
+    const res = await fetch(`${API}/${pendingDeleteId}/action`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+      body: body.toString(),
+    });
+    if (!res.ok) throw new Error('Failed');
+    closeModal('deleteModal');
+    window.location.reload();
+  } catch (err) {
+    showToast('Network error: ' + err.message, 'error');
+    closeModal('deleteModal');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-trash me-1"></i>Yes, Delete';
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════
+   EDIT — POST /admin/batch-schedule/<id>/action (action=edit)
+   Editing now changes COURSE_ID (+ optional OFFERING_ID) rather
+   than a free-text display_name, since that column is gone.
+═══════════════════════════════════════════════════════════ */
+let pendingEditId = null;
+
+document.getElementById('em-course').addEventListener('change', function () {
+  populateOfferingSelect(
+    document.getElementById('em-offering'),
+    null,
+    this.value,
+    null
+  );
+});
+
+function openEditModal(batch) {
+  pendingEditId = batch.id;
+  setSelect('em-course', String(batch.course_id));
+  populateOfferingSelect(
+    document.getElementById('em-offering'),
+    null,
+    batch.course_id,
+    batch.offering_id
+  );
+  document.getElementById('em-start').value = batch.start_date;
+  document.getElementById('em-end').value   = batch.end_date;
+  document.getElementById('em-notes').value = batch.notes;
+  setSelect('em-type',   batch.batch_type);
+  setSelect('em-lang',   batch.language);
+  setSelect('em-status', batch.status);
+  openModal('editModal');
+}
+
+document.getElementById('editSaveBtn').onclick = async function () {
+  if (!pendingEditId) return;
+
+  const courseId = document.getElementById('em-course').value;
+  if (!courseId) { document.getElementById('em-course').focus(); return; }
+
+  const btn = this;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch spin me-1"></i>Saving…';
+
+  const body = new URLSearchParams({
+    action: 'edit',
+    edit_course_id: courseId,
+    edit_offering_id: document.getElementById('em-offering').value || '',
+    edit_batch_type: document.getElementById('em-type').value,
+    edit_language: document.getElementById('em-lang').value,
+    edit_start_date: document.getElementById('em-start').value,
+    edit_end_date: document.getElementById('em-end').value || '',
+    edit_status: document.getElementById('em-status').value,
+    edit_notes: document.getElementById('em-notes').value.trim() || '',
+  });
+
+  try {
+    const res = await fetch(`${API}/${pendingEditId}/action`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+      body: body.toString(),
+    });
+    if (!res.ok) throw new Error('Update failed');
+    closeModal('editModal');
+    window.location.reload();
+  } catch (err) {
+    showToast('Network error: ' + err.message, 'error');
+    closeModal('editModal');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-save me-1"></i>Save Changes';
+  }
+};
+
+/* ── Bootstrap on page load ──────────────────────────────── */
+document.addEventListener('DOMContentLoaded', async () => {
+  await Promise.all([loadCourses(), loadOfferings()]);
+  // loadCourses() already triggers loadBatches() once course names are resolvable
+});
+
+/* ── AJAX navigation (Back to Resources / Manage Courses) ─── */
+async function ajaxNavigate(e, url) {
+  e.preventDefault();
+  const icon  = document.getElementById('backIcon');
+  const label = document.getElementById('backLabel');
+
+  if (icon && label) {
+    icon.className    = 'fas fa-spinner fa-spin me-1';
+    label.textContent = 'Loading…';
+  }
+
+  try {
+    await fetch(url, { method: 'GET', credentials: 'same-origin' });
+  } catch (_) {
+    // navigate anyway on error
+  }
+
+  window.location.href = url;
+}
+</script>
+</body>
+</html>

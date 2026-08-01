@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Track Project Status | ChakoraHub</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<style>
+/* ===== Design tokens ===== */
+:root{
+  --ink:#16213e;
+  --bg:#eef1f8;
+  --card:#ffffff;
+  --brand:#3454d1;
+  --brand-dark:#243a94;
+  --teal:#0ea894;
+  --amber:#f5a623;
+  --muted:#6b7280;
+  --border:#e3e7f1;
+  --danger:#d64545;
+  --radius:14px;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(52,84,209,.12), transparent 45%),
+    radial-gradient(circle at 90% 100%, rgba(14,168,148,.12), transparent 45%),
+    var(--bg);
+  min-height:100vh;
+  padding:48px 20px;
+  color:var(--ink);
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  background:var(--card);
+  border-radius:20px;
+  padding:44px;
+  box-shadow:0 24px 60px -20px rgba(22,33,62,.25);
+  border:1px solid var(--border);
+}
+
+/* ===== Headings ===== */
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--brand);
+  background:rgba(52,84,209,.08);
+  padding:6px 12px;
+  border-radius:999px;
+  margin-bottom:14px;
+}
+
+h2{
+  font-family:'Sora',sans-serif;
+  font-size:32px;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:6px;
+  letter-spacing:-.01em;
+}
+.subtitle{
+  color:var(--muted);
+  margin-bottom:30px;
+  font-size:15.5px;
+}
+
+/* ===== Search Box ===== */
+.search-box{
+  display:flex;
+  gap:12px;
+  margin-bottom:8px;
+}
+
+.search-box input{
+  flex:1;
+  padding:14px 16px;
+  border:1.5px solid var(--border);
+  border-radius:10px;
+  font-size:15.5px;
+  font-family:'Inter',sans-serif;
+  background:#fbfcff;
+  transition:border-color .15s, box-shadow .15s;
+}
+
+.search-box input:focus{
+  outline:none;
+  border-color:var(--brand);
+  box-shadow:0 0 0 4px rgba(52,84,209,.12);
+  background:#fff;
+}
+
+.search-box button{
+  padding:14px 28px;
+  background:linear-gradient(135deg,var(--brand),var(--brand-dark));
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  font-family:'Inter',sans-serif;
+  transition:transform .15s, box-shadow .15s, filter .15s;
+  white-space:nowrap;
+}
+
+.search-box button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 24px rgba(52,84,209,.35);
+  filter:brightness(1.05);
+}
+
+.search-box button:active{
+  transform:translateY(0);
+}
+
+/* ===== Error ===== */
+.error{
+  color:var(--danger);
+  font-weight:600;
+  margin-top:12px;
+  font-size:14px;
+  min-height:20px;
+}
+
+/* ===== Project Card ===== */
+.card{
+  background:linear-gradient(180deg,#fbfcff,#f4f6fd);
+  padding:26px 28px;
+  border-radius:var(--radius);
+  margin-top:24px;
+  display:none;
+  border:1px solid var(--border);
+}
+
+.card p{
+  margin-bottom:12px;
+  font-size:15px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding-bottom:12px;
+  border-bottom:1px dashed var(--border);
+}
+
+.card p:last-child{
+  margin-bottom:0;
+  padding-bottom:0;
+  border-bottom:none;
+}
+
+.card p b{
+  color:var(--muted);
+  font-weight:600;
+  font-size:13px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.card p span{
+  font-weight:600;
+  color:var(--ink);
+  text-align:right;
+}
+
+/* ===== Timeline ===== */
+.timeline{
+  display:flex;
+  justify-content:space-between;
+  margin-top:46px;
+  position:relative;
+  padding:0 6px;
+}
+
+.timeline::before{
+  content:"";
+  position:absolute;
+  top:9px;
+  left:6%;
+  right:6%;
+  height:3px;
+  background:var(--border);
+  z-index:0;
+  border-radius:3px;
+}
+
+.stage{
+  flex:1;
+  text-align:center;
+  position:relative;
+  z-index:1;
+}
+
+/* Timeline dots */
+.dot{
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:#c7cde3;
+  margin:0 auto 14px;
+  border:3px solid var(--card);
+  box-shadow:0 2px 6px rgba(22,33,62,.15);
+  transition:background .2s;
+}
+
+.stage.completed .dot{
+  background:var(--teal);
+}
+
+.stage.current .dot{
+  background:var(--amber);
+  width:26px;
+  height:26px;
+  animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,.55);}
+  50%{box-shadow:0 0 0 9px rgba(245,166,35,0);}
+}
+
+.stage span{
+  font-size:11.5px;
+  font-weight:600;
+  color:var(--muted);
+  display:inline-block;
+  max-width:90px;
+  line-height:1.35;
+}
+
+.stage.completed span{
+  color:var(--teal);
+}
+
+.stage.current span{
+  color:#b9760f;
+  font-weight:700;
+}
+
+/* ===== History ===== */
+.history{
+  margin-top:46px;
+}
+
+.history h3{
+  margin-bottom:16px;
+  color:var(--ink);
+  font-family:'Sora',sans-serif;
+  font-size:17px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.history-item{
+  background:#fbfcff;
+  padding:14px 16px;
+  border-radius:10px;
+  margin-bottom:10px;
+  border-left:4px solid var(--brand);
+  border-top:1px solid var(--border);
+  border-right:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  font-size:14.5px;
+}
+
+.history-item b{
+  color:var(--ink);
+}
+
+.history-item small{
+  color:var(--muted);
+}
+
+@media (max-width:560px){
+  .container{ padding:26px; }
+  .timeline{ flex-direction:column; gap:18px; align-items:flex-start; }
+  .timeline::before{ display:none; }
+  .stage{ display:flex; align-items:center; gap:12px; text-align:left; }
+  .dot{ margin:0; }
+  .stage span{ max-width:none; }
+  .search-box{ flex-direction:column; }
+}
+</style>
+</head>
+
+<body>
+<!-- TRACK LOGIN MODAL (ADDED) -->
+<div id="loginOverlay" style="
+  position:fixed;
+  inset:0;
+  background:rgba(16,20,40,.55);
+  backdrop-filter:blur(2px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+">
+  <div style="
+    background:#fff;
+    padding:34px 30px;
+    width:340px;
+    max-width:90vw;
+    border-radius:16px;
+    text-align:center;
+    box-shadow:0 30px 70px -20px rgba(0,0,0,.45);
+    font-family:'Inter',sans-serif;
+  ">
+    <h3 style="font-family:'Sora',sans-serif;font-size:20px;margin-bottom:18px;color:#16213e;">🔐 Login</h3>
+    <input id="loginUser" placeholder="Email / Phone" style="width:100%;padding:12px 14px;margin:0 0 12px;border:1.5px solid #e3e7f1;border-radius:9px;font-size:14.5px;font-family:'Inter',sans-serif;">
+    <input id="loginPass" type="password" placeholder="Password" style="width:100%;padding:12px 14px;margin-bottom:16px;border:1.5px solid #e3e7f1;border-radius:9px;font-size:14.5px;font-family:'Inter',sans-serif;">
+    <input type="hidden" id="loginContext" value="track">
+    <button onclick="doLogin()" style="width:100%;padding:12px;background:linear-gradient(135deg,#3454d1,#243a94);color:#fff;border:none;border-radius:9px;font-weight:600;font-size:15px;cursor:pointer;font-family:'Inter',sans-serif;">
+      Login
+    </button>
+    <div id="loginError" style="color:#d64545;margin-top:12px;font-size:13.5px;font-weight:600;"></div>
+  </div>
+</div>
+
+
+<div class="container">
+
+  <span class="eyebrow"><i class="bi bi-diagram-3"></i> ChakoraHub</span>
+  <h2>Track Project Status</h2>
+  <p class="subtitle">Enter your Project ID to check progress</p>
+
+  <!-- Search -->
+  <div class="search-box">
+    <input id="projectId" placeholder="Enter Project ID">
+    <button onclick="track()"><i class="bi bi-search"></i>&nbsp; Track Status</button>
+  </div>
+
+  <div id="error" class="error"></div>
+
+  <!-- Project Details -->
+  <div id="projectCard" class="card">
+    <p><b>Project ID</b> <span id="pid">-</span></p>
+    <p><b>Project Name</b> <span id="pname">-</span></p>
+    <p><b>Owner</b> <span id="owner">-</span></p>
+    <p><b>Start Date</b> <span id="start">-</span></p>
+    <p><b>Current Phase</b> <span id="phase">-</span></p>
+  </div>
+
+  <!-- Timeline -->
+  <div id="timeline" class="timeline"></div>
+
+  <!-- History -->
+  <div id="history" class="history"></div>
+
+</div>
+
+<script>
+// Same-origin call into app.py, which proxies over plain HTTP to the
+// Client Collaboration microservice (clientcollabration.py) — no
+// AWS Lambda / API Gateway URL is called from the browser anymore.
+const API = "/api/project-status/";
+
+const PHASES = [
+  "Requirement Gathering",
+  "Design Phase Approval",
+  "Development Phase",
+  "Testing Phase",
+  "Prod Deployment",
+  "Hyper Care Support",
+  "Final Sign Off"
+];
+
+async function track(){
+  const id = document.getElementById("projectId").value.trim();
+  document.getElementById("error").innerText = "";
+
+  if(!id){
+    document.getElementById("error").innerText = "Please enter Project ID";
+    return;
+  }
+
+  try{
+    const res = await fetch(API + encodeURIComponent(id));
+    const p = await res.json();
+
+    if(res.status === 401){
+      document.getElementById("loginOverlay").style.display = "flex";
+      return;
+    }
+
+    if(p.error){
+      document.getElementById("error").innerText = p.error;
+      return;
+    }
+
+    document.getElementById("projectCard").style.display="block";
+    document.getElementById("pid").innerText = p.project_id || "-";
+    document.getElementById("pname").innerText = p.project_name || "-";
+    document.getElementById("owner").innerText = p.owner || "-";
+    document.getElementById("start").innerText =
+      p.start_date ? new Date(p.start_date).toLocaleDateString() : "-";
+
+    const phaseName =
+      typeof p.current_phase === "string"
+        ? p.current_phase
+        : (p.current_phase?.name || "Requirement Gathering");
+
+    document.getElementById("phase").innerText = phaseName;
+
+    renderTimeline(phaseName);
+    renderHistory(p.history || []);
+
+  }catch(e){
+    document.getElementById("error").innerText = "Failed to load project";
+  }
+}
+
+function renderTimeline(current){
+  const container = document.getElementById("timeline");
+  container.innerHTML = "";
+
+  const currentIndex = PHASES.indexOf(current);
+
+  PHASES.forEach((p,i)=>{
+    const d = document.createElement("div");
+    d.className = "stage";
+
+    if(i < currentIndex) d.classList.add("completed");
+    else if(i === currentIndex) d.classList.add("current");
+
+    d.innerHTML = `<div class="dot"></div><span>${p}</span>`;
+    container.appendChild(d);
+  });
+}
+
+function renderHistory(h){
+  const box = document.getElementById("history");
+  box.innerHTML = "<h3>Phase History</h3>";
+
+  if(!h.length){
+    box.innerHTML += "<p>No history available</p>";
+    return;
+  }
+
+  h.slice().reverse().forEach(x=>{
+    box.innerHTML += `
+      <div class="history-item">
+        <b>${x.new_phase}</b><br/>
+        <small>${new Date(x.date).toLocaleString()}</small>
+      </div>`;
+  });
+}
+async function checkTrackSession(){
+  try{
+    const res = await fetch("/track-session-check");
+    const data = await res.json();
+    if(!data.logged_in){
+      document.getElementById("loginOverlay").style.display = "flex";
+    }
+  }catch(e){
+    console.error("Session check failed", e);
+  }
+}
+
+async function doLogin(){
+  const fd = new FormData();
+  fd.append("username", loginUser.value);
+  fd.append("password", loginPass.value);
+  fd.append("context", loginContext.value);
+
+  const res = await fetch("/track-login", {
+    method:"POST",
+    body: fd,
+    headers: { "X-Requested-With": "XMLHttpRequest" }
+  });
+  const data = await res.json();
+
+  if(data.success){
+    document.getElementById("loginOverlay").style.display = "none";
+  }else{
+    document.getElementById("loginError").innerText = data.error;
+  }
+}
+window.addEventListener("load", checkTrackSession);
+
+</script>
+
+</body>
+</html>

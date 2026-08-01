@@ -1,0 +1,673 @@
+{% extends "base.html" %}
+{% block title %}Candidate Dashboard — Examination Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+
+        <!-- Header -->
+        <div class="glass-card p-4 mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h3 class="mb-1 text-white">Welcome, {{ username }}</h3>
+                <p class="text-secondary mb-0" style="font-size:0.9rem;">Select an exam below to begin.</p>
+            </div>
+            <a href="{{ url_for('ope_logout') }}" class="btn btn-premium-outline py-2 px-4">
+                <i class="bi bi-box-arrow-right me-1"></i> Logout
+            </a>
+        </div>
+
+        <!-- Two-Tab Nav -->
+        <ul class="nav nav-tabs mb-4" id="dashTabs" role="tablist"
+            style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="cert-tab" data-bs-toggle="tab" data-bs-target="#certPanel"
+                    type="button" role="tab" aria-controls="certPanel" aria-selected="true"
+                    style="color:var(--accent-blue);background:transparent;border-color:transparent;border-bottom-color:var(--accent-blue);">
+                    <i class="bi bi-award me-2"></i>Certification Exams
+                    <span class="badge ms-2" style="background:rgba(59,130,246,0.15);color:var(--accent-blue);">
+                        {{ cert_exams|length }}
+                    </span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="mock-tab" data-bs-toggle="tab" data-bs-target="#mockPanel" type="button"
+                    role="tab" aria-controls="mockPanel" aria-selected="false"
+                    style="color:var(--text-secondary);background:transparent;border-color:transparent;">
+                    <i class="bi bi-journal-bookmark me-2"></i>Mock Tests
+                    <span class="badge ms-2" style="background:rgba(255,255,255,0.05);color:var(--text-secondary);">
+                        {{ mock_exams|length }}
+                    </span>
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+
+            <!-- ===================== TAB 1: CERTIFICATION ===================== -->
+            <div class="tab-pane fade show active" id="certPanel" role="tabpanel" aria-labelledby="cert-tab">
+
+            {% if cert_exams %}
+            <div class="row g-4 mb-5">
+                {% for exam in cert_exams %}
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="glass-card p-4 h-100 d-flex flex-column">
+                        <div class="d-flex align-items-start gap-3 mb-3">
+                            <div
+                                style="width:42px;height:42px;border-radius:10px;background:rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="bi bi-shield-check" style="color:var(--accent-blue);font-size:1.2rem;"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-white mb-1">{{ exam.title }}</h5>
+                                <span class="badge"
+                                    style="background:rgba(59,130,246,0.12);color:var(--accent-blue);font-size:0.72rem;">
+                                    CERTIFICATION
+                                </span>
+                            </div>
+                        </div>
+                        {% if exam.description %}
+                        <p class="text-secondary mb-3" style="font-size:0.88rem;flex-grow:1;">
+                            {{ exam.description[:140] }}{% if exam.description|length > 140 %}…{% endif %}
+                        </p>
+                        {% endif %}
+                        <div class="d-flex align-items-center justify-content-between mt-auto">
+                            <span class="text-secondary" style="font-size:0.82rem;">
+                                <i class="bi bi-clock me-1"></i>{{ exam.duration_minutes }} min
+                                &nbsp;·&nbsp;
+                                <i class="bi bi-camera-video me-1"></i>Webcam + Proctored
+                            </span>
+                            <a href="{{ url_for('exam', exam_id=exam.id) }}" class="btn btn-sm btn-premium px-3 py-1">
+                                Start <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="glass-card p-5 text-center mb-5">
+                <i class="bi bi-award" style="font-size:3rem;color:var(--text-muted);"></i>
+                <h5 class="text-secondary mt-3">No certification exams available yet.</h5>
+                <p class="text-muted" style="font-size:0.88rem;">Contact your administrator to set up an exam.</p>
+            </div>
+            {% endif %}
+
+            <!-- Upcoming Certification Tests Section -->
+            <div class="glass-card p-4 mb-4 mt-4">
+                <h4 class="text-white mb-3">
+                    <i class="bi bi-calendar-event me-2 text-gradient-blue"></i>
+                    Upcoming Scheduled Tests
+                </h4>
+                <div id="upcomingCertTestsList">
+                    <div class="text-center text-secondary py-3">
+                        <i class="bi bi-calendar-x"></i> No upcoming certification tests scheduled
+                    </div>
+                </div>
+            </div>
+
+            <!-- Past Certification Results -->
+            <div class="glass-card p-4 mb-4">
+                <h4 class="text-white mb-3">
+                    <i class="bi bi-clock-history me-2 text-gradient-purple"></i>
+                    Your Previous Attempts
+                </h4>
+                {% if results %}
+                <div class="table-responsive" style="margin: 0 -1.5rem -1.5rem -1.5rem;">
+                    <table class="table table-premium mb-0" style="font-size:0.88rem;">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3">Exam</th>
+                                <th class="px-3 py-3">Score</th>
+                                <th class="px-3 py-3">Status</th>
+                                <th class="px-3 py-3">Violations</th>
+                                <th class="px-3 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in results %}
+                            <tr>
+                                <td class="px-4 py-3 text-white">{{ r.exam_title }}</td>
+                                <td class="px-3 py-3 text-white">
+                                    {{ r.score | int }}/{{ r.total_questions }}
+                                    <span class="text-secondary ms-1">({{ "%.1f"|format(r.percentage) }}%)</span>
+                                </td>
+                                <td class="px-3 py-3">
+                                    <span class="badge px-2 py-1"
+                                        style="background:{% if r.status == 'PASS' %}rgba(34,197,94,0.15){% else %}rgba(239,68,68,0.15){% endif %};color:{% if r.status == 'PASS' %}#22c55e{% else %}#ef4444{% endif %};">
+                                        {{ r.status }}
+                                    </span>
+                                </td>
+                                <td class="px-3 py-3 text-secondary">{{ r.violations_count }}</td>
+                                <td class="px-3 py-3 text-end">
+                                    <a href="{{ url_for('exam_result', attempt_id=r.attempt_id) }}"
+                                        class="btn btn-sm btn-premium-outline py-1 px-3 me-3">
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-secondary py-3">
+                    <i class="bi bi-journal-x"></i> No previous attempts found
+                </div>
+                {% endif %}
+            </div>
+
+            </div><!-- /certPanel -->
+
+            <!-- ===================== TAB 2: MOCK TESTS ===================== -->
+            <div class="tab-pane fade" id="mockPanel" role="tabpanel" aria-labelledby="mock-tab">
+
+
+            <!-- Upcoming Tests Section -->
+            <div class="glass-card p-4 mb-4 mt-4">
+                <h4 class="text-white mb-3">
+                    <i class="bi bi-calendar-event me-2 text-gradient-blue"></i>
+                    Upcoming Scheduled Tests
+                </h4>
+                <div id="upcomingTestsList">
+                    <div class="text-center py-3">
+                        <div class="spinner-border text-primary" style="width: 1.5rem; height: 1.5rem;"></div>
+                        <p class="text-secondary mt-2 mb-0">Loading upcoming tests...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Previous Attempts Section -->
+            <div class="glass-card p-4">
+                <h4 class="text-white mb-3">
+                    <i class="bi bi-clock-history me-2 text-gradient-purple"></i>
+                    Your Previous Attempts
+                </h4>
+                <div id="previousAttemptsList">
+                    <div class="text-center py-3">
+                        <div class="spinner-border text-primary" style="width: 1.5rem; height: 1.5rem;"></div>
+                        <p class="text-secondary mt-2 mb-0">Loading your history...</p>
+                    </div>
+                </div>
+            </div>
+
+            </div><!-- /mockPanel -->
+
+        </div><!-- /tab-content -->
+
+    </div>
+</div>
+
+<script>
+    // ================================================================
+    // PRESERVE ACTIVE TAB - Without Bootstrap dependency
+    // ================================================================
+    (function () {
+        console.log('[Dashboard] Setting up tab navigation...');
+
+        function showTab(tabId) {
+            // Hide all tab panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('show', 'active');
+            });
+
+            // Remove active class from all tab buttons
+            document.querySelectorAll('#dashTabs button[data-bs-toggle="tab"]').forEach(btn => {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-selected', 'false');
+                btn.style.color = 'var(--text-secondary)';
+                btn.style.borderBottomColor = 'transparent';
+            });
+
+            // Show the selected tab pane
+            const targetPane = document.getElementById(tabId.replace('-tab', 'Panel'));
+            if (targetPane) {
+                targetPane.classList.add('show', 'active');
+            }
+
+            // Activate the tab button
+            const tabBtn = document.getElementById(tabId);
+            if (tabBtn) {
+                tabBtn.classList.add('active');
+                tabBtn.setAttribute('aria-selected', 'true');
+                tabBtn.style.color = 'var(--accent-blue)';
+                tabBtn.style.borderBottomColor = 'var(--accent-blue)';
+            }
+        }
+
+        // Restore stored tab
+        const stored = sessionStorage.getItem('dashTab');
+        if (stored) {
+            showTab(stored);
+        }
+
+        // Add click handlers to tab buttons
+        document.querySelectorAll('#dashTabs button[data-bs-toggle="tab"]').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                const tabId = this.id;
+                showTab(tabId);
+                sessionStorage.setItem('dashTab', tabId);
+            });
+        });
+    })();
+
+    // ================================================================
+    // ESCAPE HTML
+    // ================================================================
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ================================================================
+    // LOAD UPCOMING TESTS
+    // ================================================================
+    function loadUpcomingTests() {
+        console.log('[Dashboard] Fetching upcoming tests...');
+        const container = document.getElementById('upcomingTestsList');
+
+        if (!container) {
+            console.error('[Dashboard] Container #upcomingTestsList not found');
+            return;
+        }
+
+        container.innerHTML = `
+        <div class="text-center py-3">
+            <div class="spinner-border text-primary" style="width: 1.5rem; height: 1.5rem;"></div>
+            <p class="text-secondary mt-2 mb-0">Loading upcoming tests...</p>
+        </div>
+    `;
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        fetch('/api/proxy/candidate/upcoming-tests', {
+            signal: controller.signal,
+            headers: {
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+            .then(res => {
+                clearTimeout(timeoutId);
+                console.log('[Dashboard] Upcoming tests response status:', res.status);
+
+                if (res.status === 401) {
+                    console.log('[Dashboard] Unauthorized - redirecting to login');
+                    window.location.href = '/ope';
+                    return;
+                }
+                if (!res.ok) {
+                    return res.text().then(text => {
+                        try {
+                            const err = JSON.parse(text);
+                            throw new Error(err.error || err.detail || `HTTP ${res.status}`);
+                        } catch {
+                            throw new Error(`HTTP ${res.status}: ${text.substring(0, 100)}`);
+                        }
+                    });
+                }
+                return res.json();
+            })
+            .then(data => {
+                console.log('[Dashboard] Upcoming tests data received:', data);
+
+                if (!data) {
+                    container.innerHTML = `
+                <div class="text-center text-secondary py-3">
+                    <i class="bi bi-calendar-x"></i> No upcoming tests scheduled
+                </div>
+            `;
+                    return;
+                }
+
+                // Handle both array and single object responses
+                const tests = Array.isArray(data) ? data : (data.id ? [data] : []);
+
+                if (tests.length === 0) {
+                    container.innerHTML = `
+                <div class="text-center text-secondary py-3">
+                    <i class="bi bi-calendar-x"></i> No upcoming tests scheduled
+                </div>
+            `;
+                    return;
+                }
+
+                console.log('[Dashboard] Rendering', tests.length, 'tests');
+
+                container.innerHTML = tests.map(test => {
+                    let statusBadge = '';
+                    let buttonHtml = '';
+
+                    // Determine status
+                    const isUpcoming = test.is_upcoming === true;
+                    const isActive = test.is_active === true;
+                    const hasInProgress = test.has_in_progress === true;
+                    const canAttempt = test.can_attempt === true;
+                    const attemptsLeft = test.remaining_attempts || 0;
+                    const attemptsUsed = test.attempts_used || 0;
+                    const totalAttempts = test.total_attempts || 3;
+
+                    console.log('[Dashboard] Test:', test.id, test.title, 'isActive:', isActive, 'canAttempt:', canAttempt);
+
+                    if (isUpcoming) {
+                        statusBadge = `
+                    <span class="badge bg-warning bg-opacity-10 text-warning">
+                        <i class="bi bi-clock"></i> Starts at ${escapeHtml(test.start_time)}
+                    </span>
+                `;
+                        buttonHtml = `
+                    <button class="btn btn-secondary btn-sm" disabled>
+                        <i class="bi bi-clock"></i> Waiting...
+                    </button>
+                `;
+                    } else if (isActive) {
+                        if (hasInProgress) {
+                            statusBadge = `
+                        <span class="badge bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-arrow-repeat"></i> In Progress
+                        </span>
+                    `;
+                            buttonHtml = `
+                        <a href="/exam/mock/${test.id}" class="btn btn-premium btn-sm">
+                            Resume <i class="bi bi-arrow-right"></i>
+                        </a>
+                    `;
+                        } else if (canAttempt && attemptsLeft > 0) {
+                            statusBadge = `
+                        <span class="badge bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-check-circle"></i> Available
+                        </span>
+                    `;
+                            buttonHtml = `
+                        <a href="/exam/mock/${test.id}" class="btn btn-premium btn-sm">
+                            Start <i class="bi bi-arrow-right"></i>
+                        </a>
+                    `;
+                        } else {
+                            statusBadge = `
+                        <span class="badge bg-danger bg-opacity-10 text-danger">
+                            <i class="bi bi-x-circle"></i> No attempts left
+                        </span>
+                    `;
+                            buttonHtml = `
+                        <button class="btn btn-secondary btn-sm" disabled>
+                            <i class="bi bi-x-circle"></i> Expired
+                        </button>
+                    `;
+                        }
+                    } else {
+                        statusBadge = `
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                        <i class="bi bi-clock-history"></i> Expired
+                    </span>
+                `;
+                        buttonHtml = `
+                    <button class="btn btn-secondary btn-sm" disabled>
+                        <i class="bi bi-clock-history"></i> Expired
+                    </button>
+                `;
+                    }
+
+                    return `
+                <div class="glass-card p-3 mb-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div style="flex:1;min-width:200px;">
+                        <h6 class="text-white mb-1">${escapeHtml(test.title)}</h6>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <small class="text-secondary">
+                                <i class="bi bi-tag"></i> ${escapeHtml(test.category || 'Uncategorized')}
+                            </small>
+                            <small class="text-secondary">
+                                <i class="bi bi-clock"></i> ${test.duration_minutes} min
+                            </small>
+                            <small class="text-secondary">
+                                <i class="bi bi-arrow-repeat"></i> ${attemptsUsed}/${totalAttempts} attempts used
+                            </small>
+                            ${statusBadge}
+                        </div>
+                        <div class="mt-1">
+                            <small class="text-info">
+                                <i class="bi bi-calendar"></i> ${escapeHtml(test.scheduled_date)} | 
+                                <i class="bi bi-hourglass-split"></i> ${escapeHtml(test.start_time)} - ${escapeHtml(test.expires_at || test.end_time || '')}
+                            </small>
+                        </div>
+                    </div>
+                    ${buttonHtml}
+                </div>
+            `;
+                }).join('');
+            })
+            .catch(err => {
+                clearTimeout(timeoutId);
+                console.error('[Dashboard] Error loading upcoming tests:', err);
+
+                let errorMessage = err.message || 'Unknown error';
+                if (err.name === 'AbortError') {
+                    errorMessage = 'Request timed out after 15 seconds';
+                }
+
+                container.innerHTML = `
+            <div class="text-center text-danger py-3">
+                <i class="bi bi-exclamation-triangle" style="font-size: 1.5rem; display: block;"></i>
+                <p class="mt-2">Error: ${escapeHtml(errorMessage)}</p>
+                <button class="btn btn-premium-outline btn-sm mt-2" onclick="loadUpcomingTests()">
+                    <i class="bi bi-arrow-clockwise"></i> Retry
+                </button>
+            </div>
+        `;
+            });
+    }
+
+    // ================================================================
+    // LOAD PREVIOUS ATTEMPTS
+    // ================================================================
+    function loadPreviousAttempts() {
+        console.log('[Dashboard] Fetching previous attempts...');
+        const container = document.getElementById('previousAttemptsList');
+
+        if (!container) {
+            console.error('[Dashboard] Container #previousAttemptsList not found');
+            return;
+        }
+
+        container.innerHTML = `
+        <div class="text-center py-3">
+            <div class="spinner-border text-primary" style="width: 1.5rem; height: 1.5rem;"></div>
+            <p class="text-secondary mt-2 mb-0">Loading your history...</p>
+        </div>
+    `;
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        fetch('/api/proxy/candidate/previous-attempts', {
+            signal: controller.signal,
+            headers: {
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+            .then(res => {
+                clearTimeout(timeoutId);
+                console.log('[Dashboard] Previous attempts response status:', res.status);
+
+                if (res.status === 401) {
+                    console.log('[Dashboard] Unauthorized - redirecting to login');
+                    window.location.href = '/ope';
+                    return;
+                }
+                if (!res.ok) {
+                    return res.text().then(text => {
+                        try {
+                            const err = JSON.parse(text);
+                            throw new Error(err.error || err.detail || `HTTP ${res.status}`);
+                        } catch {
+                            throw new Error(`HTTP ${res.status}: ${text.substring(0, 100)}`);
+                        }
+                    });
+                }
+                return res.json();
+            })
+            .then(attempts => {
+                console.log('[Dashboard] Previous attempts data received:', attempts);
+
+                if (!attempts || attempts.length === 0) {
+                    container.innerHTML = `
+                <div class="text-center text-secondary py-3">
+                    <i class="bi bi-journal-x"></i> No previous attempts found
+                </div>
+            `;
+                    return;
+                }
+
+                console.log('[Dashboard] Rendering', attempts.length, 'attempts');
+
+                container.innerHTML = `
+            <div class="table-responsive" style="margin: 0 -1.5rem -1.5rem -1.5rem;">
+                <table class="table table-premium mb-0" style="font-size:0.88rem;">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-3">Test</th>
+                            <th class="px-3 py-3">Attempt</th>
+                            <th class="px-3 py-3">Date</th>
+                            <th class="px-3 py-3">Score</th>
+                            <th class="px-3 py-3">Percentage</th>
+                            <th class="px-3 py-3">Result</th>
+                            <th class="px-3 py-3"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${attempts.map(attempt => `
+                            <tr>
+                                <td class="px-4 py-3 text-white">${escapeHtml(attempt.test_title)}</td>
+                                <td class="px-3 py-3 text-secondary">Attempt #${attempt.attempt_number || 1}</td>
+                                <td class="px-3 py-3 text-secondary">${escapeHtml(attempt.attempt_date)}</td>
+                                <td class="px-3 py-3 text-white">${attempt.score}/${attempt.total_questions}</td>
+                                <td class="px-3 py-3 text-white">${attempt.percentage}%</td>
+                                <td class="px-3 py-3">
+                                    <span class="badge px-2 py-1"
+                                          style="background:${attempt.percentage >= 50 ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)'};
+                                                 color:${attempt.percentage >= 50 ? '#22c55e' : '#ef4444'};">
+                                        ${attempt.percentage >= 50 ? 'PASS' : 'FAIL'}
+                                    </span>
+                                </td>
+                                <td class="px-3 py-3 text-end">
+                                    <a href="/exam/attempt/${attempt.id}/result" 
+                                       class="btn btn-sm btn-premium-outline py-1 px-3 me-3">
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+            })
+            .catch(err => {
+                clearTimeout(timeoutId);
+                console.error('[Dashboard] Error loading previous attempts:', err);
+
+                let errorMessage = err.message || 'Unknown error';
+                if (err.name === 'AbortError') {
+                    errorMessage = 'Request timed out after 15 seconds';
+                }
+
+                container.innerHTML = `
+            <div class="text-center text-danger py-3">
+                <i class="bi bi-exclamation-triangle" style="font-size: 1.5rem; display: block;"></i>
+                <p class="mt-2">Error: ${escapeHtml(errorMessage)}</p>
+                <button class="btn btn-premium-outline btn-sm mt-2" onclick="loadPreviousAttempts()">
+                    <i class="bi bi-arrow-clockwise"></i> Retry
+                </button>
+            </div>
+        `;
+            });
+    }
+
+    // ================================================================
+    // AUTO-REFRESH
+    // ================================================================
+    let refreshInterval = null;
+
+    function startAutoRefresh() {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+            refreshInterval = null;
+        }
+
+        refreshInterval = setInterval(() => {
+            if (!document.hidden) {
+                const mockTab = document.getElementById('mock-tab');
+                if (mockTab && mockTab.classList.contains('active')) {
+                    console.log('[Dashboard] Auto-refreshing data...');
+                    loadUpcomingTests();
+                    loadPreviousAttempts();
+                }
+            }
+        }, 30000); // 30 seconds
+    }
+
+    function stopAutoRefresh() {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+            refreshInterval = null;
+        }
+    }
+
+    // Stop auto-refresh when page is hidden
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+            console.log('[Dashboard] Tab hidden - stopping auto-refresh');
+            stopAutoRefresh();
+        } else {
+            console.log('[Dashboard] Tab visible - starting auto-refresh');
+            startAutoRefresh();
+        }
+    });
+
+    // ================================================================
+    // MANUAL REFRESH FUNCTION
+    // ================================================================
+    function refreshDashboard() {
+        console.log('[Dashboard] Manual refresh triggered');
+        loadUpcomingTests();
+        loadPreviousAttempts();
+    }
+
+    // ================================================================
+    // INITIALIZATION
+    // ================================================================
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('[Dashboard] Initializing...');
+        console.log('[Dashboard] User:', '{{ username|default("unknown") }}');
+
+        // Check if required elements exist
+        const upcomingContainer = document.getElementById('upcomingTestsList');
+        const previousContainer = document.getElementById('previousAttemptsList');
+
+        if (!upcomingContainer) {
+            console.error('[Dashboard] Container #upcomingTestsList not found!');
+        }
+        if (!previousContainer) {
+            console.error('[Dashboard] Container #previousAttemptsList not found!');
+        }
+
+        if (!upcomingContainer || !previousContainer) {
+            return;
+        }
+
+        // Load data
+        loadUpcomingTests();
+        loadPreviousAttempts();
+
+        // Start auto-refresh after initial load
+        setTimeout(startAutoRefresh, 2000);
+    });
+
+    // Make functions available globally for debugging
+    window.loadUpcomingTests = loadUpcomingTests;
+    window.loadPreviousAttempts = loadPreviousAttempts;
+    window.refreshDashboard = refreshDashboard;
+</script>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}Manage Mock Tests - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        
+        <!-- Header -->
+        <div class="glass-card p-4 mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="text-white mb-1">
+                    <i class="bi bi-journal-check me-2 text-gradient-blue"></i>
+                    Manage Mock Tests
+                </h2>
+                <p class="text-secondary mb-0">Publish, edit, or delete mock tests</p>
+            </div>
+            <div>
+                <a href="{{ url_for('admin_create_mock_test') }}" class="btn btn-premium">
+                    <i class="bi bi-plus-circle"></i> Create New Test
+                </a>
+            </div>
+        </div>
+
+        <!-- Tests Table -->
+        <div class="glass-card p-4">
+            <div class="table-responsive">
+                <table class="table table-premium">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Questions</th>
+                            <th>Duration</th>
+                            <th>Scheduled</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="testsTableBody">
+                        <tr><td colspan="8" class="text-center py-5">Loading tests...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function loadTests() {
+    fetch('/api/proxy/admin/mock-tests')
+        .then(res => res.json())
+        .then(tests => {
+            displayTests(tests);
+        })
+        .catch(err => {
+            console.error('Error loading tests:', err);
+            document.getElementById('testsTableBody').innerHTML = '<tr><td colspan="8" class="text-center text-danger py-5">Error loading tests</td></tr>';
+        });
+}
+
+function displayTests(tests) {
+    const tbody = document.getElementById('testsTableBody');
+    
+    if (!tests || tests.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-secondary py-5">No mock tests created yet</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = '';
+    tests.forEach(test => {
+        const row = tbody.insertRow();
+        row.insertCell(0).innerHTML = `<span class="text-secondary">${test.id}</span>`;
+        row.insertCell(1).innerHTML = `<strong class="text-white">${escapeHtml(test.title)}</strong>`;
+        row.insertCell(2).innerHTML = `<span class="badge bg-primary bg-opacity-10 text-primary">${escapeHtml(test.category)}</span>`;
+        row.insertCell(3).innerHTML = `<span class="text-white">${test.total_questions || 0}</span>`;
+        row.insertCell(4).innerHTML = `<span class="text-secondary">${test.duration_minutes} min</span>`;
+        row.insertCell(5).innerHTML = `<small class="text-secondary">${test.scheduled_date || 'Not scheduled'} ${test.start_time ? test.start_time : ''}</small>`;
+        row.insertCell(6).innerHTML = `<span class="badge ${test.is_published ? 'bg-success' : 'bg-secondary'} bg-opacity-10 text-${test.is_published ? 'success' : 'secondary'}">${test.is_published ? 'Published' : 'Draft'}</span>`;
+        
+        const publishBtn = test.is_published 
+            ? `<button class="btn btn-sm btn-warning" onclick="togglePublish(${test.id}, ${test.is_published})" title="Unpublish"><i class="bi bi-eye-slash"></i></button>`
+            : `<button class="btn btn-sm btn-success" onclick="togglePublish(${test.id}, ${test.is_published})" title="Publish"><i class="bi bi-eye"></i></button>`;
+
+        row.insertCell(7).innerHTML = `
+            <div class="d-flex gap-2">
+                ${publishBtn}
+                <button class="btn btn-sm btn-premium-outline" onclick="editTest(${test.id})" title="Edit"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-danger-premium" onclick="deleteTest(${test.id})" title="Delete"><i class="bi bi-trash"></i></button>
+            </div>
+        `;
+    });
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function editTest(id) {
+    window.location.href = `/admin/mock-tests/${id}/edit`;
+}
+
+function togglePublish(id, currentStatus) {
+    const action = currentStatus ? 'unpublish' : 'publish';
+    if (!confirm(`Are you sure you want to ${action} this mock test?`)) return;
+    
+    fetch(`/api/proxy/admin/mock-tests/${id}/publish`, {
+        method: 'PUT'
+    })
+    .then(res => {
+        if (res.ok) {
+            location.reload();
+        } else {
+            alert(`Failed to ${action} test`);
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert(`Error: ${err.message}`);
+    });
+}
+
+function deleteTest(id) {
+    if (!confirm('Are you sure you want to delete this mock test?')) return;
+    
+    fetch(`/api/proxy/admin/mock-tests/${id}`, {
+        method: 'DELETE'
+    })
+    .then(res => {
+        if (res.ok) {
+            location.reload();
+        } else {
+            alert('Failed to delete test');
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Error deleting test');
+    });
+}
+
+// Initialize on page load
+loadTests();
+</script>
+{% endblock %}

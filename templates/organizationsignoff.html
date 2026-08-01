@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Organization Sign-Off</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --ink:#1E2233;
+  --muted:#6B7280;
+  --primary:#4F46E5;
+  --primary-dark:#3730A3;
+  --accent:#F5A524;
+  --surface:#FFFFFF;
+  --bg-top:#EEF0FF;
+  --bg-bottom:#E4E7FB;
+  --line:#E7E7F3;
+  --success-bg:#E7F8EE;
+  --success-ink:#1B7F4C;
+  --error-bg:#FDEAEA;
+  --error-ink:#B3261E;
+}
+
+*{box-sizing:border-box}
+
+body{
+  font-family:"Inter",Arial,sans-serif;
+  min-height:100vh;
+  background:
+    radial-gradient(1100px 500px at 15% -10%, #DCE0FF 0%, rgba(220,224,255,0) 60%),
+    linear-gradient(160deg,var(--bg-top),var(--bg-bottom));
+  color:var(--ink);
+  padding:32px 16px;
+}
+
+.shell{
+  width:100%;
+  max-width:700px;
+  margin:0 auto;
+}
+
+/* ===== Top Navigation ===== */
+.top-nav{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:18px;
+}
+
+.top-nav button{
+  flex:1 1 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:9px 12px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-size:12.5px;
+  font-weight:600;
+  cursor:pointer;
+  background:rgba(255,255,255,.7);
+  color:var(--primary-dark);
+  transition:background .15s ease, transform .15s ease, box-shadow .15s ease;
+  white-space:nowrap;
+}
+
+.top-nav button:hover{
+  background:#fff;
+  box-shadow:0 4px 14px rgba(79,70,229,.15);
+  transform:translateY(-1px);
+}
+
+/* ===== Card ===== */
+.card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:0;
+  box-shadow:0 20px 45px rgba(30,34,51,.12);
+  overflow:hidden;
+}
+
+.card-header{
+  background:linear-gradient(120deg,var(--primary),var(--primary-dark));
+  color:#fff;
+  padding:28px 32px 24px;
+}
+
+.card-header .eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11.5px;
+  font-weight:600;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  background:rgba(255,255,255,.16);
+  padding:5px 12px;
+  border-radius:999px;
+  margin-bottom:12px;
+}
+
+.card-header h2{
+  font-family:"Sora",sans-serif;
+  font-weight:700;
+  font-size:26px;
+  margin-bottom:6px;
+}
+
+.card-header p{
+  font-size:14px;
+  color:rgba(255,255,255,.85);
+  margin-bottom:0;
+}
+
+.card-body{
+  padding:28px 32px 32px;
+}
+
+/* ===== Messages (Jinja-driven, classes unchanged: success / error) ===== */
+.success, .error{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 14px;
+  border-radius:10px;
+  margin-bottom:18px;
+  font-size:13.5px;
+  font-weight:500;
+}
+.success{background:var(--success-bg);color:var(--success-ink)}
+.error{background:var(--error-bg);color:var(--error-ink)}
+
+.success::before, .error::before{
+  font-family:"bootstrap-icons";
+  font-size:16px;
+}
+.success::before{content:"\f26a"} /* check-circle-fill */
+.error::before{content:"\f33a"}   /* exclamation-circle-fill */
+
+/* ===== Form fields ===== */
+label{
+  font-weight:600;
+  display:block;
+  margin-top:18px;
+  margin-bottom:6px;
+  font-size:13.5px;
+  color:var(--ink);
+}
+
+.field-icon-wrap{
+  position:relative;
+}
+
+.field-icon-wrap i{
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--muted);
+  font-size:15px;
+  pointer-events:none;
+}
+
+.field-icon-wrap textarea + i{
+  top:18px;
+  transform:none;
+}
+
+input, textarea, select{
+  width:100%;
+  padding:12px 14px 12px 40px;
+  border-radius:10px;
+  border:1.5px solid var(--line);
+  font-size:14px;
+  font-family:"Inter",sans-serif;
+  background:#FAFAFF;
+  color:var(--ink);
+  transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+select{
+  appearance:none;
+  -webkit-appearance:none;
+  background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+  background-size:16px;
+  padding-right:38px;
+}
+
+textarea{resize:vertical; padding-top:12px}
+
+input:focus, textarea:focus, select:focus{
+  outline:none;
+  border-color:var(--primary);
+  background:#fff;
+  box-shadow:0 0 0 4px rgba(79,70,229,.12);
+}
+
+input[type="file"]{
+  padding:10px 14px 10px 40px;
+  cursor:pointer;
+}
+
+.file-hint{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:6px;
+}
+
+/* ===== Submit Button ===== */
+.submit-btn{
+  width:100%;
+  background:linear-gradient(120deg,var(--primary),var(--primary-dark));
+  color:#fff;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  font-size:15.5px;
+  font-family:"Sora",sans-serif;
+  font-weight:700;
+  margin-top:30px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  transition:opacity .15s ease, transform .15s ease;
+}
+
+.submit-btn:hover{opacity:.92;transform:translateY(-1px)}
+.submit-btn:active{transform:translateY(0)}
+
+/* ==========================
+   LOGIN OVERLAY (ids/onclick unchanged — visual restyle only)
+========================== */
+
+.overlay{
+    position:fixed;
+    inset:0;
+    display:none;
+    justify-content:center;
+    align-items:center;
+    background:rgba(30,34,51,.55);
+    backdrop-filter:blur(6px);
+    z-index:9999;
+    padding:20px;
+}
+
+.overlay .login-card{
+    background:#fff;
+    width:100%;
+    max-width:380px;
+    padding:0;
+    border-radius:18px;
+    box-shadow:0 25px 60px rgba(0,0,0,.3);
+    text-align:center;
+    overflow:hidden;
+}
+
+.overlay .login-card .login-head{
+    background:linear-gradient(120deg,var(--primary),var(--primary-dark));
+    color:#fff;
+    padding:26px 28px 22px;
+}
+
+.overlay .login-card .login-head .lock-badge{
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    background:rgba(255,255,255,.16);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto 12px;
+    font-size:19px;
+}
+
+.overlay .login-card h2{
+    color:#fff;
+    margin-bottom:4px;
+    font-size:21px;
+    font-weight:700;
+    font-family:"Sora",sans-serif;
+}
+
+.overlay .login-card .login-sub{
+    font-size:13px;
+    color:rgba(255,255,255,.85);
+}
+
+.overlay .login-card .login-body{
+    padding:26px 28px 28px;
+}
+
+.overlay .login-card .field-icon-wrap{
+    margin-bottom:14px;
+}
+
+.overlay .login-card input{
+    width:100%;
+    padding:12px 14px 12px 40px;
+    margin-bottom:0;
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    font-size:14.5px;
+    background:#FAFAFF;
+}
+
+.overlay .login-card input:focus{
+    outline:none;
+    border-color:var(--primary);
+    background:#fff;
+    box-shadow:0 0 0 4px rgba(79,70,229,.12);
+}
+
+.overlay .login-card button{
+    width:100%;
+    padding:13px;
+    background:linear-gradient(120deg,var(--primary),var(--primary-dark));
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    font-size:15px;
+    font-family:"Sora",sans-serif;
+    font-weight:700;
+    cursor:pointer;
+    margin-top:4px;
+    transition:opacity .15s ease, transform .15s ease;
+}
+
+.overlay .login-card button:hover{
+    opacity:.93;
+    transform:translateY(-1px);
+}
+
+#loginError{
+    margin-top:12px;
+    color:var(--error-ink);
+    font-size:13.5px;
+    min-height:16px;
+}
+
+@media (max-width:480px){
+  .card-header,.card-body{padding-left:20px;padding-right:20px}
+  .top-nav button{font-size:11.5px;padding:8px 8px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="shell">
+
+  <!-- 🔹 Navigation Buttons -->
+  <div class="top-nav">
+    <button onclick="window.location.href='/'"><i class="bi bi-house-door-fill"></i> Home</button>
+    <button onclick="window.location.href='/applicationform'"><i class="bi bi-file-earmark-person-fill"></i> Application Form</button>
+    <button onclick="window.location.href='/industry/brs'"><i class="bi bi-file-earmark-text-fill"></i> Submit BRS Form</button>
+    <button onclick="window.location.href='/track-project'"><i class="bi bi-bar-chart-fill"></i> Track Status</button>
+  </div>
+
+  <div class="card">
+
+    <div class="card-header">
+      <span class="eyebrow"><i class="bi bi-stars"></i> Collaboration Portal</span>
+      <h2>Organization Sign-Off</h2>
+      <p>Authorized approval for submitted BRS</p>
+    </div>
+
+    <div class="card-body">
+
+      <!-- Flash message -->
+      {% if message %}
+        <div class="{{ message_type }}">{{ message }}</div>
+      {% endif %}
+
+      <!-- ===== LOGIN POPUP ===== -->
+      <div id="loginOverlay" class="overlay">
+
+          <div class="login-card">
+
+              <div class="login-head">
+                  <div class="lock-badge"><i class="bi bi-lock-fill"></i></div>
+                  <h2>Login Required</h2>
+                  <div class="login-sub">Sign in to continue with the sign-off</div>
+              </div>
+
+              <div class="login-body">
+
+                  <div class="field-icon-wrap">
+                      <i class="bi bi-person-fill"></i>
+                      <input
+                          id="loginUser"
+                          type="text"
+                          placeholder="Email or Phone"
+                      >
+                  </div>
+
+                  <div class="field-icon-wrap">
+                      <i class="bi bi-key-fill"></i>
+                      <input
+                          id="loginPass"
+                          type="password"
+                          placeholder="Password"
+                      >
+                  </div>
+
+                  <button onclick="doLogin()">
+                      Login
+                  </button>
+
+                  <div id="loginError"></div>
+
+              </div>
+
+          </div>
+
+      </div>
+
+      <form method="POST" action="/org-signoff" enctype="multipart/form-data">
+
+        <label>Organization Name *</label>
+        <div class="field-icon-wrap">
+          <i class="bi bi-building"></i>
+          <input type="text" name="org_name" required>
+        </div>
+
+        <label>Authorized Person *</label>
+        <div class="field-icon-wrap">
+          <i class="bi bi-person-badge-fill"></i>
+          <input type="text" name="authorized_person" required>
+        </div>
+
+        <label>BRS Reference ID *</label>
+        <div class="field-icon-wrap">
+          <i class="bi bi-hash"></i>
+          <input type="text" name="brs_id" required>
+        </div>
+
+        <label>Approval Notes</label>
+        <div class="field-icon-wrap">
+          <i class="bi bi-text-paragraph"></i>
+          <textarea name="approval_notes" rows="3"></textarea>
+        </div>
+
+        <label>Upload Signed Consent Form (PDF) *</label>
+        <div class="field-icon-wrap">
+          <i class="bi bi-paperclip"></i>
+          <input type="file" name="consent_form" accept="application/pdf" required>
+        </div>
+        <p class="file-hint">Accepted format: PDF</p>
+
+        <label>Approval Status *</label>
+        <div class="field-icon-wrap">
+          <i class="bi bi-check2-square"></i>
+          <select name="approval_status" required>
+            <option value="">-- Select --</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+
+        <button type="submit" class="submit-btn"><i class="bi bi-send-fill"></i> Submit Sign-Off</button>
+
+      </form>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+async function checkOrgSession(){
+
+    const res = await fetch("/org-session-check");
+    const data = await res.json();
+
+    if(!data.logged_in){
+        loginOverlay.style.display="flex";
+    }else{
+        loginOverlay.style.display="none";
+    }
+
+}
+
+async function doLogin(){
+
+    loginError.innerText="";
+
+    const fd=new FormData();
+
+    fd.append("username",loginUser.value);
+    fd.append("password",loginPass.value);
+
+    let res, d;
+
+    try{
+        res = await fetch("/track-login", {
+            method: "POST",
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+            body: fd
+        });
+        d = await res.json();
+    }catch(err){
+        loginError.innerText = "Something went wrong. Please try again.";
+        return;
+    }
+
+    if(d.success){
+
+        loginOverlay.style.display = "none";
+
+    }else{
+
+        loginError.innerText = d.error || "Invalid Login";
+
+    }
+
+}
+
+window.onload = function(){
+
+    checkOrgSession();
+
+}
+
+</script>
+</body>
+</html>

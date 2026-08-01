@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Batches — ChakoraHub Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root { --primary: #0078D7; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f6fb; min-height: 100vh; }
+
+    .page-header {
+      background: linear-gradient(135deg, #1a6fd4, #0e4fa0);
+      color: #fff;
+      padding: 22px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    .page-header h1 { font-size: 1.4rem; margin: 0; }
+    .page-header a { color: #cfe8ff; text-decoration: none; font-size: 0.9rem; }
+    .page-header a:hover { color: #fff; }
+
+    .main-wrap { max-width: 1100px; margin: 36px auto; padding: 0 20px; }
+
+    /* ── Create form card ─────────────────────── */
+    .form-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 28px 32px;
+      margin-bottom: 36px;
+    }
+    .form-card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0e4fa0;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e5eaf2;
+      padding-bottom: 10px;
+    }
+    .form-label { font-weight: 600; font-size: 0.87rem; color: #444; }
+    .form-control, .form-select { font-size: 0.93rem; }
+    .btn-create {
+      background: linear-gradient(135deg, #1a6fd4, #0e4fa0);
+      color: #fff;
+      border: none;
+      padding: 10px 28px;
+      border-radius: 7px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-create:hover { opacity: 0.88; }
+
+    /* ── Table card ───────────────────────────── */
+    .table-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 24px 28px;
+    }
+    .table-card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0e4fa0;
+      margin-bottom: 18px;
+      border-bottom: 2px solid #e5eaf2;
+      padding-bottom: 10px;
+    }
+    .table { font-size: 0.88rem; }
+    .table thead th { background: #f0f5ff; color: #0e4fa0; font-weight: 700; }
+    .badge-upcoming  { background: #dbeafe; color: #1e40af; }
+    .badge-current   { background: #dcfce7; color: #166534; }
+    .badge-completed { background: #f3f4f6; color: #6b7280; }
+    .badge-workshop  { background: #fef9c3; color: #854d0e; }
+
+    .action-btn {
+      border: none;
+      padding: 4px 12px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-complete { background: #dcfce7; color: #166534; }
+    .btn-delete   { background: #fee2e2; color: #991b1b; }
+
+    .alert { border-radius: 8px; font-size: 0.92rem; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1><i class="fas fa-calendar-plus me-2"></i>Manage Batches &amp; Workshops</h1>
+  <a href="{{ url_for('resources') }}"><i class="fas fa-arrow-left me-1"></i>Back to Resources</a>
+</div>
+
+<div class="main-wrap">
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+          {{ msg }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- ── CREATE FORM ─────────────────────────────── -->
+  <div class="form-card">
+    <h2><i class="fas fa-plus-circle me-2"></i>Schedule New Batch / Workshop</h2>
+    <form method="POST" action="{{ url_for('batch_schedule') }}">
+
+      <div class="row g-3">
+        <div class="col-md-5">
+          <label class="form-label">Course / Workshop Name <span class="text-danger">*</span></label>
+          <select class="form-select" name="course_id" id="courseSelect" required>
+            <option value="">— Select Course —</option>
+            <option value="0">✍ Custom (type below)</option>
+            {% for c in courses %}
+            <option value="{{ c.ID }}">{{ c.COURSE_NAME }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-5" id="customNameWrap" style="display:none;">
+          <label class="form-label">Custom Name <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="custom_name" id="customName"
+                 placeholder="e.g. Workshop on GitHub Copilot">
+        </div>
+        <div class="col-md-3" id="customCodeWrap" style="display:none;">
+          <label class="form-label">Course Code <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="custom_course_code" id="customCourseCode"
+                 placeholder="e.g. REDIS">
+        </div>
+        <div class="col-md-2" id="customFeeWrap" style="display:none;">
+          <label class="form-label">Course Fee</label>
+          <input type="number" min="0" class="form-control" name="custom_course_fee" id="customCourseFee"
+                 placeholder="e.g. 4999">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Batch Type <span class="text-danger">*</span></label>
+          <select class="form-select" name="batch_type" required>
+            <option value="regular">Regular</option>
+            <option value="workshop">Workshop</option>
+            <option value="bootcamp">Bootcamp</option>
+            <option value="demo">Demo / Free</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Language</label>
+          <select class="form-select" name="language">
+            <option value="Telugu">Telugu</option>
+            <option value="English">English</option>
+            <option value="Hindi">Hindi</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Start Date <span class="text-danger">*</span></label>
+          <input type="date" class="form-control" name="start_date" required>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">End Date <small class="text-muted">(optional)</small></label>
+          <input type="date" class="form-control" name="end_date">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Status</label>
+          <select class="form-select" name="status">
+            <option value="upcoming">Upcoming</option>
+            <option value="current">Currently Running</option>
+          </select>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Notes <small class="text-muted">(shown on home page)</small></label>
+          <input type="text" class="form-control" name="notes"
+                 placeholder="e.g. Free for existing students · Join via Zoom · Limited seats">
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <button type="submit" class="btn-create">
+          <i class="fas fa-save me-1"></i> Save &amp; Publish to Home Page
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ── BATCH LIST ──────────────────────────────── -->
+  <div class="table-card">
+    <h2><i class="fas fa-list me-2"></i>All Scheduled Batches</h2>
+
+    {% if batches %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Course / Workshop</th>
+            <th>Type</th>
+            <th>Language</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in batches %}
+          <tr>
+            <td><strong>{{ b.DISPLAY_NAME }}</strong></td>
+            <td>
+              {% if b.BATCH_TYPE == 'workshop' %}
+                <span class="badge badge-workshop px-2 py-1 rounded-pill">Workshop</span>
+              {% elif b.BATCH_TYPE == 'bootcamp' %}
+                <span class="badge" style="background:#ede9fe;color:#6d28d9;">Bootcamp</span>
+              {% elif b.BATCH_TYPE == 'demo' %}
+                <span class="badge" style="background:#e0f2fe;color:#0369a1;">Demo</span>
+              {% else %}
+                <span class="badge" style="background:#f1f5f9;color:#475569;">Regular</span>
+              {% endif %}
+            </td>
+            <td>{{ b.LANGUAGE }}</td>
+            <td>{{ b.START_DATE.strftime('%d %b %Y') if b.START_DATE else '—' }}</td>
+            <td>{{ b.END_DATE.strftime('%d %b %Y') if b.END_DATE else '—' }}</td>
+            <td>
+              {% if b.STATUS == 'current' %}
+                <span class="badge badge-current px-2 py-1 rounded-pill">🟢 Running</span>
+              {% elif b.STATUS == 'upcoming' %}
+                <span class="badge badge-upcoming px-2 py-1 rounded-pill">🔵 Upcoming</span>
+              {% else %}
+                <span class="badge badge-completed px-2 py-1 rounded-pill">✓ Completed</span>
+              {% endif %}
+            </td>
+            <td>{{ b.NOTES or '—' }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('batch_schedule_action', batch_id=b.ID) }}"
+                    style="display:inline;">
+                <input type="hidden" name="action" value="complete">
+                <button type="submit" class="action-btn btn-complete me-1"
+                        title="Mark as Completed"
+                        onclick="return confirm('Mark this batch as completed?')">
+                  <i class="fas fa-check"></i>
+                </button>
+              </form>
+              <form method="POST" action="{{ url_for('batch_schedule_action', batch_id=b.ID) }}"
+                    style="display:inline;">
+                <input type="hidden" name="action" value="delete">
+                <button type="submit" class="action-btn btn-delete"
+                        title="Delete"
+                        onclick="return confirm('Delete this batch entry?')">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>No batches scheduled yet. Use the form above to add one.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById("courseSelect").addEventListener("change", function() {
+    const wrap = document.getElementById("customNameWrap");
+    const codeWrap = document.getElementById("customCodeWrap");
+    const feeWrap = document.getElementById("customFeeWrap");
+    const input = document.getElementById("customName");
+    const codeInput = document.getElementById("customCourseCode");
+    const feeInput = document.getElementById("customCourseFee");
+    if (this.value === "0") {
+      wrap.style.display = "block";
+      codeWrap.style.display = "block";
+      feeWrap.style.display = "block";
+      input.required = true;
+      codeInput.required = true;
+    } else {
+      wrap.style.display = "none";
+      codeWrap.style.display = "none";
+      feeWrap.style.display = "none";
+      input.required = false;
+      codeInput.required = false;
+      input.value = "";
+      codeInput.value = "";
+      feeInput.value = "";
+    }
+  });
+</script>
+</body>
+</html>

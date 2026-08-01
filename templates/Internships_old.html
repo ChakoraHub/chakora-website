@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChakoraHub Internship Application</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .form-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .section-title {
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="form-container">
+
+    <h2 class="text-center mb-4">ChakoraHub Internship Application</h2>
+
+    <form>
+
+        <!-- ================= PERSONAL ================= -->
+        <h4 class="section-title">1. Personal Information</h4>
+
+        <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-control" placeholder="As per college records" required>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Email Address</label>
+                <input type="email" class="form-control" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label>Mobile Number (WhatsApp)</label>
+                <input type="tel" class="form-control" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Current Address</label>
+            <textarea class="form-control" rows="2"></textarea>
+        </div>
+
+        <!-- ================= ACADEMIC ================= -->
+        <h4 class="section-title mt-4">2. Academic Details</h4>
+
+        <div class="mb-3">
+            <label>College / University Name</label>
+            <input type="text" class="form-control">
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Course & Branch</label>
+                <input type="text" class="form-control" placeholder="B.Tech CSE / MBA">
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label>Current Year / Semester</label>
+                <input type="text" class="form-control">
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>College ID / Roll Number</label>
+            <input type="text" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>TPO / HOD Name & Contact (Optional)</label>
+            <input type="text" class="form-control">
+        </div>
+
+        <!-- ================= INTERNSHIP ================= -->
+        <h4 class="section-title mt-4">3. Internship Details</h4>
+
+        <div class="mb-3">
+            <label>Area of Interest</label>
+            <select class="form-select">
+                <option>Python Development</option>
+                <option>Digital Marketing</option>
+                <option>Content Writing</option>
+                <option>Data Engineering</option>
+            </select>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Preferred Duration</label>
+                <select class="form-select">
+                    <option>2 Months</option>
+                    <option>3 Months</option>
+                    <option>6 Months</option>
+                </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label>Proposed Start Date</label>
+                <input type="date" class="form-control">
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Mode of Internship</label>
+            <select class="form-select">
+                <option>Online</option>
+                <option>Offline</option>
+                <option>Hybrid</option>
+            </select>
+        </div>
+
+        <!-- ================= UPLOADS ================= -->
+        <h4 class="section-title mt-4">4. Document Uploads</h4>
+
+        <div class="mb-3">
+            <label>Resume / CV (PDF)</label>
+            <input type="file" class="form-control" accept=".pdf">
+        </div>
+
+        <div class="mb-3">
+            <label>College ID Card Photo</label>
+            <input type="file" class="form-control" accept="image/*">
+        </div>
+
+        <div class="mb-3">
+            <label>Approval Form / NOC (Signed)</label>
+            <input type="file" class="form-control" accept=".pdf,image/*">
+        </div>
+
+        <!-- NOC Template -->
+        <div class="mb-3">
+            <a href="/static/noc_template.pdf" target="_blank" class="btn btn-outline-primary">
+                Download NOC Template
+            </a>
+        </div>
+
+        <!-- Submit -->
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-submit text-white w-50">
+                Submit Application
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+</body>
+</html>

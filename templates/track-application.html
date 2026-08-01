@@ -7,6 +7,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Your Application - Chakora Hub</title>
     <style>
+        .top-header {
+            background: linear-gradient(90deg, #3e70d6, #4b8bff);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+        }
+
+        .top-header img.logo {
+            height: 55px;
+        }
+
+        .top-header .title {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .top-header .spacer {
+            width: 55px;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -17,6 +40,10 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding: 0;
+        }
+
+        .page-content {
             padding: 40px 20px;
         }
 
@@ -315,6 +342,13 @@
     </style>
 </head>
 <body>
+    <div class="top-header">
+        <img src="/static/images/logo.png" class="logo" alt="ChakoraHub">
+        <div class="title">Track Application</div>
+        <div class="spacer"></div>
+    </div>
+
+    <div class="page-content">
     <div class="container">
         <h1>Track Your Application</h1>
         <p class="subtitle">Enter your Application ID to check the status</p>
@@ -417,7 +451,7 @@
 
             try {
                 // Replace with your API Gateway endpoint
-                const response = await fetch(`https://7j03rxamm1.execute-api.eu-north-1.amazonaws.com/Prod/application-status/${applicationId}`);
+                const response = await fetch(`/api/onboarding/application-status/${applicationId}`);
                 if (!response.ok) {
                     throw new Error('Application not found');
                 }
@@ -537,5 +571,6 @@ displayApplication(application);
             errorDiv.style.display = 'block';
         }
     </script>
+    </div>
 </body>
 </html>

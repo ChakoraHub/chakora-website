@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student Feedback</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #ffffff;
+}
+
+/* SECTION */
+.student-feedback-section {
+  display: flex;
+  justify-content: center;
+  margin: 80px 0;
+}
+
+/* OUTER CARD */
+.feedback-outer-card {
+  width: 95%;
+  max-width: 900px;
+  background: #eef7fb;
+  border-radius: 18px;
+  padding: 40px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+/* TITLE */
+.feedback-heading {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  color: #0d6efd;
+  margin-bottom: 30px;
+}
+
+/* SLIDER */
+.feedback-slider {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+}
+
+/* INNER CARD */
+.feedback-inner-card {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  border-radius: 14px;
+  padding: 30px;
+  border-left: 5px solid #0d6efd;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  opacity: 0;
+  transform: translateX(100%);
+  animation: slide 24s infinite;
+}
+
+/* TEXT */
+.feedback-text {
+  text-align: center;
+  font-size: 17px;
+  color: #333;
+  line-height: 1.6;
+}
+
+.feedback-user {
+  margin-top: 15px;
+  text-align: center;
+  font-weight: 600;
+  color: #0d6efd;
+}
+
+/* KEYFRAMES */
+@keyframes slide {
+  0%   { transform: translateX(100%); opacity: 0; }
+  5%   { transform: translateX(0); opacity: 1; }
+  20%  { transform: translateX(0); opacity: 1; }
+  25%  { transform: translateX(-100%); opacity: 0; }
+  100% { transform: translateX(-100%); opacity: 0; }
+}
+
+/* DELAYS (4s gap each) */
+.feedback-inner-card:nth-child(1) { animation-delay: 0s; }
+.feedback-inner-card:nth-child(2) { animation-delay: 4s; }
+.feedback-inner-card:nth-child(3) { animation-delay: 8s; }
+.feedback-inner-card:nth-child(4) { animation-delay: 12s; }
+.feedback-inner-card:nth-child(5) { animation-delay: 16s; }
+.feedback-inner-card:nth-child(6) { animation-delay: 20s; }
+
+/* MOBILE */
+@media (max-width: 600px) {
+  .feedback-slider { height: 220px; }
+  .feedback-text { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+
+<section class="student-feedback-section">
+  <div class="feedback-outer-card">
+
+    <div class="feedback-heading">
+      💬 Student Feedback
+    </div>
+
+    {% if feedbacks %}
+    <div class="feedback-slider">
+      {% for fb in feedbacks %}
+      <div class="feedback-inner-card">
+        <p class="feedback-text">“{{ fb.feedback_message }}”</p>
+        <div class="feedback-user">— {{ fb.username }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p class="feedback-text">No feedback available yet.</p>
+    {% endif %}
+
+  </div>
+</section>
+
+</body>
+</html>

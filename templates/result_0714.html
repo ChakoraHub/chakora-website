@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Assessment Result - OPE{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-md-10 col-lg-8 mx-auto">
+        
+        <!-- Score Card Header -->
+        <div class="glass-card p-5 text-center mb-4">
+            <h5 class="text-secondary text-uppercase mb-2 font-monospace" style="letter-spacing: 0.05em;">Examination Outcome</h5>
+            <h1 class="text-white mb-4">{{ result.exam_title }}</h1>
+            
+            <div class="d-inline-block p-4 rounded-circle mb-4" style="background: rgba(255, 255, 255, 0.02); border: 2px solid {% if result.status == 'PASS' %}var(--accent-green){% else %}var(--accent-red){% endif %}; width: 140px; height: 140px;">
+                <div class="d-flex flex-column align-items-center justify-content-center h-100">
+                    <span class="fs-1 fw-bold text-white">{{ result.percentage | round(1) }}%</span>
+                </div>
+            </div>
+
+            <div>
+                <span class="badge {% if result.status == 'PASS' %}bg-success text-success bg-opacity-10 border border-success border-opacity-20{% else %}bg-danger text-danger bg-opacity-10 border border-danger border-opacity-20{% endif %} px-4 py-2 fs-5">
+                    {{ result.status }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Grade Breakdowns & Details -->
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-sm-6">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="text-secondary mb-3">Academic Performance</h5>
+                    <div class="d-flex flex-column gap-2 text-white">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Candidate Name:</span>
+                            <strong>{{ result.username }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Correct Answers:</span>
+                            <strong>{{ result.score | int }} / {{ result.total_questions | int }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Minimum Passing:</span>
+                            <strong>50%</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12 col-sm-6">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="text-secondary mb-3">Proctor Telemetry Audit</h5>
+                    <div class="d-flex flex-column gap-2 text-white">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Total Violations Flagged:</span>
+                            <strong class="{% if result.violations | length > 0 %}text-danger{% else %}text-success{% endif %}">
+                                {{ result.violations | length }}
+                            </strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Security Review:</span>
+                            <strong class="{% if result.violations | length > 0 %}text-warning{% else %}text-success{% endif %}">
+                                {% if result.violations | length > 3 %}
+                                    CRITICAL WARNING
+                                {% elif result.violations | length > 0 %}
+                                    PENDING AUDIT
+                                {% else %}
+                                    SECURE & CLEARED
+                                {% endif %}
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Violations Timeline -->
+        <div class="glass-card p-4 mb-5">
+            <h5 class="text-white mb-4"><i class="bi bi-shield-alert me-2 text-danger"></i> Proctor Logs & Inactivity Events</h5>
+            {% if result.violations %}
+                <div class="table-responsive">
+                    <table class="table table-premium">
+                        <thead>
+                            <tr>
+                                <th>Incident Code</th>
+                                <th>Incident Type</th>
+                                <th>Incident Log / Trigger Cause</th>
+                                <th>Trigger Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for v in result.violations %}
+                                <tr>
+                                    <td>#{{ loop.index }}</td>
+                                    <td>
+                                        <span class="badge bg-danger text-danger bg-opacity-10 border border-danger border-opacity-25 px-2 py-1">
+                                            {{ v.type }}
+                                        </span>
+                                    </td>
+                                    <td class="text-secondary" style="font-size: 0.9rem;">{{ v.description }}</td>
+                                    <td class="font-monospace text-secondary" style="font-size: 0.8rem;">{{ v.timestamp }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center text-secondary py-4">
+                    <i class="bi bi-shield-check text-success fs-1 mb-2"></i>
+                    <p class="mb-0">Excellent! No violations were recorded during your examination.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Back Controls -->
+        <div class="text-center">
+            <a href="{{ url_for('index') }}" class="btn btn-premium px-5 py-3">
+                <i class="bi bi-house-door-fill me-2"></i> Return to Dashboard
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

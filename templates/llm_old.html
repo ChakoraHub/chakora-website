@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ChakoraHub AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f5f7fa;
+        }
+        .chat-box {
+            height: 400px;
+            overflow-y: auto;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .user-msg { color: blue; }
+        .bot-msg { color: green; }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+    <h3 class="text-center">ChakoraHub AI Assistant</h3>
+
+    <div class="chat-box mt-4" id="chatBox"></div>
+
+    <div class="input-group mt-3">
+        <input type="text" id="prompt" class="form-control" placeholder="Ask something...">
+        <button class="btn btn-primary" onclick="sendPrompt()">Send</button>
+    </div>
+</div>
+
+<!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5>Login</h5></div>
+      <div class="modal-body">
+        <input type="text" id="username" class="form-control mb-2" placeholder="Username">
+        <input type="password" id="password" class="form-control" placeholder="Password">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" onclick="login()">Login</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let isLoggedIn = false;
+
+window.onload = () => {
+    let modal = new bootstrap.Modal(document.getElementById('loginModal'));
+    modal.show();
+}
+
+function login() {
+    let user = document.getElementById('username').value;
+    let pass = document.getElementById('password').value;
+
+    if(user === "admin" && pass === "admin123") {
+        isLoggedIn = true;
+        bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+    } else {
+        alert("Invalid credentials");
+    }
+}
+
+async function sendPrompt() {
+    if(!isLoggedIn) return alert("Login first");
+
+    let prompt = document.getElementById("prompt").value;
+    let chatBox = document.getElementById("chatBox");
+
+    chatBox.innerHTML += `<div class='user-msg'><b>You:</b> ${prompt}</div>`;
+
+    let res = await fetch("/api/llm", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({prompt})
+    });
+
+    let data = await res.json();
+
+    chatBox.innerHTML += `<div class='bot-msg'><b>AI:</b> ${data.response}</div>`;
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

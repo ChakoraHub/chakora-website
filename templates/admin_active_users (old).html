@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Active Users</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #eef2ff, #f9fafb);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: white;
+            padding: 20px;
+            font-weight: 600;
+            font-size: 22px;
+        }
+
+        .card-box {
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .card-users { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .card-emp { background: linear-gradient(135deg, #10b981, #059669); }
+        .card-total { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+        .count {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .table-card {
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .refresh-btn {
+            border-radius: 50px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Header -->
+<div class="header d-flex justify-content-between align-items-center">
+    <div><i class="bi bi-people-fill"></i> Active Users Dashboard</div>
+    <button class="btn btn-light refresh-btn" onclick="loadActiveUsers()">
+        <i class="bi bi-arrow-clockwise"></i> Refresh
+    </button>
+</div>
+
+<div class="container py-4">
+
+    <!-- Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card-box card-users text-center">
+                <div class="count" id="userCount">0</div>
+                <div>Active Users</div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card-box card-emp text-center">
+                <div class="count" id="empCount">0</div>
+                <div>Active Employees</div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card-box card-total text-center">
+                <div class="count" id="totalCount">0</div>
+                <div>Total Active</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card table-card p-3">
+        <h5 class="mb-3"><i class="bi bi-list"></i> Active Users List</h5>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Status</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Last Login</th>
+                        <th>Minutes Ago</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable">
+                    <tr><td colspan="5" class="text-center">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const API_URL = "/home/active-users"; // change if using API Gateway
+
+async function loadActiveUsers() {
+    try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        if (!data.success) {
+            alert("Failed to load data");
+            return;
+        }
+
+        // Update counts
+        document.getElementById("userCount").textContent = data.active_user_count;
+        document.getElementById("empCount").textContent = data.active_employee_count;
+        document.getElementById("totalCount").textContent = data.total_active;
+
+        // Populate table
+        const table = document.getElementById("userTable");
+        table.innerHTML = "";
+
+        if (data.active_users.length === 0) {
+            table.innerHTML = `<tr><td colspan="5" class="text-center">No active users</td></tr>`;
+            return;
+        }
+
+        data.active_users.forEach(u => {
+            const row = `
+                <tr>
+                    <td><span class="status-dot"></span></td>
+                    <td>${u.name || '-'}</td>
+                    <td>${u.email || '-'}</td>
+                    <td>${u.last_login || '-'}</td>
+                    <td>${u.minutes_since_login ?? '-'} mins</td>
+                </tr>
+            `;
+            table.innerHTML += row;
+        });
+
+    } catch (err) {
+        console.error(err);
+        alert("Network error");
+    }
+}
+
+// Auto load
+loadActiveUsers();
+
+// Auto refresh every 30 sec
+setInterval(loadActiveUsers, 30000);
+</script>
+
+</body>
+</html>

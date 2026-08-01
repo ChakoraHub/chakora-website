@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About the Founder - ChakoraHub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue: #0078D7;
+      --blue-dark: #005a9e;
+      --blue-glow: rgba(0,120,215,0.15);
+      --gold: #c9a84c;
+      --bg: #f0f4f8;
+      --white: #ffffff;
+      --text: #222;
+      --muted: #6b7280;
+      --line-color: #0078D7;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ─── TOP BAR ─── */
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 40px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    .logo { height: 60px; }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+    }
+    .nav-links a {
+      text-decoration: none;
+      font-weight: 500;
+      color: var(--muted);
+      font-size: 15px;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-links a.active { color: var(--blue); font-weight: 600; }
+
+    /* ─── HERO ─── */
+    .hero {
+      background: linear-gradient(135deg, #0078D7 0%, #005a9e 50%, #003d6e 100%);
+      color: white;
+      padding: 90px 40px 110px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(255,255,255,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(201,168,76,0.15) 0%, transparent 50%);
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 50px;
+      padding: 6px 20px;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(38px, 6vw, 64px);
+      font-weight: 700;
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      color: rgba(255,255,255,0.75);
+      font-style: italic;
+      font-family: 'Playfair Display', serif;
+      max-width: 600px;
+      margin: 0 auto 30px;
+      line-height: 1.6;
+    }
+
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      animation: bounce 2s infinite;
+    }
+
+    .hero-scroll-hint svg { width: 20px; opacity: 0.5; }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ─── INTRO CARD ─── */
+    .intro-section {
+      max-width: 900px;
+      margin: -50px auto 0;
+      padding: 0 24px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .intro-card {
+      background: white;
+      border-radius: 20px;
+      padding: 48px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+      display: flex;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .intro-photo {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--blue);
+      box-shadow: 0 0 0 8px var(--blue-glow);
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #0078D7, #003d6e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 52px;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .intro-photo img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .intro-text h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      color: var(--blue);
+      margin-bottom: 8px;
+    }
+
+    .intro-text .role {
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .intro-text p {
+      font-size: 16px;
+      line-height: 1.75;
+      color: #444;
+    }
+
+    /* ─── TIMELINE SECTION ─── */
+    .timeline-section {
+      max-width: 900px;
+      margin: 80px auto 0;
+      padding: 0 24px 100px;
+    }
+
+    .section-label {
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--blue);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      color: var(--text);
+      margin-bottom: 60px;
+    }
+
+    /* Vertical line */
+    .timeline {
+      position: relative;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom,
+        transparent 0%,
+        var(--line-color) 5%,
+        var(--line-color) 95%,
+        transparent 100%
+      );
+    }
+
+    /* ─── TIMELINE ITEM ─── */
+    .tl-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 70px;
+      position: relative;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .tl-item.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Alternating layout */
+    .tl-item.left { flex-direction: row; }
+    .tl-item.right { flex-direction: row-reverse; }
+
+    .tl-card {
+      width: calc(50% - 50px);
+      background: white;
+      border-radius: 16px;
+      padding: 28px 32px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      position: relative;
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+      border-left: 4px solid var(--blue);
+    }
+
+    .tl-item.right .tl-card {
+      border-left: none;
+      border-right: 4px solid var(--blue);
+    }
+
+    .tl-card:hover {
+      box-shadow: 0 16px 40px rgba(0,120,215,0.15);
+      transform: translateY(-4px);
+    }
+
+    /* Arrow */
+    .tl-card::after {
+      content: '';
+      position: absolute;
+      top: 28px;
+      width: 0; height: 0;
+    }
+
+    .tl-item.left .tl-card::after {
+      right: -14px;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-left: 14px solid white;
+    }
+
+    .tl-item.right .tl-card::after {
+      left: -14px;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-right: 14px solid white;
+    }
+
+    /* Center dot */
+    .tl-dot {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: white;
+      border: 3px solid var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      box-shadow: 0 0 0 6px var(--blue-glow);
+      flex-shrink: 0;
+      top: 20px;
+    }
+
+    .tl-dot .dot-icon {
+      font-size: 20px;
+    }
+
+    /* Spacer for opposite side */
+    .tl-spacer {
+      width: calc(50% - 50px);
+    }
+
+    /* Card content */
+    .tl-year {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--blue);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .tl-company {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .tl-role {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tl-role .badge {
+      background: var(--blue-glow);
+      color: var(--blue);
+      font-size: 11px;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .tl-desc {
+      font-size: 15px;
+      color: #555;
+      line-height: 1.7;
+    }
+
+    /* ─── SPIRITUAL MILESTONE (special card) ─── */
+    .tl-card.spiritual {
+      background: linear-gradient(135deg, #fffbf0, #fff8e7);
+      border-color: var(--gold);
+    }
+
+    .tl-item.right .tl-card.spiritual {
+      border-left: none;
+      border-right: 4px solid var(--gold);
+    }
+
+    .tl-dot.spiritual {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 6px rgba(201,168,76,0.15);
+    }
+
+    /* ─── EDUCATION CARD ─── */
+    .tl-card.education {
+      border-color: #10b981;
+    }
+    .tl-dot.education {
+      border-color: #10b981;
+      box-shadow: 0 0 0 6px rgba(16,185,129,0.12);
+    }
+    .tl-item.right .tl-card.education {
+      border-left: none;
+      border-right: 4px solid #10b981;
+    }
+
+    /* ─── PRESENT CARD ─── */
+    .tl-card.present {
+      background: linear-gradient(135deg, #f0f7ff, #e8f2ff);
+      border-color: var(--blue);
+    }
+
+    .present-pulse {
+      display: inline-block;
+      width: 10px; height: 10px;
+      background: #22c55e;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+    }
+
+    /* ─── MANTRA / END CARD ─── */
+    .mantra-card {
+      background: linear-gradient(135deg, #0078D7, #003d6e);
+      color: white;
+      border-radius: 20px;
+      padding: 60px 40px;
+      text-align: center;
+      margin-top: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mantra-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+    }
+
+    .mantra-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 20px;
+    }
+
+    .mantra-text {
+      font-size: 22px;
+      line-height: 2;
+      color: rgba(255,255,255,0.9);
+      font-style: italic;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .mantra-sep {
+      font-size: 28px;
+      color: var(--gold);
+      margin: 20px 0;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: #1a1a2e;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      padding: 30px;
+      font-size: 14px;
+    }
+
+    footer a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    /* ─── DOTS DECORATION ─── */
+    .dots-row {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin: 10px 0 40px;
+    }
+    .dots-row span {
+      width: 6px; height: 6px;
+      background: var(--blue);
+      border-radius: 50%;
+      opacity: 0.3;
+    }
+    .dots-row span:nth-child(3) { opacity: 1; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 680px) {
+      .timeline::before { left: 24px; }
+
+      .tl-item.left,
+      .tl-item.right { flex-direction: row; }
+
+      .tl-dot {
+        left: 24px;
+        top: 16px;
+        width: 40px; height: 40px;
+      }
+
+      .tl-card {
+        width: calc(100% - 80px);
+        margin-left: 70px;
+        border-left: 4px solid var(--blue) !important;
+        border-right: none !important;
+      }
+
+      .tl-item.right .tl-card::after,
+      .tl-item.left .tl-card::after {
+        display: none;
+      }
+
+      .tl-spacer { display: none; }
+
+      .intro-card { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="/">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="ChakoraHub Logo" class="logo">
+    </a>
+    <nav class="nav-links">
+      <a href="/">Home</a>
+      <a href="/about#company">Company</a>
+      <a href="/about#founder" class="active">Founder</a>
+    </nav>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">About the Founder</div>
+    <h1>V. Subhash Chandra</h1>
+    <p class="hero-subtitle">A journey from the world of technology<br>to the heart of purpose.</p>
+    <div class="hero-scroll-hint">
+      <span>Scroll to explore</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </div>
+  </section>
+
+  <!-- INTRO CARD -->
+  <div class="intro-section">
+    <div class="intro-card">
+      <div class="intro-photo">
+        <img src="{{ url_for('static', filename='aboutus.jpg') }}" alt="V. Subhash Chandra"
+             onerror="this.style.display='none'; this.parentElement.innerText='SC';">
+      </div>
+      <div class="intro-text">
+        <h2>V. Subhash Chandra</h2>
+        <div class="role">Founder, ChakoraHub &nbsp;·&nbsp; Engineer &nbsp;·&nbsp; Educator &nbsp;·&nbsp; Spiritual Seeker</div>
+        <p>
+          A 2011 engineering graduate who has spent over a decade across India's largest IT organizations,
+          evolved into an educator, entrepreneur, and a devotee on a mission to blend technology with timeless wisdom.
+          This is his story.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <section class="timeline-section">
+
+    <p class="section-label">The journey</p>
+    <h2 class="section-title">From Campus to Calling</h2>
+    <div class="dots-row">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="timeline">
+
+      <!-- 1: TCS -->
+      <div class="tl-item left">
+        <div class="tl-card">
+          <div class="tl-year">Nov 2011 – Dec 2013 &nbsp;·&nbsp; 2 yrs 2 mos</div>
+          <div class="tl-company">Tata Consultancy Services</div>
+          <div class="tl-role">
+            A.S.E Trainee
+            <span class="badge">Full-time</span>
+          </div>
+          <div class="tl-desc">
+            Fresh out of engineering, Subhash stepped into India's largest IT company, TCS —
+            laying the foundation of his professional career in Hyderabad. This chapter shaped
+            his technical discipline and introduced him to enterprise-scale software systems.
+          </div>
+        </div>
+        <div class="tl-dot">
+          <span class="dot-icon">💼</span>
+        </div>
+        <div class="tl-spacer"></div>
+      </div>
+
+      <!-- 2: Cognizant -->
+      <div class="tl-item right">
+        <div class="tl-spacer"></div>
+        <div class="tl-dot">
+          <span class="dot-icon">🚀</span>
+        </div>
+        <div class="tl-card">
+          <div class="tl-year">Feb 2014 – Sep 2024 &nbsp;·&nbsp; 10 yrs 8 mos</div>
+          <div class="tl-company">Cognizant</div>
+          <div class="tl-role">
+            Sr. Associate
+            <span class="badge">Full-time</span>
+          </div>
+          <div class="tl-desc">
+            A decade of deep expertise at Cognizant — the longest and most formative chapter of his
+            corporate journey. Rising to Senior Associate, he honed his skills across complex client
+            engagements, mastering everything from automation to data management over more than
+            ten years of dedicated service.
+          </div>
+        </div>
+      </div>
+
+      <!-- 3: Spiritual Milestone -->
+      <div class="tl-item left">
+        <div class="tl-card spiritual">
+          <div class="tl-year">March 2020 &nbsp;·&nbsp; Spiritual Milestone</div>
+          <div class="tl-company" style="color:#a07830;">Brahmana Initiation</div>
+          <div class="tl-role" style="color:#a07830;">
+            A Sacred Turning Point
+          </div>
+          <div class="tl-desc">
+            In the midst of his corporate life, a profound spiritual milestone arrived.
+            Subhash received brahmana initiation from
+            <strong>Bhuvanagiri Venkata Subrahmanya Sastry</strong> Garu, marking his formal
+            entry into the Brahma-Madhva-Gaudiya Sampradaya — the disciplic succession of
+            <strong>His Divine Grace A.C. Bhaktivedanta Swami Prabhupada</strong>, Founder-Acharya of ISKCON.
+            This awakening ignited the vision of ChakoraHub.
+          </div>
+        </div>
+        <div class="tl-dot spiritual">
+          <span class="dot-icon">🪔</span>
+        </div>
+        <div class="tl-spacer"></div>
+      </div>
+
+      <!-- 4: Wipro -->
+      <div class="tl-item right">
+        <div class="tl-spacer"></div>
+        <div class="tl-dot">
+          <span class="dot-icon">📊</span>
+        </div>
+        <div class="tl-card">
+          <div class="tl-year">Nov 2024 – May 2025 &nbsp;·&nbsp; 7 mos</div>
+          <div class="tl-company">Wipro</div>
+          <div class="tl-role">
+            Project Manager
+            <span class="badge">Full-time</span>
+          </div>
+          <div class="tl-desc">
+            A strategic chapter that elevated his career to a leadership role. As Project Manager
+            at Wipro, Subhash led end-to-end project delivery, steering cross-functional teams
+            and enterprise initiatives — completing the trilogy of India's top IT giants:
+            TCS, Cognizant, and Wipro.
+          </div>
+        </div>
+      </div>
+
+      <!-- 5: Radical Technologies -->
+      <div class="tl-item left">
+        <div class="tl-card present">
+          <div class="tl-year">Feb 2025 – Present &nbsp;·&nbsp; 1 yr 3 mos</div>
+          <div class="tl-company">Radical Technologies India</div>
+          <div class="tl-role">
+            <span class="present-pulse"></span> Online Tutor &nbsp;
+            <span class="badge">Full-time · Active</span>
+          </div>
+          <div class="tl-desc">
+            Channeling over a decade of industry experience into shaping the next generation.
+            As an Online Tutor at Radical Technologies, Subhash trains aspiring professionals
+            across Python, Cloud, DevOps, Data Engineering, AI/ML, and more — bridging the
+            gap between classroom theory and real-world application.
+          </div>
+        </div>
+        <div class="tl-dot">
+          <span class="dot-icon">🎓</span>
+        </div>
+        <div class="tl-spacer"></div>
+      </div>
+
+      <!-- 6: ChakoraHub -->
+      <div class="tl-item right">
+        <div class="tl-spacer"></div>
+        <div class="tl-dot">
+          <span class="dot-icon">🌐</span>
+        </div>
+        <div class="tl-card present">
+          <div class="tl-year">Jun 2025 – Present &nbsp;·&nbsp; Self-Employed</div>
+          <div class="tl-company">ChakoraHub</div>
+          <div class="tl-role">
+            <span class="present-pulse"></span> Founder
+            <span class="badge">Active · Remote</span>
+          </div>
+          <div class="tl-desc">
+            The culmination of a journey. ChakoraHub was born as a humble offering —
+            a multi-domain platform weaving together technology, education, creativity,
+            and Vedic wisdom. A space to serve, uplift, and spiritually nourish
+            seekers from all walks of life.
+          </div>
+        </div>
+      </div>
+
+      <!-- 7: BITS Pilani -->
+      <div class="tl-item left">
+        <div class="tl-card education">
+          <div class="tl-year">Jul 2025 – Jul 2027 &nbsp;·&nbsp; Ongoing</div>
+          <div class="tl-company" style="color:#059669;">BITS Pilani</div>
+          <div class="tl-role" style="color:#059669;">
+            MTech &nbsp;·&nbsp; Artificial Intelligence &amp; Machine Learning
+            <span class="badge" style="background:rgba(16,185,129,0.12);color:#059669;">In Progress</span>
+          </div>
+          <div class="tl-desc">
+            Never stopping to learn — Subhash is currently pursuing a Master of Technology in
+            Artificial Intelligence and Machine Learning from the prestigious
+            <strong>Birla Institute of Technology and Science, Pilani</strong>.
+            A practitioner becoming a scholar.
+          </div>
+        </div>
+        <div class="tl-dot education">
+          <span class="dot-icon">🏛️</span>
+        </div>
+        <div class="tl-spacer"></div>
+      </div>
+
+    </div><!-- /timeline -->
+
+    <!-- MANTRA FOOTER CARD -->
+    <div class="mantra-card">
+      <h3>Guiding Mantra</h3>
+      <div class="mantra-sep">~</div>
+      <div class="mantra-text">
+        Oṁ Vajra-nakhāya Vidhmahe<br>
+        Tīkṣṇa-daṁṣṭrāya Dhīmahi<br>
+        Tanno Nṛsiṁhaḥ Pracodayāt
+      </div>
+      <div class="mantra-sep">~</div>
+    </div>
+
+    <!-- Back to home -->
+    <div style="text-align:center; margin-top:50px;">
+      <a href="/" style="
+        display:inline-block;
+        background:var(--blue);
+        color:white;
+        padding:14px 36px;
+        border-radius:10px;
+        text-decoration:none;
+        font-weight:600;
+        font-size:16px;
+        letter-spacing:0.5px;
+        transition: background 0.3s;
+        box-shadow: 0 4px 16px rgba(0,120,215,0.3);
+      " onmouseover="this.style.background='#005a9e'" onmouseout="this.style.background='#0078D7'">
+        ← Back to Home
+      </a>
+      &nbsp;&nbsp;
+      <a href="/about#company" style="
+        display:inline-block;
+        background:white;
+        color:var(--blue);
+        padding:14px 36px;
+        border-radius:10px;
+        text-decoration:none;
+        font-weight:600;
+        font-size:16px;
+        border: 2px solid var(--blue);
+        letter-spacing:0.5px;
+        transition: all 0.3s;
+      " onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='white'">
+        About the Company →
+      </a>
+    </div>
+
+  </section>
+
+  <footer>
+    <p>© 2025 Chakora Hub Pvt. Ltd. &nbsp;·&nbsp; <a href="/">chakora.com</a></p>
+  </footer>
+
+  <script>
+    // Intersection Observer for scroll-triggered animations
+    const items = document.querySelectorAll('.tl-item');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.15,
+      rootMargin: '0px 0px -60px 0px'
+    });
+
+    items.forEach(item => observer.observe(item));
+  </script>
+
+</body>
+</html>

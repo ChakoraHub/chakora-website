@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chakora Hub — Course Store</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+<!-- Razorpay Checkout.js -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<style>
+:root {
+  --bg-grad-1: #e8f4fd;
+  --bg-grad-2: #f0e6ff;
+  --bg-grad-3: #ffe6f0;
+  --navy:     #16243a;
+  --navy-mid: #1c2e4a;
+  --navy-lt:  #eef2f7;
+  --gold:     #e07b00;
+  --gold-lt:  #ff9f2f;
+  --cream:    #fdf6ff;
+  --white:    #ffffff;
+  --muted:    #6b7686;
+  --danger:   #d9534f;
+  --success:  #2f9e63;
+  --card-bg:  #ffffff;
+  --border:   rgba(22,36,58,0.10);
+  --radius:   14px;
+  --shadow:   0 8px 28px rgba(22,36,58,0.13);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: linear-gradient(135deg, #e8f4fd 0%, #f0e6ff 45%, #ffe6f0 100%);
+  background-attachment: fixed;
+  color: var(--navy);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─────────────────── NAVBAR ─────────────────── */
+.top-nav {
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 999;
+  padding: 0.6rem 2rem;
+}
+.nav-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.85rem;
+  color: var(--gold) !important;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+}
+.nav-brand span { color: var(--navy); }
+.nav-link-item {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  display: flex; align-items: center; gap: .4rem;
+  padding: .4rem .75rem;
+  border-radius: 8px;
+  transition: color .2s, background .2s;
+  white-space: nowrap;
+}
+.nav-link-item:hover { color: var(--gold); background: rgba(200,147,47,0.08); }
+.nav-link-item.active { color: var(--gold); font-weight: 700; pointer-events: none; }
+.cart-badge-wrap { position: relative; cursor: pointer; }
+.cart-icon { font-size: 1.7rem; color: var(--navy); transition: color .2s; }
+.cart-icon:hover { color: var(--gold); }
+.cart-count {
+  position: absolute; top: -8px; right: -8px;
+  background: var(--gold); color: var(--white);
+  font-size: 0.72rem; font-weight: 700;
+  width: 20px; height: 20px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
+
+/* ─────────────────── HERO ─────────────────── */
+.store-hero {
+  background: linear-gradient(135deg, #dbeeff 0%, #ede0ff 50%, #ffd6eb 100%);
+  padding: 4.5rem 0 3.5rem;
+  border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.store-hero::after {
+  content: '';
+  position: absolute; right: -80px; top: -80px;
+  width: 360px; height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,147,47,0.12) 0%, transparent 70%);
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 900;
+  line-height: 1.15;
+  color: var(--navy);
+}
+.hero-title em { color: var(--gold); font-style: normal; }
+.hero-sub { color: var(--muted); font-size: 1.15rem; margin-top: .8rem; line-height: 1.7; max-width: 620px; }
+
+/* ─────────────────── FILTERS ─────────────────── */
+.filter-bar {
+  background: rgba(255,255,255,0.6);
+  border-bottom: 1px solid var(--border);
+  padding: 1.1rem 0;
+}
+.filter-btn {
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--muted);
+  padding: .48rem 1.25rem;
+  border-radius: 50px;
+  font-size: .95rem;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all .2s;
+}
+.filter-btn:hover, .filter-btn.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--white);
+  font-weight: 600;
+}
+.search-wrap { position: relative; max-width: 280px; }
+.search-wrap input {
+  background: var(--white);
+  border: 1px solid var(--border);
+  color: var(--navy);
+  border-radius: 50px;
+  padding: .48rem 1.1rem .48rem 2.6rem;
+  font-size: .95rem;
+  width: 100%;
+  outline: none;
+  font-family: 'DM Sans', sans-serif;
+}
+.search-wrap input::placeholder { color: var(--muted); }
+.search-wrap input:focus { border-color: var(--gold); }
+.search-wrap i { position: absolute; left: .9rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .9rem; }
+
+/* ─────────────────── PRODUCT CARDS ─────────────────── */
+#store-section { padding: 3rem 0 5rem; position: relative; z-index: 1; }
+
+.product-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform .25s, box-shadow .25s, border-color .25s;
+  position: relative;
+  height: 100%;
+  display: flex; flex-direction: column;
+}
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow);
+  border-color: rgba(200,147,47,0.45);
+}
+.product-card .badge-tag {
+  position: absolute; top: 12px; left: 12px;
+  background: var(--gold); color: var(--white);
+  font-size: .75rem; font-weight: 700;
+  padding: .28rem .75rem; border-radius: 50px;
+  text-transform: uppercase; letter-spacing: .06em;
+  z-index: 2;
+}
+.badge-tag.bestseller { background: #d9534f; color: #fff; }
+.badge-tag.new       { background: var(--success); color: #fff; }
+
+.card-thumb {
+  height: 140px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3.5rem;
+  position: relative; overflow: hidden;
+}
+.card-thumb .bi {
+  line-height: 1;
+  transition: transform .3s ease;
+}
+.product-card:hover .card-thumb .bi {
+  transform: scale(1.12);
+}
+.card-body-inner { padding: 1rem 1.2rem 1.2rem; flex: 1; display: flex; flex-direction: column; }
+.card-category { font-size: .78rem; color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: .09em; margin-bottom: .3rem; }
+.card-title { font-family: 'Playfair Display', serif; font-size: 1.08rem; font-weight: 700; line-height: 1.3; margin-bottom: .4rem; color: var(--navy); }
+.card-meta { color: var(--muted); font-size: .84rem; margin-bottom: .75rem; }
+.card-meta i { margin-right: .3rem; color: var(--gold); font-size: .8rem; }
+
+.price-row { display: flex; align-items: center; gap: .7rem; margin-top: auto; margin-bottom: .75rem; }
+.price-now { font-size: 1.3rem; font-weight: 700; color: var(--gold); font-family: 'Playfair Display', serif; }
+
+.btn-add {
+  width: 100%;
+  background: transparent;
+  border: 1.5px solid var(--gold);
+  color: var(--gold);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: .92rem;
+  padding: .58rem;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex; align-items: center; justify-content: center; gap: .4rem;
+}
+.btn-add:hover { background: var(--gold); color: var(--white); }
+.btn-add.added { background: var(--success); border-color: var(--success); color: #fff; }
+
+/* ─────────────────── LOCKED CARD (ChatGPT suggestion, clean class) ─────────────────── */
+.product-card.locked {
+  opacity: 0.62;
+  filter: grayscale(60%);
+  cursor: not-allowed;
+  pointer-events: none;   /* blocks all clicks including hover lift */
+  box-shadow: none !important;
+  transform: none !important;
+  border-color: rgba(22,36,58,0.08) !important;
+}
+
+/* Frosted glass lock overlay sits on top of the card thumbnail */
+.lock-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+  background: rgba(255,255,255,0.38);
+  backdrop-filter: blur(2.5px);
+  border-radius: inherit;
+}
+.lock-overlay i {
+  font-size: 1.6rem;
+  color: #666;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+}
+.lock-overlay span {
+  font-size: .72rem;
+  font-weight: 700;
+  color: #555;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* Locked "Coming Soon" add button */
+.btn-add.btn-locked {
+  background: #f0f0f0;
+  border-color: #ddd;
+  color: #aaa;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ─────────────────── CART SIDEBAR ─────────────────── */
+.cart-overlay {
+  position: fixed; inset: 0;
+  background: rgba(22,36,58,0.35);
+  backdrop-filter: blur(4px);
+  z-index: 1100;
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s;
+}
+.cart-overlay.open { opacity: 1; pointer-events: all; }
+
+.cart-sidebar {
+  position: fixed; top: 0; right: -420px;
+  width: 100%; max-width: 420px;
+  height: 100vh;
+  background: var(--white);
+  border-left: 1px solid var(--border);
+  z-index: 1200;
+  display: flex; flex-direction: column;
+  transition: right .35s cubic-bezier(.4,0,.2,1);
+  overflow: hidden;
+  box-shadow: -12px 0 40px rgba(22,36,58,0.12);
+}
+.cart-sidebar.open { right: 0; }
+
+.cart-header {
+  padding: 1.5rem 1.6rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.cart-header h5 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin: 0; color: var(--navy); }
+.btn-close-cart { background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; transition: color .2s; }
+.btn-close-cart:hover { color: var(--navy); }
+
+.cart-items { flex: 1; overflow-y: auto; padding: 1rem 1.6rem; }
+.cart-items::-webkit-scrollbar { width: 4px; }
+.cart-items::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.cart-item {
+  display: flex; gap: .9rem; align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+  animation: slideIn .3s ease;
+}
+@keyframes slideIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: none; } }
+.cart-item-icon { font-size: 2rem; width: 54px; height: 54px; display: flex; align-items: center; justify-content: center; background: var(--navy-lt); border-radius: 10px; flex-shrink: 0; }
+.cart-item-info { flex: 1; min-width: 0; }
+.cart-item-name { font-size: .98rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--navy); }
+.cart-item-sub { font-size: .84rem; color: var(--muted); margin-top: 2px; }
+.cart-item-price { color: var(--gold); font-weight: 700; font-size: 1.05rem; white-space: nowrap; }
+.qty-ctrl { display: flex; align-items: center; gap: .4rem; margin-top: .5rem; }
+.qty-btn { background: var(--navy-lt); border: 1px solid var(--border); color: var(--navy); width: 26px; height: 26px; border-radius: 5px; cursor: pointer; font-size: .9rem; display: flex; align-items: center; justify-content: center; transition: background .15s; }
+.qty-btn:hover { background: var(--gold); color: var(--white); border-color: var(--gold); }
+.qty-val { font-size: .9rem; font-weight: 600; min-width: 18px; text-align: center; color: var(--navy); }
+.btn-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: .95rem; padding: .2rem; transition: color .2s; }
+.btn-remove:hover { color: var(--danger); }
+
+.cart-empty { flex: 1; text-align: center; padding: 3rem 1rem; color: var(--muted); }
+.cart-empty i { font-size: 3rem; margin-bottom: 1rem; color: var(--border); display: block; }
+.cart-empty p { font-size: 1rem; }
+
+.cart-footer {
+  padding: 1.4rem 1.6rem;
+  border-top: 1px solid var(--border);
+  background: var(--cream);
+}
+.summary-row { display: flex; justify-content: space-between; font-size: .95rem; color: var(--muted); margin-bottom: .5rem; }
+.summary-row.total { color: var(--navy); font-weight: 700; font-size: 1.1rem; margin-top: .6rem; padding-top: .6rem; border-top: 1px solid var(--border); }
+.summary-row.total span:last-child { color: var(--gold); font-family: 'Playfair Display', serif; font-size: 1.25rem; }
+.btn-checkout {
+  width: 100%; margin-top: 1rem;
+  background: var(--gold);
+  color: var(--white);
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .2s, transform .15s;
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+}
+.btn-checkout:hover { background: var(--gold-lt); transform: translateY(-1px); }
+
+/* ─────────────────── MODAL ─────────────────── */
+.modal-content {
+  background: var(--white) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  color: var(--navy) !important;
+}
+.modal-header { border-bottom: 1px solid var(--border) !important; padding: 1.3rem 1.5rem !important; }
+.modal-title { font-family: 'Playfair Display', serif !important; color: var(--gold) !important; }
+.modal-body { padding: 1.5rem !important; }
+.modal-footer { border-top: 1px solid var(--border) !important; padding: 1rem 1.5rem !important; }
+
+/* Order summary inside modal */
+.order-summary-mini { background: var(--cream); border-radius: 10px; padding: 1rem; margin-bottom: 1.2rem; }
+.order-summary-mini .row-item { display: flex; justify-content: space-between; font-size: .92rem; margin-bottom: .4rem; color: var(--muted); }
+.order-summary-mini .row-total { display: flex; justify-content: space-between; font-weight: 700; font-size: 1.05rem; margin-top: .6rem; padding-top: .6rem; border-top: 1px solid var(--border); color: var(--gold); }
+
+/* Billing details form inside modal */
+.billing-form { margin-bottom: 1.2rem; }
+.billing-form .billing-form-label { font-size: .92rem; font-weight: 600; margin-bottom: .6rem; color: var(--navy); }
+.billing-input {
+  background: var(--white) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--navy) !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .95rem;
+  border-radius: 8px;
+  padding: .6rem .9rem;
+}
+.billing-input::placeholder { color: var(--muted); opacity: .8; }
+.billing-input:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(200,147,47,0.15) !important; }
+.billing-row { margin-bottom: .7rem; }
+.billing-error { color: var(--danger); font-size: .82rem; margin-top: .3rem; min-height: 15px; }
+
+/* Razorpay trigger panel */
+.razorpay-panel {
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+.razorpay-logo-row {
+  display: flex; align-items: center; justify-content: center; gap: .6rem;
+  margin-bottom: .6rem;
+}
+.razorpay-logo-row i { font-size: 1.5rem; color: var(--gold); }
+.razorpay-panel p { color: var(--muted); font-size: .95rem; margin-bottom: 1.4rem; }
+.btn-razorpay {
+  width: 100%;
+  background: #16243a;
+  color: #fff;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: .95rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform .15s, opacity .15s;
+  display: flex; align-items: center; justify-content: center; gap: .6rem;
+}
+.btn-razorpay:hover { transform: translateY(-1px); opacity: .92; }
+.btn-razorpay:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+.secure-note { margin-top: 1.1rem; font-size: .88rem; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: .4rem; }
+.secure-note i { color: var(--success); }
+
+/* Success screen */
+.success-screen { text-align: center; padding: 1.5rem 0; }
+.success-icon { font-size: 4rem; color: var(--success); margin-bottom: 1rem; animation: pop .5s ease; }
+@keyframes pop { 0% { transform: scale(0); } 70% { transform: scale(1.2); } 100% { transform: scale(1); } }
+.success-screen h4 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: .5rem; color: var(--navy); }
+.success-screen p { color: var(--muted); font-size: .9rem; }
+.order-id { background: var(--cream); border: 1px solid var(--border); border-radius: 8px; padding: .7rem 1.2rem; margin: 1rem auto; display: inline-block; font-size: .85rem; }
+.order-id span { color: var(--gold); font-weight: 700; }
+
+/* Toast notification */
+.toast-notif {
+  position: fixed; bottom: 2rem; right: 2rem; z-index: 2000;
+  background: var(--white);
+  border: 1px solid var(--success);
+  border-left: 4px solid var(--success);
+  color: var(--navy);
+  padding: .95rem 1.4rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  display: flex; align-items: center; gap: .6rem;
+  box-shadow: var(--shadow);
+  transform: translateX(120%);
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+}
+.toast-notif.show { transform: none; }
+.toast-notif i { color: var(--success); font-size: 1.1rem; }
+
+/* ─────────────────── RECORDED LECTURES BANNER ─────────────────── */
+.recorded-banner {
+  background: linear-gradient(90deg, #16243a 0%, #1c3a5e 50%, #16243a 100%);
+  color: #fff;
+  overflow: hidden;
+  position: relative;
+  padding: 0;
+  border-top: 2px solid rgba(224,123,0,0.4);
+  border-bottom: 2px solid rgba(224,123,0,0.4);
+}
+.recorded-banner-track {
+  display: flex;
+  width: max-content;
+  animation: bannerScroll 28s linear infinite;
+  padding: .9rem 0;
+}
+.recorded-banner:hover .recorded-banner-track {
+  animation-play-state: paused;
+}
+@keyframes bannerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.recorded-banner-item {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  padding: 0 2.8rem;
+  white-space: nowrap;
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.92);
+}
+.recorded-banner-item a {
+  color: var(--gold-lt);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(255,159,47,0.5);
+  transition: color .2s;
+}
+.recorded-banner-item a:hover { color: #fff; }
+.recorded-banner-item .dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+.recorded-banner-item .pulse-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: #ff5252;
+  flex-shrink: 0;
+  animation: pulseDot 1.4s ease-in-out infinite;
+}
+@keyframes pulseDot {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,82,82,0.6); }
+  50%      { box-shadow: 0 0 0 5px rgba(255,82,82,0); }
+}
+
+/* ─────────────────── FLOATING CHAT BUBBLE ─────────────────── */
+.chat-bubble-wrap {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1500;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .5rem;
+}
+.chat-bubble {
+  background: linear-gradient(135deg, #16243a, #1c3a5e);
+  color: #fff;
+  border-radius: 20px 20px 20px 4px;
+  padding: 1.1rem 1.35rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 270px;
+  box-shadow: 0 8px 28px rgba(22,36,58,0.25);
+  display: none;
+}
+.chat-bubble-wrap.open .chat-bubble {
+  display: block;
+  animation: bubbleSlideIn .35s ease both;
+  opacity: 1;
+}
+@keyframes bubbleSlideIn {
+  from { opacity: 0; transform: translateY(18px) scale(.92); }
+  to   { opacity: 1; transform: none; }
+}
+.chat-bubble strong { color: var(--gold-lt); }
+.chat-bubble a {
+  color: var(--gold-lt);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(255,159,47,0.6);
+}
+.chat-bubble a:hover { color: #fff; }
+
+.chat-avatar {
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 14px rgba(224,123,0,0.35);
+  cursor: pointer;
+  animation: bubbleSlideIn .5s cubic-bezier(.34,1.56,.64,1) both;
+  transition: transform .2s;
+}
+.chat-avatar:hover { transform: scale(1.1); }
+.chat-avatar-row {
+  display: flex; align-items: center; gap: .5rem;
+}
+.chat-avatar-label {
+  font-size: .88rem;
+  font-weight: 700;
+  color: var(--navy);
+  background: #fff;
+  border-radius: 50px;
+  padding: .28rem .8rem;
+  box-shadow: 0 2px 8px rgba(22,36,58,0.12);
+  animation: bubbleSlideIn .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+/* ─────────────────── RESPONSIVE ─────────────────── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .5; }
+}
+@media (max-width: 768px) {
+  .cart-sidebar { max-width: 100%; }
+  .store-hero { padding: 2.5rem 0 2rem; }
+  .chat-bubble-wrap { bottom: 1.2rem; right: 1rem; }
+  .chat-bubble { max-width: 230px; font-size: .92rem; }
+  .hero-title { font-size: clamp(1.9rem, 6vw, 2.8rem); }
+  .hero-sub { font-size: 1rem; }
+  .filter-btn { font-size: .88rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="top-nav navbar navbar-expand-lg">
+  <div class="container">
+    <a class="nav-brand" href="#">Chakora<span>Hub</span></a>
+    <!-- Req-1: Navigation order — Resources → Workshops → Shop (active) -->
+    <div class="d-none d-md-flex align-items-center gap-1 ms-4">
+      <span class="nav-link-item active">
+        <i class="fas fa-shopping-bag"></i>Hub Store
+      </span>
+    </div>
+    <div class="ms-auto d-flex align-items-center gap-4">
+      <div class="d-none d-md-flex align-items-center gap-1" style="color:var(--muted);font-size:1rem;">
+        <i class="fas fa-user-circle" style="color:var(--gold)"></i>
+        <span id="nav-user">Welcome, Student</span>
+      </div>
+      <div class="cart-badge-wrap" onclick="toggleCart()">
+        <i class="fas fa-shopping-bag cart-icon"></i>
+        <div class="cart-count" id="cart-count">0</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<div class="store-hero">
+  <div class="container">
+    <h1 class="hero-title"><br/>Enroll. Learn. Grow.</h1>
+    <p class="hero-sub">Explore premium technology courses, Workshops, Interview preparation,
+AI tools, Study materials, and Upcoming learning programs.</p>
+  </div>
+</div>
+
+<!-- ══ RECORDED LECTURES SCROLLING BANNER ══ -->
+<div class="recorded-banner" title="Hover to pause">
+  <div class="recorded-banner-track">
+    <!-- First copy -->
+    <span class="recorded-banner-item"><span class="pulse-dot"></span> Can't attend live classes? We've got you covered!</span>
+    <span class="recorded-banner-item"><span class="dot"></span> Recorded lectures + study material available for <strong>every course</strong></span>
+    <span class="recorded-banner-item"><span class="dot"></span> Learn at your own pace, on your own schedule</span>
+    <span class="recorded-banner-item"><span class="dot"></span> Drop us an email at <a href="mailto:admin@chakorahub.com">admin@chakorahub.com</a> — we'll sort you out</span>
+    <span class="recorded-banner-item"><span class="dot"></span> Need a specific course recording? Just ask us 📩</span>
+    <span class="recorded-banner-item"><span class="dot"></span> Offline-friendly · Study material included · Lifetime access</span>
+    <!-- Duplicate for seamless loop -->
+    <span class="recorded-banner-item"><span class="pulse-dot"></span> Can't attend live classes? We've got you covered!</span>
+    <span class="recorded-banner-item"><span class="dot"></span> Recorded lectures + study material available for <strong>every course</strong></span>
+    <span class="recorded-banner-item"><span class="dot"></span> Learn at your own pace, on your own schedule</span>
+    <span class="recorded-banner-item"><span class="dot"></span> Drop us an email at <a href="mailto:admin@chakorahub.com">admin@chakorahub.com</a> — we'll sort you out</span>
+    <span class="recorded-banner-item"><span class="dot"></span> Need a specific course recording? Just ask us 📩</span>
+    <span class="recorded-banner-item"><span class="dot"></span> Offline-friendly · Study material included · Lifetime access</span>
+  </div>
+</div>
+
+<!-- ══ FILTER BAR ══ -->
+<div class="filter-bar">
+  <div class="container d-flex flex-wrap align-items-center gap-2">
+    <button class="filter-btn active" onclick="filterProducts('all', this)">All Courses</button>
+    <button class="filter-btn" onclick="filterProducts('data', this)">Data Engineering</button>
+    <button class="filter-btn" onclick="filterProducts('cloud', this)">Cloud & ETL</button>
+    <button class="filter-btn" onclick="filterProducts('python', this)">Python</button>
+    <button class="filter-btn" onclick="filterProducts('db', this)">Databases</button>
+    <div class="search-wrap ms-auto">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Search courses…" id="search-input" oninput="searchProducts(this.value)" />
+    </div>
+  </div>
+</div>
+
+<!-- ══ PRODUCT GRID ══ -->
+<section id="store-section">
+  <div class="container">
+    <div class="row g-4" id="products-grid"></div>
+    <div id="no-results" class="text-center py-5" style="display:none; color:var(--muted);">
+      <i class="fas fa-search fa-2x mb-3" style="color:var(--border)"></i>
+      <p>No courses found. Try a different search.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CART OVERLAY ══ -->
+<div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+
+<!-- ══ CART SIDEBAR ══ -->
+<div class="cart-sidebar" id="cart-sidebar">
+  <div class="cart-header">
+    <h5><i class="fas fa-shopping-bag me-2" style="color:var(--gold)"></i>Your Cart</h5>
+    <button class="btn-close-cart" onclick="toggleCart()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="cart-empty" id="cart-empty">
+    <i class="fas fa-shopping-bag"></i>
+    <p>Your cart is empty.<br/>Add a course to get started.</p>
+  </div>
+  <div class="cart-items" id="cart-items-list"></div>
+  <div class="cart-footer" id="cart-footer" style="display:none">
+    <div class="summary-row"><span>Subtotal</span><span id="cf-subtotal">₹0</span></div>
+    <div class="summary-row total"><span>Total</span><span id="cf-total">₹0</span></div>
+    <button class="btn-checkout" onclick="openCheckout()">
+      <i class="fas fa-lock"></i> Proceed to Checkout
+    </button>
+  </div>
+</div>
+
+<!-- ══ CHECKOUT MODAL ══ -->
+<div class="modal fade" id="checkoutModal" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-lock me-2"></i>Checkout</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+
+        <div class="order-summary-mini">
+          <div style="font-size:.82rem;font-weight:600;margin-bottom:.6rem;color:var(--navy)">Order Summary</div>
+          <div id="modal-item-list"></div>
+          <div class="row-item"><span>Subtotal</span><span id="modal-subtotal">₹0</span></div>
+          <div class="row-total"><span>Total Payable</span><span id="modal-total">₹0</span></div>
+        </div>
+
+        <div class="billing-form" id="billing-form">
+          <div class="billing-form-label">Billing Details</div>
+
+          <div class="billing-row">
+            <input type="text" class="form-control billing-input" id="bf-name" placeholder="Full Name"
+                   value="{{ user_name|default('', true) }}" />
+            <div class="billing-error" id="bf-name-error"></div>
+          </div>
+
+          <div class="billing-row">
+            <input type="email" class="form-control billing-input" id="bf-email" placeholder="Email Address"
+                   value="{{ user_email|default('', true) }}" />
+            <div class="billing-error" id="bf-email-error"></div>
+          </div>
+
+          <div class="billing-row">
+            <input type="tel" class="form-control billing-input" id="bf-phone" placeholder="10-digit Mobile Number"
+                   maxlength="10" value="{{ user_phone|default('', true) }}" />
+            <div class="billing-error" id="bf-phone-error"></div>
+          </div>
+
+          <div class="row g-2 billing-row">
+            <div class="col-6">
+              <input type="text" class="form-control billing-input" id="bf-state" placeholder="State" />
+            </div>
+            <div class="col-6">
+              <input type="text" class="form-control billing-input" id="bf-address" placeholder="Address (optional)" />
+            </div>
+          </div>
+        </div>
+
+        <div class="razorpay-panel">
+          <div class="razorpay-logo-row">
+            <i class="fas fa-shield-alt"></i>
+            <span style="font-family:'Playfair Display',serif;font-weight:700;color:var(--navy);font-size:1.05rem;">Razorpay</span>
+          </div>
+          <p>You'll be redirected to Razorpay's secure window to complete payment.</p>
+          <button class="btn-razorpay" id="btn-pay-razorpay" onclick="payWithRazorpay()">
+            <i class="fas fa-lock"></i> Pay with Razorpay
+          </button>
+          <div class="secure-note">
+            <i class="fas fa-shield-alt"></i> 256-bit encrypted · We never store your card details
+          </div>
+        </div>
+
+        <!-- Success screen (hidden initially) -->
+        <div id="success-screen" class="success-screen" style="display:none">
+          <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+          <h4>Payment Successful! 🎉</h4>
+          <p>Your enrollment is confirmed. A confirmation email with your order details has been sent to your inbox.</p>
+          <div class="order-id">Order ID: <span id="gen-order-id"></span></div>
+          <p class="mt-3" style="font-size:.82rem;color:var(--muted)">
+            Redirecting you to <strong style="color:var(--gold)">Student Resources</strong>
+            in <span id="redirect-countdown">3</span>s…
+            &nbsp;·&nbsp;
+            <a href="/resources" style="color:var(--gold)">Go now</a>
+          </p>
+        </div>
+
+      </div><!-- /modal-body -->
+    </div>
+  </div>
+</div>
+
+<!-- ══ FLOATING CHAT BUBBLE ══ -->
+<div class="chat-bubble-wrap" id="chat-bubble-wrap">
+  <div class="chat-bubble" id="chat-bubble">
+    <strong>📼 Need recorded lectures?</strong><br/>
+    Can't attend live? We offer recorded classes + study material for <strong>any course</strong>.<br/>
+    Just email us at<br/>
+    <a href="mailto:admin@chakorahub.com">admin@chakorahub.com</a>
+  </div>
+  <div class="chat-avatar-row">
+    <div class="chat-avatar" onclick="document.getElementById('chat-bubble-wrap').classList.toggle('open')" title="Recorded lectures enquiry">🎓</div>
+    <span class="chat-avatar-label">Ask us!</span>
+  </div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div class="toast-notif" id="toast-notif">
+  <i class="fas fa-check-circle"></i>
+  <span id="toast-msg">Added to cart!</span>
+</div>
+
+<!-- ─────────────── SCRIPTS ─────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+// ════════════════════════════════════════
+//  PRODUCT DATA — loaded dynamically from /api/shop/courses
+//  (Req-3: prices must come from NRM_COURSES, not be hardcoded)
+// ════════════════════════════════════════
+
+// Emoji / bg are UI-only and safe to keep client-side keyed by course_code.
+// The server drives: id, name, category, price, sessions, lang.
+const COURSE_UI = {
+  'INFA_PC':  { icon:'bi-diagram-3-fill',        bg:'linear-gradient(135deg,#fde9c8,#fbd49a)', iconColor:'#e07b00', tag:'Bestseller', tagType:'bestseller', locked: true },
+  'SNOW_DW':  { icon:'bi-snow',                  bg:'linear-gradient(135deg,#d6ecf7,#b8dcef)', iconColor:'#2196f3', tag:'Hot',        tagType:'bestseller', locked: true },
+  'IICS_CI':  { icon:'bi-cloud-fill',            bg:'linear-gradient(135deg,#e3ecf7,#c9dcf2)', iconColor:'#1565c0', tag:'New',        tagType:'new',        locked: true },
+  'PY_WEB':   { icon:'bi-code-slash',            bg:'linear-gradient(135deg,#dff3e3,#bce8c4)', iconColor:'#2f9e63', tag:'Popular',    tagType:'',           locked: true },
+  'ORA_SQL':  { icon:'bi-database-fill',         bg:'linear-gradient(135deg,#fbe1da,#f6c3b6)', iconColor:'#c0392b', tag:'',           tagType:'',           locked: true },
+  'INFA_MDM': { icon:'bi-database-fill',         bg:'linear-gradient(135deg,#ede1f7,#dac4ee)', iconColor:'#7b1fa2', tag:'Advanced',   tagType:'new',        locked: false },
+  'UNIX_LX':  { icon:'bi-terminal-fill',         bg:'linear-gradient(135deg,#eceff1,#d6dbe0)', iconColor:'#37474f', tag:'',           tagType:'',           locked: true },
+  'INFA_BDM': { icon:'bi-diagram-3-fill',        bg:'linear-gradient(135deg,#dde9f7,#c1d7ef)', iconColor:'#1565c0', tag:'',           tagType:'',           locked: true },
+  'PY_AUTO':  { icon:'bi-robot',                 bg:'linear-gradient(135deg,#e2f2e0,#c5e6c1)', iconColor:'#2f9e63', tag:'New',        tagType:'new',        locked: true },
+  'UNIX':     { icon:'bi-terminal-fill',         bg:'linear-gradient(135deg,#eceff1,#d6dbe0)', iconColor:'#37474f', tag:'',           tagType:'',           locked: false },
+};
+
+// Fallback icon map keyed by keywords in course name (for dynamic courses from API)
+const COURSE_NAME_ICON_MAP = [
+  { keywords: ['informatica powercenter', 'powercenter'],  icon: 'bi-diagram-3-fill',        iconColor: '#e07b00' },
+  { keywords: ['informatica mdm', 'mdm'],                  icon: 'bi-database-fill',          iconColor: '#7b1fa2' },
+  { keywords: ['snowflake'],                               icon: 'bi-snow',                   iconColor: '#2196f3' },
+  { keywords: ['sql', 'oracle sql'],                       icon: 'bi-database-fill',          iconColor: '#c0392b' },
+  { keywords: ['python'],                                  icon: 'bi-code-slash',             iconColor: '#2f9e63' },
+  { keywords: ['unix', 'linux'],                           icon: 'bi-terminal-fill',          iconColor: '#37474f' },
+  { keywords: ['aws'],                                     icon: 'bi-cloud-fill',             iconColor: '#f90',   },
+  { keywords: ['azure'],                                   icon: 'bi-cloud-fill',             iconColor: '#0078d4' },
+  { keywords: ['kafka'],                                   icon: 'bi-diagram-3-fill',         iconColor: '#000'    },
+  { keywords: ['redis'],                                   icon: 'bi-lightning-charge-fill',  iconColor: '#d82c20' },
+  { keywords: ['docker'],                                  icon: 'bi-box-seam',               iconColor: '#2496ed' },
+  { keywords: ['kubernetes', 'k8s'],                       icon: 'bi-diagram-2-fill',         iconColor: '#326ce5' },
+  { keywords: ['ai', 'ml', 'machine learning', 'artificial'], icon: 'bi-robot',              iconColor: '#6a1b9a' },
+  { keywords: ['devops'],                                  icon: 'bi-gear-fill',              iconColor: '#e07b00' },
+  { keywords: ['informatica'],                             icon: 'bi-diagram-3-fill',         iconColor: '#e07b00' },
+];
+
+function getCourseIcon(name) {
+  const lower = name.toLowerCase();
+  for (const entry of COURSE_NAME_ICON_MAP) {
+    if (entry.keywords.some(k => lower.includes(k))) {
+      return { icon: entry.icon, iconColor: entry.iconColor };
+    }
+  }
+  return { icon: 'bi-mortarboard-fill', iconColor: '#e07b00' };
+}
+const ACTIVE_COURSE_CODES = new Set(['INFA_MDM', 'UNIX_LX', 'UNIX']);
+const ACTIVE_COURSE_NAMES = new Set(['informatica mdm', 'unix']);
+
+let PRODUCTS = [];   // populated by loadCourses() on DOMContentLoaded
+
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+let cart = [];          // [{ ...productFields, qty }]
+let activeFilter = 'all';
+let searchTerm   = '';
+
+// ════════════════════════════════════════
+//  RENDER PRODUCTS
+// ════════════════════════════════════════
+function renderProducts(list) {
+  const grid  = document.getElementById('products-grid');
+  const noRes = document.getElementById('no-results');
+  if (!list.length) { grid.innerHTML = ''; noRes.style.display = 'block'; return; }
+  noRes.style.display = 'none';
+
+  grid.innerHTML = list.map(p => {
+    const inCart   = cart.some(c => c.id === p.id);
+    const isLocked = p.locked === true;
+
+    // Badge — locked cards always get the "Coming Soon" tag
+    const badge = isLocked
+      ? `<div class="badge-tag" style="background:linear-gradient(135deg,#888,#666);">🔒 Coming Soon</div>`
+      : (p.tag ? `<div class="badge-tag ${p.tagType}">${p.tag}</div>` : '');
+
+    // Lock overlay on the thumbnail (frosted glass padlock)
+    const lockOverlay = isLocked
+      ? `<div class="lock-overlay"><i class="fas fa-lock"></i><span>Coming Soon</span></div>`
+      : '';
+
+    // Add / Added / Locked button
+    const btn = isLocked
+      ? `<button class="btn-add btn-locked" tabindex="-1" aria-disabled="true">
+           <i class="fas fa-lock"></i> Coming Soon
+         </button>`
+      : `<button class="btn-add ${inCart ? 'added' : ''}" id="btn-${p.id}" onclick="toggleCartProduct(${p.id})">
+           ${inCart
+             ? '<i class="fas fa-check"></i> Added to Cart'
+             : '<i class="fas fa-plus"></i> Add to Cart'}
+         </button>`;
+
+    return `
+    <div class="col-sm-6 col-lg-4" data-cat="${p.category}" data-name="${p.name.toLowerCase()}">
+      <div class="product-card ${isLocked ? 'locked' : ''}">
+        ${badge}
+        <div class="card-thumb" style="background:${p.bg}">
+          <i class="bi ${p.icon || 'bi-mortarboard-fill'}" style="font-size:2.6rem;color:${p.iconColor || 'var(--gold)'};filter:drop-shadow(0 2px 8px rgba(0,0,0,0.13));"></i>
+          ${lockOverlay}
+        </div>
+        <div class="card-body-inner">
+          <div class="card-category">${p.category.toUpperCase()}</div>
+          <div class="card-title">${p.name}</div>
+          <div class="card-meta">
+            <i class="fas fa-play-circle"></i>${p.sessions} Sessions &nbsp;
+            <i class="fas fa-language"></i>${p.lang}
+          </div>
+          <div class="price-row">
+            <span class="price-now">${isLocked ? '—' : '₹' + p.price.toLocaleString('en-IN')}</span>
+          </div>
+          ${btn}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function getFilteredProducts() {
+  return PRODUCTS.filter(p => {
+    const catOk  = activeFilter === 'all' || p.category === activeFilter;
+    const termOk = !searchTerm || p.name.toLowerCase().includes(searchTerm);
+    return catOk && termOk;
+  });
+}
+
+function filterProducts(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProducts(getFilteredProducts());
+}
+
+function searchProducts(val) {
+  searchTerm = val.toLowerCase();
+  renderProducts(getFilteredProducts());
+}
+
+// ════════════════════════════════════════
+//  CART LOGIC
+//  Each product is looked up fresh by id, and cart entries are
+//  matched strictly by id so adding/removing one course never
+//  touches any other course already in the cart.
+// ════════════════════════════════════════
+function toggleCartProduct(id) {
+  const product = PRODUCTS.find(p => p.id === id);
+  if (!product) return;
+
+  const idx = cart.findIndex(c => c.id === id);
+  if (idx > -1) {
+    cart.splice(idx, 1);
+    showToast(`Removed: ${product.name}`);
+  } else {
+    cart = [...cart, { ...product, qty: 1 }];
+    showToast(`Added: ${product.name}`);
+  }
+  updateCartUI();
+  renderProducts(getFilteredProducts());
+}
+
+function changeQty(id, delta) {
+  const item = cart.find(c => c.id === id);
+  if (!item) return;
+  item.qty = Math.max(1, item.qty + delta);
+  updateCartUI();
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(c => c.id !== id);
+  updateCartUI();
+  renderProducts(getFilteredProducts());
+}
+
+function calcTotals() {
+  // No GST for Hub Store checkout; final_total = subtotal - discount.
+  const subtotal = cart.reduce((sum, c) => sum + c.price * c.qty, 0);
+  const discount = 0;
+  const total    = Math.round((subtotal - discount) * 100) / 100;
+  return { subtotal, discount, total };
+}
+
+function updateCartUI() {
+  const count = cart.reduce((sum, c) => sum + c.qty, 0);
+  document.getElementById('cart-count').textContent = count;
+
+  const list   = document.getElementById('cart-items-list');
+  const empty  = document.getElementById('cart-empty');
+  const footer = document.getElementById('cart-footer');
+
+  if (!cart.length) {
+    empty.style.display = 'block';
+    footer.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+  footer.style.display = 'block';
+
+  list.innerHTML = cart.map(c => `
+    <div class="cart-item">
+      <div class="cart-item-icon" style="background:${c.bg || 'var(--navy-lt)'}"><i class="bi ${c.icon || 'bi-mortarboard-fill'}" style="font-size:1.6rem;color:${c.iconColor || 'var(--gold)'};"></i></div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${c.name}</div>
+        <div class="cart-item-sub">${c.sessions} Sessions · ${c.lang}</div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty(${c.id},-1)">−</button>
+          <span class="qty-val">${c.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${c.id},1)">+</button>
+        </div>
+      </div>
+      <div class="d-flex flex-column align-items-end gap-1">
+        <div class="cart-item-price">₹${(c.price * c.qty).toLocaleString('en-IN')}</div>
+        <button class="btn-remove" onclick="removeFromCart(${c.id})" title="Remove"><i class="fas fa-trash-alt"></i></button>
+      </div>
+    </div>
+  `).join('');
+
+  const { subtotal, total } = calcTotals();
+  document.getElementById('cf-subtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+  document.getElementById('cf-total').textContent     = `₹${total.toLocaleString('en-IN')}`;
+}
+
+function toggleCart() {
+  document.getElementById('cart-sidebar').classList.toggle('open');
+  document.getElementById('cart-overlay').classList.toggle('open');
+}
+
+// ════════════════════════════════════════
+//  CHECKOUT FLOW
+// ════════════════════════════════════════
+let checkoutModalInstance = null;
+
+function openCheckout() {
+  if (!cart.length) { showToast('Cart is empty!'); return; }
+  toggleCart();
+  renderModalItems();
+
+  // Reset modal to its initial state in case it was left on the success screen.
+  document.getElementById('success-screen').style.display = 'none';
+  document.querySelector('.order-summary-mini').style.display = 'block';
+  document.getElementById('billing-form').style.display = 'block';
+  document.querySelector('.razorpay-panel').style.display = 'block';
+  clearBillingErrors();
+  const btn = document.getElementById('btn-pay-razorpay');
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-lock"></i> Pay with Razorpay';
+
+  checkoutModalInstance = new bootstrap.Modal(document.getElementById('checkoutModal'));
+  checkoutModalInstance.show();
+}
+
+function renderModalItems() {
+  const { subtotal, total } = calcTotals();
+  document.getElementById('modal-item-list').innerHTML = cart.map(c => `
+    <div class="row-item"><span>${c.name} × ${c.qty}</span><span>₹${(c.price * c.qty).toLocaleString('en-IN')}</span></div>
+  `).join('');
+  document.getElementById('modal-subtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+  document.getElementById('modal-total').textContent    = `₹${total.toLocaleString('en-IN')}`;
+}
+
+// ════════════════════════════════════════
+//  BILLING DETAILS — validation & helpers
+// ════════════════════════════════════════
+function setBillingError(errId, message) {
+  const el = document.getElementById(errId);
+  if (el) el.textContent = message || '';
+}
+
+function clearBillingErrors() {
+  ['bf-name-error', 'bf-email-error', 'bf-phone-error'].forEach(id => setBillingError(id, ''));
+}
+
+function validateBillingForm() {
+  const name  = document.getElementById('bf-name').value.trim();
+  const email = document.getElementById('bf-email').value.trim();
+  const phone = document.getElementById('bf-phone').value.trim();
+
+  let ok = true;
+
+  if (name.length < 2) {
+    setBillingError('bf-name-error', 'Enter your full name.');
+    ok = false;
+  } else {
+    setBillingError('bf-name-error', '');
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setBillingError('bf-email-error', 'Enter a valid email address.');
+    ok = false;
+  } else {
+    setBillingError('bf-email-error', '');
+  }
+
+  if (!/^\d{10}$/.test(phone)) {
+    setBillingError('bf-phone-error', 'Enter a valid 10-digit mobile number.');
+    ok = false;
+  } else {
+    setBillingError('bf-phone-error', '');
+  }
+
+  return ok;
+}
+
+function getBillingDetails() {
+  return {
+    full_name: document.getElementById('bf-name').value.trim(),
+    email:     document.getElementById('bf-email').value.trim(),
+    mobile:    document.getElementById('bf-phone').value.trim(),
+    state:     document.getElementById('bf-state').value.trim(),
+    address:   document.getElementById('bf-address').value.trim(),
+  };
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('bf-name').addEventListener('input', () => setBillingError('bf-name-error', ''));
+  document.getElementById('bf-email').addEventListener('input', () => setBillingError('bf-email-error', ''));
+  document.getElementById('bf-phone').addEventListener('input', () => setBillingError('bf-phone-error', ''));
+});
+
+// ════════════════════════════════════════
+//  RAZORPAY — same RZP_KEY_ID / RZP_KEY_SECRET keys used on the
+//  Registration page, via the existing /create-payment-order route.
+//
+//  Flow:
+//   1. POST /api/shop/checkout       → billing_service creates the
+//      ORDER + PAYMENT rows (status PENDING) and returns an internal
+//      order_id / payment_id.
+//   2. POST /create-payment-order    → creates a real Razorpay order
+//      (same endpoint + keys Registration uses) for the Razorpay widget.
+//   3. Razorpay Checkout opens; on success we get razorpay_payment_id /
+//      razorpay_order_id / razorpay_signature back.
+//   4. POST /api/shop/payment/webhook → server verifies the Razorpay
+//      signature, marks the order CONFIRMED, and sends the order
+//      confirmation email (same template style as Registration's email).
+// ════════════════════════════════════════
+function setPayButtonLoading(label) {
+  const btn = document.getElementById('btn-pay-razorpay');
+  btn.disabled = true;
+  btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${label}`;
+}
+
+function resetPayButton() {
+  const btn = document.getElementById('btn-pay-razorpay');
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-lock"></i> Pay with Razorpay';
+}
+
+async function payWithRazorpay() {
+  if (!cart.length) { showToast('Cart is empty!'); return; }
+
+  if (!validateBillingForm()) {
+    showToast('Please check your billing details.', true);
+    return;
+  }
+
+  if (typeof Razorpay === 'undefined') {
+    showToast('Razorpay script failed to load. Check your connection.', true);
+    return;
+  }
+
+  const billing = getBillingDetails();
+  const { subtotal, discount, total } = calcTotals();
+  const items = cart.map(c => ({ course_id: c.id, quantity: c.qty, price: c.price }));
+
+  setPayButtonLoading('Creating your order…');
+
+  let internalOrderId, internalPaymentId;
+  try {
+    const checkoutRes = await fetch('/api/shop/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        billing:    billing,
+        financials: { subtotal, discount, final_total: total },
+        items:      items,
+        payment_method: 'RAZORPAY',
+      }),
+    });
+    const checkoutData = await checkoutRes.json();
+    if (!checkoutRes.ok || !['success', 'queued'].includes(String(checkoutData.status || '').toLowerCase())) {
+      throw new Error(checkoutData.detail || checkoutData.message || 'Could not create your order.');
+    }
+    internalOrderId   = checkoutData.order_id;
+    internalPaymentId = checkoutData.payment_id;
+  } catch (err) {
+    showToast(err.message || 'Could not create your order.', true);
+    resetPayButton();
+    return;
+  }
+
+  setPayButtonLoading('Opening Razorpay…');
+
+  let rzpOrderId;
+  try {
+    const orderRes = await fetch('/create-payment-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount:   Math.round(total * 100), // paise
+        currency: 'INR',
+        course:   cart.map(c => c.name).join(', '),
+      }),
+    });
+    const orderData = await orderRes.json();
+    if (!orderRes.ok || !orderData.order_id) {
+      throw new Error(orderData.error || 'Failed to create payment order.');
+    }
+    rzpOrderId = orderData.order_id;
+  } catch (err) {
+    showToast(err.message || 'Unable to start payment.', true);
+    resetPayButton();
+    return;
+  }
+
+  const itemsForEmail = cart.map(c => ({ name: c.name, qty: c.qty, amount: c.price * c.qty }));
+  const financials = { subtotal, discount, final_total: total };
+
+  const options = {
+    key: '{{ payment_key_id }}',
+    amount: Math.round(total * 100),
+    currency: 'INR',
+    name: 'ChakoraHub',
+    description: cart.map(c => c.name).join(', '),
+    order_id: rzpOrderId,
+    prefill: {
+      name: billing.full_name,
+      email: billing.email,
+      contact: billing.mobile,
+    },
+    handler: function (response) {
+      confirmShopPayment({
+        internalOrderId,
+        internalPaymentId,
+        billing,
+        items: itemsForEmail,
+        financials,
+        razorpayResponse: response,
+      });
+    },
+    modal: {
+      ondismiss: function () {
+        resetPayButton();
+      }
+    },
+    theme: { color: '#c8932f' }
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.open();
+}
+
+async function confirmShopPayment({ internalOrderId, internalPaymentId, billing, items, financials, razorpayResponse }) {
+  setPayButtonLoading('Confirming payment…');
+
+  try {
+    const webhookRes = await fetch('/api/shop/payment/webhook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        order_id:   internalOrderId,
+        payment_id: internalPaymentId,
+        payment_status: 'SUCCESS',
+        razorpay_order_id:   razorpayResponse["razor" + "pay_order_id"],
+        razorpay_payment_id: razorpayResponse["razor" + "pay_payment_id"],
+        razorpay_signature:  razorpayResponse["razor" + "pay_signature"],
+        billing:    billing,
+        items:      items,
+        financials: financials,
+      }),
+    });
+    const webhookData = await webhookRes.json();
+    if (!webhookRes.ok) {
+      throw new Error(webhookData.detail || 'Payment verification failed. Please contact support with your Order ID: ' + internalOrderId);
+    }
+
+    showShopSuccess(internalOrderId);
+    cart = [];
+    updateCartUI();
+    renderProducts(getFilteredProducts());
+  } catch (err) {
+    showToast(err.message || 'Could not confirm payment.', true);
+    resetPayButton();
+  }
+}
+
+// Req-2: countdown ticker; call before the redirect setTimeout
+function _startRedirectCountdown(seconds) {
+  const el = document.getElementById('redirect-countdown');
+  if (!el) return;
+  let remaining = seconds;
+  const iv = setInterval(() => {
+    remaining--;
+    if (el) el.textContent = remaining;
+    if (remaining <= 0) clearInterval(iv);
+  }, 1000);
+}
+
+function showShopSuccess(orderId) {
+  document.querySelector('.order-summary-mini').style.display = 'none';
+  document.getElementById('billing-form').style.display = 'none';
+  document.querySelector('.razorpay-panel').style.display = 'none';
+  document.getElementById('gen-order-id').textContent = orderId;
+  document.getElementById('success-screen').style.display = 'block';
+  showToast('Payment successful! Taking you to your courses…');
+
+  // Req-2: redirect to Student Resources (MDM-S3) after 3 seconds
+  _startRedirectCountdown(3);
+  setTimeout(() => { window.location.href = '/resources'; }, 3000);
+}
+
+// ════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════
+let toastTimer = null;
+function showToast(msg, isError = false) {
+  const el = document.getElementById('toast-notif');
+  document.getElementById('toast-msg').textContent = msg;
+  el.style.borderColor = isError ? 'var(--danger)' : 'var(--success)';
+  el.querySelector('i').style.color = isError ? 'var(--danger)' : 'var(--success)';
+  el.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ════════════════════════════════════════
+//  INIT — load courses from standard Flask proxy /api/courses
+// ════════════════════════════════════════
+
+function renderSkeletons(count = 6) {
+  const grid = document.getElementById('products-grid');
+  grid.innerHTML = Array.from({ length: count }).map(() => `
+    <div class="col-sm-6 col-lg-4">
+      <div class="product-card" style="min-height:260px;animation:pulse 1.4s ease infinite;">
+        <div style="height:120px;background:linear-gradient(135deg,#f0f0f0,#e0e0e0);"></div>
+        <div class="card-body-inner" style="gap:.6rem;">
+          <div style="height:10px;width:40%;background:#e8e8e8;border-radius:4px;"></div>
+          <div style="height:14px;width:80%;background:#e8e8e8;border-radius:4px;"></div>
+          <div style="height:10px;width:55%;background:#e8e8e8;border-radius:4px;"></div>
+          <div style="height:28px;width:45%;background:#e8e8e8;border-radius:4px;margin-top:auto;"></div>
+          <div style="height:36px;background:#e8e8e8;border-radius:8px;"></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadCourses() {
+  renderSkeletons();
+  try {
+    const res = await fetch('/api/courses');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const courses = Array.isArray(data) ? data : (data.courses || []);
+    PRODUCTS = courses.map(c => {
+      const courseName = String(c.course_name || c.COURSE_NAME || '').trim();
+      const courseId = Number(c.id ?? c.ID ?? 0);
+      const courseFee = Number(c.shopcourse_fee ?? c.SHOPCOURSE_FEE ?? c.course_fee ?? c.PRICE ?? 0);
+      const codeKey = String(c.course_code || c.COURSE_CODE || '').trim().toUpperCase();
+      const nameKey = courseName.toLowerCase();
+      const ui = COURSE_UI[codeKey] || { ...getCourseIcon(courseName), bg:'linear-gradient(135deg,#f0f0f0,#e0e0e0)', tag:'', tagType:'', locked:true };
+      const isActive = ACTIVE_COURSE_CODES.has(codeKey) || ACTIVE_COURSE_NAMES.has(nameKey);
+      return {
+        id:       courseId,
+        name:     courseName,
+        category: (c.CATEGORY || 'data').toLowerCase(),
+        price:    courseFee,
+        sessions: c.SESSIONS || 0,
+        lang:     c.LANG || 'Telugu/English',
+        ...ui,
+        locked:   !isActive,
+      };
+    });
+  } catch (err) {
+    console.error('Failed to load courses:', err);
+    document.getElementById('products-grid').innerHTML = '';
+    const noRes = document.getElementById('no-results');
+    noRes.style.display = 'block';
+    noRes.innerHTML = `
+      <i class="fas fa-exclamation-circle fa-2x mb-3" style="color:var(--danger)"></i>
+      <p>Could not load courses. Please refresh the page.</p>`;
+    return;
+  }
+  renderProducts(getFilteredProducts());
+  updateCartUI();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('bf-name').addEventListener('input', () => setBillingError('bf-name-error', ''));
+  document.getElementById('bf-email').addEventListener('input', () => setBillingError('bf-email-error', ''));
+  document.getElementById('bf-phone').addEventListener('input', () => setBillingError('bf-phone-error', ''));
+  loadCourses();
+});
+</script>
+</body>
+</html>

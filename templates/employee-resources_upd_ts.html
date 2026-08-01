@@ -1,0 +1,2063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Resources - ChakoraHub</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  
+  <!-- Font Awesome (for additional icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Flatpickr for time picker -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── DESIGN TOKENS ── */
+    :root {
+      --primary:      #0078D7;
+      --primary-dark: #0e4fa0;
+      --primary-deep: #083580;
+      --primary-glow: rgba(0,120,215,0.12);
+      --success:      #16a34a;
+      --danger:       #dc2626;
+      --warning:      #d97706;
+      --info:         #0891b2;
+      --bg:           #f0f4f9;
+      --card:         #ffffff;
+      --border:       #e2e8f0;
+      --text:         #1a2340;
+      --muted:        #64748b;
+      --label:        #475569;
+      --sidebar-w:    260px;
+      --teal:         #0f8080;
+      --teal-lt:      #e0f4f4;
+      --gold:         #f0a500;
+      --gold-pale:    #fff8e7;
+      --slate:        #58657d;
+      --shadow-sm:    0 2px 8px rgba(26,39,68,0.07);
+      --navy:         #1a2744;
+      --navy-lt:      #2e3f6e;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #c7d2e7; border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+    /* ══════════════════════════════════════
+       HEADER
+    ══════════════════════════════════════ */
+    .header {
+      background: linear-gradient(135deg, #1a6fd4 0%, var(--primary-dark) 55%, var(--primary-deep) 100%);
+      padding: 12px 28px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.16);
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+      height: auto;
+      min-height: 72px;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 16px;
+    }
+
+    .logo img {
+      height: 54px;
+      border-radius: 10px;
+      border: 2px solid rgba(255,255,255,0.22);
+      transition: transform 0.25s;
+    }
+    .logo img:hover { transform: scale(1.05); }
+
+    .center-text {
+      flex: 1;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.92);
+      letter-spacing: 0.3px;
+      animation: none;
+    }
+
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .reg-id {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(255,255,255,0.15);
+      padding: 7px 15px;
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.25);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    .profile-wrapper {
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.25s;
+    }
+    .profile-wrapper:hover { transform: scale(1.07); }
+
+    .profile-pic {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      border: 2.5px solid rgba(255,255,255,0.85);
+      object-fit: cover;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.22);
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 58px; right: 0;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.16);
+      z-index: 1000;
+      min-width: 176px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .dropdown-menu a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px;
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 500;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.18s, padding-left 0.18s;
+    }
+    .dropdown-menu a:last-child { border-bottom: none; }
+    .dropdown-menu a:hover {
+      background: var(--primary-glow);
+      color: var(--primary);
+      padding-left: 22px;
+    }
+
+    /* ══════════════════════════════════════
+       MAIN WRAPPER
+    ══════════════════════════════════════ */
+    .main-wrapper {
+      display: flex;
+      flex: 1;
+      width: 100%;
+      margin: 24px 0 0;
+      gap: 22px;
+      padding: 0 22px 36px;
+      align-items: flex-start;
+    }
+
+    /* ══════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════ */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      max-width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--card);
+      padding: 20px 14px;
+      border-radius: 18px;
+      box-shadow: 0 2px 16px rgba(0,60,140,0.07);
+      height: fit-content;
+      position: sticky;
+      top: 88px;
+      border: 1px solid var(--border);
+    }
+
+    .sidebar h3 {
+      color: var(--primary-dark);
+      margin-bottom: 16px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      padding: 0 8px 14px;
+      border-bottom: 2px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--label);
+      padding: 10px 12px;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      border-radius: 10px;
+      transition: background 0.18s, color 0.18s, transform 0.18s;
+      margin-bottom: 2px;
+      cursor: pointer;
+    }
+    .sidebar a i, .sidebar a .bi { font-size: 15px; flex-shrink: 0; }
+    .sidebar a:hover {
+      background: var(--primary-glow);
+      color: var(--primary);
+      transform: translateX(4px);
+    }
+    .sidebar a.active {
+      background: linear-gradient(135deg, #1a85e8, var(--primary-dark));
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(0,120,215,0.25);
+    }
+
+    /* ══════════════════════════════════════
+       CONTENT AREA
+    ══════════════════════════════════════ */
+    .content-area {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow-x: hidden;
+    }
+
+    .content-section {
+      display: none;
+      animation: fadeUp 0.35s ease both;
+      background: var(--card);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 2px 16px rgba(0,60,140,0.07);
+      border: 1px solid var(--border);
+    }
+    .content-section.active { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Welcome ── */
+    .welcome-section {
+      padding: 56px 20px;
+      text-align: center;
+    }
+    .welcome-title {
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+    .welcome-subtitle {
+      font-size: 1.05rem;
+      color: var(--muted);
+      margin-bottom: 40px;
+    }
+
+    /* ── Section Headers ── */
+    .section-header {
+      background: linear-gradient(135deg, #1a6fd4, var(--primary-dark));
+      color: white;
+      padding: 22px 26px;
+      border-radius: 14px;
+      margin-bottom: 22px;
+      box-shadow: 0 4px 18px rgba(0,120,215,0.2);
+    }
+    .section-header h2 {
+      margin: 0 0 6px 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-header p {
+      margin: 0;
+      opacity: 0.85;
+      font-size: 0.9rem;
+    }
+
+    /* ── Info Cards ── */
+    .info-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+      border: 1.5px solid var(--border);
+      transition: box-shadow 0.22s, transform 0.22s;
+    }
+    .info-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(0,60,140,0.1);
+    }
+    .info-card h3 {
+      color: var(--primary-dark);
+      margin: 0 0 16px 0;
+      font-size: 1rem;
+      font-weight: 700;
+      padding-bottom: 12px;
+      border-bottom: 1.5px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.15s, padding-left 0.15s;
+      border-radius: 6px;
+    }
+    .info-row:hover {
+      background: var(--primary-glow);
+      padding-left: 8px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label {
+      font-weight: 600;
+      font-size: 0.86rem;
+      color: var(--label);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .info-value {
+      font-size: 0.9rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      background: linear-gradient(135deg, #1a85e8, var(--primary-dark));
+      color: white;
+      border: none;
+      padding: 11px 26px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.18s, box-shadow 0.18s;
+      box-shadow: 0 4px 14px rgba(0,120,215,0.28);
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 22px rgba(0,120,215,0.36);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    /* ── Tables ── */
+    .leave-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+    }
+    .leave-table th, .leave-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.87rem;
+    }
+    .leave-table th {
+      background: #f0f5ff;
+      color: var(--primary-dark);
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .leave-table tbody tr { transition: background 0.15s; }
+    .leave-table tbody tr:hover { background: #f7f9fc; }
+    .leave-table tbody tr:last-child td { border-bottom: none; }
+
+    /* ── Stats Grid ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .stat-card {
+      background: var(--card);
+      padding: 22px 18px;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      text-align: center;
+      border: 1.5px solid var(--border);
+      transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+    }
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,60,140,0.12);
+      border-color: var(--primary);
+    }
+    .stat-number {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 6px;
+      line-height: 1;
+    }
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── ID Card Preview ── */
+    .id-card-preview {
+      max-width: 400px;
+      margin: 20px auto;
+      background: var(--card);
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 8px 32px rgba(0,60,140,0.12);
+      text-align: center;
+      border: 1.5px solid var(--border);
+    }
+    .id-card-photo {
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      margin: 0 auto 18px;
+      object-fit: cover;
+      border: 4px solid white;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      display: block;
+    }
+
+    /* ── Query Form ── */
+    .query-form {
+      background: #f8fafc;
+      border-radius: 14px;
+      padding: 26px;
+      border: 1.5px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: flex; align-items: center; gap: 7px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 0.83rem;
+      color: var(--label);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: #fff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--primary-glow);
+    }
+    .form-group textarea { min-height: 130px; resize: vertical; }
+
+    /* ── TIMESHEET STYLES ── */
+    .timesheet-container {
+      max-width: 100%;
+      overflow-x: auto;
+    }
+    .timesheet-container .table-scroll {
+      overflow-x: auto;
+    }
+    .timesheet-container .time-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+    }
+    .timesheet-container .time-table thead tr.day-row th {
+      background: linear-gradient(180deg, #eef1fa 0%, #f3f5fb 100%);
+      border-bottom: 2px solid var(--border);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--slate);
+      padding: 12px 0;
+      text-align: center;
+    }
+    .timesheet-container .time-table thead tr.day-row th:first-child {
+      background: var(--primary-dark);
+      color: rgba(255,255,255,0.6);
+      font-size: 0.7rem;
+    }
+    .timesheet-container .day-header-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .timesheet-container .day-name { font-size: 0.82rem; font-weight: 700; color: var(--text); }
+    .timesheet-container .day-date { font-size: 0.7rem; color: var(--muted); font-weight: 400; }
+    .timesheet-container .day-badge {
+      font-size: 0.62rem;
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .timesheet-container .day-badge.today { background: var(--gold-pale); color: #92640a; border: 1px solid #f0c060; }
+    .timesheet-container .day-badge.past { background: #f0fdf4; color: #166534; border: 1px solid #86efac; }
+    .timesheet-container .day-badge.future { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+
+    .timesheet-container .time-table thead tr.sub-row th {
+      background: #f8f9fd;
+      border-bottom: 2px solid var(--border);
+      padding: 8px 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--slate);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      text-align: center;
+    }
+    .timesheet-container .time-table thead tr.sub-row th:first-child { background: #f0f2f8; }
+    .timesheet-container .time-table thead tr.sub-row th.login-hd { color: var(--teal); border-top: 2px solid var(--teal); }
+    .timesheet-container .time-table thead tr.sub-row th.logout-hd { color: #7c3aed; border-top: 2px solid #7c3aed; }
+
+    .timesheet-container .time-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.12s;
+    }
+    .timesheet-container .time-table tbody tr:hover { background: #f8f9ff; }
+    .timesheet-container .time-table tbody tr:last-child { border-bottom: none; }
+
+    .timesheet-container .row-num {
+      text-align: center;
+      padding: 14px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: rgba(26,39,68,0.35);
+      background: #fafbfe;
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .timesheet-container .time-cell {
+      padding: 8px 10px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .timesheet-container .time-cell.login-col { border-left: 1px solid #e0f4f4; }
+    .timesheet-container .time-cell.logout-col { border-right: 1px solid var(--border); }
+
+    .timesheet-container .time-input-wrap {
+      position: relative;
+    }
+    .timesheet-container .time-input-wrap i {
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.8rem;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .timesheet-container .time-input-wrap i.login-icon { color: var(--teal); }
+    .timesheet-container .time-input-wrap i.logout-icon { color: #7c3aed; }
+
+    .timesheet-container .flatpickr-input {
+      width: 100%;
+      min-width: 90px;
+      padding: 7px 8px 7px 26px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--card);
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      text-align: center;
+    }
+    .timesheet-container .flatpickr-input:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(15,128,128,0.12);
+    }
+    .timesheet-container .flatpickr-input.logout-fp:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.10);
+    }
+    .timesheet-container .flatpickr-input::placeholder { color: #bcc5d8; font-weight: 400; }
+
+    .timesheet-container .flatpickr-input.disabled {
+      background: #f1f3f8;
+      color: #94a3b8;
+      cursor: not-allowed;
+      opacity: 0.7;
+      border-color: #dde3ef;
+      pointer-events: none;
+    }
+    .timesheet-container .flatpickr-input.disabled:focus {
+      box-shadow: none;
+      border-color: var(--border);
+    }
+
+    .timesheet-container .flatpickr-input.future-warning {
+      border-color: var(--warning);
+      background: #fffbeb;
+    }
+    .timesheet-container .flatpickr-input.future-warning:focus {
+      border-color: var(--warning);
+      box-shadow: 0 0 0 3px rgba(217,119,6,0.12);
+    }
+
+    @keyframes errorFlash {
+      0% { border-color: var(--danger); background: #fef2f2; }
+      50% { border-color: var(--danger); background: #fee2e2; }
+      100% { border-color: var(--warning); background: #fffbeb; }
+    }
+
+    .timesheet-container .flatpickr-input.error-flash {
+      animation: errorFlash 0.6s ease;
+    }
+
+    .timesheet-container .duration-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #f0fdf4;
+      color: var(--success);
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 3px 9px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .timesheet-container .duration-pill.warn {
+      background: #fff7ed;
+      color: #c2410c;
+      border-color: #fed7aa;
+    }
+    .timesheet-container .duration-pill.empty {
+      background: #f8fafc;
+      color: #94a3b8;
+      border-color: #e2e8f0;
+    }
+
+    .timesheet-container .notes-input {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      color: var(--text);
+      width: 100%;
+      min-width: 80px;
+      background: var(--card);
+      transition: border-color 0.15s;
+    }
+    .timesheet-container .notes-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(240,165,0,0.1); }
+    .timesheet-container .notes-input::placeholder { color: #bcc5d8; }
+    .timesheet-container .notes-input.disabled {
+      background: #f1f3f8;
+      color: #94a3b8;
+      cursor: not-allowed;
+      opacity: 0.7;
+      border-color: #dde3ef;
+      pointer-events: none;
+    }
+    .timesheet-container .notes-input.future-warning {
+      border-color: var(--warning);
+      background: #fffbeb;
+    }
+    .timesheet-container .notes-input.error-flash {
+      animation: errorFlash 0.6s ease;
+    }
+
+    .timesheet-container .sheet-footer {
+      background: linear-gradient(90deg, #f8f9fd 0%, #f0f2fa 100%);
+      border-top: 2px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 0;
+      border-radius: 0 0 14px 14px;
+    }
+    .timesheet-container .footer-stat { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; }
+    .timesheet-container .footer-stat .stat-label { color: var(--slate); }
+    .timesheet-container .footer-stat .stat-val { font-weight: 700; color: var(--text); }
+
+    .timesheet-container .btn-save {
+      background: linear-gradient(135deg, var(--teal), #0d9e9e);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 9px 22px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      transition: all 0.18s;
+      box-shadow: 0 2px 10px rgba(15,128,128,0.25);
+    }
+    .timesheet-container .btn-save:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(15,128,128,0.35); }
+
+    .timesheet-container .btn-clear {
+      background: transparent;
+      color: var(--slate);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .timesheet-container .btn-clear:hover { border-color: var(--danger); color: var(--danger); background: #fff5f5; }
+
+    .timesheet-container .clock-hint {
+      background: #eef2ff;
+      border-radius: 20px;
+      padding: 2px 12px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #4338ca;
+      border: 1px solid #a5b4fc;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 8px;
+    }
+    .timesheet-container .clock-hint i { font-size: 0.6rem; }
+    .timesheet-container .status-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+    .timesheet-container .status-dot.filled { background: var(--success); }
+    .timesheet-container .status-dot.empty { background: #cbd5e1; }
+
+    .timesheet-container .sheet-card {
+      background: var(--card);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .timesheet-container .sheet-card-header {
+      background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary-deep) 100%);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .timesheet-container .sheet-card-header h2 {
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex; align-items: center; gap: 10px;
+      margin: 0;
+    }
+    .timesheet-container .sheet-card-header h2 i { color: var(--gold); }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #1a6fd4, var(--primary-deep));
+      color: rgba(255,255,255,0.85);
+      font-size: 0.88rem;
+      margin-top: auto;
+      box-shadow: 0 -3px 16px rgba(0,0,0,0.1);
+    }
+
+    /* ── Modals ── */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      inset: 0;
+      background: rgba(10,30,60,0.52);
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(4px);
+    }
+    .modal-content {
+      background: #fff;
+      padding: 36px 40px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+      width: 380px;
+      max-width: 92vw;
+      animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.88) translateY(16px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-content h3 {
+      margin-bottom: 10px;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+    .modal-content p { color: var(--muted); }
+
+    .modal-actions { margin-top: 24px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .modal-actions button {
+      padding: 10px 26px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.16s, box-shadow 0.16s;
+    }
+    .confirm-btn {
+      background: linear-gradient(135deg, #1a85e8, var(--primary-dark));
+      color: white;
+      box-shadow: 0 4px 14px rgba(0,120,215,0.28);
+    }
+    .confirm-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(0,120,215,0.36); }
+    .cancel-btn { background: #f1f5f9; color: var(--label); }
+    .cancel-btn:hover { background: #e2e8f0; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 11px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .badge-success  { background: #f0fdf4; color: var(--success);  border: 1px solid #bbf7d0; }
+    .badge-warning  { background: #fffbeb; color: var(--warning);  border: 1px solid #fde68a; }
+    .badge-danger   { background: #fff1f2; color: var(--danger);   border: 1px solid #fecdd3; }
+    .badge-info     { background: #ecfeff; color: var(--info);     border: 1px solid #a5f3fc; }
+
+    /* ── Toast ── */
+    .toast-wrap {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast-msg {
+      background: var(--text);
+      color: #fff;
+      padding: 13px 20px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 8px 24px rgba(26,39,68,0.25);
+      animation: slideUp 0.25s ease;
+      border-left: 4px solid var(--gold);
+      min-width: 280px;
+    }
+    .toast-msg.success { border-left-color: #22c55e; }
+    .toast-msg.error {
+      background: #7f1d1d;
+      border-left-color: #fca5a5;
+    }
+    .toast-msg.error i { color: #fca5a5; }
+    .toast-msg.warning { border-left-color: var(--warning); }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 992px) {
+      .main-wrapper { flex-direction: column; padding: 0 14px 36px; }
+      .sidebar { width: 100%; min-width: unset; max-width: unset; position: static; }
+      .welcome-title { font-size: 2rem; }
+    }
+    @media (max-width: 768px) {
+      .header { padding: 10px 14px; }
+      .logo img { height: 44px; }
+      .center-text { font-size: 0.92rem; }
+      .profile-pic { width: 40px; height: 40px; }
+      .content-section { padding: 18px; }
+      .section-header { padding: 18px 20px; }
+      .section-header h2 { font-size: 1.25rem; }
+      .welcome-title { font-size: 1.7rem; }
+      .modal-content { width: 90vw; padding: 28px 22px; }
+      .timesheet-container .sheet-footer { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ==========================================
+     HEADER
+     ========================================== -->
+<div class="header">
+  <div class="header-content">
+    <div class="logo">
+      <a href="#" onclick="showSection('welcome'); return false;">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="ChakoraHub Logo">
+      </a>
+    </div>
+    <div class="center-text">
+      {% if festival_today %}
+        🎉 Happy {{ festival_today }}! 🎉
+      {% else %}
+        Employee Resources Portal
+      {% endif %}
+    </div>
+    <div class="profile-section">
+      <div class="reg-id">
+        <i class="bi bi-id-card"></i> {{ reg_id }}
+      </div>
+      <div class="profile-wrapper" onclick="toggleDropdown()">
+        <img class="profile-pic" 
+             src="{{ url_for('static', filename=(profile_pic if profile_pic else 'profile_photo/defaultpicture.jpg')) }}" 
+             alt="Profile" />
+        <div class="dropdown-menu" id="dropdownMenu">
+          <a href="{{ url_for('emp_profile') }}">
+            <i class="bi bi-person"></i> Profile
+          </a>
+          <a href="#" onclick="showComingSoon('Settings'); return false;">
+            <i class="bi bi-gear"></i> Settings
+          </a>
+          <a href="#" onclick="event.stopPropagation(); openModal('logout'); return false;">
+            <i class="bi bi-box-arrow-right"></i> Logout
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     MAIN CONTENT WRAPPER
+     ========================================== -->
+<div class="main-wrapper">
+  
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h3><i class="bi bi-briefcase"></i> EMPLOYEE RESOURCES</h3>
+    <a href="#" onclick="showSection('personal-details'); return false;" data-section="personal-details">
+      <i class="bi bi-person-badge"></i> Personal Details
+    </a>
+    <a href="#" onclick="showSection('salary-info'); return false;" data-section="salary-info">
+      <i class="bi bi-cash-stack"></i> Salary Information
+    </a>
+    <a href="#" onclick="showSection('leave-tracker'); return false;" data-section="leave-tracker">
+      <i class="bi bi-calendar-check"></i> Leave Tracker
+    </a>
+    <a href="#" onclick="showSection('id-card'); return false;" data-section="id-card">
+      <i class="bi bi-card-heading"></i> ID Card
+    </a>
+    <a href="#" onclick="showSection('employee-queries'); return false;" data-section="employee-queries">
+      <i class="bi bi-chat-left-dots"></i> Employee Queries
+    </a>
+    <!-- TIMESHEET link in sidebar -->
+    <a href="#" onclick="showSection('timesheet'); return false;" data-section="timesheet">
+      <i class="bi bi-clock-history"></i> Timesheet
+    </a>
+    <a href="{{ url_for('employee_appraisal') }}">
+      <i class="bi bi-graph-up-arrow"></i> Employee Appraisal
+    </a>
+    <a href="{{ url_for('employee_hierarchy_page') }}">
+      <i class="bi bi-diagram-3"></i> Organization Hierarchy
+    </a>
+    <a href="/pay-slip">
+      <i class="bi bi-receipt"></i> Pay Slip
+    </a>
+    <a href="{{ url_for('dashboard') }}">
+      <i class="bi bi-speedometer2"></i> 360 Dashboard
+    </a>
+    <a href="{{ url_for('register_asset') }}"><i class="fas fa-plus-circle"></i> Asset Register</a>
+    <a href="/blogger">
+      <i class="bi bi-pencil-square"></i> Blogger
+    </a>
+    <a href="{{ url_for('calendar_page') }}">
+      <i class="bi bi-calendar-event"></i> Calendar
+    </a>
+    <a href="{{ url_for('meeting_home') }}">
+      <i class="bi bi-clock-history"></i> Meeting hours
+    </a>
+    <a href="#" onclick="showComingSoon('Roadmap'); return false;">
+      <i class="bi bi-map"></i> Roadmap
+    </a>
+    <a href="#" onclick="showComingSoon('COC'); return false;">
+      <i class="bi bi-file-earmark-text"></i> COC
+    </a>
+    <a href="#" onclick="showComingSoon('Offers'); return false;">
+      <i class="bi bi-gift"></i> Offers
+    </a>
+  </div>
+
+  <!-- CONTENT AREA -->
+  <div class="content-area" id="mainContent">
+    
+    <!-- Welcome Section -->
+    <div id="welcome" class="content-section active">
+      <div class="welcome-section">
+        <h1 class="welcome-title">Welcome {{ Employee_name }}! 👋</h1>
+        <p class="welcome-subtitle">Access all your employee information and resources in one place.</p>
+        <div class="stats-grid" style="max-width: 800px; margin: 0 auto;">
+          <div class="stat-card">
+            <div class="stat-number">
+              <i class="bi bi-folder"></i>
+            </div>
+            <div class="stat-label">Documents</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">
+              <i class="bi bi-calendar3"></i>
+            </div>
+            <div class="stat-label">Leave Balance</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">
+              <i class="bi bi-graph-up"></i>
+            </div>
+            <div class="stat-label">Performance</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Details Section -->
+    <div id="personal-details" class="content-section">
+      <div class="section-header">
+        <h2><i class="bi bi-person-badge"></i> Personal Details</h2>
+        <p>Your complete personal information</p>
+      </div>
+      <div class="info-card">
+        <h3><i class="bi bi-info-circle"></i> Basic Information</h3>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-person"></i> Full Name:</span>
+          <span class="info-value">{{ employee_data.full_name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-hash"></i> Employee ID:</span>
+          <span class="info-value">{{ employee_data.employee_id }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-calendar-event"></i> Date of Birth:</span>
+          <span class="info-value">{{ employee_data.dob }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-gender-ambiguous"></i> Gender:</span>
+          <span class="info-value">{{ employee_data.gender }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-envelope"></i> Email:</span>
+          <span class="info-value">{{ employee_data.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-telephone"></i> Phone:</span>
+          <span class="info-value">{{ employee_data.phone }}</span>
+        </div>
+      </div>
+      <div class="info-card">
+        <h3><i class="bi bi-building"></i> Employment Details</h3>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-diagram-3"></i> Department:</span>
+          <span class="info-value">{{ employee_data.department }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-briefcase"></i> Designation:</span>
+          <span class="info-value">{{ employee_data.designation }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-calendar-check"></i> Date of Joining:</span>
+          <span class="info-value">{{ employee_data.date_of_joining }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-person-workspace"></i> Manager:</span>
+          <span class="info-value">{{ employee_data.manager }}</span>
+        </div>
+      </div>
+      <div class="info-card">
+        <h3><i class="bi bi-geo-alt"></i> Address</h3>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-house"></i> Current Address:</span>
+          <span class="info-value">{{ employee_data.current_address }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-house-check"></i> Permanent Address:</span>
+          <span class="info-value">{{ employee_data.permanent_address }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Salary Information Section -->
+    <div id="salary-info" class="content-section">
+      <div class="section-header">
+        <h2><i class="bi bi-cash-stack"></i> Salary Information</h2>
+        <p>Your salary structure and payment details</p>
+      </div>
+
+      <div class="info-card">
+        <h3><i class="bi bi-currency-dollar"></i> Current Salary Breakdown</h3>
+        {% if salary_data and salary_data.has_salary %}
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-piggy-bank"></i> Basic Salary:</span>
+          <span class="info-value">{{ salary_data.basic_salary }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-house-door"></i> HRA:</span>
+          <span class="info-value">{{ salary_data.hra }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-plus-circle"></i> Allowances:</span>
+          <span class="info-value">{{ salary_data.allowances }}</span>
+        </div>
+        <div class="info-row" style="font-weight: 700; font-size: 1.05rem;">
+          <span class="info-label"><i class="bi bi-cash"></i> Gross Salary:</span>
+          <span class="info-value">{{ salary_data.gross_salary }}</span>
+        </div>
+        <div class="info-row" style="font-weight: 700; font-size: 1.15rem; background: linear-gradient(135deg, #d4edda, #c3e6cb); border-radius: 10px; padding: 16px 12px; margin-top: 10px;">
+          <span class="info-label" style="color: #155724;"><i class="bi bi-wallet2"></i> Net Salary:</span>
+          <span class="info-value" style="color: #155724;">{{ salary_data.net_salary }}</span>
+        </div>
+        {% else %}
+        <div style="text-align:center; padding:40px 20px; color:#6c757d;">
+          <i class="bi bi-file-earmark-x" style="font-size:3rem; display:block; margin-bottom:15px; color:#dee2e6;"></i>
+          <p style="font-size:1.1rem; margin:0;">Salary details not available</p>
+          <p style="margin:10px 0 0 0;">Please contact HR for assistance</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="info-card">
+        <h3><i class="bi bi-bank"></i> Bank Details</h3>
+        {% if bank_data and bank_data.has_bank %}
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-building"></i> Bank Name:</span>
+          <span class="info-value">{{ bank_data.bank_name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-credit-card"></i> Account Number:</span>
+          <span class="info-value" style="letter-spacing:2px; font-family:monospace;">{{ bank_data.account_number }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-upc"></i> IFSC Code:</span>
+          <span class="info-value" style="font-family:monospace;">{{ bank_data.ifsc_code }}</span>
+        </div>
+        {% else %}
+        <div style="text-align:center; padding:40px 20px; color:#6c757d;">
+          <i class="bi bi-bank" style="font-size:3rem; display:block; margin-bottom:15px; color:#dee2e6;"></i>
+          <p style="font-size:1.1rem; margin:0;">No bank details on record</p>
+          <p style="margin:10px 0 0 0;">Please contact HR to update your information</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Leave Tracker Section -->
+    <div id="leave-tracker" class="content-section">
+      <div class="section-header">
+        <h2><i class="bi bi-calendar-check"></i> Leave Tracker</h2>
+        <p>Manage your leave balance and history</p>
+      </div>
+      <div class="info-card">
+        <h3><i class="bi bi-bar-chart"></i> Leave Balance</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">{{ leave_data.casual_leave }}</div>
+            <div class="stat-label">Casual Leave</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">{{ leave_data.sick_leave }}</div>
+            <div class="stat-label">Sick Leave</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">{{ leave_data.privilege_leave }}</div>
+            <div class="stat-label">Privilege Leave</div>
+          </div>
+        </div>
+      </div>
+      <div class="info-card">
+        <h3><i class="bi bi-clock-history"></i> Leave History</h3>
+        <table class="leave-table">
+          <thead>
+            <tr>
+              <th><i class="bi bi-tag"></i> Type</th>
+              <th><i class="bi bi-calendar-date"></i> From Date</th>
+              <th><i class="bi bi-calendar-date"></i> To Date</th>
+              <th><i class="bi bi-calendar3"></i> Days</th>
+              <th><i class="bi bi-check-circle"></i> Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for leave in leave_history %}
+            <tr>
+              <td>{{ leave.type }}</td>
+              <td>{{ leave.from_date }}</td>
+              <td>{{ leave.to_date }}</td>
+              <td>{{ leave.days }}</td>
+              <td>
+                <span class="badge badge-{{ 'success' if leave.status == 'Approved' else 'warning' if leave.status == 'Pending' else 'danger' }}">
+                  {{ leave.status }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <button class="btn-primary" onclick="window.location.href='/leave-tracker'">
+        <i class="bi bi-plus-circle"></i> Apply for Leave
+      </button>
+      <form action="{{ url_for('approve_leave', leave_id=0) }}" method="POST" style="display:inline-block; margin-left: 10px;">
+        <button type="submit" class="btn-primary" title="Placeholder approval action">
+          <i class="bi bi-check2-circle"></i> Approve Leave (Placeholder)
+        </button>
+      </form>
+    </div>
+
+    <!-- ID Card Section -->
+    <div id="id-card" class="content-section">
+      <div class="section-header">
+        <h2><i class="bi bi-card-heading"></i> Employee ID Card</h2>
+        <p>Your digital identity card</p>
+      </div>
+      <div class="id-card-preview">
+        <img class="id-card-photo" 
+             src="{{ url_for('static', filename=(profile_pic if profile_pic else 'profile_photo/defaultpicture.jpg')) }}" 
+             alt="Profile" />
+        <h2 style="margin: 15px 0 5px 0; color: var(--primary); font-weight: 700;">{{ id_card_data.name }}</h2>
+        <p style="color: #6c757d; margin: 5px 0; font-size: 1.1rem;">{{ id_card_data.designation }}</p>
+        <p style="color: #6c757d; margin: 5px 0;">{{ id_card_data.department }}</p>
+        <div style="margin-top: 25px; padding-top: 25px; border-top: 3px solid #e9ecef;">
+          <p style="font-weight: 700; color: #212529; margin: 8px 0; font-size: 1.1rem;">
+            <i class="bi bi-hash"></i> Employee ID: {{ id_card_data.employee_id }}
+          </p>
+          <p style="color: #6c757d; margin: 8px 0;">
+            <i class="bi bi-calendar-check"></i> Valid Until: {{ id_card_data.valid_until }}
+          </p>
+        </div>
+        <button class="btn-primary" style="margin-top: 25px;" onclick="showComingSoon('Download ID Card')">
+          <i class="bi bi-download"></i> Download ID Card
+        </button>
+      </div>
+    </div>
+
+    <!-- Employee Queries Section -->
+    <div id="employee-queries" class="content-section">
+      <div class="section-header">
+        <h2><i class="bi bi-chat-left-dots"></i> Employee Queries</h2>
+        <p>Submit and track your queries</p>
+      </div>
+      <div class="query-form">
+        <h3 style="color: var(--primary); margin-top: 0; margin-bottom: 25px;">
+          <i class="bi bi-plus-circle"></i> Submit New Query
+        </h3>
+        <div class="form-group">
+          <label><i class="bi bi-tag"></i> Query Type</label>
+          <select class="form-select">
+            <option>Select Query Type</option>
+            <option>IT Support</option>
+            <option>HR Related</option>
+            <option>Payroll</option>
+            <option>Leave Management</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><i class="bi bi-chat-square-text"></i> Subject</label>
+          <input type="text" class="form-control" placeholder="Enter query subject">
+        </div>
+        <div class="form-group">
+          <label><i class="bi bi-card-text"></i> Description</label>
+          <textarea class="form-control" placeholder="Describe your query in detail"></textarea>
+        </div>
+        <button class="btn-primary" onclick="showComingSoon('Submit Query')">
+          <i class="bi bi-send"></i> Submit Query
+        </button>
+      </div>
+      <div class="info-card" style="margin-top: 25px;">
+        <h3><i class="bi bi-clock-history"></i> Recent Queries</h3>
+        <table class="leave-table">
+          <thead>
+            <tr>
+              <th><i class="bi bi-hash"></i> Query ID</th>
+              <th><i class="bi bi-chat"></i> Subject</th>
+              <th><i class="bi bi-calendar"></i> Date</th>
+              <th><i class="bi bi-check-circle"></i> Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for query in queries %}
+            <tr>
+              <td>{{ query.query_id }}</td>
+              <td>{{ query.subject }}</td>
+              <td>{{ query.date }}</td>
+              <td>
+                <span class="badge badge-{{ 'success' if query.status == 'Resolved' else 'info' if query.status == 'In Progress' else 'warning' }}">
+                  {{ query.status }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════ -->
+    <!-- TIMESHEET SECTION                         -->
+    <!-- ════════════════════════════════════════════ -->
+    <div id="timesheet" class="content-section">
+      <div class="section-header">
+        <h2><i class="bi bi-clock-history"></i> Timesheet</h2>
+        <p>Log your daily work hours — only today is editable</p>
+      </div>
+
+      <div class="timesheet-container">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <span class="clock-hint"><i class="bi bi-clock"></i> 24‑hour format</span>
+            <span style="font-size:0.85rem; color:var(--muted);">
+              <i class="bi bi-lock-fill" style="color:var(--danger);"></i> Past dates are locked
+            </span>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn-primary" style="padding:7px 16px; font-size:0.78rem;" onclick="window.timesheetExportCSV()">
+              <i class="bi bi-download"></i> Export CSV
+            </button>
+          </div>
+        </div>
+
+        <div class="sheet-card">
+          <div class="sheet-card-header">
+            <h2><i class="bi bi-table"></i> Weekly Attendance Log</h2>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button class="btn-clear" style="padding:6px 14px; font-size:0.75rem; background:rgba(255,255,255,0.12); color:#fff; border:1px solid rgba(255,255,255,0.25);" onclick="window.timesheetClearToday()">
+                <i class="bi bi-x-circle"></i> Clear today
+              </button>
+              <button class="btn-save" style="padding:6px 18px; font-size:0.75rem;" onclick="window.timesheetSave()">
+                <i class="bi bi-cloud-upload"></i> Save
+              </button>
+            </div>
+          </div>
+
+          <div class="table-scroll">
+            <table class="time-table" id="tsTimeTable">
+              <thead>
+                <tr class="day-row" id="tsDayHeaderRow">
+                  <th style="width:44px">#</th>
+                </tr>
+                <tr class="sub-row" id="tsSubHeaderRow">
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tsTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="sheet-footer">
+            <div style="display:flex; gap:24px; flex-wrap:wrap;">
+              <div class="footer-stat">
+                <span class="status-dot filled"></span>
+                <span class="stat-label">Login</span>
+                <span class="stat-val" id="tsFooterLogin">—</span>
+              </div>
+              <div class="footer-stat">
+                <span class="status-dot" style="background:#7c3aed;"></span>
+                <span class="stat-label">Logout</span>
+                <span class="stat-val" id="tsFooterLogout">—</span>
+              </div>
+              <div class="footer-stat">
+                <i class="bi bi-clock text-muted" style="font-size:0.8rem;"></i>
+                <span class="stat-label">Duration today</span>
+                <span class="stat-val" id="tsFooterDuration">—</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:16px; flex-wrap:wrap;">
+              <div class="footer-stat">
+                <span class="stat-label">Total hours:</span>
+                <span class="stat-val" id="tsTotalHours">0h 0m</span>
+              </div>
+              <div class="footer-stat">
+                <span class="stat-label">Days filled:</span>
+                <span class="stat-val" id="tsFillStatus">0 / 7</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Section (kept for reference) -->
+    <div id="profile" class="content-section">
+      <div class="section-header">
+        <h2><i class="bi bi-person-circle"></i> My Profile</h2>
+        <p>View and update your profile information</p>
+      </div>
+      <div class="id-card-preview">
+        <img class="id-card-photo" 
+             src="{{ url_for('static', filename=(profile_pic if profile_pic else 'profile_photo/defaultpicture.jpg')) }}" 
+             alt="Profile" />
+        <button class="btn-primary" style="margin-top: 15px;" onclick="showComingSoon('Upload Photo')">
+          <i class="bi bi-camera"></i> Upload Photo
+        </button>
+      </div>
+      <div class="info-card">
+        <h3><i class="bi bi-person-badge"></i> Account Information</h3>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-person"></i> Username:</span>
+          <span class="info-value">{{ profile_data.username }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-envelope"></i> Email:</span>
+          <span class="info-value">{{ profile_data.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-check-circle"></i> Account Status:</span>
+          <span class="info-value">
+            <span class="badge badge-success">{{ profile_data.account_status }}</span>
+          </span>
+        </div>
+        <div class="info-row">
+          <span class="info-label"><i class="bi bi-clock-history"></i> Last Login:</span>
+          <span class="info-value">{{ profile_data.last_login }}</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="showComingSoon('Edit Profile')">
+        <i class="bi bi-pencil-square"></i> Edit Profile
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==========================================
+     FOOTER
+     ========================================== -->
+<footer>
+  <i class="bi bi-c-circle"></i> 2025 ChakoraHub. All rights reserved.
+</footer>
+
+<!-- ==========================================
+     MODALS
+     ========================================== -->
+
+<!-- Logout Modal -->
+<div class="modal" id="logoutModal">
+  <div class="modal-content">
+    <h3><i class="bi bi-question-circle"></i> Confirm Logout</h3>
+    <p style="color:#6c757d; margin: 15px 0;">Are you sure you want to logout?</p>
+    <div class="modal-actions">
+      <button class="confirm-btn" onclick="confirmLogout()">
+        <i class="bi bi-check-lg"></i> Yes, Logout
+      </button>
+      <button class="cancel-btn" onclick="closeModal()">
+        <i class="bi bi-x-lg"></i> Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Coming Soon Modal -->
+<div id="comingSoonModal" class="modal">
+  <div class="modal-content">
+    <h3 id="comingSoonMessage">
+      <i class="bi bi-hourglass-split"></i> Feature Coming Soon!
+    </h3>
+    <p style="color: #6c757d; margin: 15px 0;">This feature is currently under development.</p>
+    <div class="modal-actions">
+      <button class="confirm-btn" onclick="closeComingSoonModal()">
+        <i class="bi bi-check-lg"></i> OK
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-wrap" id="tsToastWrap"></div>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Flatpickr -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+  // ========================================
+  // EXISTING JAVASCRIPT
+  // ========================================
+
+  function toggleDropdown() {
+    const menu = document.getElementById("dropdownMenu");
+    if (!menu) return;
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+  }
+
+  function showSection(sectionId) {
+    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById(sectionId);
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.sidebar a').forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('data-section') === sectionId) link.classList.add('active');
+    });
+    document.getElementById('dropdownMenu').style.display = 'none';
+    // If timesheet, re-build to ensure fresh state
+    if (sectionId === 'timesheet') {
+      setTimeout(window.timesheetBuild, 50);
+    }
+  }
+
+  document.addEventListener('click', function(e) {
+    const profileWrapper = document.querySelector('.profile-wrapper');
+    if (profileWrapper && !profileWrapper.contains(e.target)) {
+      document.getElementById('dropdownMenu').style.display = 'none';
+    }
+  });
+
+  let actionType = null;
+
+  function openModal(type) {
+    actionType = type;
+    if (type === 'logout') {
+      document.getElementById("logoutModal").style.display = "flex";
+    }
+  }
+
+  function closeModal() {
+    document.getElementById("logoutModal").style.display = "none";
+  }
+
+  function confirmLogout() {
+    window.location.href = "/logout";
+  }
+
+  function showComingSoon(featureName) {
+    const messageEl = document.getElementById('comingSoonMessage');
+    messageEl.innerHTML = `<i class="bi bi-hourglass-split"></i> ${featureName} - Coming Soon!`;
+    document.getElementById('comingSoonModal').style.display = 'flex';
+  }
+
+  function closeComingSoonModal() {
+    document.getElementById('comingSoonModal').style.display = 'none';
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { 
+      closeModal(); 
+      closeComingSoonModal(); 
+    }
+  });
+
+  document.querySelectorAll('.sidebar a[data-section]').forEach(link => {
+    link.addEventListener('click', function(e) { 
+      e.preventDefault(); 
+    });
+  });
+
+  console.log('✅ Employee Resources page loaded successfully');
+
+  // ========================================
+  // TIMESHEET JAVASCRIPT
+  // ========================================
+  window.timesheetState = {
+    weekOffset: 0,
+    fpInstances: {}
+  };
+
+  const TS_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  function toYYYYMMDD(d) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function tsGetWeekDates(offset) {
+    const today = new Date();
+    const dow = today.getDay();
+    const mon = new Date(today);
+    mon.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1) + offset * 7);
+    return TS_DAYS.map((_, i) => {
+      const d = new Date(mon);
+      d.setDate(mon.getDate() + i);
+      return d;
+    });
+  }
+
+  function tsFmt(date) {
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+  }
+
+  function tsIsToday(date) {
+    const t = new Date();
+    return date.toDateString() === t.toDateString();
+  }
+
+  function tsIsPast(date) {
+    const t = new Date(); t.setHours(0,0,0,0);
+    const d = new Date(date); d.setHours(0,0,0,0);
+    return d < t;
+  }
+
+  function tsIsFuture(date) {
+    const t = new Date(); t.setHours(0,0,0,0);
+    const d = new Date(date); d.setHours(0,0,0,0);
+    return d > t;
+  }
+
+  function tsParseTime(val) {
+    if (!val || val === '--:--') return null;
+    const [h, m] = val.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  function tsMinsToStr(mins) {
+    if (mins <= 0) return null;
+    return `${Math.floor(mins/60)}h ${mins%60}m`;
+  }
+
+  function tsShowToast(msg, type) {
+    const wrap = document.getElementById('tsToastWrap');
+    if (!wrap) return;
+    const toast = document.createElement('div');
+    toast.className = `toast-msg ${type}`;
+    const icon = type === 'success' ? 'bi-check-circle-fill' : type === 'error' ? 'bi-x-circle-fill' : 'bi-exclamation-triangle-fill';
+    toast.innerHTML = `<i class="bi ${icon}"></i> ${msg}`;
+    wrap.appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+  }
+
+  window.timesheetBuild = function() {
+    const dates = tsGetWeekDates(window.timesheetState.weekOffset);
+
+    const dayRow = document.getElementById('tsDayHeaderRow');
+    while (dayRow.children.length > 1) dayRow.removeChild(dayRow.lastChild);
+
+    const subRow = document.getElementById('tsSubHeaderRow');
+    while (subRow.children.length > 1) subRow.removeChild(subRow.lastChild);
+
+    dates.forEach(date => {
+      const th = document.createElement('th');
+      th.colSpan = 2;
+      const badge = tsIsToday(date) ? 'today' : tsIsPast(date) ? 'past' : 'future';
+      const badgeTxt = tsIsToday(date) ? 'Today' : tsIsPast(date) ? 'Done' : 'Future';
+      th.innerHTML = `
+        <div class="day-header-inner">
+          <div class="day-name">${date.toLocaleDateString('en-GB',{weekday:'short'})}</div>
+          <div class="day-date">${tsFmt(date)}</div>
+          <div class="day-badge ${badge}">${badgeTxt}</div>
+        </div>`;
+      dayRow.appendChild(th);
+
+      const thL = document.createElement('th');
+      thL.className = 'login-hd';
+      thL.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> In';
+      subRow.appendChild(thL);
+
+      const thO = document.createElement('th');
+      thO.className = 'logout-hd';
+      thO.innerHTML = '<i class="bi bi-box-arrow-right"></i> Out';
+      subRow.appendChild(thO);
+    });
+
+    const tbody = document.getElementById('tsTableBody');
+    tbody.innerHTML = '';
+    window.timesheetState.fpInstances = {};
+
+    // Main row
+    const tr = document.createElement('tr');
+    const tdNum = document.createElement('td');
+    tdNum.className = 'row-num';
+    tdNum.textContent = '⏱';
+    tdNum.style.fontSize = '0.9rem';
+    tr.appendChild(tdNum);
+
+    dates.forEach((date, di) => {
+      const key = `d${di}`;
+      const isDisabled = tsIsPast(date);
+      const isFutureDate = tsIsFuture(date);
+      const disabledClass = isDisabled ? 'disabled' : '';
+      const futureClass = isFutureDate ? 'future-warning' : '';
+
+      const tdL = document.createElement('td');
+      tdL.className = 'time-cell login-col';
+      const inId = `ts_login_${key}`;
+      tdL.innerHTML = `
+        <div class="time-input-wrap">
+          <i class="bi bi-sunrise login-icon"></i>
+          <input class="flatpickr-input ${disabledClass} ${futureClass}" id="${inId}" placeholder="--:--" readonly data-date="${date.toISOString()}" data-is-future="${isFutureDate}">
+        </div>`;
+      tr.appendChild(tdL);
+
+      const tdO = document.createElement('td');
+      tdO.className = 'time-cell logout-col';
+      const outId = `ts_logout_${key}`;
+      tdO.innerHTML = `
+        <div class="time-input-wrap">
+          <i class="bi bi-sunset logout-icon"></i>
+          <input class="flatpickr-input logout-fp ${disabledClass} ${futureClass}" id="${outId}" placeholder="--:--" readonly data-date="${date.toISOString()}" data-is-future="${isFutureDate}">
+        </div>`;
+      tr.appendChild(tdO);
+    });
+
+    tbody.appendChild(tr);
+
+    // Duration row
+    const durRow = document.createElement('tr');
+    durRow.style.background = '#f8f9fd';
+    const tdDurLabel = document.createElement('td');
+    tdDurLabel.className = 'row-num';
+    tdDurLabel.style.fontSize = '0.7rem';
+    tdDurLabel.innerHTML = '⏱<br>Hrs';
+    durRow.appendChild(tdDurLabel);
+
+    dates.forEach((_, di) => {
+      const tdDur = document.createElement('td');
+      tdDur.colSpan = 2;
+      tdDur.className = 'time-cell';
+      tdDur.style.textAlign = 'center';
+      tdDur.id = `ts_dur_d${di}`;
+      tdDur.innerHTML = `<span class="duration-pill empty"><i class="bi bi-dash"></i> —</span>`;
+      durRow.appendChild(tdDur);
+    });
+
+    tbody.appendChild(durRow);
+
+    // Notes row
+    const notesRow = document.createElement('tr');
+    notesRow.style.background = '#fafbfe';
+    const tdNoteLabel = document.createElement('td');
+    tdNoteLabel.className = 'row-num';
+    tdNoteLabel.style.fontSize = '0.7rem';
+    tdNoteLabel.innerHTML = '📝';
+    notesRow.appendChild(tdNoteLabel);
+
+    dates.forEach((date, di) => {
+      const tdNote = document.createElement('td');
+      tdNote.colSpan = 2;
+      tdNote.className = 'time-cell';
+      const isDisabled = tsIsPast(date);
+      const isFutureDate = tsIsFuture(date);
+      const disabledClass = isDisabled ? 'disabled' : '';
+      const futureClass = isFutureDate ? 'future-warning' : '';
+      tdNote.innerHTML = `<input type="text" class="notes-input ${disabledClass} ${futureClass}" id="ts_note_d${di}" placeholder="Note…" data-date="${date.toISOString()}" data-is-future="${isFutureDate}">`;
+      notesRow.appendChild(tdNote);
+    });
+
+    tbody.appendChild(notesRow);
+
+    // Init flatpickr
+    setTimeout(() => {
+      document.querySelectorAll('#tsTableBody .flatpickr-input:not(.disabled)').forEach(el => {
+        const isLogout = el.classList.contains('logout-fp');
+        const isFutureField = el.getAttribute('data-is-future') === 'true';
+        
+        const fp = flatpickr(el, {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: 'H:i',
+          time_24hr: true,
+          minuteIncrement: 5,
+          defaultHour: isLogout ? 18 : 9,
+          onValueUpdate: function(selectedDates, dateStr, instance) {
+            const inputEl = instance.input;
+            const dateAttr = inputEl.getAttribute('data-date');
+            
+            if (dateAttr && isFutureField) {
+              const dateObj = new Date(dateAttr);
+              if (tsIsFuture(dateObj)) {
+                tsShowToast('❌ Cannot log time for future dates. Please select today date.', 'error');
+                
+                inputEl.classList.add('error-flash');
+                setTimeout(() => {
+                  inputEl.classList.remove('error-flash');
+                }, 600);
+                
+                instance.setDate('', true);
+                instance.input.value = '';
+                
+                setTimeout(() => {
+                  instance.close();
+                }, 100);
+                
+                return false;
+              }
+            }
+            tsRecalcAll();
+            return true;
+          },
+          onClose: function(selectedDates, dateStr, instance) {
+            const inputEl = instance.input;
+            const dateAttr = inputEl.getAttribute('data-date');
+            
+            if (dateAttr && isFutureField) {
+              const dateObj = new Date(dateAttr);
+              if (tsIsFuture(dateObj) && instance.input.value) {
+                instance.setDate('', true);
+                instance.input.value = '';
+              }
+            }
+            tsRecalcAll();
+          }
+        });
+        window.timesheetState.fpInstances[el.id] = fp;
+      });
+
+      // Handle note inputs for future dates
+      document.querySelectorAll('#tsTableBody .notes-input:not(.disabled)').forEach(el => {
+        const isFutureField = el.getAttribute('data-is-future') === 'true';
+        
+        el.addEventListener('input', function() {
+          if (isFutureField && this.value.trim() !== '') {
+            tsShowToast('❌ Cannot add notes for future dates.', 'error');
+            this.value = '';
+            this.classList.add('error-flash');
+            setTimeout(() => {
+              this.classList.remove('error-flash');
+            }, 600);
+          }
+        });
+      });
+
+      tsRecalcAll();
+      tsLoadTimesheetData();
+    }, 50);
+  };
+
+  function tsLoadTimesheetData() {
+    const dates = tsGetWeekDates(window.timesheetState.weekOffset);
+    const start = toYYYYMMDD(dates[0]);
+    const end = toYYYYMMDD(dates[dates.length - 1]);
+
+    fetch(`/api/employee/timesheet?start_date=${start}&end_date=${end}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          const entries = data.timesheet || [];
+          dates.forEach((date, di) => {
+            const dateStr = toYYYYMMDD(date);
+            const entry = entries.find(e => e.date === dateStr);
+            if (entry) {
+              const key = `d${di}`;
+              const loginEl = document.getElementById(`ts_login_${key}`);
+              const logoutEl = document.getElementById(`ts_logout_${key}`);
+              
+              if (loginEl) {
+                loginEl.value = entry.login || '';
+                if (window.timesheetState.fpInstances[loginEl.id]) {
+                  window.timesheetState.fpInstances[loginEl.id].setDate(entry.login, false);
+                }
+              }
+              if (logoutEl) {
+                logoutEl.value = entry.logout || '';
+                if (window.timesheetState.fpInstances[logoutEl.id]) {
+                  window.timesheetState.fpInstances[logoutEl.id].setDate(entry.logout, false);
+                }
+              }
+              const noteInput = document.getElementById(`ts_note_d${di}`);
+              if (noteInput) {
+                noteInput.value = entry.note || '';
+              }
+            }
+          });
+          tsRecalcAll();
+        }
+      })
+      .catch(err => console.error('Error loading timesheet:', err));
+  }
+
+  function tsRecalcAll() {
+    const dates = tsGetWeekDates(window.timesheetState.weekOffset);
+    let totalMins = 0, daysFilled = 0;
+
+    dates.forEach((_, di) => {
+      const key = `d${di}`;
+      const inEl = document.getElementById(`ts_login_${key}`);
+      const outEl = document.getElementById(`ts_logout_${key}`);
+      let dayMins = 0;
+      if (inEl && outEl && inEl.value && outEl.value) {
+        const diff = tsParseTime(outEl.value) - tsParseTime(inEl.value);
+        if (diff > 0) { dayMins = diff; }
+      }
+
+      const durCell = document.getElementById(`ts_dur_d${di}`);
+      if (durCell) {
+        if (dayMins > 0) {
+          const warn = dayMins < 240;
+          durCell.innerHTML = `<span class="duration-pill ${warn ? 'warn' : ''}">
+            <i class="bi bi-clock${warn ? '' : '-fill'}"></i> ${tsMinsToStr(dayMins)}
+          </span>`;
+        } else {
+          durCell.innerHTML = `<span class="duration-pill empty"><i class="bi bi-dash"></i> —</span>`;
+        }
+      }
+
+      if (dayMins > 0) { totalMins += dayMins; daysFilled++; }
+    });
+
+    document.getElementById('tsTotalHours').textContent = tsMinsToStr(totalMins) || '0h 0m';
+    document.getElementById('tsFillStatus').textContent = daysFilled + ' / 7';
+
+    // Today footer
+    const todayIdx = dates.findIndex(d => tsIsToday(d));
+    if (todayIdx < 0) {
+      ['tsFooterLogin','tsFooterLogout','tsFooterDuration'].forEach(id => {
+        document.getElementById(id).textContent = '—';
+      });
+      return;
+    }
+    const inEl = document.getElementById(`ts_login_d${todayIdx}`);
+    const outEl = document.getElementById(`ts_logout_d${todayIdx}`);
+    document.getElementById('tsFooterLogin').textContent = (inEl && inEl.value) || '—';
+    document.getElementById('tsFooterLogout').textContent = (outEl && outEl.value) || '—';
+    if (inEl && outEl && inEl.value && outEl.value) {
+      const diff = tsParseTime(outEl.value) - tsParseTime(inEl.value);
+      document.getElementById('tsFooterDuration').textContent = diff > 0 ? tsMinsToStr(diff) : '—';
+    } else {
+      document.getElementById('tsFooterDuration').textContent = '—';
+    }
+  }
+
+  window.timesheetClearToday = function() {
+    const dates = tsGetWeekDates(window.timesheetState.weekOffset);
+    const todayIdx = dates.findIndex(d => tsIsToday(d));
+    if (todayIdx === -1) {
+      tsShowToast('No today entry to clear', '');
+      return;
+    }
+    const key = `d${todayIdx}`;
+    const inEl = document.getElementById(`ts_login_${key}`);
+    const outEl = document.getElementById(`ts_logout_${key}`);
+    const noteEl = document.getElementById(`ts_note_d${todayIdx}`);
+    if (inEl && !inEl.classList.contains('disabled') && window.timesheetState.fpInstances[inEl.id]) {
+      window.timesheetState.fpInstances[inEl.id].clear();
+    }
+    if (outEl && !outEl.classList.contains('disabled') && window.timesheetState.fpInstances[outEl.id]) {
+      window.timesheetState.fpInstances[outEl.id].clear();
+    }
+    if (noteEl && !noteEl.classList.contains('disabled')) {
+      noteEl.value = '';
+    }
+    tsRecalcAll();
+    tsShowToast('Today\'s entries cleared', '');
+  };
+
+  window.timesheetSave = function() {
+    const dates = tsGetWeekDates(window.timesheetState.weekOffset);
+    
+    // Check if any future date has entries
+    let hasFutureEntries = false;
+    let futureDateStr = '';
+    
+    const payload = dates.map((date, di) => {
+      const key = `d${di}`;
+      const loginV = document.getElementById(`ts_login_${key}`)?.value || '';
+      const logoutV = document.getElementById(`ts_logout_${key}`)?.value || '';
+      const noteV = document.getElementById(`ts_note_d${di}`)?.value || '';
+      
+      if (tsIsFuture(date) && (loginV || logoutV || noteV)) {
+        hasFutureEntries = true;
+        futureDateStr = date.toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short' });
+      }
+      
+      return {
+        date: toYYYYMMDD(date),
+        login: loginV,
+        logout: logoutV,
+        note: noteV
+      };
+    });
+
+    if (hasFutureEntries) {
+      tsShowToast(`❌ Cannot save future date entries (${futureDateStr}). Please remove them.`, 'error');
+      return;
+    }
+
+    console.log('Timesheet payload:', payload);
+    fetch('/api/employee/timesheet/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ timesheet: payload })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        tsShowToast('Timesheet saved successfully!', 'success');
+      } else {
+        tsShowToast('❌ Failed to save timesheet: ' + (data.message || 'unknown error'), 'error');
+      }
+    })
+    .catch(err => {
+      console.error('Error saving timesheet:', err);
+      tsShowToast('❌ Error connecting to server', 'error');
+    });
+  };
+
+  window.timesheetExportCSV = function() {
+    const dates = tsGetWeekDates(window.timesheetState.weekOffset);
+    let csv = 'Date,Day,Login,Logout,Duration,Note\n';
+    dates.forEach((date, di) => {
+      const inV = document.getElementById(`ts_login_d${di}`)?.value || '';
+      const outV = document.getElementById(`ts_logout_d${di}`)?.value || '';
+      const note = document.getElementById(`ts_note_d${di}`)?.value || '';
+      let dur = '';
+      if (inV && outV) {
+        const diff = tsParseTime(outV) - tsParseTime(inV);
+        if (diff > 0) dur = tsMinsToStr(diff);
+      }
+      csv += `${toYYYYMMDD(date)},${date.toLocaleDateString('en-GB',{weekday:'long'})},${inV},${outV},${dur},"${note}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const label = document.getElementById('tsDayHeaderRow')?.textContent?.trim()?.replace(/\s+/g, '_') || 'timesheet';
+    a.download = `timesheet_${label}.csv`;
+    a.click();
+    tsShowToast('CSV exported', 'success');
+  };
+
+  // Init timesheet on page load
+  setTimeout(window.timesheetBuild, 100);
+</script>
+</body>
+</html>

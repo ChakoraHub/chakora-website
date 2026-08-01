@@ -2,417 +2,979 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Festival & Booking Calendar</title>
+  <title>ChakoraHub Calendar - Festival & Meeting Schedule</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- FullCalendar CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #6366f1;
+      --secondary: #8b5cf6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --festival: #fbbf24;
+      --teams: #5558af;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #e1f5fe, #ede7f6);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
       color: #333;
     }
 
-    /* Header */
-    .header {
+    /* ==================== HEADER ==================== */
+    .modern-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 30px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .logo img {
+      height: 70px;
+      transition: transform 0.3s ease;
+    }
+
+    .logo img:hover {
+      transform: scale(1.05);
+    }
+
+    .header-center {
+      flex: 1;
+      text-align: center;
+      color: white;
+    }
+
+    .header-center h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .header-center .subtitle {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .teams-sync-btn {
+      background: var(--teams);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .teams-sync-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(85, 88, 175, 0.4);
+    }
+
+    .teams-sync-btn.synced {
+      background: var(--success);
+    }
+
+    .profile-pic {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 3px solid white;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .profile-pic:hover {
+      transform: scale(1.1);
+    }
+
+    /* ==================== MAIN CONTAINER ==================== */
+    .container-fluid {
+      max-width: 1400px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .calendar-container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      position: relative;
+    }
+
+    .calendar-loading {
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 25;
+      backdrop-filter: blur(2px);
+    }
+
+    .calendar-loading.show {
+      display: flex;
+    }
+
+    .calendar-loading-card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 0.9rem 1.1rem;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      color: #374151;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+
+    .calendar-loading-spinner {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2.5px solid #dbeafe;
+      border-top-color: var(--primary);
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+
+    /* ==================== CALENDAR CONTROLS ==================== */
+    .calendar-controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: linear-gradient(to right, #64b5f6, #9575cd);
-      padding: 0 25px;
-      height: 120px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-    }
-    .logo img { height: 90px; margin: 15px 0; }
-    .profile-wrapper { position: relative; cursor: pointer; }
-    .profile-pic {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 2px solid white;
-      object-fit: cover;
-    }
-    .dropdown-menu {
-      display: none;
-      position: absolute;
-      top: 52px;
-      right: 0;
-      background-color: #ffffff;
-      border-radius: 6px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-      z-index: 1000;
-      min-width: 130px;
-    }
-    .dropdown-menu a {
-      display: block;
-      padding: 8px 12px;
-      color: #444;
-      text-decoration: none;
-      font-weight: 500;
-      border-bottom: 1px solid #eee;
-      cursor: pointer;
-    }
-    .dropdown-menu a:last-child { border-bottom: none; }
-    .dropdown-menu a:hover { background-color: #f0f0f0; }
-
-    h1 {
-      text-align: center;
-      color: #00796b;
-      margin: 30px 0 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
     }
 
-    /* Nav buttons */
-    .nav-buttons {
+    .view-selector {
       display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 20px;
+      gap: 10px;
     }
-    .nav-buttons button {
+
+    .view-btn {
       padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background-color: #0288d1;
-      color: white;
-      font-weight: 500;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    }
-    .nav-buttons button:hover {
-      background-color: #0277bd;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Calendar grid */
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 12px;
-      max-width: 1100px;
-      margin: auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 3px 15px rgba(0,0,0,0.12);
-      grid-auto-rows: 120px;
-    }
-
-    .day {
-      font-weight: 600;
-      background-color: #4fa3f7;
-      color: white;
-      padding: 6px;
-      font-size: 14px;
-      border-radius: 8px;
-    }
-
-    .date {
-      background-color: #64b5f6;
-      color: #fff;
+      background: #f3f4f6;
+      border: 2px solid transparent;
       border-radius: 10px;
-      padding: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .view-btn:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .view-btn.active {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .legend {
       display: flex;
-      flex-direction: column;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
       align-items: center;
-      justify-content: flex-start;
-      gap: 4px;
-      font-size: 13px;
-      overflow: hidden;
-      position: relative;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .legend-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+    }
+
+    .legend-dot.festival {
+      background: var(--festival);
+      border: 2px solid #f59e0b;
+    }
+
+    .legend-dot.booked {
+      background: var(--danger);
+    }
+
+    .legend-dot.teams {
+      background: var(--teams);
+    }
+
+    .legend-dot.available {
+      background: var(--success);
+    }
+
+    /* ==================== FULLCALENDAR CUSTOMIZATION ==================== */
+    .fc {
+      /* FullCalendar base styles */
+    }
+
+    .fc .fc-toolbar-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .fc .fc-button-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border: none;
+      padding: 10px 20px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .fc .fc-button-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .fc .fc-button-primary:not(:disabled):active,
+    .fc .fc-button-primary:not(:disabled).fc-button-active {
+      background: var(--primary);
+    }
+
+    .fc-daygrid-day.fc-day-today {
+      background: rgba(99, 102, 241, 0.1) !important;
+    }
+
+    .fc-daygrid-day-number {
+      font-weight: 600;
+      color: #333;
+    }
+
+    /* Custom event styling */
+    .fc-event {
+      border: none;
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-weight: 600;
+      cursor: pointer;
       transition: all 0.2s ease;
-      cursor: pointer;
     }
 
-    .date:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      z-index: 5;
+    .fc-event:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-    strong.date-number {
-      font-size: 14px;
-      margin-bottom: 2px;
-      display: block;
+    .fc-event.festival-event {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #78350f;
     }
 
-    .festival-day {
-      background-color: #ffe066 !important;
-      color: #333 !important;
-      border: 2px solid #ff9800;
-    }
-    .festival-label {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 5px;
-      border-radius: 6px;
-      background: #ffeb3b;
-      border: 1px solid #ff9800;
-      text-align: center;
-      max-width: 90%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .fc-event.booking-event {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
     }
 
-    .booking-info {
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 20px;
-      text-align: center;
-      width: auto;
-      color: #fff;
-      font-weight: 600;
-      line-height: 1.2;
-      white-space: nowrap;
-    }
-    .booked-slot { background-color: #e53935; }
-
-    .all-booked {
-      background-color: #d32f2f !important;
-      color: #fff !important;
+    .fc-event.teams-event {
+      background: linear-gradient(135deg, #5558af 0%, #464775 100%);
+      color: white;
     }
 
-    .back-resources {
-      text-align: center;
-      margin: 40px 0;
-    }
-    .back-btn {
-      background-color: #3f51b5;
-      color: #fff;
-      text-decoration: none;
-      padding: 10px 25px;
-      border-radius: 6px;
-      font-weight: 500;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      cursor: pointer;
-    }
-    .back-btn:hover {
-      background-color: #303f9f;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    /* Popup modal */
-    .popup-overlay {
+    /* ==================== EVENT DETAILS MODAL ==================== */
+    .event-modal {
       display: none;
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
-      justify-content: center;
-      align-items: center;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
       z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
     }
-    .popup-content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      width: 320px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    }
-    .popup-content h3 {
-      margin-bottom: 15px;
-      color: #333;
-    }
-    .popup-buttons {
+
+    .event-modal.show {
       display: flex;
-      justify-content: space-around;
-      margin-top: 20px;
+      animation: fadeIn 0.3s ease;
     }
-    .popup-buttons button {
-      padding: 8px 16px;
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content-custom {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-header-custom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .modal-header-custom h3 {
+      color: var(--primary);
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .close-btn {
+      background: none;
       border: none;
-      border-radius: 6px;
-      font-weight: 500;
+      font-size: 1.5rem;
       cursor: pointer;
+      color: #999;
+      transition: color 0.3s ease;
     }
-    .popup-buttons .confirm {
-      background: #e53935;
+
+    .close-btn:hover {
+      color: var(--danger);
+    }
+
+    .event-detail {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 10px;
+    }
+
+    .event-detail i {
+      font-size: 1.2rem;
+      color: var(--primary);
+      width: 24px;
+      text-align: center;
+    }
+
+    .event-detail strong {
+      min-width: 100px;
+      color: #666;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary-custom {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
       color: white;
     }
-    .popup-buttons .cancel {
-      background: #ccc;
+
+    .btn-primary-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-secondary-custom {
+      background: #f3f4f6;
       color: #333;
+    }
+
+    .btn-secondary-custom:hover {
+      background: #e5e7eb;
+    }
+
+    /* ==================== TEAMS SYNC STATUS ==================== */
+    .sync-status {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+    }
+
+    .sync-status.show {
+      display: flex;
+      animation: slideInRight 0.3s ease;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .sync-status i {
+      font-size: 1.2rem;
+    }
+
+    .sync-status.syncing i {
+      color: var(--info);
+      animation: spin 1s linear infinite;
+    }
+
+    .sync-status.success i {
+      color: var(--success);
+    }
+
+    .sync-status.error i {
+      color: var(--danger);
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+      .header-center h1 {
+        font-size: 1.3rem;
+      }
+
+      .calendar-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .view-selector,
+      .legend {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .modal-content-custom {
+        padding: 20px;
+      }
     }
   </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="logo">
-    <a href="/"><img src="{{ url_for('static', filename='logo.png') }}" alt="ChakoraHub Logo" /></a>
-  </div>
-  <div class="profile-wrapper" onclick="toggleDropdown()">
-    <img class="profile-pic" src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}" alt="Profile" />
-    <div class="dropdown-menu" id="dropdownMenu">
-      <a href="{{ url_for('profile') }}">Profile</a>
-      <a href="{{ url_for('settings') }}">Settings</a>
-      <a onclick="openPopup('logout')">Logout</a>
+  <!-- Header -->
+  <header class="modern-header">
+    <div class="header-content">
+    <div class="logo">
+      <a href="/"><img src="/static/images/logo.png" alt="Logo"></a>
+    </div>
+      
+
+      <div class="header-center">
+        <h1><i class="fas fa-calendar-alt"></i> Calendar & Schedule</h1>
+        <p class="subtitle">Festivals & Meeting Bookings</p>
+      </div>
+      
+      <div class="profile-wrapper" onclick="toggleDropdown()">
+       {% set profile_pic = (session.get('profile_pic') or '').strip() %}
+      <img class="profile-pic" 
+         src="{{ profile_pic if profile_pic else url_for('static', filename='profile_photo/defaultpicture.jpg') }}" 
+           alt="Profile">
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="{{ url_for('profile') }}">
+          <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="{{ url_for('settings') }}">
+          <i class="fas fa-cog"></i> Settings
+        </a>
+        <a href="#" onclick="openLogoutModal(event)">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </div>
+
+
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container-fluid">
+    <div class="calendar-container">
+      <div id="calendarLoading" class="calendar-loading" aria-live="polite" aria-busy="false">
+        <div class="calendar-loading-card">
+          <span class="calendar-loading-spinner"></span>
+          <span id="calendarLoadingText">Loading calendar... please wait</span>
+        </div>
+      </div>
+      
+      <!-- Calendar Controls -->
+      <div class="calendar-controls">
+        <div class="view-selector">
+          <button class="view-btn active" data-view="dayGridMonth">
+            <i class="fas fa-th"></i> Month
+          </button>
+          <button class="view-btn" data-view="timeGridWeek">
+            <i class="fas fa-calendar-week"></i> Week
+          </button>
+          <button class="view-btn" data-view="timeGridDay">
+            <i class="fas fa-calendar-day"></i> Day
+          </button>
+          <button class="view-btn" data-view="listMonth">
+            <i class="fas fa-list"></i> List
+          </button>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-dot festival"></div>
+            <span>Festival</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot booked"></div>
+            <span>Booked</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot teams"></div>
+            <span>Teams Meeting</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot available"></div>
+            <span>Available</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FullCalendar -->
+      <div id="calendar"></div>
+
+      <!-- Back Button -->
+      <div class="text-center mt-4">
+        <a href="{{ url_for('resources') }}" class="btn btn-lg btn-primary-custom">
+          <i class="fas fa-arrow-left"></i> Back to Resources
+        </a>
+      </div>
     </div>
   </div>
-</div>
 
-{% macro month_name(month) %}
-  {{ ['January','February','March','April','May','June','July','August','September','October','November','December'][month-1] }}
-{% endmacro %}
-
-<h1>{{ month_name(month) }} {{ year }}</h1>
-
-<div class="nav-buttons">
-  <button onclick="changeMonth(-1)">← Previous</button>
-  <button onclick="changeMonth(1)">Next →</button>
-</div>
-
-<div class="calendar" id="calendar"></div>
-
-<div class="back-resources">
-  <!-- Direct redirect (no popup) -->
-  <a class="back-btn" href="{{ url_for('resources') }}">← Back to Resources</a>
-</div>
-
-<!-- Popup Modal -->
-<div class="popup-overlay" id="popupOverlay">
-  <div class="popup-content">
-    <h3 id="popupMessage">Are you sure?</h3>
-    <div class="popup-buttons">
-      <button class="confirm" onclick="confirmPopup()">Yes</button>
-      <button class="cancel" onclick="closePopup()">Cancel</button>
+  <!-- Event Details Modal -->
+  <div class="event-modal" id="eventModal">
+    <div class="modal-content-custom">
+      <div class="modal-header-custom">
+        <h3 id="modalTitle">Event Details</h3>
+        <button class="close-btn" onclick="closeEventModal()">×</button>
+      </div>
+      
+      <div id="modalBody">
+        <!-- Populated dynamically -->
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-secondary-custom" onclick="closeEventModal()">Close</button>
+        <button class="btn-primary-custom" id="modalActionBtn" style="display: none;">
+          Join Meeting
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-const calendar = document.getElementById('calendar');
-const currentMonth = {{ month - 1 }};
-const currentYear = {{ year }};
-const calendarData = {{ calendar_data | tojson }};
-let popupAction = null;
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- FullCalendar JS -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+  
+  <script>
+    // ==================== DATA ====================
+    // calendar_page() renders this template as a bare shell (no calendar_data
+    // context var) — data is loaded client-side from /api/calendar/data,
+    // keyed by month/year, and re-fetched whenever the visible month changes.
+    let calendarData = {};
+    let calendar;
+    let calendarInitialized = false;
+    const currentUsername = "{{ username|e }}";
 
-/* Gather all slots */
-const slotSet = new Set();
-Object.values(calendarData).forEach(d => (d.bookings || []).forEach(b => slotSet.add(b.slot)));
-const SLOTS = Array.from(slotSet);
-
-function renderCalendar(month, year) {
-  calendar.innerHTML = '';
-  const daysOfWeek = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  daysOfWeek.forEach(day => {
-    const div = document.createElement('div');
-    div.className = 'day';
-    div.textContent = day;
-    calendar.appendChild(div);
-  });
-
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  for (let i = 0; i < firstDay; i++) {
-    const spacer = document.createElement('div');
-    calendar.appendChild(spacer);
-  }
-
-  for (let date = 1; date <= daysInMonth; date++) {
-    const dateDiv = document.createElement('div');
-    dateDiv.className = 'date';
-
-    const monthStr = String(month + 1).padStart(2,'0');
-    const dateStr  = String(date).padStart(2,'0');
-    const key = `${year}-${monthStr}-${dateStr}`;
-
-    const strongEl = document.createElement('strong');
-    strongEl.className = 'date-number';
-    strongEl.textContent = date;
-    dateDiv.appendChild(strongEl);
-
-    const bookingsMap = {};
-    let festivalName = null;
-
-    if (calendarData[key]) {
-      if (calendarData[key].festival) {
-        festivalName = calendarData[key].festival;
-        dateDiv.classList.add('festival-day');
+    function setCalendarLoading(isLoading, message = 'Loading calendar... please wait') {
+      const loadingEl = document.getElementById('calendarLoading');
+      const loadingTextEl = document.getElementById('calendarLoadingText');
+      if (!loadingEl) return;
+      if (loadingTextEl) {
+        loadingTextEl.textContent = message;
       }
-      (calendarData[key].bookings || []).forEach(slotInfo => {
-        bookingsMap[slotInfo.slot] = slotInfo.status;
+      loadingEl.classList.toggle('show', Boolean(isLoading));
+      loadingEl.setAttribute('aria-busy', isLoading ? 'true' : 'false');
+    }
+
+    // ==================== FETCH CALENDAR DATA ====================
+    async function fetchCalendarData(year, month, showLoader = true) {
+      if (showLoader) {
+        setCalendarLoading(true, 'Loading calendar... please wait');
+      }
+      try {
+        const response = await fetch(`/api/calendar/data?year=${year}&month=${month}`);
+        const data = await response.json();
+        if (!data.success) {
+          console.error('Calendar data fetch failed:', data.message);
+          calendarData = {};
+          return;
+        }
+        calendarData = data.calendar_data || {};
+      } catch (error) {
+        console.error('Calendar data fetch error:', error);
+        calendarData = {};
+      } finally {
+        if (showLoader) {
+          setCalendarLoading(false);
+        }
+      }
+    }
+
+    async function refreshCalendarEvents(year, month) {
+      await fetchCalendarData(year, month, true);
+      calendar.removeAllEvents();
+      calendar.addEventSource(generateEvents());
+    }
+
+    // ==================== INITIALIZE CALENDAR ====================
+    document.addEventListener('DOMContentLoaded', async function() {
+      const calendarEl = document.getElementById('calendar');
+      const initialYear = {{ year|tojson }};
+      const initialMonth = {{ month|tojson }};
+
+      await fetchCalendarData(initialYear, initialMonth, true);
+
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        initialDate: `${initialYear}-${String(initialMonth).padStart(2, '0')}-01`,
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: ''
+        },
+        height: 'auto',
+        events: generateEvents(),
+        eventClick: handleEventClick,
+        dateClick: handleDateClick,
+        // Re-fetch from the backend whenever the visible month changes
+        // (prev/next/today clicks, or switching to week/day/list views).
+        datesSet: function(info) {
+          if (!calendarInitialized) {
+            calendarInitialized = true;
+            return;
+          }
+          const viewYear = info.view.currentStart.getFullYear();
+          const viewMonth = info.view.currentStart.getMonth() + 1;
+          refreshCalendarEvents(viewYear, viewMonth);
+        },
+        eventDidMount: function(info) {
+          // Add custom styling based on event type
+          if (info.event.extendedProps.type === 'festival') {
+            info.el.classList.add('festival-event');
+          } else if (info.event.extendedProps.type === 'booking') {
+            info.el.classList.add('booking-event');
+          } else if (info.event.extendedProps.type === 'teams') {
+            info.el.classList.add('teams-event');
+          }
+        }
       });
-    }
-
-    if (festivalName) {
-      const festEl = document.createElement('div');
-      festEl.className = 'festival-label';
-      festEl.textContent = festivalName;
-      dateDiv.appendChild(festEl);
-    }
-
-    SLOTS.forEach(slot => {
-      const status = bookingsMap[slot];
-      if (status === 'Booked') {
-        const chip = document.createElement('div');
-        chip.className = 'booking-info booked-slot';
-        chip.textContent = `${slot} - ${status}`;
-        dateDiv.appendChild(chip);
-      }
+      
+      calendar.render();
     });
 
-    const isFestival = !!festivalName;
-    const allBooked = (SLOTS.length > 0) && SLOTS.every(slot => bookingsMap[slot] === 'Booked');
-    if (!isFestival && allBooked) {
-      dateDiv.classList.add('all-booked');
+    // ==================== GENERATE EVENTS ====================
+    function generateEvents() {
+      const events = [];
+      
+      Object.keys(calendarData).forEach(dateKey => {
+        const data = calendarData[dateKey];
+        
+        // Festival events
+        if (data.festival) {
+          events.push({
+            title: `🎉 ${data.festival}`,
+            start: dateKey,
+            allDay: true,
+            backgroundColor: '#fbbf24',
+            borderColor: '#f59e0b',
+            textColor: '#78350f',
+            extendedProps: {
+              type: 'festival',
+              name: data.festival
+            }
+          });
+        }
+        
+        // Booking events
+        if (data.bookings && data.bookings.length > 0) {
+          data.bookings.forEach(booking => {
+            if (booking.status === 'Booked') {
+              // teams_link/meeting_link comes from the Bookings table (set by
+              // ms365_service's meeting.booked consumer). If present, style
+              // the event as a Teams meeting and carry the join URL through.
+              const joinUrl = booking.teams_link || booking.meeting_link || '';
+              const hasTeams = Boolean(joinUrl);
+
+              events.push({
+                title: hasTeams ? `${booking.slot} - Teams Meeting` : `${booking.slot} - Booked`,
+                start: `${dateKey}T${getSlotTime(booking.slot)}`,
+                backgroundColor: hasTeams ? '#5558af' : '#ef4444',
+                borderColor: hasTeams ? '#464775' : '#dc2626',
+                extendedProps: {
+                  type: hasTeams ? 'teams' : 'booking',
+                  slot: booking.slot,
+                  status: booking.status,
+                  details: hasTeams ? 'Teams meeting scheduled' : 'Meeting booked',
+                  organizer: currentUsername,
+                  joinUrl: joinUrl
+                }
+              });
+            }
+          });
+        }
+
+        // Teams events from server-side Graph merge
+        if (data.teams && data.teams.length > 0) {
+          data.teams.forEach(meeting => {
+            const startVal = normalizeTeamsDateTime(meeting.start, meeting.start_timezone) || `${dateKey}T09:00:00`;
+            const endVal = normalizeTeamsDateTime(meeting.end, meeting.end_timezone) || undefined;
+            events.push({
+              title: meeting.subject || 'Teams Meeting',
+              start: startVal,
+              end: endVal,
+              backgroundColor: '#5558af',
+              borderColor: '#464775',
+              extendedProps: {
+                type: 'teams',
+                organizer: meeting.organizer || 'support@chakorahub.com',
+                joinUrl: meeting.joinUrl || '',
+                details: 'Synced from Teams calendar'
+              }
+            });
+          });
+        }
+      });
+      
+      return events;
     }
 
-    dateDiv.onclick = () => {
-      document.getElementById('popupMessage').innerText = `Details for ${key}`;
-      document.getElementById('popupOverlay').style.display = 'flex';
-      popupAction = null; // just info popup
-    };
+    // ==================== SLOT TIME MAPPING ====================
+    function getSlotTime(slot) {
+      const times = {
+        'Slot 1': '09:00:00',
+        'Slot 2': '11:00:00',
+        'Slot 3': '14:00:00',
+        'Slot 4': '16:00:00'
+      };
+      return times[slot] || '09:00:00';
+    }
 
-    calendar.appendChild(dateDiv);
-  }
-}
+    function normalizeTeamsDateTime(dateTime, timeZone) {
+      if (!dateTime) return '';
 
-function changeMonth(dir) {
-  let month = currentMonth + dir;
-  let year = currentYear;
-  if (month > 11) { month = 0; year += 1; }
-  if (month < 0)  { month = 11; year -= 1; }
-  window.location.href = `/calendar?month=${month+1}&year=${year}`;
-}
+      const raw = String(dateTime).trim();
+      const hasOffset = /Z$|[+\-]\d{2}:\d{2}$/.test(raw);
+      if (hasOffset) {
+        return raw;
+      }
 
-function toggleDropdown() {
-  const d = document.getElementById('dropdownMenu');
-  d.style.display = d.style.display === 'block' ? 'none' : 'block';
-}
+      const tz = String(timeZone || '').toLowerCase();
+      if (tz.includes('utc') || tz.includes('gmt')) {
+        return `${raw}Z`;
+      }
 
-document.addEventListener('click', function(e){
-  const d = document.getElementById('dropdownMenu');
-  const w = document.querySelector('.profile-wrapper');
-  if(!w.contains(e.target)) d.style.display = 'none';
-});
+      return raw;
+    }
 
-function openPopup(action) {
-  popupAction = action;
-  if (action === 'logout') {
-    document.getElementById('popupMessage').innerText = 'Are you sure you want to logout?';
-    document.getElementById('popupOverlay').style.display = 'flex';
-  }
-}
+    // ==================== EVENT CLICK HANDLER ====================
+    function handleEventClick(info) {
+      const event = info.event;
+      const props = event.extendedProps;
+      
+      document.getElementById('modalTitle').textContent = event.title;
+      
+      let modalContent = '';
+      
+      if (props.type === 'festival') {
+        modalContent = `
+          <div class="event-detail">
+            <i class="fas fa-calendar-star"></i>
+            <strong>Type:</strong>
+            <span>Festival</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-gift"></i>
+            <strong>Name:</strong>
+            <span>${props.name}</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-calendar-day"></i>
+            <strong>Date:</strong>
+            <span>${event.start.toLocaleDateString()}</span>
+          </div>
+        `;
+      } else if (props.type === 'booking') {
+        modalContent = `
+          <div class="event-detail">
+            <i class="fas fa-user-clock"></i>
+            <strong>Type:</strong>
+            <span>Booking</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-clock"></i>
+            <strong>Slot:</strong>
+            <span>${props.slot}</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-check-circle"></i>
+            <strong>Status:</strong>
+            <span style="color: var(--danger); font-weight: 600;">${props.status}</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-calendar"></i>
+            <strong>Date:</strong>
+            <span>${event.start.toLocaleString()}</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-info-circle"></i>
+            <strong>Details:</strong>
+            <span>${props.details}</span>
+          </div>
+        `;
+      } else if (props.type === 'teams') {
+        modalContent = `
+          <div class="event-detail">
+            <i class="fab fa-microsoft"></i>
+            <strong>Type:</strong>
+            <span>Teams Meeting</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-user"></i>
+            <strong>Organizer:</strong>
+            <span>${props.organizer || 'Unknown'}</span>
+          </div>
+          ${props.studentEmail ? `
+          <div class="event-detail">
+            <i class="fas fa-user-graduate"></i>
+            <strong>Student:</strong>
+            <span>${props.studentEmail}</span>
+          </div>` : ''}
+          <div class="event-detail">
+            <i class="fas fa-calendar"></i>
+            <strong>Time:</strong>
+            <span>${event.start.toLocaleString()}</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-link"></i>
+            <strong>Join URL:</strong>
+            ${props.joinUrl
+              ? `<a href="${props.joinUrl}" target="_blank">Click to join</a>`
+              : `<span>Not available yet</span>`}
+          </div>
+        `;
+        
+        if (props.joinUrl) {
+          document.getElementById('modalActionBtn').style.display = 'block';
+          document.getElementById('modalActionBtn').textContent = 'Join Meeting';
+          document.getElementById('modalActionBtn').onclick = () => window.open(props.joinUrl, '_blank');
+        }
+      }
+      
+      document.getElementById('modalBody').innerHTML = modalContent;
+      document.getElementById('eventModal').classList.add('show');
+    }
 
-function closePopup() {
-  document.getElementById('popupOverlay').style.display = 'none';
-  popupAction = null;
-}
+    // ==================== DATE CLICK HANDLER ====================
+    function handleDateClick(info) {
+      console.log('Date clicked:', info.dateStr);
+      // Optional: Add new booking functionality
+    }
 
-function confirmPopup() {
-  if (popupAction === 'logout') {
-    window.location.href = "{{ url_for('logout') }}";
-  }
-  closePopup();
-}
+    // ==================== CLOSE MODAL ====================
+    function closeEventModal() {
+      document.getElementById('eventModal').classList.remove('show');
+      document.getElementById('modalActionBtn').style.display = 'none';
+    }
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderCalendar(currentMonth, currentYear);
-});
-</script>
+    // ==================== VIEW SELECTOR ====================
+    document.querySelectorAll('.view-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        calendar.changeView(this.dataset.view);
+      });
+    });
 
+  </script>
 </body>
 </html>

@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChakoraLLM — Internal AI Assistant</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    :root {
+      /* Modern color palette - Changed from dark */
+      --bg:          #f0f4f8;
+      --surface:     #ffffff;
+      --surface2:    #f8fafc;
+      --border:      #e2e8f0;
+      --accent:      #6366f1;
+      --accent2:     #8b5cf6;
+      --text:        #1e293b;
+      --muted:       #64748b;
+      --user-bubble: #ede9fe;
+      --bot-bubble:  #f1f5f9;
+      --danger:      #ef4444;
+      --success:     #10b981;
+      --font-head:   'Space Mono', monospace;
+      --font-body:   'DM Sans', sans-serif;
+    }
+ 
+    /* Dark theme option (toggle via button) */
+    body.dark-theme {
+      --bg:          #0f172a;
+      --surface:     #1e293b;
+      --surface2:    #334155;
+      --border:      #475569;
+      --text:        #f1f5f9;
+      --muted:       #94a3b8;
+      --user-bubble: #312e81;
+      --bot-bubble:  #1e293b;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: var(--text);
+      font-family: var(--font-body);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+ 
+    /* ─── Animated background ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+      animation: gradientShift 15s ease infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+ 
+    /* ─── Topbar ─── */
+    .topbar {
+      position: relative; z-index: 10;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 58px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .brand {
+      font-family: var(--font-head);
+      font-size: 1.05rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+      display: flex; align-items: center; gap: .5rem;
+      font-weight: 700;
+    }
+    .brand .dot { 
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow:0 0 12px var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.8; }
+    }
+
+    .brand span.sub { color: var(--muted); font-size: .7rem; font-family: var(--font-body); margin-left: 4px; }
+ 
+    .topbar-right { display: flex; align-items: center; gap: 1rem; }
+    
+    .theme-toggle {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+    .theme-toggle:hover {
+      background: var(--accent);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .badge-infra {
+      font-size: .65rem; font-family: var(--font-head);
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+      padding: 6px 12px; border-radius: 20px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .badge-infra .live { 
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--success);
+      box-shadow:0 0 8px var(--success);
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .user-chip {
+      display: flex; align-items: center; gap: 8px;
+      font-size: .82rem; cursor: pointer;
+      padding: 6px 12px;
+      background: var(--surface2);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+    .user-chip:hover {
+      background: var(--accent);
+      color: white;
+      transform: translateY(-2px);
+    }
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 700; color: #fff;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+ 
+    /* ─── Layout ─── */
+    .app-body {
+      position: relative; z-index: 1;
+      display: flex; flex: 1; overflow: hidden;
+    }
+ 
+    /* ─── Sidebar ─── */
+    .sidebar {
+      width: 280px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      flex-shrink: 0;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+    }
+    .sidebar-section {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-title {
+      font-size: .7rem; font-family: var(--font-head);
+      color: var(--muted); text-transform: uppercase; letter-spacing: .5px;
+      margin-bottom: .75rem;
+    }
+    .btn-new {
+      width: 100%; padding: .65rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; border: none; border-radius: 10px;
+      font-family: var(--font-head); font-size: .8rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    .btn-new:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+    .btn-new:active { transform: translateY(0); }
+ 
+    .history-list { flex: 1; overflow-y: auto; padding: .5rem; }
+    .history-item {
+      padding: .7rem .85rem; border-radius: 8px;
+      cursor: pointer; font-size: .8rem;
+      color: var(--text); background: transparent;
+      border: 1px solid transparent;
+      transition: all .2s;
+      margin-bottom: .4rem;
+    }
+    .history-item:hover { 
+      background: var(--surface2); 
+      border-color: var(--border);
+      transform: translateX(4px);
+    }
+    .history-item.active { 
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1)); 
+      border-color: var(--accent);
+    }
+    .history-item-title {
+      font-weight: 600; margin-bottom: 2px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .history-item-date {
+      font-size: .68rem; color: var(--muted); font-family: var(--font-head);
+    }
+ 
+    .user-panel {
+      padding: 1rem; background: var(--surface2); border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .user-panel .user-avatar { width: 38px; height: 38px; }
+    .user-info { flex: 1; }
+    .user-name { font-weight: 600; font-size: .85rem; }
+    .user-email { font-size: .7rem; color: var(--muted); font-family: var(--font-head); }
+    .logout-btn {
+      background: rgba(239, 68, 68, 0.1); 
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      padding: 6px 10px; border-radius: 6px;
+      cursor: pointer; font-size: .75rem;
+      transition: all .2s;
+    }
+    .logout-btn:hover { 
+      background: var(--danger); 
+      color: white;
+      transform: scale(1.05);
+    }
+ 
+    /* ─── Chat ─── */
+    .chat-main {
+      flex: 1; display: flex; flex-direction: column;
+      background: var(--bg);
+    }
+    .chat-header {
+      padding: 1rem 1.5rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .chat-title {
+      font-family: var(--font-head);
+      font-size: 1rem; color: var(--accent);
+      display: flex; align-items: center; gap: .6rem;
+    }
+    .model-badge {
+      font-size: .65rem; font-family: var(--font-head);
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 4px 10px; border-radius: 12px;
+      display: flex; align-items: center; gap: 5px;
+    }
+ 
+    .messages {
+      flex: 1; overflow-y: auto; padding: 1.5rem;
+      display: flex; flex-direction: column; gap: 1.5rem;
+    }
+    .welcome-screen {
+      height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 2rem;
+    }
+    .welcome-icon {
+      font-size: 4rem; margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .welcome-title {
+      font-family: var(--font-head);
+      font-size: 2rem; color: var(--text);
+      margin-bottom: .5rem;
+    }
+    .welcome-subtitle {
+      font-size: .9rem; color: var(--muted); margin-bottom: 2rem;
+    }
+    .example-prompts {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem; max-width: 800px; margin: 0 auto;
+    }
+    .example-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.25rem;
+      cursor: pointer;
+      transition: all .3s;
+      text-align: left;
+    }
+    .example-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
+    }
+    .example-icon {
+      font-size: 1.75rem; margin-bottom: .75rem;
+    }
+    .example-text {
+      font-size: .85rem; font-weight: 600; color: var(--text);
+    }
+ 
+    .msg {
+      display: flex; gap: .85rem; align-items: flex-start;
+      animation: slideIn .3s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .msg.user { flex-direction: row-reverse; }
+    .msg-avatar {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem; font-weight: 700;
+    }
+    .msg.bot .msg-avatar { 
+      background: linear-gradient(135deg, var(--accent2), var(--accent)); 
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+    .msg.user .msg-avatar { 
+      background: var(--user-bubble); 
+      color: var(--accent); 
+      border: 2px solid var(--accent);
+    }
+    .bubble {
+      padding: .85rem 1.1rem; border-radius: 12px;
+      font-size: .875rem; line-height: 1.7;
+      max-width: calc(100% - 60px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .msg.bot  .bubble { 
+      background: var(--surface);  
+      border: 1px solid var(--border); 
+      border-top-left-radius: 4px;
+    }
+    .msg.user .bubble { 
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1)); 
+      border: 1px solid var(--accent); 
+      border-top-right-radius: 4px;
+    }
+    .bubble code {
+      font-family: var(--font-head); font-size: .78rem;
+      background: rgba(99, 102, 241, 0.1); 
+      padding: 2px 6px; border-radius: 4px; 
+      color: var(--accent);
+    }
+    .typing-dots span {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); margin: 0 3px;
+      animation: bounce .9s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: .15s; }
+    .typing-dots span:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce {
+      0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-8px)}
+    }
+ 
+    /* ─── Input Bar ─── */
+    .input-bar {
+      flex-shrink: 0;
+      padding: 1.25rem 1.5rem;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.05);
+    }
+    .input-box {
+      display: flex; align-items: flex-end; gap: .75rem;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: .75rem .85rem;
+      transition: border-color .3s, box-shadow .3s;
+    }
+    .input-box:focus-within { 
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+    #promptInput {
+      flex: 1; background: none; border: none; outline: none;
+      color: var(--text); font-family: var(--font-body); font-size: .875rem;
+      resize: none; min-height: 24px; max-height: 160px; line-height: 1.6;
+    }
+    #promptInput::placeholder { color: var(--muted); }
+    .input-actions { display: flex; align-items: center; gap: .5rem; }
+    .icon-btn {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; padding: 6px; border-radius: 8px;
+      font-size: 1.1rem; transition: all .2s;
+    }
+    .icon-btn:hover { 
+      color: var(--accent);
+      background: rgba(99, 102, 241, 0.1);
+      transform: scale(1.1);
+    }
+    .send-btn {
+      width: 40px; height: 40px; border-radius: 10px; border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 1rem; 
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+    .send-btn:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+    .send-btn:active { transform: translateY(0); }
+    .send-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .input-hint {
+      font-size: .7rem; color: var(--muted); margin-top: .65rem;
+      text-align: center; font-family: var(--font-head);
+    }
+ 
+    /* ─── TRANSPARENT LOGIN MODAL ─── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(15, 23, 42, 0.4);  /* More transparent */
+      backdrop-filter: blur(12px);  /* Stronger blur to see background */
+      display: flex; align-items: center; justify-content: center;
+    }
+    .login-card {
+      background: rgba(255, 255, 255, 0.95);  /* Semi-transparent white */
+      border: 2px solid rgba(99, 102, 241, 0.3);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%; max-width: 420px;
+      position: relative;
+      box-shadow: 
+        0 0 60px rgba(99, 102, 241, 0.2),
+        0 30px 80px rgba(0, 0, 0, 0.2);
+      animation: cardIn .4s cubic-bezier(.34,1.56,.64,1);
+      backdrop-filter: blur(20px);  /* Glass effect */
+    }
+    
+    /* Dark theme login card */
+    body.dark-theme .login-card {
+      background: rgba(30, 41, 59, 0.95);
+      border-color: rgba(99, 102, 241, 0.5);
+    }
+
+    @keyframes cardIn {
+      from { transform: translateY(30px) scale(.95); opacity: 0; }
+      to   { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .login-card::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 70%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .login-logo {
+      text-align: center; margin-bottom: 2rem;
+    }
+    .login-logo h3 { 
+      font-family: var(--font-head); 
+      font-size: 1.5rem; 
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: .5rem;
+    }
+    .login-logo p { font-size: .8rem; color: var(--muted); }
+    .org-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: .7rem; font-family: var(--font-head);
+      background: rgba(239,68,68,.12); 
+      color: var(--danger);
+      border: 1px solid rgba(239,68,68,.3);
+      padding: 5px 14px; border-radius: 20px;
+      margin-bottom: 1.5rem;
+    }
+    .form-label { 
+      font-size: .75rem; 
+      color: var(--text); 
+      margin-bottom: .4rem; 
+      font-weight: 600;
+    }
+    .form-control-dark {
+      width: 100%; 
+      background: rgba(248, 250, 252, 0.8);
+      border: 2px solid var(--border); 
+      border-radius: 10px;
+      color: var(--text); 
+      font-family: var(--font-body); 
+      font-size: .875rem;
+      padding: .7rem .9rem; 
+      outline: none; 
+      transition: all .3s;
+    }
+    body.dark-theme .form-control-dark {
+      background: rgba(51, 65, 85, 0.8);
+    }
+    .form-control-dark:focus { 
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+    .form-control-dark::placeholder { color: var(--muted); }
+    .input-group-dark {
+      position: relative;
+    }
+    .input-group-dark .form-control-dark { padding-right: 2.5rem; }
+    .input-group-dark .toggle-pass {
+      position: absolute; right: .75rem; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--muted); cursor: pointer; font-size: .9rem;
+      transition: color .2s;
+    }
+    .input-group-dark .toggle-pass:hover { color: var(--accent); }
+    .btn-login {
+      width: 100%; padding: .85rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; border: none; border-radius: 10px;
+      font-family: var(--font-head); font-size: .9rem; 
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s; 
+      margin-top: .5rem;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    .btn-login:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login:disabled { opacity: .5; cursor: not-allowed; }
+    .login-footer { 
+      text-align: center; 
+      font-size: .72rem; 
+      color: var(--muted); 
+      margin-top: 1.5rem; 
+    }
+    .login-footer a { color: var(--accent); text-decoration: none; }
+    .login-footer a:hover { text-decoration: underline; }
+    .error-msg {
+      font-size: .75rem; color: var(--danger);
+      margin-top: .4rem; display: none;
+      padding: .5rem;
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: 6px;
+    }
+    .spinner {
+      display: inline-block; width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
+      animation: spin .6s linear infinite; vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+ 
+    /* Preview Mode Badge */
+    .preview-badge {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      background: rgba(239, 68, 68, 0.95);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-family: var(--font-head);
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+      animation: slideInRight 0.5s ease;
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(100px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--surface2); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+ 
+    /* Mobile */
+    @media (max-width: 768px) {
+      .sidebar { 
+        position: fixed; left: -280px; top: 0; height: 100vh; z-index: 100;
+        transition: left .3s;
+      }
+      .sidebar.open { left: 0; }
+      .example-prompts { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Preview Mode Badge (shown when not logged in) -->
+  <div class="preview-badge" id="previewBadge" style="display: none;">
+    <i class="bi bi-eye"></i> PREVIEW MODE - Login to interact
+  </div>
+
+  <!-- Login Modal -->
+  <div class="modal-overlay" id="loginModal" style="display: none;">
+    <div class="login-card">
+      <div class="login-logo">
+        <h3><i class="bi bi-cpu"></i> ChakoraLLM</h3>
+        <p>Internal AI Assistant Platform</p>
+      </div>
+      <div style="text-align: center;">
+        <span class="org-badge">
+          <i class="bi bi-shield-lock"></i> ORGANIZATION ACCESS ONLY
+        </span>
+      </div>
+      
+      <form id="loginForm">
+        <div class="mb-3">
+          <label class="form-label">Employee ID / Username</label>
+          <input type="text" class="form-control-dark" id="username" placeholder="CH25001" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <div class="input-group-dark">
+            <input type="password" class="form-control-dark" id="password" placeholder="Enter password" required />
+            <button type="button" class="toggle-pass" onclick="togglePassword()">
+              <i class="bi bi-eye" id="eyeIcon"></i>
+            </button>
+          </div>
+        </div>
+        <div class="error-msg" id="errorMsg"></div>
+        <button type="submit" class="btn-login" id="loginBtn">
+          <i class="bi bi-box-arrow-in-right"></i> Sign In
+        </button>
+      </form>
+      
+      <div class="login-footer">
+        <button class="btn btn-link" style="color: var(--muted); font-size: 0.75rem;" onclick="togglePreviewMode()">
+          <i class="bi bi-eye"></i> Preview Interface Without Login
+        </button>
+        <br><br>
+        <a href="https://www.google.com" target="_blank">
+          <i class="bi bi-google"></i> Visit Google
+        </a>
+        <br><br>
+        <i class="bi bi-shield-check"></i> Secure authentication for ChakoraHub employees
+      </div>
+    </div>
+  </div>
+
+  <!-- App Container -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="dot"></div>
+      ChakoraLLM
+      <span class="sub">v1.0</span>
+    </div>
+    <div class="topbar-right">
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="bi bi-moon-stars" id="themeIcon"></i>
+      </button>
+      <div class="badge-infra">
+        <div class="live"></div>
+        GPU: ONLINE
+      </div>
+      <div class="user-chip" id="userChip">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <span id="userName">Guest</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-body">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <button class="btn-new" onclick="startNewChat()">
+          <i class="bi bi-plus-circle"></i> New Conversation
+        </button>
+      </div>
+      <div class="sidebar-section" style="flex: 1; border-bottom: none;">
+        <div class="sidebar-title">Recent Chats</div>
+        <div class="history-list" id="historyList">
+          <!-- Example history items (will be populated dynamically) -->
+          <div class="history-item">
+            <div class="history-item-title">Data engineering concepts</div>
+            <div class="history-item-date">2 hours ago</div>
+          </div>
+          <div class="history-item">
+            <div class="history-item-title">Python async programming</div>
+            <div class="history-item-date">Yesterday</div>
+          </div>
+        </div>
+      </div>
+      <div class="user-panel">
+        <div class="user-avatar" id="sidebarAvatar">U</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebarName">Guest User</div>
+          <div class="user-email" id="sidebarEmail">preview@chakorahub.com</div>
+        </div>
+        <button class="logout-btn" onclick="logout()">
+          <i class="bi bi-box-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Chat Main -->
+    <div class="chat-main">
+      <div class="chat-header">
+        <div class="chat-title">
+          <i class="bi bi-chat-dots"></i> Chat
+        </div>
+        <div class="model-badge">
+          <i class="bi bi-cpu"></i> ChakoraLLM v1.0
+        </div>
+      </div>
+
+      <div class="messages" id="messages">
+        <!-- Welcome Screen -->
+        <div class="welcome-screen" id="welcomeScreen">
+          <div class="welcome-icon">🤖</div>
+          <h2 class="welcome-title">Welcome to ChakoraLLM</h2>
+          <p class="welcome-subtitle">Your custom-trained AI assistant for organizational knowledge</p>
+          
+          <div class="example-prompts">
+            <div class="example-card" onclick="usePrompt('Explain our data engineering curriculum')">
+              <div class="example-icon">📚</div>
+              <div class="example-text">Explain our data engineering curriculum</div>
+            </div>
+            <div class="example-card" onclick="usePrompt('Help me write a technical blog post')">
+              <div class="example-icon">✍️</div>
+              <div class="example-text">Help me write a technical blog post</div>
+            </div>
+            <div class="example-card" onclick="usePrompt('Generate Python code examples')">
+              <div class="example-icon">💻</div>
+              <div class="example-text">Generate Python code examples</div>
+            </div>
+            <div class="example-card" onclick="usePrompt('Summarize company policies')">
+              <div class="example-icon">📋</div>
+              <div class="example-text">Summarize company policies</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-bar">
+        <div class="input-box">
+          <textarea id="promptInput" placeholder="Ask ChakoraLLM anything..." rows="1" onkeydown="handleEnter(event)"></textarea>
+          <div class="input-actions">
+            <button class="icon-btn" title="Attach file">
+              <i class="bi bi-paperclip"></i>
+            </button>
+            <button class="send-btn" onclick="sendMessage()" id="sendBtn">
+              <i class="bi bi-send-fill"></i>
+            </button>
+          </div>
+        </div>
+        <div class="input-hint">
+          <i class="bi bi-info-circle"></i> ChakoraLLM is trained on organizational data. Verify critical information.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== GLOBAL STATE ====================
+    let isLoggedIn = false;
+    let isPreviewMode = false;
+    let currentUser = null;
+    let conversationId = null;
+
+    // ==================== INITIALIZATION ====================
+    document.addEventListener('DOMContentLoaded', function() {
+      // Show login modal on load
+      showLoginModal();
+      
+      // Auto-resize textarea
+      const textarea = document.getElementById('promptInput');
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+      });
+    });
+
+    // ==================== LOGIN FUNCTIONS ====================
+    function showLoginModal() {
+      document.getElementById('loginModal').style.display = 'flex';
+    }
+
+    function hideLoginModal() {
+      document.getElementById('loginModal').style.display = 'none';
+    }
+
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const eyeIcon = document.getElementById('eyeIcon');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.className = 'bi bi-eye-slash';
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.className = 'bi bi-eye';
+      }
+    }
+
+    function togglePreviewMode() {
+      isPreviewMode = true;
+      hideLoginModal();
+      document.getElementById('previewBadge').style.display = 'block';
+      
+      // Update UI for preview mode
+      document.getElementById('userName').textContent = 'Preview Mode';
+      document.getElementById('sidebarName').textContent = 'Preview Mode';
+      document.getElementById('sidebarEmail').textContent = 'Login to save conversations';
+      
+      // Disable input in preview mode
+      document.getElementById('sendBtn').disabled = true;
+      document.getElementById('promptInput').placeholder = 'Login to start chatting...';
+    }
+
+    // Login form submission
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const loginBtn = document.getElementById('loginBtn');
+      const errorMsg = document.getElementById('errorMsg');
+      
+      // Show loading
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<span class="spinner"></span> Signing in...';
+      errorMsg.style.display = 'none';
+      
+      try {
+        const response = await fetch('/api/llm/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          isLoggedIn = true;
+          currentUser = data.user;
+          hideLoginModal();
+          document.getElementById('previewBadge').style.display = 'none';
+          
+          // Update UI with user info
+          document.getElementById('userName').textContent = currentUser.name;
+          document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+          document.getElementById('sidebarName').textContent = currentUser.name;
+          document.getElementById('sidebarEmail').textContent = currentUser.email || currentUser.id;
+          document.getElementById('sidebarAvatar').textContent = currentUser.name.charAt(0);
+          
+          // Enable chat
+          document.getElementById('sendBtn').disabled = false;
+          document.getElementById('promptInput').placeholder = 'Ask ChakoraLLM anything...';
+        } else {
+          errorMsg.textContent = data.message || 'Invalid credentials';
+          errorMsg.style.display = 'block';
+        }
+      } catch (error) {
+        errorMsg.textContent = 'Login failed. Please try again.';
+        errorMsg.style.display = 'block';
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Sign In';
+      }
+    });
+
+    // ==================== CHAT FUNCTIONS ====================
+    function startNewChat() {
+      conversationId = 'conv_' + Date.now();
+      document.getElementById('messages').innerHTML = '';
+      document.getElementById('welcomeScreen').style.display = 'flex';
+    }
+
+    function usePrompt(prompt) {
+      if (!isLoggedIn && !isPreviewMode) {
+        showLoginModal();
+        return;
+      }
+      
+      if (isPreviewMode) {
+        alert('Please login to use the chat feature');
+        return;
+      }
+      
+      document.getElementById('promptInput').value = prompt;
+      sendMessage();
+    }
+
+    async function sendMessage() {
+      if (!isLoggedIn) {
+        alert('Please login to send messages');
+        showLoginModal();
+        return;
+      }
+      
+      const input = document.getElementById('promptInput');
+      const message = input.value.trim();
+      
+      if (!message) return;
+      
+      // Hide welcome screen
+      const welcome = document.getElementById('welcomeScreen');
+      if (welcome) welcome.style.display = 'none';
+      
+      // Add user message
+      addMessage(message, 'user');
+      
+      // Clear input
+      input.value = '';
+      input.style.height = 'auto';
+      
+      // Show typing indicator
+      showTyping();
+      
+      try {
+        const response = await fetch('/api/llm/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: message,
+            conversation_id: conversationId,
+            user_id: currentUser.id
+          })
+        });
+        
+        const data = await response.json();
+        
+        hideTyping();
+        
+        if (data.success) {
+          addMessage(data.response, 'bot');
+        } else {
+          addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+        }
+      } catch (error) {
+        hideTyping();
+        addMessage('Connection error. Please check your network.', 'bot');
+      }
+    }
+
+    function addMessage(text, sender) {
+      const messagesContainer = document.getElementById('messages');
+      
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `msg ${sender}`;
+      
+      const avatar = sender === 'user' 
+        ? (currentUser ? currentUser.name.charAt(0) : 'U')
+        : '🤖';
+      
+      msgDiv.innerHTML = `
+        <div class="msg-avatar">${avatar}</div>
+        <div class="bubble">${formatMessage(text)}</div>
+      `;
+      
+      messagesContainer.appendChild(msgDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function formatMessage(text) {
+      // Convert markdown code blocks
+      text = text.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+      text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+      text = text.replace(/\n/g, '<br>');
+      return text;
+    }
+
+    let typingDiv = null;
+    function showTyping() {
+      const messagesContainer = document.getElementById('messages');
+      typingDiv = document.createElement('div');
+      typingDiv.className = 'msg bot';
+      typingDiv.innerHTML = `
+        <div class="msg-avatar">🤖</div>
+        <div class="bubble">
+          <div class="typing-dots">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      `;
+      messagesContainer.appendChild(typingDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function hideTyping() {
+      if (typingDiv) {
+        typingDiv.remove();
+        typingDiv = null;
+      }
+    }
+
+    function handleEnter(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    }
+
+    // ==================== THEME TOGGLE ====================
+    function toggleTheme() {
+      document.body.classList.toggle('dark-theme');
+      const icon = document.getElementById('themeIcon');
+      icon.className = document.body.classList.contains('dark-theme') 
+        ? 'bi bi-sun' 
+        : 'bi bi-moon-stars';
+    }
+
+    // ==================== LOGOUT ====================
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        isLoggedIn = false;
+        currentUser = null;
+        conversationId = null;
+        isPreviewMode = false;
+        
+        document.getElementById('messages').innerHTML = '';
+        document.getElementById('welcomeScreen').style.display = 'flex';
+        showLoginModal();
+      }
+    }
+  </script>
+</body>
+</html>

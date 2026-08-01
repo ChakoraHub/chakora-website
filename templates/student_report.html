@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Management - ChakoraHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --brand:        #4f46e5;
+      --brand-light:  #818cf8;
+      --brand-dark:   #3730a3;
+      --accent:       #06b6d4;
+      --success:      #10b981;
+      --warning:      #f59e0b;
+      --danger:       #ef4444;
+      --bg:           #f0f2f9;
+      --surface:      #ffffff;
+      --surface-2:    #f8f9ff;
+      --border:       #e4e6f0;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+      --text-muted:   #9ca3af;
+      --shadow-sm:    0 1px 3px rgba(79,70,229,.08), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md:    0 4px 16px rgba(79,70,229,.10), 0 2px 6px rgba(0,0,0,.06);
+      --shadow-lg:    0 12px 40px rgba(79,70,229,.14), 0 4px 12px rgba(0,0,0,.08);
+      --radius:       14px;
+      --radius-sm:    8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 16px;
+    }
+
+    .logo img {
+      height: 44px;
+      width: auto;
+      display: block;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+    .logo img:hover { transform: scale(1.04); opacity: .9; }
+
+    .header-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-light) 100%);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: .3px;
+      margin-left: 8px;
+    }
+
+    /* Profile dropdown */
+    .profile-wrapper {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .profile-pic {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2.5px solid var(--brand-light);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .profile-pic:hover {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 4px rgba(79,70,229,.15);
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 54px;
+      right: 0;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      min-width: 180px;
+      overflow: hidden;
+      z-index: 1000;
+      border: 1px solid var(--border);
+      animation: dropIn .18s ease;
+    }
+
+    @keyframes dropIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .dropdown-menu a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 16px;
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: background .15s;
+    }
+    .dropdown-menu a i { color: var(--brand); width: 16px; }
+    .dropdown-menu a:hover { background: var(--surface-2); }
+    .dropdown-menu a:last-child { color: var(--danger); }
+    .dropdown-menu a:last-child i { color: var(--danger); }
+
+    /* ── LAYOUT ──────────────────────────────────────────── */
+    .page-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 24px 48px;
+    }
+
+    /* ── TAB NAV ─────────────────────────────────────────── */
+    .tab-navigation {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+    }
+
+    .tab-navigation .nav-tabs {
+      border: none;
+      gap: 4px;
+    }
+
+    .tab-navigation .nav-link {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border: none;
+      border-bottom: 2.5px solid transparent;
+      border-radius: 0;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: color .2s, border-color .2s;
+      background: transparent;
+    }
+
+    .tab-navigation .nav-link i { font-size: 13px; }
+
+    .tab-navigation .nav-link:hover {
+      color: var(--brand);
+    }
+
+    .tab-navigation .nav-link.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+      font-weight: 600;
+    }
+
+    /* ── TAB CONTENT ─────────────────────────────────────── */
+    .content-container {
+      padding: 28px 28px 48px;
+    }
+
+    /* ── STATS BAR ───────────────────────────────────────── */
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .stat-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, rgba(79,70,229,.12) 0%, rgba(129,140,248,.12) 100%);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand);
+      font-size: 14px;
+    }
+
+    .stat-item strong {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: block;
+      line-height: 1.1;
+    }
+
+    .stat-label { font-size: 11px; color: var(--text-muted); }
+
+    /* Search */
+    .search-box {
+      position: relative;
+      min-width: 280px;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 9px 14px 9px 36px;
+      border: 1.5px solid var(--border);
+      border-radius: 50px;
+      font-size: 13.5px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text-primary);
+      background: var(--surface-2);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .search-box input::placeholder { color: var(--text-muted); }
+    .search-box input:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(79,70,229,.12);
+      background: #fff;
+    }
+
+    /* ── TABLE ───────────────────────────────────────────── */
+    .table-container {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    .table-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    }
+
+    thead th {
+      color: rgba(255,255,255,.9);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 14px 16px;
+      text-align: left;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    thead th:first-child { padding-left: 20px; }
+
+    tbody td {
+      padding: 13px 16px;
+      font-size: 13.5px;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tbody td:first-child { padding-left: 20px; color: var(--text-muted); font-size: 12px; }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr { transition: background .15s; }
+    tbody tr:hover { background: var(--surface-2); }
+
+    /* Name cell */
+    .student-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-light) 100%);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Reg ID badge */
+    .reg-badge {
+      display: inline-block;
+      background: rgba(79,70,229,.08);
+      color: var(--brand-dark);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: .2px;
+      border: 1px solid rgba(79,70,229,.15);
+    }
+
+    /* ── BUTTONS ─────────────────────────────────────────── */
+    .btn-report {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-light) 100%);
+      color: #fff !important;
+      border: none;
+      border-radius: 50px;
+      padding: 7px 16px;
+      font-size: 12.5px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 2px 8px rgba(79,70,229,.30);
+      white-space: nowrap;
+    }
+    .btn-report:hover {
+      opacity: .9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(79,70,229,.38);
+    }
+    .btn-report:active { transform: translateY(0); }
+
+    /* Back button */
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 50px;
+      font-size: 13.5px;
+      font-weight: 600;
+      border: 1.5px solid var(--border);
+      color: var(--text-secondary);
+      background: var(--surface);
+      text-decoration: none;
+      transition: all .2s;
+    }
+    .btn-back:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+      background: rgba(79,70,229,.04);
+    }
+
+    /* Cert submit button */
+    .cert-form .btn {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-light) 100%);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 14px;
+      transition: opacity .2s, transform .15s;
+    }
+    .cert-form .btn:hover { opacity: .9; transform: translateY(-1px); }
+
+    /* ── CERT FORM ────────────────────────────────────────── */
+    .cert-form {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+    }
+
+    .cert-form h4 {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cert-form h4 i { color: var(--brand); }
+
+    .cert-form .form-control {
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      padding: 10px 14px;
+      color: var(--text-primary);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .cert-form .form-control:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(79,70,229,.12);
+    }
+
+    /* ── CERTIFICATE ─────────────────────────────────────── */
+    .certificate {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-lg);
+      padding: 56px 48px 64px;
+      margin: 8px auto 24px;
+      position: relative;
+      overflow: hidden;
+      max-width: 720px;
+      min-height: 560px;
+    }
+
+    .certificate::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--brand) 0%, var(--accent) 50%, var(--brand-light) 100%);
+    }
+
+    .certificate::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at top right, rgba(79,70,229,.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .cert-logo { text-align: center; margin-bottom: 24px; }
+    .cert-logo img { height: 60px; }
+
+    .cert-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+      margin-bottom: 28px;
+    }
+
+    .cert-body {
+      text-align: center;
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 2;
+      max-width: 680px;
+      margin: 0 auto 36px;
+    }
+
+    .highlight-name  { font-weight: 700; color: var(--brand-dark); font-size: 17px; }
+    .highlight-course{ font-weight: 600; color: var(--brand); }
+    .highlight-reg   { font-weight: 600; color: var(--text-primary); font-family: monospace; font-size: 14px; }
+    .highlight-date  { font-weight: 600; color: var(--text-primary); }
+
+    .cert-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-top: 1px dashed var(--border);
+      padding-top: 24px;
+      margin-top: 8px;
+    }
+
+    /* ── ALERTS ──────────────────────────────────────────── */
+    .alert {
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .alert i { flex-shrink: 0; }
+
+    /* ── EMPTY STATE ─────────────────────────────────────── */
+    .empty-row td {
+      text-align: center;
+      padding: 48px 20px !important;
+      color: var(--text-muted);
+    }
+    .empty-row .empty-icon {
+      font-size: 36px;
+      color: var(--border);
+      display: block;
+      margin-bottom: 12px;
+    }
+    .empty-row p { margin: 0; font-size: 14px; }
+
+    /* Download button */
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, var(--success) 0%, #34d399 100%);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 10px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 2px 8px rgba(16,185,129,.30);
+    }
+    .btn-download:hover {
+      opacity: .9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(16,185,129,.38);
+    }
+    .btn-download:active { transform: translateY(0); }
+    .btn-download:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    /* Print */
+    @media print {
+      .header, .tab-navigation, .cert-form, .btn-cert, .btn-back, .alert { display: none !important; }
+      .certificate { box-shadow: none; border: 2px solid #e0e0e0; }
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .header { padding: 0 16px; }
+      .content-container { padding: 20px 16px 40px; }
+      .tab-navigation { padding: 0 16px; }
+      .stats-bar { flex-direction: column; align-items: stretch; }
+      .search-box { min-width: 100%; }
+      .certificate { padding: 28px 20px; }
+      .cert-title { font-size: 20px; }
+    }
+
+    /* Fade-in rows */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    tbody tr {
+      animation: fadeUp .3s ease both;
+    }
+    tbody tr:nth-child(1)  { animation-delay: .04s; }
+    tbody tr:nth-child(2)  { animation-delay: .08s; }
+    tbody tr:nth-child(3)  { animation-delay: .12s; }
+    tbody tr:nth-child(4)  { animation-delay: .16s; }
+    tbody tr:nth-child(5)  { animation-delay: .20s; }
+    tbody tr:nth-child(n+6){ animation-delay: .24s; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-content">
+      <div class="logo">
+        <a href="/"><img src="{{ url_for('static', filename='logo.png') }}" alt="Logo"></a>
+      </div>
+      <div class="header-title">
+        Student Management Portal
+        <span class="header-badge"><i class="fas fa-graduation-cap"></i> ChakoraHub</span>
+      </div>
+      <div class="profile-wrapper" onclick="toggleDropdown()">
+        <img class="profile-pic" 
+             src="{{ url_for('static', filename=session.get('profile_pic','profile_photo/defaultpicture.jpg')) }}" 
+             alt="Profile">
+        <div class="dropdown-menu" id="dropdownMenu">
+          <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+          <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+          <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB NAVIGATION -->
+  <div class="tab-navigation">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="reports-tab" data-bs-toggle="tab" 
+                data-bs-target="#reports" type="button" role="tab">
+          <i class="fas fa-table-cells-large"></i> Student Reports
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="certificate-tab" data-bs-toggle="tab" 
+                data-bs-target="#certificate" type="button" role="tab">
+          <i class="fas fa-certificate"></i> Generate Certificate
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- TAB CONTENT -->
+  <div class="tab-content content-container">
+
+    <!-- STUDENT REPORTS TAB -->
+    <div class="tab-pane fade show active" id="reports" role="tabpanel">
+
+      <!-- Stats Bar & Dashboard Control Panel -->
+      <div class="stats-bar flex-wrap gap-3" style="background: var(--surface); padding: 18px 24px; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 24px;">
+        <div class="stat-item">
+          <div class="stat-icon" style="background: rgba(79,70,229,0.1); color: var(--brand);"><i class="fas fa-users"></i></div>
+          <div>
+            <strong id="totalCount">0</strong>
+            <span class="stat-label">Total Students</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: var(--success);"><i class="fas fa-check-circle"></i></div>
+          <div>
+            <strong id="statEligible">0</strong>
+            <span class="stat-label">Eligible Activities</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: var(--warning);"><i class="fas fa-clock"></i></div>
+          <div>
+            <strong id="statPending">0</strong>
+            <span class="stat-label">Pending</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon" style="background: rgba(6,182,212,0.1); color: var(--accent);"><i class="fas fa-link"></i></div>
+          <div>
+            <strong id="statGenerated">0</strong>
+            <span class="stat-label">Generated Links</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: var(--success);"><i class="fas fa-paper-plane"></i></div>
+          <div>
+            <strong id="statSubmitted">0</strong>
+            <span class="stat-label">Submitted</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon" style="background: rgba(239,68,68,0.1); color: var(--danger);"><i class="fas fa-hourglass-end"></i></div>
+          <div>
+            <strong id="statExpired">0</strong>
+            <span class="stat-label">Expired</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: var(--warning);"><i class="fas fa-star"></i></div>
+          <div>
+            <strong id="statAvgRating">0.0</strong>
+            <span class="stat-label">Avg Rating</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon" style="background: rgba(99,102,241,0.1); color: #6366f1;"><i class="fas fa-chart-pie"></i></div>
+          <div>
+            <strong id="statResponseRate">0%</strong>
+            <span class="stat-label">Response Rate</span>
+          </div>
+        </div>
+        <div class="search-box ms-auto" style="min-width: 240px;">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Search name, email, reg ID…" oninput="filterTable()">
+        </div>
+      </div>
+
+      <!-- Extended Control Panel Table -->
+      <div class="table-container">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>Registration ID</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Generate Link</th>
+                <th>Rating</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentsTableBody">
+              {% if students %}
+                {% for s in students %}
+                <tr data-student-email="{{ s.email }}" data-reg-id="{{ s.registration_id }}">
+                  <td>{{ loop.index }}</td>
+                  <td>
+                    <div class="student-name">
+                      <div class="avatar">{{ s.first_name[0] | upper if s.first_name else 'S' }}</div>
+                      {{ s.first_name }} {{ s.last_name or '' }}
+                    </div>
+                  </td>
+                  <td><span class="reg-badge">{{ s.registration_id }}</span></td>
+                  <td>{{ s.email }}</td>
+                  <td>{{ s.phone or '-' }}</td>
+                  <td>{{ s.address or '-' }}</td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 11px;" onclick="openFeedbackModal('{{ s.registration_id }}', '{{ s.first_name }}', '{{ s.email }}')">
+                      <i class="fas fa-key"></i> Generate
+                    </button>
+                  </td>
+                  <td class="cell-rating"><i class="fas fa-star text-warning me-1"></i> -</td>
+                  <td class="cell-actions">
+                    <span class="badge bg-secondary">Loading actions…</span>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr class="empty-row">
+                  <td colspan="9">
+                    <span class="empty-icon"><i class="fas fa-users-slash"></i></span>
+                    <p>No students found.</p>
+                  </td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Back Button -->
+      <div class="text-center mt-4">
+        <a href="/employee-resources" class="btn-back">
+          <i class="fas fa-arrow-left"></i> Back to Resources
+        </a>
+      </div>
+
+    </div>
+
+    <!-- CERTIFICATE TAB -->
+    <div class="tab-pane fade" id="certificate" role="tabpanel">
+
+      <!-- Certificate Form -->
+      <div class="cert-form">
+        <h4><i class="fas fa-id-card"></i> Enter Student Details</h4>
+        <form method="POST" class="row g-3">
+          <div class="col-md-8">
+            <input type="text" name="reg_id" class="form-control" 
+                   placeholder="Registration ID (e.g., CHADMGS0011902)" 
+                   value="{{ reg_id or '' }}" required>
+          </div>
+          <div class="col-md-4">
+            <button type="submit" class="btn w-100" style="padding:10px;">
+              <i class="fas fa-search"></i> Fetch Details
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Email Status Banner -->
+      {% if email_status %}
+        {% set parts = email_status.split('|', 1) %}
+        <div class="alert alert-{{ parts[0] }} alert-dismissible fade show mb-4" role="alert">
+          <i class="fas fa-{{ 'check-circle' if parts[0] == 'success' else 'exclamation-triangle' }}"></i>
+          {{ parts[1] }}
+          <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+      {% endif %}
+
+      <!-- Certificate or Error -->
+      {% if student %}
+        {% if student['status'] == 'Completed' %}
+
+          <div id="certificatePreview" class="certificate">
+            <div class="cert-logo">
+              <img src="{{ url_for('static', filename='logo.png') }}" alt="Chakora Hub Logo">
+            </div>
+
+            <div class="cert-title">Certificate of Completion</div>
+
+            <div class="cert-body">
+              This is to certify that
+              <span class="highlight-name">{{ student['first_name'] }} {{ student['last_name'] }}</span>
+              has successfully completed the
+              <span class="highlight-course">{{ student['course_name'] }}</span>,
+              conducted by Chakora Hub through live online instructor-led sessions,
+              bearing Registration ID
+              <span class="highlight-reg">{{ reg_id }}</span>
+              and dated
+              <span class="highlight-date">{{ student['registration_date'] }}</span>.
+            </div>
+
+            <div class="cert-footer">
+              <div>
+                <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:15px;color:#222;">Chakora Hub Pvt. Ltd.</div>
+                <div style="color:var(--text-secondary);font-size:12.5px;margin-top:3px;">Innovation • Education • Technology</div>
+                <div style="color:var(--brand);font-size:12.5px;margin-top:2px;">www.chakorahub.com</div>
+              </div>
+              <div style="text-align:right;">
+                <img src="https://chakorahub-student.s3.eu-north-1.amazonaws.com/Confidential/Sign.png"
+                     crossorigin="anonymous"
+                     alt="Signature"
+                     style="height:64px;width:auto;display:block;margin-left:auto;margin-right:5mm;margin-bottom:6px;object-fit:contain;">
+                <div style="width:180px;border-top:2px solid var(--brand);margin-left:auto;padding-top:6px;">
+                  <div style="font-weight:600;color:var(--brand);font-size:13px;">Authorized Signatory</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center mt-3 d-flex justify-content-center gap-3 flex-wrap">
+            <button type="button" class="btn-report" style="padding:10px 28px;font-size:14px;" onclick="window.print()">
+              <i class="fas fa-print"></i> Print Certificate
+            </button>
+            <button type="button" class="btn-download" onclick="downloadCertificate()">
+              <i class="fas fa-download"></i> Download PDF
+            </button>
+          </div>
+
+        {% else %}
+          <div class="alert alert-warning" role="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            Certificate cannot be generated — student status is <strong>{{ student['status'] }}</strong>. Only <strong>Completed</strong> students are eligible.
+          </div>
+        {% endif %}
+      {% else %}
+        <div class="alert alert-info" role="alert">
+          <i class="fas fa-circle-info"></i>
+          Enter a Registration ID above to load certificate details.
+        </div>
+      {% endif %}
+
+      <div class="text-center mt-4">
+        <a href="/employee-resources" class="btn-back">
+          <i class="fas fa-arrow-left"></i> Back to Resources
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toastMessage"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function toggleDropdown() {
+      const menu = document.getElementById('dropdownMenu');
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    document.addEventListener('click', function(event) {
+      const wrapper = document.querySelector('.profile-wrapper');
+      const menu = document.getElementById('dropdownMenu');
+      if (wrapper && !wrapper.contains(event.target)) {
+        menu.style.display = 'none';
+      }
+    });
+
+    function filterTable() {
+      const input = document.getElementById('searchInput');
+      const filter = (input.value || '').toLowerCase();
+      const rows = document.querySelectorAll('#studentsTableBody tr');
+      let visibleCount = 0;
+
+      rows.forEach((row) => {
+        const text = row.textContent.toLowerCase();
+        const show = text.includes(filter);
+        row.style.display = show ? '' : 'none';
+        if (show) {
+          visibleCount += 1;
+        }
+      });
+
+      const totalCount = document.getElementById('totalCount');
+      if (totalCount) {
+        totalCount.textContent = visibleCount;
+      }
+    }
+
+    async function fetchAsBase64(url) {
+  const resp = await fetch(url, { mode: 'cors' });  // 🔥 ADD THIS
+  if (!resp.ok) throw new Error("Image fetch failed");
+  const blob = await resp.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+    async function downloadCertificate() {
+      const btn = document.querySelector('.btn-download');
+      const cert = document.getElementById('certificatePreview');
+      if (!cert) return;
+
+      const origText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating…';
+
+      // Swap signature src to base64 so html2canvas can render it
+      const sigImg = cert.querySelector('img[alt="Signature"]');
+      const origSrc = sigImg ? sigImg.src : null;
+      try {
+        if (sigImg) {
+          const b64 = await fetchAsBase64(origSrc);
+          sigImg.src = b64;
+          // Give the browser a moment to repaint
+          await new Promise((resolve) => {
+  sigImg.onload = resolve;
+});
+        }
+
+        const canvas = await html2canvas(cert, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: false,
+          backgroundColor: '#ffffff',
+          logging: false
+        });
+
+        const { jsPDF } = window.jspdf;
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageW = pdf.internal.pageSize.getWidth();
+        const pageH = pdf.internal.pageSize.getHeight();
+        const imgW  = pageW - 20;
+        const imgH  = (canvas.height / canvas.width) * imgW;
+        const yOff  = Math.max(10, (pageH - imgH) / 2);
+
+        pdf.addImage(imgData, 'JPEG', 10, yOff, imgW, imgH);
+
+        const nameEl = cert.querySelector('.highlight-name');
+        const regEl  = cert.querySelector('.highlight-reg');
+        const name   = nameEl ? nameEl.textContent.trim().replace(/\s+/g, '_') : 'Student';
+        const reg    = regEl  ? regEl.textContent.trim() : 'Certificate';
+        pdf.save(`${name}_${reg}_Certificate.pdf`);
+      } catch (err) {
+  console.error("PDF ERROR:", err);
+  alert('Could not generate PDF. Please use Print instead.');
+} finally {
+        if (sigImg && origSrc) sigImg.src = origSrc;
+        btn.disabled = false;
+        btn.innerHTML = origText;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const totalCount = document.getElementById('totalCount');
+      const rows = document.querySelectorAll('#studentsTableBody tr');
+      if (totalCount) {
+        const realRows = Array.from(rows).filter((row) => row.children.length > 1);
+        totalCount.textContent = realRows.length;
+      }
+
+      const certificateTab = document.getElementById('certificate-tab');
+      const hasCertificateView = Boolean(document.getElementById('certificatePreview'))
+        || Boolean(document.querySelector('#certificate .alert-warning'))
+        || Boolean(document.querySelector('#certificate .alert-success'))
+        || Boolean(document.querySelector('#certificate .alert-danger'));
+      if (certificateTab && hasCertificateView) {
+        const tab = new bootstrap.Tab(certificateTab);
+        tab.show();
+      }
+    });
+
+    // ── FEEDBACK DASHBOARD & CONTROL PANEL JAVASCRIPT ────
+    let currentRegId = '';
+    let currentStudentName = '';
+    let currentStudentEmail = '';
+
+    // ── Toast Notification System ────
+    function showToast(message, type = 'success') {
+      let container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = 'position:fixed;top:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:10px;';
+        document.body.appendChild(container);
+      }
+      const colors = {
+        success: { bg: 'linear-gradient(135deg,#10b981,#059669)', icon: '✅' },
+        error:   { bg: 'linear-gradient(135deg,#ef4444,#dc2626)', icon: '❌' },
+        info:    { bg: 'linear-gradient(135deg,#6366f1,#4f46e5)', icon: 'ℹ️' },
+        warning: { bg: 'linear-gradient(135deg,#f59e0b,#d97706)', icon: '⚠️' },
+      };
+      const cfg = colors[type] || colors.info;
+      const toast = document.createElement('div');
+      toast.style.cssText = `background:${cfg.bg};color:#fff;padding:14px 20px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.25);display:flex;align-items:center;gap:10px;min-width:280px;max-width:380px;animation:toastIn .3s ease;`;
+      toast.innerHTML = `<span style="font-size:18px;">${cfg.icon}</span><span style="flex:1;">${message}</span><span onclick="this.parentElement.remove()" style="cursor:pointer;opacity:.7;font-size:18px;">&times;</span>`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.style.animation = 'toastOut .3s ease forwards'; setTimeout(() => toast.remove(), 300); }, 4000);
+    }
+
+    if (!document.getElementById('toast-keyframes')) {
+      const s = document.createElement('style');
+      s.id = 'toast-keyframes';
+      s.textContent = `@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}} @keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(40px)}}`;
+      document.head.appendChild(s);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      fetchDashboardMetrics();
+      loadRowFeedbackData();
+    });
+
+    function fetchDashboardMetrics() {
+      fetch('/api/student/feedback/status')
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('statEligible').textContent = data.total_eligible || 0;
+            document.getElementById('statPending').textContent = data.pending || 0;
+            document.getElementById('statGenerated').textContent = data.generated || 0;
+            document.getElementById('statSubmitted').textContent = data.submitted || 0;
+            document.getElementById('statExpired').textContent = data.expired || 0;
+            document.getElementById('statAvgRating').textContent = (data.average_rating || 0).toFixed(1);
+            document.getElementById('statResponseRate').textContent = (data.response_percentage || 0).toFixed(1) + '%';
+          }
+        })
+        .catch(err => console.error('Metrics load failed:', err));
+    }
+
+    let allStudentActivitiesMap = {};
+
+    function loadRowFeedbackData() {
+      fetch('/api/student/report/all-activities')
+        .then(res => res.json())
+        .then(data => {
+          allStudentActivitiesMap = (data && data.success) ? (data.data || {}) : {};
+          const rows = document.querySelectorAll('#studentsTableBody tr[data-student-email]');
+
+          rows.forEach(row => {
+            const regId = row.getAttribute('data-reg-id');
+            const actionsCell = row.querySelector('.cell-actions');
+            if (!actionsCell) return;
+
+            const acts = allStudentActivitiesMap[regId] || [];
+
+            if (acts.length === 0) {
+              actionsCell.innerHTML = '<span class="text-muted" style="font-size: 12px;">No Actions</span>';
+            } else {
+              const badgeHtml = acts.map(a => `
+                <span class="badge p-2 d-inline-flex align-items-center gap-1" style="background: rgba(99, 102, 241, 0.12); color: #4f46e5; border: 1px solid rgba(99, 102, 241, 0.25); font-size: 11.5px; font-weight: 500;">
+                  <i class="${getActivityIcon(a.type)}"></i> ${a.label || a.type}
+                </span>
+              `).join(' ');
+
+              actionsCell.innerHTML = `
+                <div class="d-flex flex-wrap gap-1 justify-content-center">
+                  ${badgeHtml}
+                </div>
+              `;
+            }
+          });
+        })
+        .catch(err => {
+          console.error('Batch activities load error:', err);
+          document.querySelectorAll('#studentsTableBody tr[data-student-email]').forEach(row => {
+            const actionsCell = row.querySelector('.cell-actions');
+            if (actionsCell) {
+              actionsCell.innerHTML = '<span class="text-muted" style="font-size: 12px;">No Actions</span>';
+            }
+          });
+        });
+    }
+
+    function renderModalActivitiesList(acts) {
+      const listEl = document.getElementById('activitiesList');
+      if (!acts || acts.length === 0) {
+        listEl.innerHTML = `
+          <div class="text-center py-3 text-warning">
+            <i class="fas fa-circle-exclamation mb-1"></i> No completed activities found for this student.
+          </div>
+        `;
+        document.getElementById('btnSubmitFeedbackRequest').disabled = true;
+        return;
+      }
+
+      listEl.innerHTML = '';
+      acts.forEach(act => {
+        const card = document.createElement('label');
+        card.className = 'd-flex align-items-center justify-content-between p-3 border rounded cursor-pointer mb-2';
+        card.style.background = '#0f172a';
+        card.style.borderColor = 'rgba(255,255,255,0.08)';
+
+        card.innerHTML = `
+          <div class="d-flex align-items-center gap-3">
+            <div style="font-size: 18px; color: #818cf8;">
+              <i class="${getActivityIcon(act.type)}"></i>
+            </div>
+            <div>
+              <span class="badge" style="background: rgba(129,140,248,0.1); color: #818cf8; font-size: 10px; margin-bottom: 2px;">${act.type}</span>
+              <div style="font-size: 13.5px; font-weight: 500; color: #f8fafc;">${act.label}</div>
+            </div>
+          </div>
+          <input type="checkbox" name="selected_activities" value="${act.id}" data-type="${act.type}" data-label="${act.label}" class="form-check-input" style="width: 18px; height: 18px; cursor: pointer;" onchange="validateSelection()">
+        `;
+        listEl.appendChild(card);
+      });
+      validateSelection();
+    }
+
+    function openFeedbackModal(regId, studentName, studentEmail) {
+      currentRegId = regId;
+      currentStudentName = studentName;
+      currentStudentEmail = studentEmail;
+
+      document.getElementById('modalStudentName').textContent = studentName;
+      document.getElementById('modalStudentEmail').textContent = studentEmail;
+      document.getElementById('generatedLinkContainer').style.display = 'none';
+
+      const listEl = document.getElementById('activitiesList');
+      document.getElementById('btnSubmitFeedbackRequest').disabled = true;
+
+      const cachedActs = allStudentActivitiesMap[regId] || [];
+      if (cachedActs.length > 0) {
+        renderModalActivitiesList(cachedActs);
+      } else {
+        listEl.innerHTML = `
+          <div class="text-center py-4" style="color: #cbd5e1;">
+            <i class="fas fa-spinner fa-spin fa-lg mb-2"></i><br>Loading student activities...
+          </div>
+        `;
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+      modal.show();
+
+      fetch(`/api/student/activities?email=${encodeURIComponent(studentEmail)}&reg_id=${encodeURIComponent(regId)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.success && data.activities && data.activities.length > 0) {
+            renderModalActivitiesList(data.activities);
+          } else if (cachedActs.length === 0) {
+            renderModalActivitiesList([]);
+          }
+        })
+        .catch(err => {
+          console.error('Activities load failed:', err);
+          if (cachedActs.length === 0) {
+            listEl.innerHTML = `
+              <div class="text-center py-3 text-danger">
+                <i class="fas fa-circle-xmark mb-1"></i> Failed to load activities.
+              </div>
+            `;
+          }
+        });
+    }
+
+    function getActivityIcon(type) {
+      switch (type) {
+        case 'Course': return 'fas fa-graduation-cap';
+        case 'Meeting': return 'fas fa-calendar-alt';
+        case 'Internship': return 'fas fa-briefcase';
+        case 'Placement': return 'fas fa-user-tie';
+        case 'Mock Test': return 'fas fa-file-signature';
+        case 'Certification': return 'fas fa-certificate';
+        case 'Store Purchase': return 'fas fa-shopping-cart';
+        default: return 'fas fa-tasks';
+      }
+    }
+
+    function validateSelection() {
+      const checkboxes = document.querySelectorAll('input[name="selected_activities"]:checked');
+      document.getElementById('btnSubmitFeedbackRequest').disabled = checkboxes.length === 0;
+    }
+
+    function submitFeedbackRequest() {
+      const checkboxes = document.querySelectorAll('input[name="selected_activities"]:checked');
+      if (checkboxes.length === 0) return;
+
+      const btn = document.getElementById('btnSubmitFeedbackRequest');
+      const origText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating Token…';
+
+      const selectedActs = [];
+      checkboxes.forEach(cb => {
+        selectedActs.push({
+          activity_type: cb.dataset.type,
+          activity_id: cb.value,
+          label: cb.dataset.label || cb.dataset.type,
+        });
+      });
+
+      const expiryHours = parseFloat(document.getElementById('expirySelect').value) || 24;
+
+      fetch('/api/student/feedback/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          student_email: currentStudentEmail,
+          student_name: currentStudentName,
+          activities: selectedActs,
+          expiry_hours: expiryHours,
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = origText;
+
+        const reqs = Array.isArray(data.requests) ? data.requests : [];
+        if (data.success && reqs.length > 0) {
+          document.getElementById('generatedLinkInput').value = reqs[0].feedback_url || '';
+          document.getElementById('generatedLinkContainer').style.display = 'block';
+
+          fetchDashboardMetrics();
+          loadRowFeedbackData();
+          showToast(`✅ ${reqs.length} secure feedback link(s) generated & email dispatched!`, 'success');
+        } else {
+          showToast('Error: ' + (data.message || 'Failed to generate feedback link'), 'error');
+        }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = origText;
+        console.error('Feedback link generation failed:', err);
+        showToast('Failed to connect to feedback service.', 'error');
+      });
+    }
+
+    function copyGeneratedLink() {
+      const input = document.getElementById('generatedLinkInput');
+      input.select();
+      navigator.clipboard.writeText(input.value);
+      showToast('📋 Link copied to clipboard!', 'info');
+    }
+  </script>
+
+  <!-- GENERATE FEEDBACK CONTROL PANEL MODAL -->
+  <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background: #1e293b; color: #f1f5f9; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;">
+        <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding: 20px;">
+          <h5 class="modal-title" id="feedbackModalLabel" style="font-weight: 700; font-size: 18px; color: #818cf8;">
+            <i class="fas fa-sliders"></i> Feedback Control Panel
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" style="padding: 24px;">
+          <div class="mb-3">
+            <span class="d-block mb-1" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8;">Target Student</span>
+            <strong id="modalStudentName" style="font-size: 16px; color: #f8fafc;">-</strong>
+            <span id="modalStudentEmail" class="d-block" style="font-size: 13px; color: #cbd5e1;">-</span>
+          </div>
+
+          <div class="mb-4">
+            <span class="d-block mb-2" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8;">Select Eligible Activities (Check to Generate Link)</span>
+            <div id="activitiesList" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column;">
+              <div class="text-center py-4" style="color: #cbd5e1;">
+                <i class="fas fa-spinner fa-spin fa-lg mb-2"></i><br>Loading student activities...
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="expirySelect" class="form-label text-muted" style="font-size: 12px; text-transform: uppercase;">Configurable Link Expiry</label>
+            <select class="form-select" id="expirySelect" style="background: #0f172a; color: #f1f5f9; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;">
+              <option value="24" selected>24 Hours (Default)</option>
+              <option value="48">48 Hours</option>
+              <option value="168">7 Days</option>
+            </select>
+          </div>
+
+          <div id="generatedLinkContainer" class="mt-3 p-3 rounded" style="display: none; background: #0f172a; border: 1px solid #818cf8;">
+            <label class="text-success fw-bold d-block mb-1" style="font-size: 12px;"><i class="fas fa-check-circle"></i> Secure Link Generated & Email Dispatched</label>
+            <div class="input-group">
+              <input type="text" id="generatedLinkInput" class="form-control form-control-sm" readonly style="background: #1e293b; color: #fff; border-color: rgba(255,255,255,0.1);">
+              <button class="btn btn-sm btn-indigo" type="button" onclick="copyGeneratedLink()" style="background: #4f46e5; color: #fff;"><i class="fas fa-copy"></i> Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.08); padding: 16px;">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 50px; font-weight: 600; font-size: 13px; padding: 8px 20px;">Cancel</button>
+          <button type="button" class="btn btn-primary" id="btnSubmitFeedbackRequest" onclick="submitFeedbackRequest()" style="background: #4f46e5; border: none; border-radius: 50px; font-weight: 600; font-size: 13px; padding: 8px 20px;" disabled>
+            <i class="fas fa-paper-plane"></i> Generate Link & Send Email
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

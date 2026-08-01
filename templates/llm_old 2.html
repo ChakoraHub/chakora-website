@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CorpMind — Internal AI Assistant</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:          #0b0f1a;
+      --surface:     #111827;
+      --surface2:    #1a2235;
+      --border:      #1f2d44;
+      --accent:      #00e5ff;
+      --accent2:     #7c3aed;
+      --text:        #e2e8f0;
+      --muted:       #64748b;
+      --user-bubble: #1e3a5f;
+      --bot-bubble:  #141f33;
+      --danger:      #ef4444;
+      --success:     #10b981;
+      --font-head:   'Space Mono', monospace;
+      --font-body:   'DM Sans', sans-serif;
+    }
+ 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+ 
+    /* ─── Grid noise bg ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+ 
+    /* ─── Topbar ─── */
+    .topbar {
+      position: relative; z-index: 10;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 58px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .brand {
+      font-family: var(--font-head);
+      font-size: 1.05rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .brand .dot { width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent); }
+    .brand span.sub { color: var(--muted); font-size: .7rem; font-family: var(--font-body); margin-left: 4px; }
+ 
+    .topbar-right { display: flex; align-items: center; gap: 1rem; }
+    .badge-infra {
+      font-size: .65rem; font-family: var(--font-head);
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+      padding: 3px 8px; border-radius: 4px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .badge-infra .live { width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success); }
+    .user-chip {
+      display: flex; align-items: center; gap: 8px;
+      font-size: .82rem; cursor: pointer;
+    }
+    .user-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700; color: #fff;
+    }
+ 
+    /* ─── Layout ─── */
+    .app-body {
+      position: relative; z-index: 1;
+      display: flex; flex: 1; overflow: hidden;
+    }
+ 
+    /* ─── Sidebar ─── */
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      padding: 1rem 0;
+      overflow-y: auto;
+    }
+    .sidebar-section { padding: .5rem 1rem .25rem; }
+    .sidebar-label {
+      font-size: .6rem; font-family: var(--font-head);
+      color: var(--muted); letter-spacing: 2px; text-transform: uppercase;
+      margin-bottom: .5rem;
+    }
+    .sidebar-btn {
+      width: 100%; text-align: left;
+      background: none; border: none; color: var(--text);
+      font-family: var(--font-body); font-size: .82rem;
+      padding: .45rem .75rem; border-radius: 6px;
+      cursor: pointer; display: flex; align-items: center; gap: .5rem;
+      transition: background .15s;
+    }
+    .sidebar-btn:hover { background: var(--surface2); }
+    .sidebar-btn.active { background: rgba(0,229,255,.08); color: var(--accent); }
+    .sidebar-btn i { width: 16px; text-align: center; }
+ 
+    .sidebar-divider { border: none; border-top: 1px solid var(--border); margin: .75rem 1rem; }
+ 
+    /* Infra badges in sidebar */
+    .infra-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .35rem .75rem; font-size: .75rem; color: var(--muted);
+    }
+    .infra-item .name { display: flex; align-items: center; gap: 6px; }
+    .infra-pill {
+      font-size: .6rem; font-family: var(--font-head);
+      padding: 2px 6px; border-radius: 3px;
+    }
+    .pill-ok  { background: rgba(16,185,129,.15); color: var(--success); }
+    .pill-gpu { background: rgba(124,58,237,.2);  color: #a78bfa; }
+ 
+    /* ─── Chat Area ─── */
+    .chat-wrap {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    }
+    .chat-header {
+      padding: .75rem 1.5rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .chat-title { font-family: var(--font-head); font-size: .85rem; color: var(--text); }
+    .model-badge {
+      font-size: .65rem; font-family: var(--font-head);
+      background: rgba(124,58,237,.2); color: #a78bfa;
+      border: 1px solid rgba(124,58,237,.3);
+      padding: 3px 10px; border-radius: 20px;
+      display: flex; align-items: center; gap: 5px;
+    }
+ 
+    .messages {
+      flex: 1; overflow-y: auto;
+      padding: 1.5rem;
+      display: flex; flex-direction: column; gap: 1.25rem;
+      scroll-behavior: smooth;
+    }
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+ 
+    /* Welcome card */
+    .welcome-card {
+      text-align: center; padding: 3rem 2rem; max-width: 540px; margin: auto;
+    }
+    .welcome-icon {
+      width: 64px; height: 64px; margin: 0 auto 1.5rem;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(124,58,237,.4), rgba(0,229,255,.2));
+      border: 1px solid rgba(0,229,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.75rem;
+    }
+    .welcome-card h2 {
+      font-family: var(--font-head); font-size: 1.25rem; color: var(--text);
+      margin-bottom: .5rem;
+    }
+    .welcome-card p { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .suggestion-chips { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-top: 1.5rem; }
+    .chip {
+      font-size: .75rem; padding: .35rem .85rem;
+      border: 1px solid var(--border); border-radius: 20px;
+      background: var(--surface2); color: var(--muted);
+      cursor: pointer; transition: all .2s;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--accent); }
+ 
+    /* Bubbles */
+    .msg { display: flex; gap: .75rem; max-width: 780px; }
+    .msg.user { flex-direction: row-reverse; margin-left: auto; }
+    .msg-avatar {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700;
+    }
+    .msg.bot .msg-avatar { background: linear-gradient(135deg, var(--accent2), var(--accent)); color: #fff; }
+    .msg.user .msg-avatar { background: var(--user-bubble); color: var(--accent); border: 1px solid var(--border); }
+    .bubble {
+      padding: .75rem 1rem; border-radius: 12px;
+      font-size: .875rem; line-height: 1.65;
+      max-width: calc(100% - 50px);
+    }
+    .msg.bot  .bubble { background: var(--bot-bubble);  border: 1px solid var(--border); border-top-left-radius: 4px; }
+    .msg.user .bubble { background: var(--user-bubble); border: 1px solid rgba(0,229,255,.15); border-top-right-radius: 4px; }
+    .bubble code {
+      font-family: var(--font-head); font-size: .78rem;
+      background: rgba(0,0,0,.4); padding: 1px 5px; border-radius: 3px; color: var(--accent);
+    }
+    .typing-dots span {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--muted); margin: 0 2px;
+      animation: bounce .9s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: .15s; }
+    .typing-dots span:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce {
+      0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)}
+    }
+ 
+    /* ─── Input Bar ─── */
+    .input-bar {
+      flex-shrink: 0;
+      padding: 1rem 1.5rem;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+    .input-box {
+      display: flex; align-items: flex-end; gap: .75rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: .6rem .75rem;
+      transition: border-color .2s;
+    }
+    .input-box:focus-within { border-color: var(--accent); }
+    #promptInput {
+      flex: 1; background: none; border: none; outline: none;
+      color: var(--text); font-family: var(--font-body); font-size: .875rem;
+      resize: none; min-height: 24px; max-height: 160px; line-height: 1.5;
+    }
+    #promptInput::placeholder { color: var(--muted); }
+    .input-actions { display: flex; align-items: center; gap: .4rem; }
+    .icon-btn {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; padding: 4px; border-radius: 6px;
+      font-size: 1rem; transition: color .15s;
+    }
+    .icon-btn:hover { color: var(--text); }
+    .send-btn {
+      width: 36px; height: 36px; border-radius: 8px; border: none;
+      background: var(--accent); color: #000;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: .9rem; transition: opacity .2s;
+    }
+    .send-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .input-hint {
+      font-size: .65rem; color: var(--muted); margin-top: .5rem;
+      text-align: center; font-family: var(--font-head);
+    }
+ 
+    /* ─── LOGIN MODAL ─── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,.75);
+      backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      width: 100%; max-width: 400px;
+      position: relative;
+      box-shadow: 0 0 60px rgba(0,229,255,.06), 0 30px 60px rgba(0,0,0,.5);
+      animation: cardIn .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes cardIn {
+      from { transform: translateY(20px) scale(.97); opacity: 0; }
+      to   { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .login-card::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 60%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .login-logo {
+      text-align: center; margin-bottom: 1.75rem;
+    }
+    .login-logo h3 { font-family: var(--font-head); font-size: 1rem; color: var(--accent); }
+    .login-logo p { font-size: .75rem; color: var(--muted); margin-top: 3px; }
+    .org-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: .65rem; font-family: var(--font-head);
+      background: rgba(239,68,68,.1); color: #fca5a5;
+      border: 1px solid rgba(239,68,68,.2);
+      padding: 3px 10px; border-radius: 20px;
+      margin-bottom: 1.5rem;
+    }
+    .form-label { font-size: .75rem; color: var(--muted); margin-bottom: .35rem; font-family: var(--font-head); }
+    .form-control-dark {
+      width: 100%; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-family: var(--font-body); font-size: .875rem;
+      padding: .6rem .85rem; outline: none; transition: border-color .2s;
+    }
+    .form-control-dark:focus { border-color: var(--accent); }
+    .form-control-dark::placeholder { color: var(--muted); }
+    .input-group-dark {
+      position: relative;
+    }
+    .input-group-dark .form-control-dark { padding-right: 2.5rem; }
+    .input-group-dark .toggle-pass {
+      position: absolute; right: .75rem; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--muted); cursor: pointer; font-size: .9rem;
+    }
+    .btn-login {
+      width: 100%; padding: .7rem;
+      background: var(--accent); color: #000; border: none; border-radius: 8px;
+      font-family: var(--font-head); font-size: .85rem; cursor: pointer;
+      transition: opacity .2s, transform .1s; margin-top: .25rem;
+    }
+    .btn-login:hover { opacity: .88; }
+    .btn-login:active { transform: scale(.98); }
+    .btn-login:disabled { opacity: .4; cursor: not-allowed; }
+    .login-footer { text-align: center; font-size: .7rem; color: var(--muted); margin-top: 1.25rem; }
+    .login-footer a { color: var(--muted); text-decoration: underline; }
+    .error-msg {
+      font-size: .75rem; color: var(--danger);
+      margin-top: .35rem; display: none;
+    }
+    .spinner {
+      display: inline-block; width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid rgba(0,0,0,.3); border-top-color: #000;
+      animation: spin .6s linear infinite; vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+ 
+    /* Domain hint */
+    .domain-hint {
+      font-size: .65rem; color: var(--muted); display: flex; align-items: center; gap: 4px;
+      margin-top: .35rem;
+    }
+ 
+    /* Scrollbar */
+    .sidebar::-webkit-scrollbar { width: 3px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); }
+ 
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .badge-infra { display: none; }
+    }
+  </style>
+</head>
+<body>
+ 
+<!-- ═══════════════════════════════════════════════
+     LOGIN MODAL
+════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="loginModal">
+  <div class="login-card">
+    <div class="login-logo">
+      <h3>Chakora Hub</h3>
+      <p>Internal AI Assistant</p>
+    </div>
+ 
+    <div class="text-center">
+      <span class="org-badge">
+        <i class="bi bi-shield-lock-fill"></i>
+        RESTRICTED · INTERNAL USE ONLY
+      </span>
+    </div>
+ 
+    <div class="mb-3">
+      <div class="form-label">Corporate Email</div>
+      <div class="input-group-dark">
+        <input type="email" class="form-control-dark" id="loginEmail"
+               placeholder="you@yourcompany.com" autocomplete="email"/>
+      </div>
+      <div class="domain-hint" id="domainHint">
+        <i class="bi bi-info-circle"></i> Only <span id="orgDomain">@yourcompany.com</span> accounts are permitted
+      </div>
+      <div class="error-msg" id="emailErr">Please enter a valid corporate email address.</div>
+    </div>
+ 
+    <div class="mb-3">
+      <div class="form-label">Password</div>
+      <div class="input-group-dark">
+        <input type="password" class="form-control-dark" id="loginPass"
+               placeholder="Enter your password" autocomplete="current-password"/>
+        <button class="toggle-pass" onclick="togglePass()" title="Show/hide">
+          <i class="bi bi-eye" id="passIcon"></i>
+        </button>
+      </div>
+      <div class="error-msg" id="passErr">Incorrect credentials. Please try again.</div>
+    </div>
+ 
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">
+      Sign In
+    </button>
+ 
+    <div class="login-footer">
+      Forgot password? Contact <a href="#">IT HelpDesk</a> &nbsp;·&nbsp;
+      Access governed by <a href="#">Org Policy v3.1</a>
+    </div>
+  </div>
+</div>
+ 
+<!-- ═══════════════════════════════════════════════
+     TOPBAR
+════════════════════════════════════════════════ -->
+<header class="topbar">
+  <div class="brand">
+    <div class="dot"></div>
+    CorpMind
+    <span class="sub">/ Phase 3</span>
+  </div>
+  <div class="topbar-right">
+    <div class="badge-infra">
+      <div class="live"></div>
+      g4dn.xlarge · GPU
+    </div>
+    <div class="badge-infra">
+      <div class="live"></div>
+      Redis · Vector DB
+    </div>
+    <div class="badge-infra">
+      <div class="live"></div>
+      Snowflake · Archive
+    </div>
+    <div class="user-chip" id="userChip">
+      <div class="user-avatar" id="userInitials">?</div>
+      <span id="userName" style="font-size:.8rem; color:var(--muted);">—</span>
+    </div>
+  </div>
+</header>
+ 
+<!-- ═══════════════════════════════════════════════
+     APP BODY
+════════════════════════════════════════════════ -->
+<div class="app-body">
+ 
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Navigation</div>
+      <button class="sidebar-btn active"><i class="bi bi-chat-dots"></i> New Chat</button>
+      <button class="sidebar-btn"><i class="bi bi-clock-history"></i> History</button>
+      <button class="sidebar-btn"><i class="bi bi-bookmarks"></i> Saved</button>
+    </div>
+ 
+    <hr class="sidebar-divider"/>
+ 
+    <div class="sidebar-section">
+      <div class="sidebar-label">Capabilities</div>
+      <button class="sidebar-btn"><i class="bi bi-search"></i> Semantic Search</button>
+      <button class="sidebar-btn"><i class="bi bi-database"></i> Snowflake Query</button>
+      <button class="sidebar-btn"><i class="bi bi-file-earmark-code"></i> Code Assist</button>
+      <button class="sidebar-btn"><i class="bi bi-bar-chart-line"></i> Analytics</button>
+    </div>
+ 
+    <hr class="sidebar-divider"/>
+ 
+    <div class="sidebar-section">
+      <div class="sidebar-label">Infrastructure</div>
+      <div class="infra-item">
+        <div class="name"><i class="bi bi-cpu" style="color:var(--accent2)"></i> LLM Model</div>
+        <span class="infra-pill pill-gpu">Custom</span>
+      </div>
+      <div class="infra-item">
+        <div class="name"><i class="bi bi-lightning" style="color:var(--accent)"></i> FastAPI</div>
+        <span class="infra-pill pill-ok">Online</span>
+      </div>
+      <div class="infra-item">
+        <div class="name"><i class="bi bi-arrow-left-right" style="color:#f59e0b"></i> API Gateway</div>
+        <span class="infra-pill pill-ok">Online</span>
+      </div>
+      <div class="infra-item">
+        <div class="name"><i class="bi bi-box" style="color:#34d399"></i> Flask Proxy</div>
+        <span class="infra-pill pill-ok">Online</span>
+      </div>
+      <div class="infra-item">
+        <div class="name"><i class="bi bi-server" style="color:#60a5fa"></i> Redis</div>
+        <span class="infra-pill pill-ok">Online</span>
+      </div>
+      <div class="infra-item">
+        <div class="name"><i class="bi bi-snow" style="color:#93c5fd"></i> Snowflake</div>
+        <span class="infra-pill pill-ok">Online</span>
+      </div>
+      <div class="infra-item">
+        <div class="name"><i class="bi bi-gpu-card" style="color:#a78bfa"></i> g4dn.xlarge</div>
+        <span class="infra-pill pill-gpu">Active</span>
+      </div>
+    </div>
+ 
+    <hr class="sidebar-divider"/>
+ 
+    <div class="sidebar-section">
+      <button class="sidebar-btn" onclick="doLogout()"><i class="bi bi-box-arrow-right" style="color:var(--danger)"></i> Sign Out</button>
+    </div>
+  </aside>
+ 
+  <!-- Chat -->
+  <main class="chat-wrap">
+    <div class="chat-header">
+      <span class="chat-title">General Assistant</span>
+      <div style="display:flex;gap:.5rem;align-items:center;">
+        <div class="model-badge"><i class="bi bi-cpu-fill"></i> Custom LLM · Phase 3</div>
+        <button class="icon-btn" title="Clear chat" onclick="clearChat()"><i class="bi bi-trash"></i></button>
+        <button class="icon-btn" title="Export"><i class="bi bi-download"></i></button>
+      </div>
+    </div>
+ 
+    <div class="messages" id="messages">
+      <!-- Welcome screen -->
+      <div class="welcome-card" id="welcomeCard">
+        <div class="welcome-icon">🧠</div>
+        <h2>CorpMind — Phase 3</h2>
+        <p>Your internal AI assistant powered by a custom-trained LLM running on <strong style="color:var(--accent)">g4dn.xlarge</strong>. Queries are processed via <strong>FastAPI Microservice → API Gateway → Flask Proxy</strong>. Vector context from <strong>Redis</strong>, historical data from <strong>Snowflake</strong>.</p>
+        <div class="suggestion-chips">
+          <div class="chip" onclick="insertChip(this)">Summarize Q1 sales data</div>
+          <div class="chip" onclick="insertChip(this)">Write a SQL query for Snowflake</div>
+          <div class="chip" onclick="insertChip(this)">Explain our API gateway setup</div>
+          <div class="chip" onclick="insertChip(this)">Generate a Python data pipeline</div>
+          <div class="chip" onclick="insertChip(this)">Draft an internal memo</div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- Input -->
+    <div class="input-bar">
+      <div class="input-box">
+        <textarea id="promptInput" rows="1"
+          placeholder="Ask CorpMind anything… (Shift+Enter for new line)"
+          oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
+        <div class="input-actions">
+          <button class="icon-btn" title="Attach file"><i class="bi bi-paperclip"></i></button>
+          <button class="icon-btn" title="Voice input"><i class="bi bi-mic"></i></button>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send (Enter)">
+            <i class="bi bi-send-fill"></i>
+          </button>
+        </div>
+      </div>
+      <div class="input-hint">
+        INTERNAL · CONFIDENTIAL · Responses may reflect company data · Phase 3 Custom LLM
+      </div>
+    </div>
+  </main>
+</div>
+ 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  /* ─── Config ─── */
+  const ORG_DOMAIN = 'yourcompany.com'; // Change to your actual org domain
+  const DEMO_PASS  = 'corp2024';        // Demo only — replace with real auth
+ 
+  /* ─── Auth ─── */
+  let currentUser = null;
+ 
+  function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPass').value;
+    const emailErr = document.getElementById('emailErr');
+    const passErr  = document.getElementById('passErr');
+    const btn = document.getElementById('loginBtn');
+ 
+    emailErr.style.display = 'none';
+    passErr.style.display  = 'none';
+ 
+    if (!email.toLowerCase().endsWith('@' + ORG_DOMAIN)) {
+      emailErr.style.display = 'block';
+      return;
+    }
+    if (!pass) { passErr.textContent = 'Password cannot be empty.'; passErr.style.display = 'block'; return; }
+ 
+    // Simulate auth
+    btn.innerHTML = '<span class="spinner"></span> Authenticating…';
+    btn.disabled = true;
+ 
+    setTimeout(() => {
+      // For demo, any org email + correct pass works
+      if (pass === DEMO_PASS) {
+        currentUser = { email, name: email.split('@')[0].replace('.', ' ') };
+        document.getElementById('loginModal').style.display = 'none';
+        const initials = currentUser.name.split(' ').map(w=>w[0].toUpperCase()).join('').slice(0,2);
+        document.getElementById('userInitials').textContent = initials;
+        document.getElementById('userName').textContent = currentUser.name;
+        document.getElementById('promptInput').focus();
+      } else {
+        passErr.style.display = 'block';
+        btn.innerHTML = 'Sign In';
+        btn.disabled = false;
+      }
+    }, 1200);
+  }
+ 
+  function doLogout() {
+    currentUser = null;
+    document.getElementById('loginModal').style.display = 'flex';
+    document.getElementById('loginBtn').innerHTML = 'Sign In';
+    document.getElementById('loginBtn').disabled = false;
+    document.getElementById('loginPass').value = '';
+    document.getElementById('userInitials').textContent = '?';
+    document.getElementById('userName').textContent = '—';
+    clearChat();
+  }
+ 
+  function togglePass() {
+    const p = document.getElementById('loginPass');
+    const i = document.getElementById('passIcon');
+    if (p.type === 'password') { p.type = 'text'; i.className = 'bi bi-eye-slash'; }
+    else { p.type = 'password'; i.className = 'bi bi-eye'; }
+  }
+ 
+  // Allow Enter key on login form
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('loginModal').style.display !== 'none') {
+      doLogin();
+    }
+  });
+ 
+  // Populate domain hint
+  document.getElementById('orgDomain').textContent = '@' + ORG_DOMAIN;
+ 
+  /* ─── Chat ─── */
+  const msgs = document.getElementById('messages');
+  let isTyping = false;
+ 
+  // Canned responses simulating LLM via Flask Proxy → FastAPI → Custom LLM
+  const responses = [
+    "I've searched the Redis vector store for relevant context. Based on your query and the semantic results retrieved, here's what I found:\n\nThe data pipeline you're asking about flows through our <code>FlaskProxy → APIGateway → FastAPI microservice</code>, where embeddings are matched in Redis before the LLM generates a response. Historical records are archived in Snowflake for audit purposes.",
+    "Generating response via the custom LLM on <code>g4dn.xlarge</code>…\n\nHere's a Snowflake SQL snippet based on your question:\n\n<code>SELECT date_trunc('month', created_at), SUM(revenue) FROM transactions GROUP BY 1 ORDER BY 1 DESC LIMIT 12;</code>\n\nThis query aggregates monthly revenue. Want me to refine the filters?",
+    "Context retrieved from Redis vector DB (cosine similarity > 0.87). Based on the top 3 semantic matches from your internal knowledge base, I can confirm:\n\nThe architecture routes requests: <code>HTML/CSS/JS → Flask Proxy → API Gateway → FastAPI → Custom LLM</code>. Snowflake handles archival of all interaction logs.",
+    "Understood. Let me process that through our Phase 3 pipeline. The custom-trained LLM has been fine-tuned on internal datasets. Here's a draft memo based on your request:\n\n<em>TO: All Teams | RE: Q2 Planning | The following objectives have been prioritized based on data analysis…</em>\n\nWant me to expand any section?"
+  ];
+  let rIdx = 0;
+ 
+  function addMsg(role, html) {
+    const wc = document.getElementById('welcomeCard');
+    if (wc) wc.remove();
+ 
+    const div = document.createElement('div');
+    div.className = 'msg ' + role;
+    const initials = role === 'user'
+      ? (currentUser ? currentUser.name.split(' ').map(w=>w[0].toUpperCase()).join('').slice(0,2) : 'U')
+      : 'CM';
+    div.innerHTML = `
+      <div class="msg-avatar">${initials}</div>
+      <div class="bubble">${html}</div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return div;
+  }
+ 
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'msg bot'; div.id = 'typingIndicator';
+    div.innerHTML = `<div class="msg-avatar">CM</div>
+      <div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+ 
+  function removeTyping() {
+    const t = document.getElementById('typingIndicator');
+    if (t) t.remove();
+  }
+ 
+  function sendMessage() {
+    if (isTyping) return;
+    const inp = document.getElementById('promptInput');
+    const text = inp.value.trim();
+    if (!text) return;
+ 
+    addMsg('user', escHtml(text).replace(/\n/g,'<br>'));
+    inp.value = ''; inp.style.height = '';
+    document.getElementById('sendBtn').disabled = true;
+    isTyping = true;
+ 
+    addTyping();
+    const delay = 1200 + Math.random() * 1000;
+    setTimeout(() => {
+      removeTyping();
+      const resp = responses[rIdx % responses.length]; rIdx++;
+      addMsg('bot', resp);
+      document.getElementById('sendBtn').disabled = false;
+      isTyping = false;
+    }, delay);
+  }
+ 
+  function clearChat() {
+    msgs.innerHTML = `<div class="welcome-card" id="welcomeCard">
+      <div class="welcome-icon">🧠</div>
+      <h2>CorpMind — Phase 3</h2>
+      <p>Your internal AI assistant powered by a custom-trained LLM running on <strong style="color:var(--accent)">g4dn.xlarge</strong>. Queries are processed via <strong>FastAPI Microservice → API Gateway → Flask Proxy</strong>. Vector context from <strong>Redis</strong>, historical data from <strong>Snowflake</strong>.</p>
+      <div class="suggestion-chips">
+        <div class="chip" onclick="insertChip(this)">Summarize Q1 sales data</div>
+        <div class="chip" onclick="insertChip(this)">Write a SQL query for Snowflake</div>
+        <div class="chip" onclick="insertChip(this)">Explain our API gateway setup</div>
+        <div class="chip" onclick="insertChip(this)">Generate a Python data pipeline</div>
+        <div class="chip" onclick="insertChip(this)">Draft an internal memo</div>
+      </div>
+    </div>`;
+  }
+ 
+  function insertChip(el) {
+    document.getElementById('promptInput').value = el.textContent;
+    document.getElementById('promptInput').focus();
+  }
+ 
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  }
+ 
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+  }
+ 
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Active Users — Chakora Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg:         #080c14;
+      --surface:    #0d1321;
+      --card:       #111827;
+      --card-hover: #151e30;
+      --border:     rgba(255,255,255,0.07);
+      --border-lit: rgba(99,179,237,0.35);
+      --accent:     #63b3ed;
+      --accent2:    #4fd1c5;
+      --accent3:    #f6ad55;
+      --danger:     #fc8181;
+      --muted:      #4a5568;
+      --text:       #e2e8f0;
+      --text-dim:   #718096;
+      --green:      #68d391;
+      --pulse-clr:  #63b3ed;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Grid background ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(99,179,237,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,179,237,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Glow orbs ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(99,179,237,0.06); top: -150px; right: -100px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(79,209,197,0.05); bottom: -100px; left: -80px; animation-delay: -4s; }
+    .orb-3 { width: 300px; height: 300px; background: rgba(246,173,85,0.04); top: 40%; left: 40%; animation-delay: -8s; }
+
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.05); }
+    }
+
+    /* ── Layout ── */
+    .wrapper { position: relative; z-index: 1; }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: rgba(13,19,33,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .topbar-brand {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.3px;
+      color: var(--text);
+    }
+    .topbar-brand span { color: var(--accent); }
+    .topbar-meta {
+      display: flex; align-items: center; gap: 20px;
+    }
+    .live-badge {
+      display: flex; align-items: center; gap: 7px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--green);
+      background: rgba(104,211,145,0.08);
+      border: 1px solid rgba(104,211,145,0.2);
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: livepulse 1.5s ease-in-out infinite;
+    }
+    @keyframes livepulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(104,211,145,0.5); }
+      50%       { opacity: 0.6; box-shadow: 0 0 0 5px rgba(104,211,145,0); }
+    }
+    .clock {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    .btn-refresh {
+      background: rgba(99,179,237,0.1);
+      border: 1px solid var(--border-lit);
+      color: var(--accent);
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex; align-items: center; gap: 6px;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-refresh:hover {
+      background: rgba(99,179,237,0.18);
+      transform: translateY(-1px);
+    }
+    .btn-refresh.spinning i { animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Main ── */
+    .main { padding: 36px 32px; max-width: 1400px; margin: 0 auto; }
+
+    /* ── Page header ── */
+    .page-header { margin-bottom: 36px; animation: fadeUp 0.5s ease both; }
+    .page-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      line-height: 1.1;
+    }
+    .page-header h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .page-header p { color: var(--text-dim); margin-top: 8px; font-size: 14px; }
+
+    /* ── Stat cards ── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+      transition: border-color 0.3s, transform 0.3s;
+      animation: fadeUp 0.5s ease both;
+    }
+    .stat-card:hover {
+      border-color: rgba(99,179,237,0.25);
+      transform: translateY(-3px);
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      border-radius: 16px 16px 0 0;
+    }
+    .stat-card.blue::before  { background: linear-gradient(90deg, var(--accent), transparent); }
+    .stat-card.teal::before  { background: linear-gradient(90deg, var(--accent2), transparent); }
+    .stat-card.amber::before { background: linear-gradient(90deg, var(--accent3), transparent); }
+    .stat-card.red::before   { background: linear-gradient(90deg, var(--danger), transparent); }
+
+    .stat-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    .stat-card.blue  .stat-icon { background: rgba(99,179,237,0.12);  color: var(--accent); }
+    .stat-card.teal  .stat-icon { background: rgba(79,209,197,0.12);  color: var(--accent2); }
+    .stat-card.amber .stat-icon { background: rgba(246,173,85,0.12);  color: var(--accent3); }
+    .stat-card.red   .stat-icon { background: rgba(252,129,129,0.12); color: var(--danger); }
+
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1;
+      margin-bottom: 6px;
+      transition: all 0.4s;
+    }
+    .stat-card.blue  .stat-value { color: var(--accent); }
+    .stat-card.teal  .stat-value { color: var(--accent2); }
+    .stat-card.amber .stat-value { color: var(--accent3); }
+    .stat-card.red   .stat-value { color: var(--danger); }
+
+    .stat-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+    .stat-sub { font-size: 11px; color: var(--muted); margin-top: 10px; font-family: 'DM Mono', monospace; }
+
+    /* ── Panels row ── */
+    .panels { display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start; }
+    @media (max-width: 1024px) { .panels { grid-template-columns: 1fr; } }
+
+    /* ── Table panel ── */
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+    }
+    .panel-head {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+    }
+    .panel-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .panel-title i { color: var(--accent); font-size: 16px; }
+    .panel-body { padding: 0; }
+
+    /* Search bar */
+    .search-wrap {
+      position: relative;
+      width: 220px;
+    }
+    .search-wrap i {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      color: var(--text-dim); font-size: 13px; pointer-events: none;
+    }
+    .search-wrap input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      padding: 7px 12px 7px 30px;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-wrap input:focus { border-color: var(--border-lit); }
+    .search-wrap input::placeholder { color: var(--muted); }
+
+    /* Table */
+    .users-table { width: 100%; border-collapse: collapse; }
+    .users-table thead th {
+      background: rgba(255,255,255,0.03);
+      color: var(--text-dim);
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 12px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-weight: 400;
+    }
+    .users-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+      animation: rowIn 0.4s ease both;
+    }
+    .users-table tbody tr:last-child { border-bottom: none; }
+    .users-table tbody tr:hover { background: var(--card-hover); }
+    .users-table td {
+      padding: 14px 20px;
+      font-size: 13.5px;
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Avatar */
+    .avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .avatar::after {
+      content: '';
+      position: absolute;
+      bottom: 1px; right: 1px;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      border: 2px solid var(--card);
+    }
+    .user-cell { display: flex; align-items: center; gap: 12px; }
+    .user-name { font-weight: 500; }
+    .user-email { font-size: 11.5px; color: var(--text-dim); margin-top: 2px; font-family: 'DM Mono', monospace; }
+
+    /* Status pill */
+    .pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+    }
+    .pill-active { background: rgba(104,211,145,0.1); color: var(--green); border: 1px solid rgba(104,211,145,0.2); }
+    .pill-idle   { background: rgba(246,173,85,0.1);  color: var(--accent3); border: 1px solid rgba(246,173,85,0.2); }
+    .pill i { font-size: 9px; }
+
+    /* Time mono */
+    .mono { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-dim); }
+
+    /* Type badge */
+    .type-badge {
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .type-user  { background: rgba(99,179,237,0.1); color: var(--accent); border: 1px solid rgba(99,179,237,0.2); }
+    .type-admin { background: rgba(246,173,85,0.1); color: var(--accent3); border: 1px solid rgba(246,173,85,0.2); }
+
+    /* ── Side panel ── */
+    .side-panels { display: flex; flex-direction: column; gap: 20px; }
+
+    /* Activity feed */
+    .feed-list { padding: 16px 20px; display: flex; flex-direction: column; gap: 2px; }
+    .feed-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      animation: fadeUp 0.4s ease both;
+    }
+    .feed-item:last-child { border-bottom: none; }
+    .feed-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .feed-dot.in  { background: var(--green); box-shadow: 0 0 6px rgba(104,211,145,0.5); }
+    .feed-dot.out { background: var(--danger); box-shadow: 0 0 6px rgba(252,129,129,0.5); }
+    .feed-dot.view { background: var(--accent); box-shadow: 0 0 6px rgba(99,179,237,0.5); }
+    .feed-text { font-size: 12.5px; color: var(--text); line-height: 1.5; }
+    .feed-text strong { color: var(--accent); font-weight: 500; }
+    .feed-time { font-family: 'DM Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+
+    /* Mini chart */
+    .chart-wrap { padding: 20px 24px 24px; }
+    .chart-label-row {
+      display: flex; justify-content: space-between;
+      font-size: 10.5px; color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+      margin-bottom: 8px;
+    }
+    .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; }
+    .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bar {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      background: rgba(99,179,237,0.2);
+      border-top: 2px solid var(--accent);
+      transition: height 0.8s cubic-bezier(0.34,1.56,0.64,1), background 0.2s;
+      cursor: pointer;
+      position: relative;
+    }
+    .bar.current {
+      background: rgba(99,179,237,0.35);
+      border-top-color: var(--accent2);
+    }
+    .bar:hover { background: rgba(99,179,237,0.45); }
+    .bar-label { font-size: 9px; font-family: 'DM Mono', monospace; color: var(--muted); }
+
+    /* ── Empty state ── */
+    .empty-state {
+      padding: 60px 20px;
+      text-align: center;
+    }
+    .empty-state i { font-size: 40px; color: var(--muted); display: block; margin-bottom: 12px; }
+    .empty-state p { color: var(--text-dim); font-size: 13px; }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.10s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.20s; }
+    .panel:nth-child(1) { animation-delay: 0.25s; }
+    .panel:nth-child(2) { animation-delay: 0.30s; }
+
+    /* counter animation */
+    .count-up { display: inline-block; }
+
+    /* ── Toast ── */
+    .toast-container {
+      position: fixed; bottom: 24px; right: 24px;
+      z-index: 999; display: flex; flex-direction: column; gap: 10px;
+    }
+    .toast-msg {
+      background: var(--card);
+      border: 1px solid var(--border-lit);
+      color: var(--text);
+      font-size: 13px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      display: flex; align-items: center; gap: 10px;
+      animation: slideIn 0.3s ease;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    .toast-msg i { color: var(--accent2); }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 3px; }
+
+    /* ── Pagination ── */
+    .pagination-wrap {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .page-info { font-size: 12px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+    .page-btns { display: flex; gap: 6px; }
+    .page-btn {
+      width: 30px; height: 30px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-dim);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .page-btn:hover, .page-btn.active {
+      background: rgba(99,179,237,0.1);
+      border-color: var(--border-lit);
+      color: var(--accent);
+    }
+    .page-btn:disabled { opacity: 0.3; pointer-events: none; }
+
+    /* Table overflow */
+    .table-scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+
+<!-- Background orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="wrapper">
+
+  <!-- ── Top bar ── -->
+  <header class="topbar">
+    <div class="topbar-brand">chakora<span>.</span>admin</div>
+    <div class="topbar-meta">
+      <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+      <div class="clock" id="clock">--:--:--</div>
+      <button class="btn-refresh" id="refreshBtn" onclick="refreshData()">
+        <i class="bi bi-arrow-clockwise" id="refreshIcon"></i> Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <h1>Active User <em>Monitor</em></h1>
+      <p>Real-time view of users currently logged in to your platform · Auto-refreshes every 60s</p>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+      <div class="stat-card blue">
+        <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+        <div class="stat-value count-up" data-target="0" id="totalActive">0</div>
+        <div class="stat-label">Total Active Users</div>
+        <div class="stat-sub" id="totalSub">Loading…</div>
+      </div>
+      <div class="stat-card teal">
+        <div class="stat-icon"><i class="bi bi-person-check-fill"></i></div>
+        <div class="stat-value count-up" data-target="0" id="userCount">0</div>
+        <div class="stat-label">Regular Users</div>
+        <div class="stat-sub" id="userSub">Loading…</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-icon"><i class="bi bi-person-badge-fill"></i></div>
+        <div class="stat-value count-up" data-target="0" id="empCount">0</div>
+        <div class="stat-label">Employees Online</div>
+        <div class="stat-sub" id="empSub">Loading…</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon"><i class="bi bi-clock-history"></i></div>
+        <div class="stat-value" id="peakTime" style="font-size:22px; padding-top:6px">--:--</div>
+        <div class="stat-label">Last Refresh</div>
+        <div class="stat-sub" id="lastRefreshSub">Never</div>
+      </div>
+    </div>
+
+    <!-- Main panels -->
+    <div class="panels">
+
+      <!-- ── User table ── -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <i class="bi bi-person-lines-fill"></i>
+            Active Sessions
+            <span id="tableBadge" style="font-family:'DM Mono',monospace; font-size:11px; color:var(--text-dim); font-weight:400;"></span>
+          </div>
+          <div class="search-wrap">
+            <i class="bi bi-search"></i>
+            <input type="text" id="searchInput" placeholder="Search user…" oninput="filterTable()">
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="table-scroll">
+            <table class="users-table" id="usersTable">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Type</th>
+                  <th>Login time</th>
+                  <th>Duration</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="usersBody">
+                <tr><td colspan="5"><div class="empty-state"><i class="bi bi-hourglass-split"></i><p>Loading active users…</p></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination-wrap">
+            <div class="page-info" id="pageInfo">— of — entries</div>
+            <div class="page-btns">
+              <button class="page-btn" id="prevBtn" onclick="changePage(-1)" disabled><i class="bi bi-chevron-left"></i></button>
+              <button class="page-btn active" id="pageNum">1</button>
+              <button class="page-btn" id="nextBtn" onclick="changePage(1)" disabled><i class="bi bi-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Side panels ── -->
+      <div class="side-panels">
+
+        <!-- Hourly mini chart -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><i class="bi bi-bar-chart-line-fill"></i> Hourly Activity</div>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-label-row">
+              <span>Users</span><span id="chartPeak">Peak: —</span>
+            </div>
+            <div class="bar-chart" id="barChart"></div>
+            <div style="display:flex; gap:6px; margin-top:4px;" id="barLabels"></div>
+          </div>
+        </div>
+
+        <!-- Live activity feed -->
+        <div class="panel" style="animation-delay:0.35s">
+          <div class="panel-head">
+            <div class="panel-title"><i class="bi bi-activity"></i> Live Activity</div>
+            <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+          </div>
+          <div class="feed-list" id="feedList">
+            <div class="empty-state" style="padding:30px 0"><i class="bi bi-reception-0"></i><p>Waiting for activity…</p></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  /* ── Config ── */
+  const HOME_SERVICE_URL = ""; // same-origin proxy — set your base URL if needed
+  const PAGE_SIZE = 8;
+  const AVATAR_COLORS = [
+    ["#3b3f6e","#a3bffa"], ["#1a4b3a","#68d391"],
+    ["#4a2c1a","#f6ad55"], ["#3d1a4a","#d6bcfa"],
+    ["#1a3a4a","#63b3ed"], ["#4a1a2c","#fc8181"],
+  ];
+
+  /* ── State ── */
+  let allUsers = [], filtered = [], currentPage = 1, refreshTimer;
+
+  /* ── Clock ── */
+  function updateClock() {
+    document.getElementById("clock").textContent =
+      new Date().toLocaleTimeString("en-IN", { hour12: false });
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  /* ── Initials / avatar ── */
+  function initials(name) {
+    if (!name) return "?";
+    const p = name.trim().split(" ");
+    return (p[0][0] + (p[1] ? p[1][0] : "")).toUpperCase();
+  }
+  function avatarColor(name) {
+    let h = 0;
+    for (let c of (name || "X")) h = (h * 31 + c.charCodeAt(0)) & 0xffffffff;
+    const [bg, fg] = AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+    return { bg, fg };
+  }
+
+  /* ── Duration ── */
+  function duration(loginStr) {
+    if (!loginStr) return "—";
+    const diff = Math.floor((Date.now() - new Date(loginStr)) / 1000);
+    if (diff < 60)  return `${diff}s`;
+    if (diff < 3600) return `${Math.floor(diff/60)}m ${diff%60}s`;
+    return `${Math.floor(diff/3600)}h ${Math.floor((diff%3600)/60)}m`;
+  }
+
+  /* ── Format login time ── */
+  function fmtTime(str) {
+    if (!str) return "—";
+    return new Date(str).toLocaleTimeString("en-IN", { hour12: true, hour:"2-digit", minute:"2-digit" });
+  }
+
+  /* ── Status ── */
+  function status(mins) {
+    if (mins === null || mins === undefined) return '<span class="pill pill-active"><i class="bi bi-circle-fill"></i> Active</span>';
+    if (mins < 15) return '<span class="pill pill-active"><i class="bi bi-circle-fill"></i> Active</span>';
+    return '<span class="pill pill-idle"><i class="bi bi-circle-fill"></i> Idle</span>';
+  }
+
+  /* ── Render table ── */
+  function renderTable() {
+    const body = document.getElementById("usersBody");
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const page  = filtered.slice(start, start + PAGE_SIZE);
+    document.getElementById("tableBadge").textContent = `(${filtered.length})`;
+    document.getElementById("pageInfo").textContent =
+      filtered.length ? `${start+1}–${Math.min(start+PAGE_SIZE, filtered.length)} of ${filtered.length}` : "0 entries";
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    document.getElementById("pageNum").textContent = currentPage;
+    document.getElementById("prevBtn").disabled = currentPage <= 1;
+    document.getElementById("nextBtn").disabled = currentPage >= totalPages;
+
+    if (!page.length) {
+      body.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="bi bi-person-x"></i><p>No active users found</p></div></td></tr>`;
+      return;
+    }
+
+    body.innerHTML = page.map((u, i) => {
+      const name  = u.name || u.full_name || u.email || "Unknown";
+      const email = u.email || "—";
+      const ini   = initials(name);
+      const ac    = avatarColor(name);
+      const type  = u.type || "user";
+      const mins  = u.minutes_since_login;
+      const delay = i * 0.04;
+      return `<tr style="animation-delay:${delay}s">
+        <td>
+          <div class="user-cell">
+            <div class="avatar" style="background:${ac.bg}; color:${ac.fg}">${ini}</div>
+            <div>
+              <div class="user-name">${name}</div>
+              <div class="user-email">${email}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="type-badge ${type === 'admin' ? 'type-admin' : 'type-user'}">${type}</span></td>
+        <td class="mono">${fmtTime(u.last_login)}</td>
+        <td class="mono">${duration(u.last_login)}</td>
+        <td>${status(mins)}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  function filterTable() {
+    const q = document.getElementById("searchInput").value.toLowerCase();
+    filtered = q
+      ? allUsers.filter(u =>
+          (u.name || u.full_name || "").toLowerCase().includes(q) ||
+          (u.email || "").toLowerCase().includes(q))
+      : [...allUsers];
+    currentPage = 1;
+    renderTable();
+  }
+
+  function changePage(d) {
+    const total = Math.ceil(filtered.length / PAGE_SIZE);
+    currentPage = Math.max(1, Math.min(currentPage + d, total));
+    renderTable();
+  }
+
+  /* ── Count-up animation ── */
+  function countUp(el, target, duration = 800) {
+    const start = parseInt(el.textContent) || 0;
+    if (start === target) return;
+    const step = (target - start) / (duration / 16);
+    let cur = start;
+    const t = setInterval(() => {
+      cur += step;
+      const done = step > 0 ? cur >= target : cur <= target;
+      el.textContent = done ? target : Math.round(cur);
+      if (done) clearInterval(t);
+    }, 16);
+  }
+
+  /* ── Hourly chart ── */
+  const HOURS = ["6a","7a","8a","9a","10a","11a","12p","1p","2p","3p","4p","5p","6p","7p","8p","9p","10p"];
+  function renderChart(peak) {
+    const now = new Date().getHours();
+    const vals = HOURS.map((_, i) => {
+      const h = 6 + i;
+      const base = Math.max(0, peak * Math.sin(Math.PI * (h - 6) / 16));
+      return Math.round(base * (0.7 + Math.random() * 0.3));
+    });
+    const maxV = Math.max(...vals, 1);
+    document.getElementById("chartPeak").textContent = `Peak: ${Math.max(...vals)}`;
+
+    const chart  = document.getElementById("barChart");
+    const labels = document.getElementById("barLabels");
+    chart.innerHTML  = "";
+    labels.innerHTML = "";
+
+    HOURS.forEach((lbl, i) => {
+      const h = 6 + i;
+      const pct = Math.round((vals[i] / maxV) * 100);
+      const isCur = (h === now);
+
+      const wrap = document.createElement("div");
+      wrap.className = "bar-wrap";
+      const bar = document.createElement("div");
+      bar.className = `bar${isCur ? " current" : ""}`;
+      bar.style.height = "0px";
+      bar.title = `${lbl}: ${vals[i]} users`;
+      setTimeout(() => { bar.style.height = `${pct * 0.76}px`; }, 100 + i * 40);
+      wrap.appendChild(bar);
+      chart.appendChild(wrap);
+
+      const span = document.createElement("span");
+      span.className = "bar-label";
+      span.style.flex = "1";
+      span.style.textAlign = "center";
+      span.textContent = isCur ? "now" : lbl;
+      span.style.color = isCur ? "var(--accent)" : "";
+      labels.appendChild(span);
+    });
+  }
+
+  /* ── Activity feed ── */
+  const feedItems = [];
+  function addFeedItem(type, text) {
+    feedItems.unshift({ type, text, time: new Date().toLocaleTimeString("en-IN", { hour12:true, hour:"2-digit", minute:"2-digit", second:"2-digit" }) });
+    if (feedItems.length > 8) feedItems.pop();
+    renderFeed();
+  }
+  function renderFeed() {
+    const el = document.getElementById("feedList");
+    if (!feedItems.length) return;
+    el.innerHTML = feedItems.map(f => `
+      <div class="feed-item">
+        <div class="feed-dot ${f.type}"></div>
+        <div>
+          <div class="feed-text">${f.text}</div>
+          <div class="feed-time">${f.time}</div>
+        </div>
+      </div>`).join("");
+  }
+
+  /* ── Toast ── */
+  function showToast(msg) {
+    const el = document.createElement("div");
+    el.className = "toast-msg";
+    el.innerHTML = `<i class="bi bi-check2-circle"></i> ${msg}`;
+    document.getElementById("toastContainer").appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+
+  /* ── Main fetch ── */
+  async function fetchActiveUsers() {
+    try {
+      const res = await fetch(`${HOME_SERVICE_URL}/home/active-users`, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      const total    = (data.active_user_count || 0) + (data.active_employee_count || 0);
+      const users    = data.active_user_count    || 0;
+      const emps     = data.active_employee_count || 0;
+      const userList = data.active_users          || [];
+
+      countUp(document.getElementById("totalActive"), total);
+      countUp(document.getElementById("userCount"),   users);
+      countUp(document.getElementById("empCount"),    emps);
+
+      const now = new Date();
+      document.getElementById("peakTime").textContent =
+        now.toLocaleTimeString("en-IN", { hour12: true, hour:"2-digit", minute:"2-digit" });
+      document.getElementById("lastRefreshSub").textContent =
+        `Updated ${now.toLocaleTimeString("en-IN", { hour12:true, hour:"2-digit", minute:"2-digit", second:"2-digit" })}`;
+
+      document.getElementById("totalSub").textContent = `${users} users · ${emps} employees`;
+      document.getElementById("userSub").textContent  = `${users} currently online`;
+      document.getElementById("empSub").textContent   = `${emps} employees online`;
+
+      allUsers  = userList;
+      filtered  = [...userList];
+      renderTable();
+      renderChart(Math.max(total + 4, 12));
+
+      // Feed
+      if (userList.length) {
+        const u = userList[0];
+        const n = u.name || u.email || "A user";
+        addFeedItem("view", `<strong>${n}</strong> is viewing the platform`);
+      }
+      addFeedItem("in", `Data refreshed — <strong>${total}</strong> active sessions`);
+
+      return true;
+    } catch (err) {
+      console.error("Fetch error:", err);
+      addFeedItem("out", `<strong>Fetch failed:</strong> ${err.message}`);
+      // ── Demo / fallback data so the page still looks great ──
+      loadDemo();
+      return false;
+    }
+  }
+
+  /* ── Demo fallback ── */
+  function loadDemo() {
+    const demoUsers = [
+      { name: "Ananya Reddy",    email: "ananya.r@example.com",    last_login: new Date(Date.now()-4*60000).toISOString(),  minutes_since_login: 4,  type: "user"  },
+      { name: "Vikram Sharma",   email: "vikram.s@example.com",    last_login: new Date(Date.now()-12*60000).toISOString(), minutes_since_login: 12, type: "user"  },
+      { name: "Priya Nair",      email: "priya.n@example.com",     last_login: new Date(Date.now()-2*60000).toISOString(),  minutes_since_login: 2,  type: "admin" },
+      { name: "Rahul Gupta",     email: "rahul.g@example.com",     last_login: new Date(Date.now()-25*60000).toISOString(), minutes_since_login: 25, type: "user"  },
+      { name: "Deepa Iyer",      email: "deepa.i@example.com",     last_login: new Date(Date.now()-7*60000).toISOString(),  minutes_since_login: 7,  type: "user"  },
+      { name: "Arjun Mehta",     email: "arjun.m@example.com",     last_login: new Date(Date.now()-18*60000).toISOString(), minutes_since_login: 18, type: "user"  },
+      { name: "Sita Krishnan",   email: "sita.k@example.com",      last_login: new Date(Date.now()-1*60000).toISOString(),  minutes_since_login: 1,  type: "user"  },
+      { name: "Mohan Das",       email: "mohan.d@example.com",     last_login: new Date(Date.now()-40*60000).toISOString(), minutes_since_login: 40, type: "user"  },
+      { name: "Lakshmi Rao",     email: "lakshmi.r@example.com",   last_login: new Date(Date.now()-5*60000).toISOString(),  minutes_since_login: 5,  type: "user"  },
+      { name: "Suresh Pillai",   email: "suresh.p@example.com",    last_login: new Date(Date.now()-9*60000).toISOString(),  minutes_since_login: 9,  type: "user"  },
+    ];
+    const total = demoUsers.length, users = demoUsers.filter(u => u.type !== "admin").length, emps = 0;
+
+    countUp(document.getElementById("totalActive"), total);
+    countUp(document.getElementById("userCount"),   users);
+    countUp(document.getElementById("empCount"),    emps);
+    document.getElementById("totalSub").textContent  = `${users} users · ${emps} employees`;
+    document.getElementById("userSub").textContent   = `Demo mode`;
+    document.getElementById("empSub").textContent    = `No employees online`;
+    const now = new Date();
+    document.getElementById("peakTime").textContent  = now.toLocaleTimeString("en-IN",{hour12:true,hour:"2-digit",minute:"2-digit"});
+    document.getElementById("lastRefreshSub").textContent = `Demo data (API offline)`;
+
+    allUsers = demoUsers; filtered = [...demoUsers];
+    renderTable();
+    renderChart(total);
+
+    demoUsers.slice(0,3).forEach(u => addFeedItem("in", `<strong>${u.name}</strong> logged in`));
+    addFeedItem("view", "Running in demo mode — API not reachable");
+  }
+
+  /* ── Refresh ── */
+  async function refreshData() {
+    const btn  = document.getElementById("refreshBtn");
+    const icon = document.getElementById("refreshIcon");
+    btn.disabled = true;
+    icon.parentElement.classList.add("spinning");
+
+    const ok = await fetchActiveUsers();
+    if (ok) showToast("Data refreshed successfully");
+
+    btn.disabled = false;
+    icon.parentElement.classList.remove("spinning");
+
+    clearInterval(refreshTimer);
+    refreshTimer = setInterval(fetchActiveUsers, 60000);
+  }
+
+  /* ── Boot ── */
+  window.addEventListener("DOMContentLoaded", () => {
+    fetchActiveUsers();
+    refreshTimer = setInterval(fetchActiveUsers, 60000);
+
+    // Simulate live feed ticks
+    const actions = [
+      () => addFeedItem("view", "<strong>Someone</strong> opened the resources page"),
+      () => addFeedItem("in",   "New session started"),
+      () => addFeedItem("out",  "A session expired due to inactivity"),
+    ];
+    setInterval(() => {
+      actions[Math.floor(Math.random() * actions.length)]();
+    }, 18000);
+  });
+</script>
+</body>
+</html>

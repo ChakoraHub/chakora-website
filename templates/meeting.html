@@ -1,735 +1,1400 @@
+<!--New version -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Meeting Session - ChakoraHub</title>
+    <title>Meeting Intelligence - ChakoraHub</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
-.feedback-wrapper {
-  width: 600px;
-  height: 80px;
-  overflow: hidden;
-  position: relative;
-  margin: 40px auto;
-  background: #f4f8ff;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
+        :root {
+            --primary:       #667eea;
+            --secondary:     #764ba2;
+            --success:       #10b981;
+            --danger:        #ef4444;
+            --warning:       #f59e0b;
+            --info:          #3b82f6;
+            --primary-dim:   rgba(102,126,234,0.15);
+            --primary-mid:   rgba(102,126,234,0.40);
+            --secondary-dim: rgba(118,75,162,0.15);
+            --surface:       rgba(255,255,255,0.07);
+            --surface-light: rgba(255,255,255,0.12);
+            --border-glass:  rgba(255,255,255,0.18);
+            --border-soft:   rgba(102,126,234,0.25);
+            --shadow-deep:   0 8px 40px rgba(0,0,0,0.35);
+            --glow-primary:  0 0 28px rgba(102,126,234,0.22);
+            --glow-success:  0 0 24px rgba(16,185,129,0.2);
+        }
 
-.feedback-track {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-.feedback-item {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  background: white;
-  border-radius: 10px;
-}
-
-.feedback-line {
-  width: 6px;
-  height: 60%;
-  background: #0078D7;
-  border-radius: 4px;
-  margin-left: 20px;
-  flex-shrink: 0;
-}
-
-.feedback-content {
-  margin-left: 20px;
-  font-size: 18px;
-  font-style: italic;
-  color: #003366;
-  animation: slideFeedback 9s linear infinite;
-  opacity: 0;
-}
-
-.feedback-item:nth-child(1) {
-  animation-delay: 0s;
-}
-
-.feedback-item:nth-child(2) {
-  animation-delay: 3s;
-}
-
-.feedback-item:nth-child(3) {
-  animation-delay: 6s;
-}
-        
-@keyframes slideFeedback {
-  0% {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  10% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  30% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  40% {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-}
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
-            background: linear-gradient(135deg,#667eea,#764ba2);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1040 0%, #2d1b6e 35%, #4a2080 65%, #3b1878 100%);
             min-height: 100vh;
-            padding: 20px;
-        }
-        .header-original {
-            background: linear-gradient(135deg,#667eea,#764ba2);
-            padding: 20px;
-            border-radius: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-        .header-original img { height: 90px; }
-        .profile-wrapper { position: relative; cursor: pointer; }
-        .profile-pic {
-            width: 45px; height: 45px; border-radius: 50%;
-            border: 2px solid white; object-fit: cover;
-        }
-        .dropdown-menu {
-            display: none; position: absolute; top: 55px; right: 0;
-            background-color: white; color: black;
-            border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-            z-index: 1000; min-width: 160px;
-        }
-        .dropdown-menu a {
-            padding: 10px 15px; display: block;
-            text-decoration: none; color: #333; font-weight: 500;
-            border-bottom: 1px solid #eee;
-        }
-        .dropdown-menu a:hover { background-color: #f0f0f0; }
-        .container { max-width: 1200px; margin: auto; background: white; border-radius: 20px; padding-bottom: 30px; }
-        .header { background: linear-gradient(135deg,#667eea,#764ba2); color: white; padding: 30px; text-align: center; border-radius: 20px 20px 0 0; }
-        .user-info { background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 10px; display: inline-block; margin-top: 10px; }
-        .content { padding: 40px; }
-        
-        .form-section { background: #f8f9fa; padding: 25px; border-radius: 15px; }
-        .booking-form { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { font-weight: bold; display: block; margin-bottom: 8px; }
-        .form-group input, select, textarea { 
-            width: 100%; padding: 12px; border-radius: 8px; 
-            border: 2px solid #ddd; font-size: 1rem; 
-            font-family: inherit;
-        }
-        .form-group textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-        .form-group .char-counter {
-            font-size: 0.85rem;
-            color: #666;
-            text-align: right;
-            margin-top: 4px;
-        }
-        
-        .employee-selector {
+            padding: 28px 0 48px;
+            overflow-x: hidden;
             position: relative;
         }
-        .employee-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-        .employee-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        .autocomplete-dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 2px solid #667eea;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .autocomplete-dropdown.show {
-            display: block;
-        }
-        .autocomplete-item {
-            padding: 10px 12px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-        }
-        .autocomplete-item:hover {
-            background: #f0f0f0;
-        }
-        .autocomplete-item:last-child {
-            border-bottom: none;
-        }
-        .autocomplete-item.no-results {
-            color: #999;
-            cursor: default;
-        }
-        .autocomplete-item.no-results:hover {
-            background: white;
-        }
-        
-        .selected-employees {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-            min-height: 40px;
-            padding: 8px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-        .employee-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #667eea;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-        }
-        .employee-chip .remove-btn {
-            cursor: pointer;
-            font-weight: bold;
-            margin-left: 4px;
-            font-size: 1.1rem;
-        }
-        .employee-chip .remove-btn:hover {
-            color: #ffcccc;
-        }
-        .employee-count {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 4px;
-        }
-        
-        .slots-grid {
-            background: white; padding: 15px; border-radius: 10px; max-height: 300px; overflow-y: auto;
-            display: grid; grid-template-columns: repeat(auto-fill,minmax(90px,1fr)); gap: 10px;
-        }
-        .slot-button {
-            padding: 12px; border: 2px solid #ddd; background: white; border-radius: 8px;
-            cursor: pointer; transition: 0.2s;
-        }
-        .slot-button.selected { background: #667eea; color: white; border-color: #667eea; }
-        .slot-button:disabled { opacity: 0.5; cursor: not-allowed; background: #f5f5f5; }
-        
-        .price-display { 
-            padding: 25px; border-radius: 15px; 
-            background: linear-gradient(135deg,#ffd89b,#19547b); 
-            color: white; text-align: center; font-size: 1.2rem; 
-        }
-        
-        .ml-section {
-            background: #e8f4f8;
-            border-left: 4px solid #2196F3;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            display: none;
-        }
-        .ml-section.show {
-            display: block;
-        }
-        .ml-section h3 {
-            color: #1976D2;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .ml-section .info-badge {
-            background: #2196F3;
-            color: white;
-            font-size: 0.75rem;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-weight: normal;
-        }
-        
-        .btn { padding: 15px 35px; border-radius: 10px; cursor: pointer; border: none; font-size: 1rem; }
-        .btn-primary { background: #667eea; color: white; }
-        .btn-primary:hover { background: #5568d3; }
-        .btn-home {
-            background: #3949ab; color: white; margin-left: 15px; padding: 15px 35px; border-radius: 10px;
-            text-decoration: none; display: inline-block;
-        }
-        .btn-home:hover { background: #2c378a; }
-        .button-row { text-align: center; margin-top: 25px; }
-        .alert { padding: 15px; border-radius: 10px; display: none; margin-bottom: 20px; }
-        .alert.show { display: block; }
-        .alert.error { background: #f8d7da; color: #721c24; }
-        .alert.success { background: #d4edda; color: #155724; }
-        
-        /* LOGIN MODAL - RESTORED */
-        #loginModal { 
-            position: fixed; 
-            inset: 0; 
-            background: rgba(0,0,0,0.6); 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            z-index: 10000; 
-        }
-        
-        #loginBox { 
-            background: white; 
-            width: 360px; 
-            padding: 30px; 
-            border-radius: 12px; 
-            text-align: center; 
-        }
-        
-        #loginBox input { 
-            width: 100%; 
-            padding: 16px; 
-            margin: 12px 0; 
-            font-size: 1.1rem; 
-            border-radius: 10px; 
-            border: 2px solid #ccc; 
-        }
-        
-        .required::after {
-            content: " *";
-            color: #d32f2f;
+
+        body.pre-identity {
+            height: 100vh;
+            overflow: hidden;
+            padding: 20px 0;
         }
 
-        /* OFFCANVAS CUSTOMIZATION */
-        .offcanvas {
-            width: 400px !important;
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 0;
         }
-        .offcanvas-header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(110px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-orb-1 {
+            width: 650px; height: 650px;
+            background: radial-gradient(circle, #667eea 0%, #764ba2 60%, transparent 100%);
+            top: -220px; right: -160px;
+            opacity: 0.22;
+            animation: orbFloat1 18s ease-in-out infinite alternate;
+        }
+        .bg-orb-2 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, #764ba2 0%, #667eea 50%, transparent 100%);
+            bottom: -150px; left: -120px;
+            opacity: 0.18;
+            animation: orbFloat2 22s ease-in-out infinite alternate;
+        }
+        .bg-orb-3 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, #10b981 0%, transparent 70%);
+            top: 45%; left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.07;
+            animation: orbFloat1 28s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes orbFloat1 {
+            from { transform: translate(0, 0) scale(1); }
+            to   { transform: translate(30px, 20px) scale(1.06); }
+        }
+        @keyframes orbFloat2 {
+            from { transform: translate(0, 0) scale(1); }
+            to   { transform: translate(-20px, -30px) scale(1.08); }
+        }
+
+        .container { position: relative; z-index: 1; }
+
+        .main-container {
+            max-width: 1400px;
+            margin: auto;
+            background: rgba(255,255,255,0.94);
+            border-radius: 24px;
+            box-shadow: var(--shadow-deep), 0 0 0 1px var(--border-glass);
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        body.pre-identity .main-container {
+            max-height: calc(100vh - 40px);
+        }
+
+        .page-header {
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(102,126,234,0.6) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(118,75,162,0.5) 0%, transparent 55%),
+                linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            padding: 44px 40px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        .offcanvas-body {
-            background: #f8f9fa;
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
         }
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #dee2e6;
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.2);
+        }
+
+        .brand-highlight {
+            background: linear-gradient(135deg, #fff 0%, #e8d5ff 50%, #c4b5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            letter-spacing: 1px;
+            filter: drop-shadow(0 2px 8px rgba(255,255,255,0.35));
+        }
+
+        .header-subtitle {
+            font-size: 1rem;
+            opacity: 0.88;
+            margin-top: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .user-info {
+            background: rgba(255,255,255,0.18);
+            padding: 10px 22px;
+            border-radius: 25px;
+            display: inline-block;
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.32);
+            margin-top: 18px;
             font-size: 0.95rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.12);
         }
-        .summary-row:last-child {
-            border-bottom: none;
+
+        .content { padding: 44px 40px; }
+
+        #step-identity {
+            max-width: 540px;
+            margin: 10px auto 0;
+            text-align: center;
         }
-        .summary-label {
-            font-weight: 600;
+
+        .identity-card {
+            background: linear-gradient(145deg,
+                rgba(102,126,234,0.06) 0%,
+                rgba(255,255,255,0.95) 40%,
+                rgba(118,75,162,0.05) 100%);
+            border-radius: 22px;
+            padding: 44px 38px;
+            box-shadow: 0 4px 24px rgba(102,126,234,0.14), 0 0 0 1px var(--border-soft);
+            border: 1px solid rgba(102,126,234,0.18);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .identity-card::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 180px; height: 180px;
+            background: radial-gradient(circle, rgba(102,126,234,0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .identity-icon {
+            width: 70px; height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 22px;
+            font-size: 1.85rem;
+            color: white;
+            box-shadow: var(--glow-primary), 0 4px 16px rgba(102,126,234,0.4);
+        }
+
+        .identity-card h2 {
+            font-size: 1.45rem; font-weight: 700;
+            color: #2c3e50; margin-bottom: 8px;
+        }
+
+        .identity-card p {
+            color: #6c757d; font-size: 0.95rem; margin-bottom: 28px; line-height: 1.6;
+        }
+
+        .identity-input-wrap { position: relative; }
+
+        .identity-input-wrap .bi {
+            position: absolute; left: 16px; top: 50%;
+            transform: translateY(-50%);
+            color: #aaa; font-size: 1.1rem; pointer-events: none;
+        }
+
+        #identityInput {
+            width: 100%;
+            padding: 15px 18px 15px 44px;
+            border-radius: 12px;
+            border: 2px solid rgba(102,126,234,0.25);
+            font-size: 1rem; font-family: inherit;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.9);
+        }
+
+        #identityInput:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.16);
+            background: white;
+        }
+
+        #identifyBtn {
+            width: 100%; margin-top: 16px; padding: 15px;
+            border-radius: 12px; border: none;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; font-size: 1.05rem; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 18px rgba(102,126,234,0.38);
+            position: relative; overflow: hidden;
+        }
+
+        #identifyBtn::before {
+            content: '';
+            position: absolute; top: 0; left: -100%;
+            width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        #identifyBtn:hover::before { left: 150%; }
+
+        #identifyBtn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 26px rgba(102,126,234,0.5);
+        }
+        #identifyBtn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+        .reveal-step {
+            display: none;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .reveal-step.visible {
+            opacity: 1;
+            pointer-events: auto;
+            animation: revealUp 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        #bookingForm.reveal-step.visible,
+        #postBookingReason.reveal-step.visible {
+            display: block;
+        }
+
+        .step-divider.reveal-step.visible {
+            display: flex;
+        }
+
+        @keyframes revealUp {
+            from { opacity: 0; transform: translateY(36px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-divider {
+            display: flex; align-items: center; gap: 14px;
+            margin: 36px 0 22px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .step-divider.visible { opacity: 1; }
+
+        .step-divider hr {
+            flex: 1;
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(102,126,234,0.3), transparent);
+            margin: 0;
+        }
+
+        .step-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; font-size: 0.78rem; font-weight: 700;
+            padding: 6px 16px; border-radius: 20px;
+            white-space: nowrap; letter-spacing: 0.5px;
+            box-shadow: 0 2px 10px rgba(102,126,234,0.3);
+        }
+
+        #userTypePill {
+            display: none; margin: 0 auto 10px;
+            width: fit-content; padding: 6px 22px; border-radius: 20px;
+            font-size: 0.85rem; font-weight: 700; letter-spacing: 0.4px;
+        }
+        .pill-existing {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46; border: 1px solid #6ee7b7;
+            box-shadow: 0 2px 8px rgba(16,185,129,0.2);
+        }
+        .pill-new {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1e3a8a; border: 1px solid #93c5fd;
+            box-shadow: 0 2px 8px rgba(59,130,246,0.2);
+        }
+
+        .ml-section {
+            background: linear-gradient(135deg,
+                rgba(33,150,243,0.08) 0%,
+                rgba(25,118,210,0.05) 100%);
+            border-left: 4px solid #2196F3;
+            border: 1px solid rgba(33,150,243,0.2);
+            border-left: 5px solid #2196F3;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 28px;
+            display: none;
+            box-shadow: 0 4px 16px rgba(33,150,243,0.1), inset 0 1px 0 rgba(255,255,255,0.5);
+        }
+        .ml-section.show { display: block; }
+
+        .ml-section h3 {
+            color: #1565C0; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 10px; font-size: 1.15rem;
+        }
+
+        .info-badge {
+            background: linear-gradient(135deg, #2196F3, #1565C0);
+            color: white; font-size: 0.73rem;
+            padding: 4px 12px; border-radius: 15px; font-weight: 600;
+            box-shadow: 0 2px 8px rgba(33,150,243,0.3);
+        }
+
+        .booking-form { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+
+        .form-section {
+            background: linear-gradient(145deg,
+                rgba(102,126,234,0.04) 0%,
+                #f8f9fa 30%,
+                rgba(118,75,162,0.03) 100%);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.07), 0 0 0 1px rgba(102,126,234,0.12);
+            border: 1px solid rgba(102,126,234,0.14);
+            position: relative; overflow: hidden;
+        }
+
+        .form-section::before {
+            content: '';
+            position: absolute; top: 0; right: 0;
+            width: 80px; height: 80px;
+            background: radial-gradient(circle at top right, rgba(102,126,234,0.10), transparent 70%);
+            pointer-events: none;
+        }
+
+        .section-title {
+            font-size: 1.25rem; font-weight: 700; color: var(--primary);
+            margin-bottom: 24px; padding-bottom: 12px;
+            border-bottom: 2px solid;
+            border-image: linear-gradient(90deg, var(--primary), var(--secondary), transparent) 1;
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .form-group { margin-bottom: 24px; }
+
+        .form-group label {
+            font-weight: 600; color: #2c3e50;
+            display: flex; align-items: center; gap: 5px; margin-bottom: 10px;
+        }
+        .required::after { content: " *"; color: #ef4444; font-weight: 700; }
+
+        .form-control, .form-select, textarea {
+            width: 100%; padding: 13px 18px;
+            border-radius: 12px;
+            border: 1.5px solid rgba(102,126,234,0.22);
+            font-size: 1rem; font-family: inherit;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.9);
+        }
+        .form-control:focus, .form-select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.14);
+            background: white;
+        }
+        textarea { min-height: 120px; resize: vertical; }
+
+        .char-counter {
+            font-size: 0.85rem; color: #6c757d;
+            text-align: right; margin-top: 6px; font-weight: 500;
+        }
+
+        .slots-grid {
+            background: rgba(255,255,255,0.85); padding: 18px; border-radius: 14px;
+            max-height: 330px; overflow-y: auto;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px;
+            border: 1.5px solid rgba(102,126,234,0.18);
+        }
+
+        .slot-button {
+            padding: 13px; border: 1.5px solid rgba(102,126,234,0.2);
+            background: white; border-radius: 11px; cursor: pointer;
+            transition: all 0.25s ease; font-weight: 600; font-size: 0.9rem;
             color: #495057;
         }
-        .summary-value {
-            color: #212529;
+        .slot-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.06));
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(102,126,234,0.18);
         }
-        .summary-total {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #667eea;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px solid #667eea;
+        .slot-button.selected {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; border-color: var(--primary);
+            box-shadow: var(--glow-primary);
         }
-        .checkout-section {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .checkout-section h6 {
-            color: #667eea;
-            font-weight: 700;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #e9ecef;
-            padding-bottom: 8px;
+        .slot-button:disabled { opacity: 0.35; cursor: not-allowed; background: #f5f5f5; }
+
+        /* AI-suggested slot — gold highlight with a badge */
+        .slot-button.suggested {
+            background: linear-gradient(135deg, #fff8e1, #fffde7);
+    border: 2px solid #f59e0b;
+    color: #92400e;
+    font-weight: 700;
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.20);
+    position: relative;        /* needed so ::after badge can anchor to it */
+}
+.slot-button.suggested::after {
+    content: '✦ AI';
+    position: absolute;
+    top: -9px; right: 4px;
+    background: #f59e0b;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 6px;
+}
+
+/* Non-suggested slots fade out when AI has picked one */
+.slot-button.dimmed {
+    opacity: 0.35;
+    filter: grayscale(40%);
+    pointer-events: auto;      /* still clickable — user can override AI */
+}   
+/* AI-locked complexity & duration selects */
+select.ai-locked {
+    background: linear-gradient(135deg, #fff8e1, #fffde7) !important;
+    border-color: #f59e0b !important;
+    color: #92400e !important;
+    font-weight: 700;
+    pointer-events: none;   /* visually frozen but NOT disabled — value still readable */
+    cursor: not-allowed;
+}
+.ai-lock-wrapper {
+    position: relative;
+}
+.ai-lock-badge {
+    position: absolute;
+    top: -9px; right: 8px;
+    background: #f59e0b;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 6px;
+    z-index: 5;
+    pointer-events: none;
+}
+        .info-box {
+            background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(102,126,234,0.08));
+            border: 1px solid rgba(59,130,246,0.35);
+            color: #1e3a8a;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.9rem;
         }
 
-        /* LOGOUT MODAL */
-        .logout-modal {
+        .price-display {
+            padding: 30px; border-radius: 20px;
+            background:
+                radial-gradient(ellipse at top left, rgba(16,185,129,0.3) 0%, transparent 60%),
+                linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white; text-align: center;
+            box-shadow: var(--glow-success), 0 6px 24px rgba(16,185,129,0.35);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .price-display h3 { font-size: 1.3rem; margin-bottom: 10px; font-weight: 600; opacity: 0.9; }
+        .price-display .amount { font-size: 2.8rem; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+
+        .reason-frame { display: none !important; }
+        #divider-reason { display: none !important; }
+
+        #reasonModalOverlay {
             display: none;
             position: fixed;
-            z-index: 10001;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
+            inset: 0;
+            z-index: 10500;
+            background: rgba(8, 4, 22, 0.78);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             justify-content: center;
             align-items: center;
+            padding: 16px;
+        }
+        #reasonModalOverlay.rm-visible {
+            display: flex;
         }
 
-        .logout-modal-content {
-            background: #fff;
-            padding: 25px;
+        #reasonModalCard {
+            background: linear-gradient(145deg, #ffffff, #f0fdf9);
+            border-radius: 24px;
+            padding: 36px 32px 28px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 24px 80px rgba(16,185,129,0.22), 0 8px 32px rgba(0,0,0,0.28);
+            border: 1px solid rgba(16,185,129,0.25);
+            position: relative;
+            opacity: 0;
+            transform: translateY(40px) scale(0.96);
+            transition: opacity 0.45s cubic-bezier(0.22,1,0.36,1),
+                        transform 0.45s cubic-bezier(0.22,1,0.36,1);
+        }
+        #reasonModalOverlay.rm-visible #reasonModalCard {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        #reasonModalCard .rm-icon-badge {
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 18px;
+            box-shadow: 0 0 0 0 rgba(16,185,129,0.55);
+            animation: rmBadgePulse 2.2s ease-out infinite;
+        }
+        #reasonModalCard .rm-icon-badge i { color: #fff; font-size: 1.5rem; }
+
+        @keyframes rmBadgePulse {
+            0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.55); }
+            60%  { box-shadow: 0 0 0 14px rgba(16,185,129,0); }
+            100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+        }
+
+        #reasonModalCard h4 {
+            color: #065f46; font-weight: 700; font-size: 1.15rem;
+            text-align: center; margin-bottom: 6px;
+        }
+        #reasonModalCard .rm-sub {
+            color: #6b7280; font-size: 0.875rem;
+            text-align: center; margin-bottom: 20px; line-height: 1.5;
+        }
+
+        #reasonModalCard textarea {
+            resize: vertical;
+            border: 1.5px solid rgba(16,185,129,0.35);
             border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-            width: 320px;
+            padding: 12px 14px;
+            font-size: 0.92rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: rgba(255,255,255,0.9);
+        }
+        #reasonModalCard textarea:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.18);
+            outline: none;
         }
 
-        .logout-modal-content h3 {
-            margin-bottom: 20px;
-            color: #3949ab;
+        #reasonModalCard .rm-footer {
+            display: flex; justify-content: flex-end;
+            align-items: center; gap: 12px; margin-top: 18px;
         }
 
-        .modal-actions button {
-            margin: 8px;
-            padding: 8px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
+        #reasonModalCard .rm-skip-btn {
+            background: none; border: none;
+            color: #9ca3af; font-size: 0.85rem;
+            cursor: pointer; padding: 6px 10px;
+            border-radius: 8px; transition: color 0.2s;
+        }
+        #reasonModalCard .rm-skip-btn:hover { color: #6b7280; }
+
+        #reasonModalCard .rm-submit-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff; border: none;
+            padding: 11px 28px; border-radius: 12px;
+            font-weight: 600; font-size: 0.95rem;
             cursor: pointer;
+            box-shadow: 0 4px 14px rgba(16,185,129,0.35);
+            transition: transform 0.18s, box-shadow 0.18s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        #reasonModalCard .rm-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(16,185,129,0.42);
+        }
+        #reasonModalCard .rm-submit-btn:disabled {
+            opacity: 0.65; cursor: not-allowed; transform: none;
         }
 
-        .confirm-btn {
-            background: #3949ab;
+        @keyframes rmFloat {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-6px); }
+        }
+        #reasonModalCard.rm-float {
+            animation: rmFloat 3.5s ease-in-out infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #reasonModalCard { transition: none; }
+            #reasonModalCard .rm-icon-badge { animation: none; }
+            #reasonModalCard.rm-float { animation: none; }
+        }
+
+        .btn {
+            padding: 16px 40px; border-radius: 12px;
+            cursor: pointer; border: none; font-size: 1.05rem; font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex; align-items: center; gap: 8px;
+            position: relative; overflow: hidden;
+        }
+        .btn::before {
+            content: '';
+            position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn:hover::before { left: 160%; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
+            box-shadow: 0 4px 18px rgba(102,126,234,0.38);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(102,126,234,0.5);
         }
 
-        .cancel-btn {
-            background: #f0f0f0;
-            color: #333;
+        .btn-home {
+            background: linear-gradient(135deg, #3949ab, #283593);
+            color: white; padding: 16px 40px; border-radius: 12px;
+            text-decoration: none; font-weight: 600; transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(57,73,171,0.32);
+            position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-home:hover {
+            transform: translateY(-2px); box-shadow: 0 8px 24px rgba(57,73,171,0.45); color: white;
         }
 
-        .confirm-btn:hover {
-            background: #303f9f;
+        .button-row {
+            text-align: center; margin-top: 40px;
+            display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
         }
 
-        .cancel-btn:hover {
-            background: #ddd;
+        .alert {
+            padding: 16px 20px; border-radius: 12px; margin-bottom: 20px;
+            display: none; font-weight: 500; font-size: 1rem;
+        }
+        .alert.show { display: flex; align-items: center; gap: 10px; animation: slideDown 0.3s ease; }
+        .alert.success {
+            background: rgba(209,250,229,0.9); color: #065f46;
+            border-left: 4px solid #10b981;
+            box-shadow: 0 4px 16px rgba(16,185,129,0.15);
+        }
+        .alert.error {
+            background: rgba(254,226,226,0.9); color: #991b1b;
+            border-left: 4px solid #ef4444;
+            box-shadow: 0 4px 16px rgba(239,68,68,0.12);
+        }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+
+        .offcanvas {
+            width: 420px !important;
+            border-radius: 24px 0 0 24px;
+            background: #f8f9fa !important;
+        }
+        .offcanvas-header {
+            background:
+                radial-gradient(ellipse at left, rgba(102,126,234,0.4) 0%, transparent 60%),
+                linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+            color: white; padding: 26px 28px !important;
+        }
+        .offcanvas-title { font-size: 1.25rem !important; font-weight: 700 !important; }
+        .offcanvas-body { padding: 26px 28px !important; }
+
+        .checkout-section {
+            background: white; padding: 22px; border-radius: 16px; margin-bottom: 16px;
+            box-shadow: 0 2px 14px rgba(0,0,0,0.07);
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+        .checkout-section h6 {
+            color: var(--primary); font-weight: 700; margin-bottom: 16px;
+            border-bottom: 2px solid rgba(102,126,234,0.12); padding-bottom: 10px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .summary-row {
+            display: flex; justify-content: space-between;
+            padding: 12px 0; border-bottom: 1px solid rgba(102,126,234,0.08); font-size: 0.93rem;
+        }
+        .summary-row:last-child { border-bottom: none; }
+        .summary-label { font-weight: 600; color: #495057; }
+        .summary-value { color: #212529; font-weight: 500; }
+        .summary-total {
+            font-size: 1.5rem; font-weight: 700; color: var(--success);
+            margin-top: 18px; padding-top: 18px;
+            border-top: 2px solid rgba(16,185,129,0.3);
+        }
+
+        .spinner {
+            width: 20px; height: 20px;
+            border: 2.5px solid rgba(255,255,255,0.35);
+            border-top-color: #fff; border-radius: 50%;
+            animation: spin 0.7s linear infinite; display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.5; transform: scale(1.4); }
+        }
+        .live-dot {
+            width: 9px; height: 9px; background: #2196F3;
+            border-radius: 50%; display: inline-block; margin-right: 6px;
+            animation: pulseDot 1.2s ease-in-out infinite;
+            box-shadow: 0 0 6px rgba(33,150,243,0.5);
+        }
+
+        @media (max-width: 992px) {
+            .booking-form { grid-template-columns: 1fr; }
+            .page-header h1 { font-size: 2rem; }
+            .offcanvas { width: 360px !important; }
+        }
+        @media (max-width: 576px) {
+            .content { padding: 22px 18px; }
+            .form-section { padding: 20px; }
+            .button-row { flex-direction: column; }
+            .btn, .btn-home { width: 100%; justify-content: center; }
+            .identity-card { padding: 30px 20px; }
         }
     </style>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 
-<body>
+<body class="pre-identity">
 
-<div class="header-original">
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
-
-    <div class="profile-wrapper" onclick="toggleDropdown()">
-        <img class="profile-pic"
-            src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}"
-            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%23667eea%22/%3E%3Ctext x=%2250%22 y=%2260%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2240%22 font-family=%22Arial%22%3EU%3C/text%3E%3C/svg%3E'">
-        <div class="dropdown-menu" id="dropdownMenu">
-            <a href="{{ url_for('profile') }}">Profile</a>
-            <a href="{{ url_for('settings') }}">Settings</a>
-            <a href="#" onclick="openLogoutModal()">Logout</a>
-        </div>
-    </div>
-</div>
-
-<!-- LOGOUT MODAL -->
-<div id="logoutModal" class="logout-modal">
-    <div class="logout-modal-content">
-        <h3>Are you sure you want to logout?</h3>
-        <div class="modal-actions">
-            <button class="confirm-btn" id="confirmLogout">Yes</button>
-            <button class="cancel-btn" onclick="closeLogoutModal()">Cancel</button>
-        </div>
-    </div>
-</div>
-
-<!-- LOGIN MODAL - ALWAYS VISIBLE ON PAGE LOAD -->
-<div id="loginModal">
-  <div id="loginBox">
-    <div style="color:#800080; line-height:1.6; text-align:left;">
-      <div><b>Instructions</b></div>
-      <div>=========</div>
-      <ol style="margin:8px 0 0 18px; padding:0; color:inherit;">
-        <li>chakorahub.com/meeting</li>
-        <li>Call/WhatsApp us : +91-7799101166</li>
-        <li>Login using adhoc credentials</li>
-      </ol>
-    </div>
-    <br>
-    <h2 style="color:#667eea;margin:20px 0;">🔐 Login</h2>
-    <input id="loginUser" placeholder="Username">
-    <input id="loginPass" type="password" placeholder="Password">
-    <button id="loginBtn" style="width:100%; background:#3949ab; color:white; padding:15px; border-radius:10px; border:none; cursor:pointer; font-size:1rem; font-weight:600;">Login</button>
-    <p id="loginError" style="color:red;margin-top:10px;"></p>
-  </div>
-</div>
-
-  <div class="feedback-container">
-    <h3>💬 What Attendees Say</h3>
-
-  <div class="feedback-wrapper">
-    <div class="feedback-track">
-      <div class="feedback-item">"Very helpful!" – Ravi</div>
-      <div class="feedback-item">"Clear explanation" – Anitha</div>
-      <div class="feedback-item">"Worth attending" – Suresh</div>
-    </div>
-  </div>
-</div>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
 
 <div class="container">
-    <div class="header">
-        <h1>📅 Book Meeting Session</h1>
-        <div class="user-info">
-            Welcome, <span id="usernameDisplay">Guest</span>
-            <span id="roleDisplay"></span>
+    <div class="main-container">
+
+        <div class="page-header">
+            <h1><i class="bi bi-stars"></i> Meeting Intelligence</h1>
+            <div class="header-subtitle">
+                Powered by <span class="brand-highlight">Chakora Hub</span>
+            </div>
+            <div class="user-info">
+                <i class="bi bi-person-circle"></i> Welcome, <span id="usernameDisplay">Guest</span>
+                <span id="roleDisplay"></span>
+            </div>
         </div>
-    </div>
 
-    <div class="content">
-        <div id="alertBox" class="alert"></div>
+        <div class="content">
+            <div id="alertBox" class="alert"></div>
 
-        <form id="bookingForm">
-            <div class="booking-form">
-                <!-- LEFT COLUMN -->
-                <div class="form-section">
-                    <!-- ML DATA SECTION -->
-                    <div class="ml-section" id="mlSection">
-                        <h3>
-                            🤖 Meeting Information 
-                            <span class="info-badge">For ML Training</span>
-                        </h3>
-                        
+            <!-- STEP 1 — IDENTITY GATE -->
+            <div id="step-identity">
+                <div class="identity-card">
+                    <div class="identity-icon">
+                        <i class="bi bi-person-bounding-box"></i>
+                    </div>
+                    <h2>Let's get you started</h2>
+                    <p>Enter your email.<br>We'll personalise the experience for you.</p>
+
+                    <div class="identity-input-wrap">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="identityInput"
+                               placeholder="Email"
+                               autocomplete="off"
+                               onkeydown="if(event.key==='Enter') identifyUser()">
+                    </div>
+
+                    <button id="identifyBtn" onclick="identifyUser()">
+                        <div class="spinner" id="identifySpinner"></div>
+                        <i class="bi bi-arrow-right-circle" id="identifyIcon"></i>
+                        <span id="identifyBtnText">Continue</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2 — BOOKING FORM -->
+            <div class="step-divider reveal-step" id="divider-booking">
+                <hr>
+                <span class="step-badge"><i class="bi bi-calendar-check"></i> &nbsp;Book Your Session</span>
+                <hr>
+            </div>
+
+            <div id="userTypePill"></div>
+
+            <form id="bookingForm" class="reveal-step">
+                <div class="booking-form">
+
+                    <!-- LEFT COLUMN -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="bi bi-calendar3"></i> Booking Details
+                        </div>
+
                         <div class="form-group">
-                            <label class="required">Select Employees (Attendees)</label>
-                            <div class="employee-selector">
-                                <input type="text" 
-                                       id="employeeInput" 
-                                       class="employee-input"
-                                       placeholder="Type email to search (e.g., 's' for sathvika@...)"
-                                       autocomplete="off">
-                                <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
+                            <label class="required">
+                                <i class="bi bi-calendar-date"></i> Select Date
+                            </label>
+                            <input type="date" id="bookingDate" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required">
+                                <i class="bi bi-envelope"></i> Your Email
+                            </label>
+                            <input type="email" id="studentEmail" class="form-control" placeholder="you@example.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required">
+                                <i class="bi bi-clock"></i> Available Slots
+                            </label>
+                            <div class="slots-grid" id="slotsGrid">
+                                <p style="color:#999; text-align:center; grid-column:1/-1;">
+                                    <i class="bi bi-calendar-event"></i> Select date first
+                                </p>
                             </div>
-                            <div id="selectedEmployees" class="selected-employees">
-                                <span style="color:#999; font-size:0.9rem;">No employees selected</span>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="bi bi-gear"></i> Session Configuration
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required">
+                                <i class="bi bi-speedometer2"></i> Issue Complexity
+                            </label>
+                            <div class="ai-lock-wrapper" id="complexityWrapper">
+                            <select id="complexity" class="form-select">
+                                <option value="Easy">🟢 Easy — Quick question</option>
+                                <option value="Medium" selected>🟡 Medium — Standard troubleshooting</option>
+                                <option value="Difficult">🔴 Difficult — Complex problem</option>
+                            </select>
                             </div>
-                            <div class="employee-count">
-                                <span id="employeeCount">0</span> employee(s) selected
-                            </div>
-                            <small style="color:#666; font-size:0.85rem;">
-                                💡 Organizer: <strong id="organizerDisplay">You</strong>
+                            <small style="color:#6c757d; font-size:0.84rem; display:block; margin-top:8px;">
+                                <strong>Easy:</strong> Quick question &nbsp;|&nbsp;
+                                <strong>Medium:</strong> Standard &nbsp;|&nbsp;
+                                <strong>Difficult:</strong> Complex
                             </small>
                         </div>
 
                         <div class="form-group">
-                            <label class="required">Meeting Purpose</label>
-                            <select id="purpose">
-                                <option value="">-- Select Purpose --</option>
+                            <label class="required">
+                                <i class="bi bi-hourglass-split"></i> Duration
+                            </label>
+                            <div class="ai-lock-wrapper" id="durationWrapper">
+                            <select id="duration" class="form-select">
+                                <option value="5">5 minutes</option>
+                                <option value="15">15 minutes</option>
+                                <option value="30" selected>30 minutes</option>
+                                <option value="45">45 minutes</option>
+                                <option value="60">60 minutes</option>
                             </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="required">Issue Description</label>
-                            <textarea id="issueDescription" 
-                                      placeholder="Describe your issue in detail (min 10 chars)"
-                                      maxlength="1000"></textarea>
-                            <div class="char-counter">
-                                <span id="charCount">0</span> / 1000 characters
+                            </div>
+                            <small style="color:#6c757d; font-size:0.84rem; display:block; margin-top:8px;">
+                                Note: quick touchpoint logic may auto-adjust duration to 5 minutes.
+                            </small>
+                            <div id="agenticSlotHint" style="display:none; margin-top:10px;" class="info-box">
+                                <i class="bi bi-robot"></i>
+                                <span id="agenticSlotHintText"></span>
+                                <span onclick="clearAgenticSuggestion()" style="float:right; cursor:pointer; opacity:0.6;">✕ Choose differently</span>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- BASIC FIELDS -->
-                    <div class="form-group">
-                        <label class="required">Select Date</label>
-                        <input type="date" id="bookingDate">
-                    </div>
 
-                    <div class="form-group">
-                        <label class="required">Your Email</label>
-                        <input type="email" id="studentEmail" placeholder="you@example.com">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="required">Available Slots</label>
-                        <div class="slots-grid" id="slotsGrid">
-                            <p style="color:#777;text-align:center;">Select date first</p>
+                        <div class="price-display">
+                            <h3>Estimated Cost</h3>
+                            <div class="amount">₹<span id="calculatedPrice">250</span></div>
                         </div>
+
                     </div>
                 </div>
 
-                <!-- RIGHT COLUMN -->
-                <div class="form-section">
-                    <div class="form-group">
-                        <label class="required">Issue Complexity</label>
-                        <select id="complexity">
-                            <option value="Easy">Easy</option>
-                            <option value="Medium" selected>Medium</option>
-                            <option value="Difficult">Difficult</option>
-                        </select>
-                        <small style="color:#666; font-size:0.85rem;">
-                            Easy: Quick question<br>
-                            Medium: Standard troubleshooting<br>
-                            Difficult: Complex problem
-                        </small>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="required">Duration</label>
-                        <select id="duration">
-                            <option value="15">15 min</option>
-                            <option value="30" selected>30 min</option>
-                            <option value="45">45 min</option>
-                            <option value="60">60 min</option>
-                        </select>
-                    </div>
-
-                    <div class="price-display">
-                        Estimated Cost: ₹<span id="calculatedPrice">250</span>
-                    </div>
-                    
-                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 20px; font-size: 0.9rem;">
-                        <strong>📝 Note:</strong>
-                        <span id="noteText">Your booking will be reviewed and confirmed by our team.</span>
-                    </div>
+                <div class="button-row">
+                    <button class="btn btn-primary" type="button" onclick="openCheckout()">
+                        <i class="bi bi-cart-check"></i> Review & Proceed to Checkout
+                    </button>
+                    <a href="{{ url_for('aboutus') }}" class="btn-home">
+                        <i class="bi bi-house"></i> Home
+                    </a>
                 </div>
+            </form>
+
+            <!-- STEP 3 dividers (hidden via CSS) -->
+            <div class="step-divider reveal-step" id="divider-reason">
+                <hr>
+                <span class="step-badge"><i class="bi bi-chat-left-text"></i> &nbsp;One more thing…</span>
+                <hr>
             </div>
 
-            <div class="button-row">
-                <button class="btn btn-primary" type="button" onclick="openCheckout()">
-                    🛒 Review & Proceed to Checkout
-                </button>
-                <a href="{{ url_for('aboutus') }}" class="btn-home">Home</a>
-            </div>
-        </form>
+        </div><!-- /content -->
+    </div><!-- /main-container -->
+</div><!-- /container -->
+
+<!-- POST-BOOKING REASON MODAL -->
+<div id="reasonModalOverlay" role="dialog" aria-modal="true" aria-labelledby="rmTitle">
+    <div id="reasonModalCard">
+        <div class="rm-icon-badge">
+            <i class="bi bi-chat-left-dots-fill"></i>
+        </div>
+        <h4 id="rmTitle">🎉 Booking Confirmed!</h4>
+        <p class="rm-sub">Your reason is valuable to us. It will help the tutor to guide you better.</p>
+        <textarea id="bookingReason" class="form-control"
+                  placeholder="Please enter the reason"
+                  maxlength="500" style="min-height:110px; width:100%;"></textarea>
+        <div class="char-counter" style="margin-top:6px;">
+            <span id="reasonCount">0</span> / 500 characters
+        </div>
+        <div class="rm-footer">
+            <button class="rm-skip-btn" onclick="skipReason()">Skip for now</button>
+            <button class="rm-submit-btn" id="reasonSubmitBtn" onclick="submitReason()">
+                <span id="reasonSubmitSpinner" class="spinner" style="display:none;"></span>
+                <i class="bi bi-send" id="reasonSubmitIcon"></i>
+                <span id="reasonSubmitText">Submit</span>
+            </button>
+        </div>
     </div>
 </div>
 
-<!-- BOOTSTRAP OFFCANVAS - CHECKOUT SIDEBAR -->
+<!-- CHECKOUT OFFCANVAS -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="checkoutOffcanvas" aria-labelledby="checkoutLabel">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="checkoutLabel">
-      <i class="bi bi-cart-check"></i> Checkout Summary
-    </h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body">
-    
-    <div class="checkout-section">
-      <h6>📋 Booking Details</h6>
-      <div class="summary-row">
-        <span class="summary-label">Date:</span>
-        <span class="summary-value" id="checkout-date">-</span>
-      </div>
-      <div class="summary-row">
-        <span class="summary-label">Time Slot:</span>
-        <span class="summary-value" id="checkout-time">-</span>
-      </div>
-      <div class="summary-row">
-        <span class="summary-label">Duration:</span>
-        <span class="summary-value" id="checkout-duration">-</span>
-      </div>
-      <div class="summary-row">
-        <span class="summary-label">Complexity:</span>
-        <span class="summary-value" id="checkout-complexity">-</span>
-      </div>
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="checkoutLabel">
+            <i class="bi bi-cart-check"></i> Checkout Summary
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
+    <div class="offcanvas-body">
 
-    <div class="checkout-section">
-      <h6>📧 Contact Information</h6>
-      <div class="summary-row">
-        <span class="summary-label">Email:</span>
-        <span class="summary-value" id="checkout-email">-</span>
-      </div>
+        <div class="checkout-section">
+            <h6><i class="bi bi-calendar3"></i> Booking Details</h6>
+            <div class="summary-row">
+                <span class="summary-label">Date:</span>
+                <span class="summary-value" id="checkout-date">-</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Time Slot:</span>
+                <span class="summary-value" id="checkout-time">-</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Duration:</span>
+                <span class="summary-value" id="checkout-duration">-</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Complexity:</span>
+                <span class="summary-value" id="checkout-complexity">-</span>
+            </div>
+        </div>
+
+        <div class="checkout-section">
+            <h6><i class="bi bi-envelope"></i> Contact Information</h6>
+            <div class="summary-row">
+                <span class="summary-label">Email:</span>
+                <span class="summary-value" id="checkout-email">-</span>
+            </div>
+        </div>
+
+        <div class="checkout-section">
+            <h6><i class="bi bi-cash-stack"></i> Payment</h6>
+            <div class="summary-row summary-total">
+                <span class="summary-label">Total Amount:</span>
+                <span class="summary-value">₹<span id="checkout-price">0</span></span>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+            <button type="button" class="btn btn-success btn-lg" onclick="confirmBooking()">
+                <i class="bi bi-check-circle"></i> Confirm & Book Session
+            </button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">
+                <i class="bi bi-arrow-left"></i> Back to Edit
+            </button>
+        </div>
+
     </div>
-
-    <div class="checkout-section" id="checkout-internal" style="display: none;">
-      <h6>👥 Meeting Participants</h6>
-      <div class="summary-row">
-        <span class="summary-label">Organizer:</span>
-        <span class="summary-value" id="checkout-organizer">-</span>
-      </div>
-      <div class="summary-row">
-        <span class="summary-label">Attendees:</span>
-        <span class="summary-value" id="checkout-attendees">-</span>
-      </div>
-      <div class="summary-row">
-        <span class="summary-label">Purpose:</span>
-        <span class="summary-value" id="checkout-purpose">-</span>
-      </div>
-    </div>
-
-    <div class="checkout-section">
-      <h6>💰 Payment</h6>
-      <div class="summary-row summary-total">
-        <span class="summary-label">Total Amount:</span>
-        <span class="summary-value">₹<span id="checkout-price">0</span></span>
-      </div>
-    </div>
-
-    <div class="d-grid gap-2 mt-4">
-      <button type="button" class="btn btn-primary btn-lg" onclick="confirmBooking()">
-        ✅ Confirm & Book Session
-      </button>
-      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">
-        ← Back to Edit
-      </button>
-    </div>
-
-  </div>
 </div>
 
-<!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-const API_BASE = "https://m7ul4xf1e3.execute-api.eu-north-1.amazonaws.com/Prod";
-let AUTH_USER = null;
-let AUTH_PASS = null;
-let selectedEmployees = [];
-let allEmployees = [];
+// ════════════════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════════════════
+const API_BASE = "";
+
+function apiUrl(path) {
+    return `${API_BASE}${path}`;
+}
+let AUTH_USER = null, AUTH_PASS = null;
 let currentUserType = "external";
 
-function authHeader() { 
-    return "Basic " + btoa(`${AUTH_USER}:${AUTH_PASS}`); 
+// ════════════════════════════════════════════════════════════════
+// VALIDATION UTILITIES
+// ════════════════════════════════════════════════════════════════
+function isValidEmail(email) {
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    return emailRegex.test(String(email).toLowerCase().trim());
 }
 
-function getCachedData(key, ttlMinutes) {
-    const cached = localStorage.getItem(key);
-    if (!cached) return null;
-    const data = JSON.parse(cached);
-    const now = new Date().getTime();
-    if (now > data.expiry) {
-        localStorage.removeItem(key);
-        return null;
+function applyDateMinForUser() {
+    const isInternal = currentUserType === 'internal';
+    const el = document.getElementById("bookingDate");
+    const today = new Date();
+    
+    if (isInternal) {
+        const min = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        el.min = min;
+    } else {
+        const tom = new Date(); tom.setDate(today.getDate() + 1);
+        const min = `${tom.getFullYear()}-${String(tom.getMonth()+1).padStart(2,'0')}-${String(tom.getDate()).padStart(2,'0')}`;
+        el.min = min;
+        if (el.value < min) el.value = min;
     }
-    return data.value;
 }
 
-function setCachedData(key, value, ttlMinutes) {
-    const now = new Date().getTime();
-    const item = {
-        value: value,
-        expiry: now + (ttlMinutes * 60 * 1000)
-    };
-    localStorage.setItem(key, JSON.stringify(item));
+function isValidE164Phone(phone) {
+    const e164Regex = /^\+[1-9]\d{1,14}$/;
+    return e164Regex.test(String(phone).trim());
+}
+
+function validateIdentity(input) {
+    const trimmed = String(input).trim();
+    
+    if (!trimmed) {
+        return { valid: false, type: 'unknown', normalized: '', error: 'Please enter your email or phone number' };
+    }
+    
+    if (trimmed.includes('@')) {
+        if (isValidEmail(trimmed)) {
+            return { valid: true, type: 'email', normalized: trimmed.toLowerCase(), error: '' };
+        } else {
+            return { valid: false, type: 'email', normalized: trimmed, error: '❌ Invalid email format. Example: user@example.com' };
+        }
+    }
+    
+    if (trimmed.startsWith('+')) {
+        if (isValidE164Phone(trimmed)) {
+            return { valid: true, type: 'phone', normalized: trimmed, error: '' };
+        } else {
+            return { valid: false, type: 'phone', normalized: trimmed, error: '❌ Invalid phone format. Use E.164: +[country code][number]\nExamples: +919876543210, +14155552671' };
+        }
+    }
+    
+    if (/^\d+$/.test(trimmed)) {
+        return { valid: false, type: 'phone', normalized: trimmed, error: '❌ Phone number must include country code.\nFormat: +919876543210 (not just 9876543210)' };
+    }
+    
+    return { valid: false, type: 'unknown', normalized: trimmed, error: '❌ Invalid format. Enter a valid email (user@domain.com) or phone (+919876543210)' };
+}
+
+function setInputValidationState(inputElement, isValid, errorMessage = '') {
+    if (isValid) {
+        inputElement.style.borderColor = '#10b981';
+        inputElement.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.14)';
+    } else if (errorMessage) {
+        inputElement.style.borderColor = '#ef4444';
+        inputElement.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.14)';
+    } else {
+        inputElement.style.borderColor = 'rgba(102,126,234,0.22)';
+        inputElement.style.boxShadow = '';
+    }
+}
+
+function highlightSuggestedSlot() {
+    const suggestedTime = window.agenticSuggestedSlot;
+    if (!suggestedTime) return;
+
+    const allButtons = document.querySelectorAll('.slot-button:not(:disabled)');
+    let found = false;
+
+    allButtons.forEach(btn => {
+        if (btn.textContent.trim() === suggestedTime) {
+            // Auto-select this slot
+            btn.classList.add('selected', 'suggested');
+            btn.classList.remove('dimmed');
+            window.selectedSlot = suggestedTime;
+            found = true;
+        } else {
+            // Dim every other available slot
+            btn.classList.remove('selected', 'suggested');
+            btn.classList.add('dimmed');
+        }
+    });
+
+    if (found) calculatePrice();
+}
+
+// ════════════════════════════════════════════════════════════════
+// STEP REVEAL
+// ════════════════════════════════════════════════════════════════
+function revealElement(el, delayMs = 0) {
+    if (!el) return;
+    setTimeout(() => el.classList.add('visible'), delayMs);
+}
+
+function revealBookingForm(delayStart = 0) {
+    revealElement(document.getElementById('divider-booking'), delayStart);
+    const pill = document.getElementById('userTypePill');
+    if (pill) pill.style.display = 'block';
+    revealElement(document.getElementById('bookingForm'), delayStart + 160);
+}
+
+function enablePostIdentityLayout() {
+    document.body.classList.remove('pre-identity');
+}
+
+function revealPostBooking() {
+    const overlay = document.getElementById('reasonModalOverlay');
+    const card    = document.getElementById('reasonModalCard');
+    if (!overlay || !card) return;
+
+    overlay.classList.add('rm-visible');
+
+    const ta = document.getElementById('bookingReason');
+    const counter = document.getElementById('reasonCount');
+    if (ta) { ta.value = ''; ta.disabled = false; }
+    if (counter) counter.textContent = '0';
+
+    if (ta && counter) {
+        ta.oninput = () => { counter.textContent = ta.value.length; };
+    }
+
+    card.addEventListener('transitionend', function onEntry() {
+        card.classList.add('rm-float');
+        card.removeEventListener('transitionend', onEntry);
+    });
+}
+
+function _closeReasonModal() {
+    const overlay = document.getElementById('reasonModalOverlay');
+    const card    = document.getElementById('reasonModalCard');
+    if (!overlay) return;
+    card.classList.remove('rm-float');
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(30px) scale(0.96)';
+    setTimeout(() => {
+        overlay.classList.remove('rm-visible');
+        card.style.opacity = '';
+        card.style.transform = '';
+    }, 380);
+}
+
+function skipReason() {
+    _closeReasonModal();
+}
+
+// ════════════════════════════════════════════════════════════════
+// IDENTITY LOOKUP
+// ════════════════════════════════════════════════════════════════
+async function identifyUser() {
+    const inputEl = document.getElementById('identityInput');
+    const val = inputEl.value.trim();
+    
+    const validation = validateIdentity(val);
+    
+    if (!validation.valid) {
+        setInputValidationState(inputEl, false, validation.error);
+        showAlert(validation.error, 'error');
+        return;
+    }
+    
+    setInputValidationState(inputEl, true);
+    
+    const btn = document.getElementById('identifyBtn');
+    const spinner = document.getElementById('identifySpinner');
+    const icon = document.getElementById('identifyIcon');
+    const btnText = document.getElementById('identifyBtnText');
+    
+    btn.disabled = true;
+    spinner.style.display = 'block';
+    icon.style.display = 'none';
+    btnText.textContent = 'Verifying…';
+    
+    try {
+        const identityValue = validation.normalized;
+        const res = await secureFetch('/meeting/identify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ identity: identityValue })
+        });
+
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+
+        const data = await res.json();
+
+        const isExisting = data.exists || false;
+        const cacheHit = data.cache_hit || false;
+
+        console.log(`🔍 User lookup: ${validation.type}=${validation.normalized}`);
+        console.log(`📊 Existing: ${isExisting} | Cache: ${cacheHit ? 'HIT ✅' : 'MISS ❌'}`);
+
+        const emailEl = document.getElementById('studentEmail');
+        if (emailEl && validation.type === 'email') {
+            emailEl.value = validation.normalized;
+        }
+        
+        const pill = document.getElementById('userTypePill');
+        if (isExisting) {
+            pill.textContent = `✦ Existing Student — Welcome back! ${cacheHit ? '(Instant from cache)' : ''}`;
+            pill.className = 'pill-existing';
+
+            if (data.total_bookings) {
+                showAlert(`✅ Welcome back! You have ${data.total_bookings} previous booking(s).`, 'success');
+            }
+        } else {
+            pill.textContent = '✦ New Student — Please fill in your details below';
+            pill.className = 'pill-new';
+            showAlert('👋 Welcome! Please complete the booking form below.', 'success');
+        }
+        
+        currentUserType = isInternalOrganizationEmail(validation.normalized) ? 'internal' : 'external';
+
+        // ── CHANGE 3: Store existing-student flag so loadSlots() can fire agentic suggestions ──
+        window._isExistingStudent = isExisting;
+
+        if (currentUserType === 'internal') {
+            enableInternalMode();
+        }
+
+        // Pre-fill suggestions from /identify response (first-load only, from model if trained)
+        if (isExisting && data.suggestions) {
+            const s = data.suggestions;
+            if (s.model_status === 'trained') {
+                window.agenticSuggestion = s;
+            } else {
+                window.agenticSuggestion = null;
+            }
+        }
+        window.agenticSuggestedSlot = null;
+
+        // Pre-fill complexity & duration for returning students (from identify response)
+        if (isExisting && data.suggestions?.model_status === 'trained') {
+            const s = data.suggestions;
+
+            if (s.suggested_complexity)
+                document.getElementById('complexity').value = s.suggested_complexity;
+
+            if (s.suggested_duration_minutes)
+                document.getElementById('duration').value = String(s.suggested_duration_minutes);
+
+            calculatePrice();
+
+            const hint = document.getElementById('agenticSlotHint');
+            const hintText = document.getElementById('agenticSlotHintText');
+            if (window.agenticSuggestion && hint && hintText) {
+                const conf = Math.round((s.complexity_confidence || 0) * 100);
+                hintText.textContent =
+                    `AI pre-filled based on your past ${s.training_samples || 'previous'} bookings` +
+                    (conf ? ` — ${conf}% confidence.` : '.');
+                hint.style.display = 'block';
+            }
+        }
+
+        applyDateMinForUser();
+        loadSlots();          
+        calculatePrice();
+        
+        enablePostIdentityLayout();
+        revealBookingForm(50);
+        setTimeout(() => {
+            document.getElementById('divider-booking').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }, 280);
+        
+    } catch (error) {
+        console.error('❌ Identity lookup error:', error);
+        showAlert(`Network error: ${error.message}. Please try again.`, 'error');
+    } finally {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        icon.style.display = 'inline';
+        btnText.textContent = 'Continue';
+    }
+}
+
+function enableInternalMode() {
+    currentUserType = 'internal';
+    applyDateMinForUser();
+    calculatePrice();
+}
+
+// ════════════════════════════════════════════════════════════════
+// POST-BOOKING REASON
+// ════════════════════════════════════════════════════════════════
+async function submitReason() {
+    const btn = document.getElementById("reasonSubmitBtn");
+    const spinner = document.getElementById("reasonSubmitSpinner");
+    const icon = document.getElementById("reasonSubmitIcon");
+    const text = document.getElementById("reasonSubmitText");
+
+    btn.disabled = true;
+    spinner.style.display = "inline-block";
+    icon.style.display = "none";
+    text.textContent = "Submitting...";
+    const reason = document.getElementById('bookingReason').value.trim();
+    if (!reason) { showAlert('Please enter a brief reason for booking.', 'error'); return; }
+    const bookingId = window.currentBookingId || window.lastBookingId || '';
+    if (!bookingId) { showAlert('Booking ID not found. Please book again.', 'error'); return; }
+
+    try {
+        const res = await secureFetch(apiUrl('/meeting/update-purpose'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ booking_id: bookingId, purpose: reason })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            showAlert(data.detail || 'Could not save your reason. Please try again.', 'error');
+            return;
+        }
+
+        if (data.email_sent === false) {
+            btn.disabled = false;
+            spinner.style.display = "none";
+            icon.style.display = "inline";
+            text.textContent = "Submit";
+            showAlert('Reason saved, but email could not be sent right now.', 'error');
+        } else {
+            showAlert('✅ Thank you! Your tutor has been notified.', 'success');
+        }
+
+        setTimeout(() => {
+            _closeReasonModal();
+            window.location.href = '/meeting';
+        }, 1400);
+    } catch (error) {
+        btn.disabled = false;
+        spinner.style.display = "none";
+        icon.style.display = "inline";
+        text.textContent = "Submit";
+        showAlert('Network error while saving your reason. Please try again.', 'error');
+    }
+}
+
+// ════════════════════════════════════════════════════════════════
+// AUTH & CACHE
+// ════════════════════════════════════════════════════════════════
+function authHeader() { return "Basic " + btoa(`${AUTH_USER}:${AUTH_PASS}`); }
+
+function getCachedData(key, ttl) {
+    const c = localStorage.getItem(key);
+    if (!c) return null;
+    const d = JSON.parse(c);
+    if (Date.now() > d.expiry) { localStorage.removeItem(key); return null; }
+    return d.value;
+}
+function setCachedData(key, value, ttl) {
+    localStorage.setItem(key, JSON.stringify({ value, expiry: Date.now() + ttl * 60000 }));
 }
 
 async function secureFetch(url, options = {}) {
@@ -737,437 +1402,291 @@ async function secureFetch(url, options = {}) {
         options.headers = options.headers || {};
         options.headers["Authorization"] = authHeader();
     }
-    const response = await fetch(url, options);
-    if (response.status === 401 && !url.includes('/whoami')) {
-        console.error("Authentication failed");
-        showAlert("Session expired. Please login again.", "error");
-        setTimeout(() => {
-            document.getElementById("loginModal").style.display = "flex";
-        }, 2000);
-    }
-    return response;
+    const r = await fetch(url, options);
+    if (r.status === 401 && !url.includes('/whoami')) showAlert("Session expired. Please login again.", "error");
+    return r;
 }
 
-function toggleDropdown() {
-    const dropdown = document.getElementById("dropdownMenu");
-    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-}
-
-document.addEventListener("click", function(e) {
-    const wrapper = document.querySelector(".profile-wrapper");
-    if (!wrapper.contains(e.target)) {
-        document.getElementById("dropdownMenu").style.display = "none";
-    }
-});
-
-function openLogoutModal() { 
-    document.getElementById("logoutModal").style.display = "flex"; 
-}
-
-function closeLogoutModal() { 
-    document.getElementById("logoutModal").style.display = "none"; 
-}
-
-document.getElementById("confirmLogout").onclick = function() {
-    window.location.href = "{{ url_for('logout') }}";
-};
-
-const issueDescEl = document.getElementById("issueDescription");
-if (issueDescEl) {
-    issueDescEl.addEventListener("input", function() {
-        const count = this.value.length;
-        const charCountEl = document.getElementById("charCount");
-        if (charCountEl) {
-            charCountEl.textContent = count;
-            const counter = charCountEl.parentElement;
-            if (count < 10) {
-                counter.style.color = "#d32f2f";
-            } else if (count > 950) {
-                counter.style.color = "#ff9800";
-            } else {
-                counter.style.color = "#666";
-            }
-        }
+// ════════════════════════════════════════════════════════════════
+// CHAR COUNTERS
+// ════════════════════════════════════════════════════════════════
+const reasonEl = document.getElementById("bookingReason");
+if (reasonEl) {
+    reasonEl.addEventListener("input", function() {
+        const el = document.getElementById("reasonCount");
+        if (el) el.textContent = this.value.length;
     });
 }
 
-async function loadEmployees() {
-    const cachedEmployees = getCachedData('employee_list_cache', 60); 
-    if (cachedEmployees) {
-        console.log("📦 Layer 1 Cache Hit: Employee list from LocalStorage");
-        allEmployees = cachedEmployees;
-        return;
-    }
-    try {
-        console.log("🌐 Layer 1 Cache Miss: Calling FastAPI/Redis...");
-        const res = await fetch(`${API_BASE}/employees/list`);
-        const data = await res.json();
-        allEmployees = data.employees || [];
-        setCachedData('employee_list_cache', allEmployees, 60);
-    } catch(err) {
-        console.error("Error loading employees:", err);
-    }
+function isInternalOrganizationEmail(value) {
+    return /@chakorahub\.com$/i.test(String(value || '').trim());
 }
 
-async function loadPurposes() {
-    const cachedPurposes = getCachedData('purposes_cache', 1440);
-    if (cachedPurposes) {
-        console.log("📦 Layer 1 Cache Hit: Purposes from LocalStorage");
-        renderPurposes(cachedPurposes);
-        return;
-    }
-    try {
-        const res = await fetch(`${API_BASE}/meeting-purposes`);
-        const data = await res.json();
-        renderPurposes(data.purposes);
-        setCachedData('purposes_cache', data.purposes, 1440);
-    } catch(err) {
-        console.error("Failed to load purposes:", err);
-    }
-}
-
-function setupAutocomplete() {
-    const employeeInput = document.getElementById("employeeInput");
-    const dropdown = document.getElementById("autocompleteDropdown");
-    
-    if (!employeeInput || !dropdown) {
-        console.error("❌ Autocomplete elements not found!");
-        return;
-    }
-    
-    employeeInput.addEventListener("input", function(e) {
-        const query = this.value.trim().toLowerCase();
-        
-        if (query.length === 0) {
-            dropdown.classList.remove("show");
-            return;
-        }
-        
-        const matches = allEmployees.filter(email => {
-            const emailLower = email.toLowerCase();
-            const matchesQuery = emailLower.includes(query);
-            const notSelected = !selectedEmployees.includes(email);
-            return matchesQuery && notSelected;
-        });
-        
-        if (matches.length > 0) {
-            dropdown.innerHTML = matches.slice(0, 10).map(email => 
-                `<div class="autocomplete-item" data-email="${email}">${email}</div>`
-            ).join('');
-            dropdown.classList.add("show");
-        } else {
-            dropdown.innerHTML = '<div class="autocomplete-item no-results">No matching employees found</div>';
-            dropdown.classList.add("show");
-        }
-    });
-
-    dropdown.addEventListener("click", function(e) {
-        const item = e.target.closest(".autocomplete-item");
-        if (item && item.dataset.email) {
-            const email = item.dataset.email;
-            addEmployee(email);
-            employeeInput.value = "";
-            dropdown.classList.remove("show");
-        }
-    });
-
-    document.addEventListener("click", function(e) {
-        if (!e.target.closest(".employee-selector")) {
-            dropdown.classList.remove("show");
-        }
-    });
-}
-
-function addEmployee(email) {
-    if (selectedEmployees.includes(email)) {
-        showAlert("Employee already added", "error");
-        return;
-    }
-    selectedEmployees.push(email);
-    updateEmployeeDisplay();
-}
-
-function removeEmployee(email) {
-    selectedEmployees = selectedEmployees.filter(e => e !== email);
-    updateEmployeeDisplay();
-}
-
-function updateEmployeeDisplay() {
-    const container = document.getElementById("selectedEmployees");
-    const countSpan = document.getElementById("employeeCount");
-    
-    if (!container || !countSpan) return;
-    
-    if (selectedEmployees.length === 0) {
-        container.innerHTML = '<span style="color:#999; font-size:0.9rem;">No employees selected</span>';
-        countSpan.textContent = "0";
-    } else {
-        container.innerHTML = selectedEmployees.map(email => `
-            <div class="employee-chip">
-                <span>${email}</span>
-                <span class="remove-btn" onclick="removeEmployee('${email}')">&times;</span>
-            </div>
-        `).join('');
-        countSpan.textContent = selectedEmployees.length;
-    }
-}
-
-// ========================================
-// LOGIN
-// ========================================
-document.getElementById("loginBtn").onclick = async () => {
-    const user = document.getElementById("loginUser").value.trim();
-    const pass = document.getElementById("loginPass").value.trim();
-    const err = document.getElementById("loginError");
-    
-    if (!user || !pass) { 
-        err.textContent = "Enter username & password"; 
-        return; 
-    }
-    
-    try {
-        console.log("🔐 Attempting login for:", user);
-        
-        AUTH_USER = user;
-        AUTH_PASS = pass;
-        
-        const res = await secureFetch(`${API_BASE}/whoami`);
-        
-        if (res.status === 401) {
-            console.error("❌ 401 Unauthorized");
-            err.textContent = "Invalid credentials"; 
-            AUTH_USER = null;
-            AUTH_PASS = null;
-            return; 
-        }
-
-        if (!res.ok) {
-            console.error("❌ Login failed:", res.status);
-            err.textContent = "Server error";
-            AUTH_USER = null;
-            AUTH_PASS = null;
-            return;
-        }
-
-        const userData = await res.json();
-        console.log("✅ Login successful:", userData);
-        
-        document.getElementById("usernameDisplay").textContent = userData.username;
-        const roleLabel = userData.role.charAt(0).toUpperCase() + userData.role.slice(1);
-        document.getElementById("roleDisplay").textContent = ` (${roleLabel})`;
-        
-        currentUserType = (userData.role === 'admin') ? 'internal' : 'external';
-        
-        document.getElementById("loginModal").style.display = "none";
-        
-        const mlSection = document.getElementById("mlSection");
-        if (mlSection) {
-            if (currentUserType === 'internal') {
-                mlSection.classList.add('show');
-            } else {
-                mlSection.classList.remove('show');
-            }
-        }
-        
-        await loadPurposes();
-        
-        if (currentUserType === 'internal') {
-            await loadEmployees();
-            setupAutocomplete();
-        }
-        
-        loadSlots();
-        
-    } catch(e) { 
-        console.error("❌ Login error:", e);
-        err.textContent = "Login error"; 
-        AUTH_USER = null;
-        AUTH_PASS = null;
-    }
-};
-
+// ════════════════════════════════════════════════════════════════
+// PRICE
+// ════════════════════════════════════════════════════════════════
 function calculatePrice() {
+    const email = document.getElementById("studentEmail").value.trim();
+    const isInternalBooking = currentUserType === 'internal' || isInternalOrganizationEmail(email);
+    if (isInternalBooking) { document.getElementById("calculatedPrice").textContent = "1"; return; }
     const factor = { Easy:0.875, Medium:1.0, Difficult:1.125 };
     const mins = parseInt(document.getElementById("duration").value);
     const comp = document.getElementById("complexity").value;
-    const price = Math.ceil((mins / 60) * (575 * factor[comp]));
-    document.getElementById("calculatedPrice").textContent = price;
+    document.getElementById("calculatedPrice").textContent = Math.ceil((mins/60) * (575 * factor[comp]));
 }
 document.getElementById("duration").onchange = calculatePrice;
 document.getElementById("complexity").onchange = calculatePrice;
 
+// ════════════════════════════════════════════════════════════════
+// SLOTS
+// ════════════════════════════════════════════════════════════════
 async function loadSlots() {
     const date = document.getElementById("bookingDate").value;
     const grid = document.getElementById("slotsGrid");
+    const hint = document.getElementById('agenticSlotHint');
+    const hintText = document.getElementById('agenticSlotHintText');
     if (!date) return;
-    grid.innerHTML = "<p style='text-align:center;'>Loading...</p>";
-    
+
+    // ── CHANGE 1: Fetch AI suggestions when date is selected (existing students only) ──
+    if (window._isExistingStudent && date) {
+        fetchAgenticSuggestions(date);   // fire-and-forget, non-blocking
+    }
+
+    grid.innerHTML = "<p style='text-align:center;grid-column:1/-1;'><i class='bi bi-hourglass-split'></i> Loading…</p>";
+    if (hint) hint.style.display = 'none';
     try {
-        console.log("📅 Loading slots for date:", date);
-        const res = await fetch(`${API_BASE}/meeting-slots?date=${date}`);
-        
-        console.log("📡 Response status:", res.status);
-        
-        if (!res.ok) {
-            const errorText = await res.text();
-            console.error("❌ Slots API error:", errorText);
-            grid.innerHTML = "<p style='color:red;text-align:center;'>Error loading slots. Please try another date.</p>";
-            return;
-        }
-        
+        const res = await fetch(apiUrl(`/meeting-slots?date=${date}`));
+        if (!res.ok) { grid.innerHTML = "<p style='color:red;text-align:center;grid-column:1/-1;'>Error loading slots.</p>"; return; }
         const data = await res.json();
-        console.log("✅ Slots data:", data);
-        
-        grid.innerHTML = "";
-        window.selectedSlot = null;
-        
-        if (!data.slots || data.slots.length === 0) {
-            grid.innerHTML = "<p style='color:#999;text-align:center;'>No slots available for this date</p>";
-            return;
-        }
-        
+        grid.innerHTML = ""; window.selectedSlot = null;
+        if (!data.slots?.length) { grid.innerHTML = "<p style='color:#999;text-align:center;grid-column:1/-1;'>No slots available</p>"; return; }
         data.slots.forEach(s => {
             const btn = document.createElement("button");
-            btn.type = "button";
-            btn.className = "slot-button";
-            btn.textContent = s.start;
-            btn.disabled = !s.available;
-            
-            if (s.available) {
-                btn.onclick = () => {
-                    document.querySelectorAll(".slot-button").forEach(x => x.classList.remove("selected"));
-                    btn.classList.add("selected");
-                    window.selectedSlot = s.start;
-                };
-            }
+            btn.type = "button"; btn.className = "slot-button"; btn.textContent = s.start; btn.disabled = !s.available;
+            if (s.available) btn.onclick = () => {
+    // Remove ALL AI + selection states before applying the manual pick
+    document.querySelectorAll(".slot-button").forEach(x =>
+        x.classList.remove("selected", "suggested", "dimmed")
+    );
+    btn.classList.add("selected");
+    window.selectedSlot = s.start;
+    window.agenticSuggestedSlot = null;   // user overrode AI — clear it
+    clearAgenticSuggestion();
+};
             grid.appendChild(btn);
         });
-    } catch(err) {
-        console.error("❌ Load slots error:", err);
-        grid.innerHTML = "<p style='color:red;text-align:center;'>Network error loading slots</p>";
-    }
+        // NEW: if agentic suggestion already arrived before slots rendered, apply it now
+        if (window.agenticSuggestedSlot) {
+            highlightSuggestedSlot();
+        }
+    } catch(e) { grid.innerHTML = "<p style='color:red;text-align:center;grid-column:1/-1;'>Network error loading slots</p>"; }
 }
 
-document.getElementById("bookingDate").onchange = loadSlots;
-
-function openCheckout() {
-    const email = document.getElementById("studentEmail").value.trim();
-    const date = document.getElementById("bookingDate").value;
-    const slot = window.selectedSlot;
-    
-    if (!email) {
-        showAlert("Please enter your email", "error");
-        return;
-    }
-    
-    if (!date) {
-        showAlert("Please select a date", "error");
-        return;
-    }
-    
-    if (!slot) {
-        showAlert("Please select a time slot", "error");
-        return;
-    }
-    
-    if (currentUserType === 'internal') {
-        if (selectedEmployees.length === 0) {
-            showAlert("Please select at least one employee", "error");
-            return;
-        }
-        
-        const purposeEl = document.getElementById("purpose");
-        if (!purposeEl || !purposeEl.value) {
-            showAlert("Please select a meeting purpose", "error");
-            return;
-        }
-        
-        const issueDescEl = document.getElementById("issueDescription");
-        if (!issueDescEl || issueDescEl.value.trim().length < 10) {
-            showAlert("Issue description must be at least 10 characters", "error");
-            return;
-        }
-    }
-    
-    document.getElementById("checkout-date").textContent = date;
-    document.getElementById("checkout-time").textContent = slot;
-    document.getElementById("checkout-duration").textContent = document.getElementById("duration").value + " min";
-    document.getElementById("checkout-complexity").textContent = document.getElementById("complexity").value;
-    document.getElementById("checkout-email").textContent = email;
-    document.getElementById("checkout-price").textContent = document.getElementById("calculatedPrice").textContent;
-    
-    if (currentUserType === 'internal') {
-        document.getElementById("checkout-internal").style.display = 'block';
-        document.getElementById("checkout-organizer").textContent = document.getElementById("usernameDisplay").textContent;
-        document.getElementById("checkout-attendees").textContent = selectedEmployees.length + " employee(s)";
-        document.getElementById("checkout-purpose").textContent = document.getElementById("purpose").value;
-    } else {
-        document.getElementById("checkout-internal").style.display = 'none';
-    }
-    
-    const offcanvas = new bootstrap.Offcanvas(document.getElementById('checkoutOffcanvas'));
-    offcanvas.show();
-}
-
-async function confirmBooking() {
-    const payload = {
-        email: document.getElementById("studentEmail").value.trim(),
-        date: document.getElementById("bookingDate").value,
-        start_time: window.selectedSlot,
-        duration_minutes: parseInt(document.getElementById("duration").value),
-        complexity: document.getElementById("complexity").value,
-        booking_type: currentUserType
-    };
-    
-    if (currentUserType === 'internal') {
-        payload.employee_emails = selectedEmployees;
-        payload.purpose = document.getElementById("purpose").value;
-        payload.issue_description = document.getElementById("issueDescription").value.trim();
-    }
-
+// ── CHANGE 2a: Fetch agentic suggestions from /meeting/api/agentic-suggestions ──
+async function fetchAgenticSuggestions(date) {
     try {
-        const res = await secureFetch(`${API_BASE}/meeting-book`, {
+        console.log("🚀 [AUTO-SUGGEST] fetchAgenticSuggestions() called with date:", date);
+        const email = document.getElementById("studentEmail").value.trim();
+        console.log("🚀 [AUTO-SUGGEST] Student email:", email);
+        if (!email) {
+            console.log("⚠️ [AUTO-SUGGEST] No email provided, skipping");
+            return;
+        }
+
+        const requestPayload = { email, date, booking_reason: null };
+        console.log("📤 [AUTO-SUGGEST] Sending API request to /meeting/api/agentic-suggestions", requestPayload);
+        
+        const resp = await fetch("/meeting/api/agentic-suggestions", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(requestPayload)
         });
         
-        const data = await res.json();
-        
-        if (!res.ok) { 
-            showAlert(data.detail || data.error || "Booking failed", "error"); 
-            return; 
+        console.log("📥 [AUTO-SUGGEST] Response status:", resp.status, resp.statusText);
+        if (!resp.ok) {
+            console.error("❌ [AUTO-SUGGEST] API returned error status:", resp.status);
+            return;
         }
         
-        const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('checkoutOffcanvas'));
-        offcanvas.hide();
-        
-        showAlert("✅ Booking submitted successfully! Awaiting approval.", "success");
-        
-        document.getElementById("bookingForm").reset();
-        
-        if (currentUserType === 'internal') {
-            selectedEmployees = [];
-            updateEmployeeDisplay();
-            
-            const issueDescEl = document.getElementById("issueDescription");
-            const charCountEl = document.getElementById("charCount");
-            const purposeEl = document.getElementById("purpose");
-            
-            if (issueDescEl) issueDescEl.value = '';
-            if (charCountEl) charCountEl.textContent = '0';
-            if (purposeEl) purposeEl.value = '';
+        const data = await resp.json();
+        console.log("📥 [AUTO-SUGGEST] Full response received:", data);
+        console.log("📥 [AUTO-SUGGEST] Suggestion model status:", data.suggestions?.model_status);
+        console.log("📥 [AUTO-SUGGEST] Suggested duration:", data.suggestions?.suggested_duration_minutes);
+        console.log("📥 [AUTO-SUGGEST] Suggested complexity:", data.suggestions?.suggested_complexity);
+        console.log("📥 [AUTO-SUGGEST] Complexity confidence:", data.suggestions?.complexity_confidence);
+        console.log("📥 [AUTO-SUGGEST] Semantic embedding used:", data.suggestions?.semantic_used);
+        console.log("📥 [AUTO-SUGGEST] Training samples:", data.suggestions?.training_samples);
+
+        if (data.suggestions?.model_status === "trained") {
+            console.log("✅ [AUTO-SUGGEST] Model is trained, applying suggestions...");
+            window.agenticSuggestion = data.suggestions;
+            applyAgenticSuggestions(data.suggestions);
+        } else {
+            console.warn("⚠️ [AUTO-SUGGEST] Model not trained or unavailable | status=", data.suggestions?.model_status);
         }
-        
-        window.selectedSlot = null;
-        loadSlots();
-        
-    } catch(err) { 
-        console.error("❌ Booking error:", err);
-        showAlert("Network error. Please try again.", "error"); 
+    } catch(e) {
+        console.error("❌ [AUTO-SUGGEST] Exception caught:", e.name, e.message);
+        console.error("❌ [AUTO-SUGGEST] Stack:", e.stack);
     }
 }
 
+// ── CHANGE 2b: Apply agentic suggestions to complexity, duration, and hint banner ──
+function applyAgenticSuggestions(s) {
+    console.log("🎯 [AUTO-SUGGEST] applyAgenticSuggestions() called with:", s);
+    
+    // Apply complexity suggestion
+    if (s.suggested_complexity) {
+    console.log("✅ [AUTO-SUGGEST] Setting complexity to:", s.suggested_complexity);
+    const el = document.getElementById('complexity');
+    el.value = s.suggested_complexity;
+    el.classList.add('ai-locked');
+    const wrapper = document.getElementById('complexityWrapper');
+    if (wrapper && !wrapper.querySelector('.ai-lock-badge')) {
+        const badge = document.createElement('span');
+        badge.className = 'ai-lock-badge';
+        badge.textContent = '🔒 AI';
+        wrapper.appendChild(badge);
+    }
+    }
+    
+    // Apply duration suggestion
+    if (s.suggested_duration_minutes) {
+    console.log("✅ [AUTO-SUGGEST] Setting duration to:", s.suggested_duration_minutes, "minutes");
+    const el = document.getElementById('duration');
+    el.value = String(s.suggested_duration_minutes);
+    el.classList.add('ai-locked');
+    const wrapper = document.getElementById('durationWrapper');
+    if (wrapper && !wrapper.querySelector('.ai-lock-badge')) {
+        const badge = document.createElement('span');
+        badge.className = 'ai-lock-badge';
+        badge.textContent = '🔒 AI';
+        wrapper.appendChild(badge);
+    }
+    }
+
+    console.log("💰 [AUTO-SUGGEST] Recalculating price after applying suggestions");
+    calculatePrice();
+
+    // Update hint banner
+    const conf = Math.round((s.complexity_confidence || 0) * 100);
+    console.log("📊 [AUTO-SUGGEST] Confidence level:", conf + "%");
+    console.log("📊 [AUTO-SUGGEST] Training samples used:", s.training_samples);
+    
+    const hintEl = document.getElementById('agenticSlotHint');
+    const textEl = document.getElementById('agenticSlotHintText');
+    if (hintEl && textEl) {
+        const hintText = `AI pre-filled based on your last ${s.training_samples || 'previous'} sessions — ${conf}% confidence.`;
+        console.log("📝 [AUTO-SUGGEST] Updating hint banner:", hintText);
+        textEl.textContent = hintText;
+        hintEl.style.display = 'block';
+    } else {
+        console.warn("⚠️ [AUTO-SUGGEST] Hint elements not found in DOM");
+    }
+    
+    // Store and apply the slot suggestion
+    if (s.suggested_slot) {
+    console.log("✅ [AUTO-SUGGEST] Storing suggested slot:", s.suggested_slot);
+    window.agenticSuggestedSlot = s.suggested_slot;
+    highlightSuggestedSlot();
+} else {
+    // Backend didn't return a slot yet — pick a random available one between 10:00–19:00
+    console.log("⚠️ [AUTO-SUGGEST] No slot from backend — applying random fallback slot");
+    const available = Array.from(
+        document.querySelectorAll('.slot-button:not(:disabled)')
+    ).filter(btn => {
+        const hour = parseInt(btn.textContent.trim().split(':')[0], 10);
+        return hour >= 10 && hour <= 19;
+    });
+    if (available.length > 0) {
+        const picked = available[Math.floor(Math.random() * available.length)];
+        window.agenticSuggestedSlot = picked.textContent.trim();
+        console.log("✅ [AUTO-SUGGEST] Fallback slot selected:", window.agenticSuggestedSlot);
+        highlightSuggestedSlot();
+    } else {
+        console.log("⚠️ [AUTO-SUGGEST] No available slots in 10:00–19:00 range to fall back to");
+    }
+    }
+    
+    console.log("✅ [AUTO-SUGGEST] applyAgenticSuggestions() completed");
+}
+
+// function clearAgenticSuggestion() {
+//     window.agenticSuggestedSlot = null;
+//     const hint = document.getElementById('agenticSlotHint');
+//     if (hint) hint.style.display = 'none';
+// }
+
+function clearAgenticSuggestion() {
+    console.log("🔄 [AUTO-SUGGEST] clearAgenticSuggestion() called");
+    window.agenticSuggestedSlot = null;
+
+    // Remove AI visual state from every slot
+    const removedCount = document.querySelectorAll('.slot-button').length;
+    document.querySelectorAll('.slot-button').forEach(btn => {
+        btn.classList.remove('suggested', 'dimmed');
+    });
+    console.log("✅ [AUTO-SUGGEST] Cleared AI state from", removedCount, "slot buttons");
+
+    // Unlock complexity
+    const complexityEl = document.getElementById('complexity');
+    complexityEl.classList.remove('ai-locked');
+    document.querySelectorAll('#complexityWrapper .ai-lock-badge').forEach(b => b.remove());
+
+    // Unlock duration
+    const durationEl = document.getElementById('duration');
+    durationEl.classList.remove('ai-locked');
+    document.querySelectorAll('#durationWrapper .ai-lock-badge').forEach(b => b.remove());
+
+    const hint = document.getElementById('agenticSlotHint');
+    if (hint) {
+        hint.style.display = 'none';
+        console.log("✅ [AUTO-SUGGEST] Hint banner hidden");
+    }
+    console.log("✅ [AUTO-SUGGEST] clearAgenticSuggestion() completed");
+}
+
+document.getElementById("bookingDate").addEventListener("input", function(e) {
+    const date = e.target.value;
+    console.log("📅 [EVENT] Booking date changed to:", date);
+    loadSlots(date);
+    // fetchAgenticSuggestions(date);
+    console.log("📅 [EVENT] Both loadSlots() and fetchAgenticSuggestions() triggered");
+});
+
+// ════════════════════════════════════════════════════════════════
+// CHECKOUT
+// ════════════════════════════════════════════════════════════════
+function openCheckout() {
+    const email = document.getElementById("studentEmail").value.trim();
+    const date  = document.getElementById("bookingDate").value;
+    const slot  = window.selectedSlot;
+    const minDate = document.getElementById("bookingDate").min;
+    const isInternalBooking = currentUserType === 'internal' || isInternalOrganizationEmail(email);
+
+    if (!email)                    { showAlert("Please enter your email", "error"); return; }
+    if (!date)                     { showAlert("Please select a date", "error"); return; }
+    if (minDate && date < minDate) {
+        const msg = isInternalBooking
+            ? "Please select today or a future date"
+            : "External bookings must be made at least 1 day in advance";
+        showAlert(msg, "error");
+        return;
+    }
+    if (!slot)                     { showAlert("Please select a time slot", "error"); return; }
+
+    document.getElementById("checkout-date").textContent     = date;
+    document.getElementById("checkout-time").textContent     = slot;
+    document.getElementById("checkout-duration").textContent = document.getElementById("duration").value + " min";
+    document.getElementById("checkout-complexity").textContent = document.getElementById("complexity").value;
+    document.getElementById("checkout-email").textContent    = email;
+    document.getElementById("checkout-price").textContent    = document.getElementById("calculatedPrice").textContent;
+
+    new bootstrap.Offcanvas(document.getElementById('checkoutOffcanvas')).show();
+}
+
+// ════════════════════════════════════════════════════════════════
+// ALERTS
+// ════════════════════════════════════════════════════════════════
 function showAlert(msg, type) {
     const box = document.getElementById("alertBox");
     box.textContent = msg;
@@ -1175,26 +1694,132 @@ function showAlert(msg, type) {
     setTimeout(() => box.classList.remove("show"), 5000);
 }
 
-function renderPurposes(purposes) {
-    const select = document.getElementById("purpose");
-    if (select) {
-        select.innerHTML = '<option value="">-- Select Purpose --</option>';
-        purposes.forEach(p => {
-            const opt = document.createElement("option");
-            opt.value = p; opt.textContent = p;
-            select.appendChild(opt);
+// ════════════════════════════════════════════════════════════════
+// SUBMIT BOOKING
+// ════════════════════════════════════════════════════════════════
+async function submitBooking(payload) {
+    console.log("Submitting booking with payload:", payload);
+    try {
+        const res = await secureFetch(apiUrl('/meeting/book'), {
+            method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
         });
+        let data = {};
+        try { data = await res.json(); } catch(_) {}
+        if (!res.ok) { showAlert(data.detail || `Booking failed (HTTP ${res.status})`, "error"); return; }
+
+        bootstrap.Offcanvas.getInstance(document.getElementById('checkoutOffcanvas'))?.hide();
+
+        window.currentBookingId = data.booking_id || '';
+
+        const fd = data.final_duration_minutes || payload.duration_minutes;
+        const fp = data.price || document.getElementById("calculatedPrice").textContent;
+        let msg = `✅ Booking confirmed! Duration: ${fd} min | Price: ₹${fp}`;
+        if (data.quick_touchpoint_applied) msg += " (Auto-adjusted to 5 min quick touchpoint)";
+        showAlert(msg, "success");
+
+        document.getElementById("bookingForm").reset();
+        window.selectedSlot = null;
+        loadSlots();
+        revealPostBooking();
+
+        if (data.teams_link) {
+            setTimeout(() => { window.location.href = data.teams_link; }, 2500);
+        }
+
+    } catch(e) { showAlert("Network error. Please try again.", "error"); }
+}
+
+// ════════════════════════════════════════════════════════════════
+// CONFIRM BOOKING (Razorpay)
+// ════════════════════════════════════════════════════════════════
+async function confirmBooking() {
+    const confirmBtn = document.querySelector('#checkoutOffcanvas .btn.btn-success');
+    if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.dataset.originalText = confirmBtn.innerHTML; confirmBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing…'; }
+
+    const selectedDate = document.getElementById("bookingDate").value;
+    const minDate = document.getElementById("bookingDate").min;
+    const email = document.getElementById("studentEmail").value.trim();
+    const isInternalBooking = currentUserType === 'internal' || isInternalOrganizationEmail(email);
+    const bookingType = isInternalBooking ? 'internal' : 'external';
+    if (minDate && selectedDate < minDate) {
+        const msg = isInternalBooking
+            ? "Please select today or a future date"
+            : "External bookings must be made at least 1 day in advance";
+        showAlert(msg, "error");
+        if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.innerHTML = confirmBtn.dataset.originalText; }
+        return;
+    }
+
+    const payload = {
+        email,
+        date: selectedDate, start_time: window.selectedSlot,
+        duration_minutes: parseInt(document.getElementById("duration").value),
+        complexity: document.getElementById("complexity").value,
+        booking_type: bookingType, payment_id: "", order_id: "", signature: ""
+    };
+    try {
+        if (typeof Razorpay === "undefined") { showAlert("Razorpay SDK not loaded. Please refresh.", "error"); return; }
+
+        const pq = new URLSearchParams({
+            date: payload.date,
+            start_time: payload.start_time,
+            duration_minutes: String(payload.duration_minutes),
+            complexity: payload.complexity,
+            booking_type: payload.booking_type,
+            email: payload.email
+        });
+        const pvRes = await secureFetch(`/meeting/api/price-preview?${pq}`);
+        if (!pvRes.ok) { showAlert("Could not fetch price. Try again.", "error"); return; }
+        const pvData = await pvRes.json();
+
+        const orderRes = await secureFetch("/meeting/api/create-payment-order", {
+            method:"POST", headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({ amount: pvData.price_paise, currency:"INR", notes:"Meeting Booking" })
+        });
+        if (!orderRes.ok) { showAlert("Could not create payment order.", "error"); return; }
+        const orderData = await orderRes.json();
+
+        const rzp = new Razorpay({
+            key: orderData.payment_key_id, amount: orderData.amount,
+            currency: orderData.currency || "INR", name: "ChakoraHub",
+            description: "Meeting Session Booking", order_id: orderData.order_id,
+            prefill: { email: payload.email }, theme: { color: "#667eea" },
+            modal: { ondismiss: () => showAlert("Payment cancelled.", "error") },
+            handler: async r => { payload.payment_id=r.razorpay_payment_id; payload.order_id=r.razorpay_order_id; payload.signature=r.razorpay_signature; await submitBooking(payload); }
+        });
+        rzp.on("payment.failed", r => showAlert("Payment failed: " + (r.error.description || "Try again."), "error"));
+        rzp.open();
+    } catch(e) {
+        showAlert("Network error. Please try again.", "error");
+    } finally {
+        if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.innerHTML = confirmBtn.dataset.originalText || '<i class="bi bi-check-circle"></i> Confirm & Book Session'; }
     }
 }
 
-// Initialize
-const d = new Date();
-d.setDate(d.getDate() + 1);
-document.getElementById("bookingDate").value = d.toISOString().split("T")[0];
-calculatePrice();
+// ════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════
+(function init() {
+    const el = document.getElementById("bookingDate");
+    const tom = new Date(); tom.setDate(tom.getDate()+1);
+    const min = `${tom.getFullYear()}-${String(tom.getMonth()+1).padStart(2,'0')}-${String(tom.getDate()).padStart(2,'0')}`;
+    el.min = el.value = min;
 
-console.log("✅ Page loaded successfully");
+    loadSlots();
+    calculatePrice();
+
+    (async () => {
+        try {
+            const res  = await secureFetch(apiUrl('/whoami'));
+            const data = await res.json();
+            if (data.username) { document.getElementById("usernameDisplay").textContent = data.username; AUTH_USER = data.username; }
+            if (data.role)     { document.getElementById("roleDisplay").textContent = ` [${data.role}]`; }
+            if (data.user_type === 'internal') enableInternalMode();
+        } catch(_) {}
+    })();
+})();
+
+console.log("✅ Meeting Intelligence loaded");
 </script>
-
 </body>
 </html>

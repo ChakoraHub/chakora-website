@@ -258,6 +258,29 @@
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
+        .btn-submit.loading {
+            opacity: 0.9;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .btn-submit.loading::after {
+            content: "";
+            width: 14px;
+            height: 14px;
+            margin-left: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            display: inline-block;
+            vertical-align: -2px;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -278,6 +301,88 @@
         .back-button:hover {
             background-color: #5a6fd8;
         }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-cancel,
+        .btn-danger {
+            border: none;
+            border-radius: 6px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-cancel {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-danger {
+            background: #d32f2f;
+            color: #fff;
+        }
+
+        .btn-cancel:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            min-width: 280px;
+            max-width: 360px;
+            background: #1f2937;
+            color: #fff;
+            border-radius: 10px;
+            padding: 14px 16px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid #60a5fa;
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: opacity 180ms ease, transform 180ms ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            border-left-color: #22c55e;
+        }
+
+        .toast.error {
+            border-left-color: #ef4444;
+        }
+
+        .toast-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .toast-message {
+            font-size: 13px;
+            opacity: 0.95;
+        }
     </style>
 </head>
 <body>
@@ -287,7 +392,7 @@
         <img src="{{ url_for('static', filename='logo.png') }}" class="logo" alt="Logo">
         <div class="title">Admin Dashboard</div>
         <div class="profile-wrapper" onclick="toggleTopDropdown()">
-            <img src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}" class="profile" alt="Profile">
+            <img src="{{ profile_pic if profile_pic else url_for('static', filename='profile_photo/defaultpicture.jpg') }}" class="profile" alt="Profile">
             <div class="dropdown-menu" id="topDropdown">
                 <a href="{{ url_for('profile') }}">Profile</a>
                 <a href="{{ url_for('settings') }}">Settings</a>
@@ -377,7 +482,23 @@
         </div>
     </div>
 
-    <a href="/resources" class="back-button">Back to Resources</a>
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeDeleteModal()">&times;</span>
+                <h2>Delete Application</h2>
+            </div>
+            <p>Are you sure you want to delete this application?</p>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn-danger" id="confirmDeleteBtn" onclick="confirmDeleteApplication()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <a href="/employee-resources" class="back-button">Back to Resources</a>
+
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
     <script>
     /* ===== NEW: Top header dropdown toggle (minimal helper) ===== */
@@ -395,6 +516,7 @@
 
     /* ===== ORIGINAL SCRIPTS (kept unchanged) ===== */
     let allApplications = [];
+    let deleteTargetAppId = null;
 
     window.onload = function() {
         loadApplications();
@@ -402,11 +524,11 @@
 
     async function loadApplications() {
         try {
-            const response = await fetch('https://7j03rxamm1.execute-api.eu-north-1.amazonaws.com/Prod/applications');
+            const response = await fetch('/api/onboarding/applications');
             const result = await response.json();
 
             const data = (typeof result.body === "string") ? JSON.parse(result.body) : result;
-            allApplications = data.applications;
+            allApplications = data.applications || [];
 
             displayApplications();
             updateStats();
@@ -469,13 +591,14 @@
     }
 
     function getStatusClass(status) {
-        if (status.includes('Upload')) return 'status-uploaded';
-        if (status.includes('Review')) return 'status-review';
-        if (status.includes('Interview')) return 'status-interview';
-        if (status === 'Selected') return 'status-selected';
-        if (status === 'Rejected') return 'status-rejected';
-        return 'status-review';
-    }
+    if (!status) return 'status-review';
+    if (status.includes('Upload')) return 'status-uploaded';
+    if (status.includes('Review')) return 'status-review';
+    if (status.includes('Interview')) return 'status-interview';
+    if (status === 'Selected') return 'status-selected';
+    if (status === 'Rejected') return 'status-rejected';
+    return 'status-review';
+}
 
     function openUpdateModal(appId) {
         document.getElementById('modalAppId').value = appId;
@@ -488,15 +611,65 @@
         document.getElementById('updateModal').style.display = 'none';
     }
 
-    // DELETE APPLICATION FUNCTION
-async function deleteApplication(appId) {
-    if (!confirm("Are you sure you want to delete this application?")) {
-        return;
+    function openDeleteModal(appId) {
+        deleteTargetAppId = appId;
+        document.getElementById('deleteConfirmModal').style.display = 'block';
     }
 
+    function closeDeleteModal() {
+        deleteTargetAppId = null;
+        document.getElementById('deleteConfirmModal').style.display = 'none';
+    }
+
+    function setUpdateButtonLoading(isLoading) {
+        const btn = document.querySelector('#updateModal .btn-submit');
+        if (!btn) return;
+        if (!btn.dataset.originalText) {
+            btn.dataset.originalText = btn.textContent;
+        }
+        btn.disabled = isLoading;
+        btn.classList.toggle('loading', isLoading);
+        btn.textContent = isLoading ? 'Updating...' : btn.dataset.originalText;
+    }
+
+    function showToast(type, title, message) {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <div class="toast-title">${title}</div>
+            <div class="toast-message">${message}</div>
+        `;
+
+        container.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('show'));
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 200);
+        }, 2800);
+    }
+
+    // DELETE APPLICATION FUNCTION
+async function deleteApplication(appId) {
+    openDeleteModal(appId);
+}
+
+async function confirmDeleteApplication() {
+    if (!deleteTargetAppId) return;
+    const appId = deleteTargetAppId;
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    const oldText = confirmBtn ? confirmBtn.textContent : 'Delete';
+
     try {
-        const response = await fetch(
-            "https://7j03rxamm1.execute-api.eu-north-1.amazonaws.com/Prod/delete-application",
+        if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Deleting...';
+        }
+
+        const response = await 	fetch("/api/onboarding/delete-application",
             {
                 method: "DELETE",
                 headers: {
@@ -516,11 +689,17 @@ async function deleteApplication(appId) {
             throw new Error(result.message || "Failed to delete application");
         }
 
-        alert("Application deleted successfully!");
+        closeDeleteModal();
+        showToast('success', 'Deleted', 'Application deleted successfully.');
         loadApplications();
 
     } catch (error) {
-        alert("Error: " + error.message);
+        showToast('error', 'Delete Failed', error.message || 'Unable to delete application.');
+    } finally {
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = oldText;
+        }
     }
 }
 
@@ -531,13 +710,13 @@ async function deleteApplication(appId) {
         const notes = document.getElementById('statusNotes').value;
 
         if (!newStatus) {
-            alert('Please select a status');
+            showToast('error', 'Status Required', 'Please select a status before updating.');
             return;
         }
 
         try {
-            const response = await fetch(
-                'https://7j03rxamm1.execute-api.eu-north-1.amazonaws.com/Prod/update-status',
+            setUpdateButtonLoading(true);
+            const response = await fetch('/api/onboarding/update-status',
                 {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -552,12 +731,14 @@ async function deleteApplication(appId) {
 
             if (!response.ok) throw new Error('Failed to update status');
 
-            alert('Status updated successfully!');
+            showToast('success', 'Status Updated', 'Application status was updated successfully.');
             closeModal();
             loadApplications();
 
         } catch (error) {
-            alert('Error: ' + error.message);
+            showToast('error', 'Update Failed', error.message || 'Unable to update status.');
+        } finally {
+            setUpdateButtonLoading(false);
         }
     }
 
@@ -568,13 +749,15 @@ async function deleteApplication(appId) {
     // Close modal if clicked outside
     window.onclick = function(event) {
         const modal = document.getElementById('updateModal');
+        const deleteModal = document.getElementById('deleteConfirmModal');
         if (event.target === modal) closeModal();
+        if (event.target === deleteModal) closeDeleteModal();
     };
     //Download resume-------------------------------------
     function downloadResume(applicationId) {
     console.log("Downloading resume for", applicationId);
 
-    const url = `/download-resume/${encodeURIComponent(applicationId)}`;
+    const url = `/api/onboarding/download-resume/${encodeURIComponent(applicationId)}`;
 
     // Create a hidden <a> tag with automatic download
     const link = document.createElement('a');

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Submit BRS Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:'Poppins',sans-serif;
+  min-height:100vh;
+  background:linear-gradient(135deg,#6b73ff,#7f53ac);
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:30px 15px;
+}
+
+/* ===== Card ===== */
+.card{
+  width:100%;
+  max-width:900px;
+  background:#fff;
+  border-radius:18px;
+  padding:35px;
+  box-shadow:0 15px 40px rgba(0,0,0,.2);
+}
+
+/* ===== Top Navigation ===== */
+.top-nav{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:25px;
+}
+
+.top-nav button{
+  padding:10px 18px;
+  border:none;
+  border-radius:10px;
+  background:#eef0ff;
+  color:#5b5fe6;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.top-nav button:hover{
+  background:#dde0ff;
+}
+
+/* ===== Headings ===== */
+h2{
+  text-align:center;
+  font-size:28px;
+  margin-bottom:6px;
+}
+
+.subtitle{
+  text-align:center;
+  color:#666;
+  margin-bottom:30px;
+  font-size:14px;
+}
+
+/* ===== Inputs ===== */
+label{
+  display:block;
+  margin-top:18px;
+  font-weight:600;
+  font-size:14px;
+}
+
+input, textarea, select{
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  margin-top:6px;
+  font-size:14px;
+  background:#fafafa;
+}
+
+input:focus, textarea:focus, select:focus{
+  outline:none;
+  border-color:#6b73ff;
+  background:#fff;
+}
+
+/* ===== Button ===== */
+.submit-btn{
+  margin-top:35px;
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(135deg,#6b73ff,#7f53ac);
+  color:white;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.submit-btn:hover{opacity:.92}
+
+/* ===== Flash Messages ===== */
+.flash-success{
+  background:#e6ffed;
+  color:#067a33;
+  padding:14px;
+  border-radius:10px;
+  margin-bottom:20px;
+}
+
+.flash-error{
+  background:#ffe6e6;
+  color:#a00000;
+  padding:14px;
+  border-radius:10px;
+  margin-bottom:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <!-- 🔹 Navigation Buttons -->
+  <div class="top-nav">
+    <button onclick="window.location.href='/'">🏠 Home</button>
+    <button onclick="window.location.href='/applicationform'">📄Application Form</button>
+    <button onclick="window.location.href='/organization-signoff'">🏢 Organization Sign Off</button>
+    <button onclick="window.location.href='/track-project '">📊 Track Status</button>
+    
+    
+  </div>
+
+  <h2>Submit BRS Form</h2>
+  <p class="subtitle">Provide complete business requirements & upload your BRS document</p>
+
+  <!-- Flash messages (UNCHANGED LOGIC) -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash-success">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form action="/industry/brs" method="POST" enctype="multipart/form-data">
+
+    <label>Application ID *</label>
+    <input type="text" name="project_id" required>
+
+    <label>Project Name *</label>
+    <input type="text" name="project_name" required>
+
+    <label>Project Description</label>
+    <textarea name="project_description" rows="3"></textarea>
+
+    <label>Client Name *</label>
+    <input type="text" name="client_name" required>
+
+    <label>Department / Team</label>
+    <input type="text" name="department">
+
+    <label>Requirement Type</label>
+    <select name="requirement_type">
+      <option>New Development</option>
+      <option>Enhancement</option>
+      <option>Maintenance</option>
+      <option>Bug Fix</option>
+    </select>
+
+    <label>Priority</label>
+    <select name="priority">
+      <option>Low</option>
+      <option>Medium</option>
+      <option>High</option>
+      <option>Critical</option>
+    </select>
+
+    <label>Business Objective</label>
+    <textarea name="business_objective" rows="4"></textarea>
+
+    <label>Scope</label>
+    <textarea name="scope" rows="4"></textarea>
+
+    <label>Start Date</label>
+    <input type="date" name="start_date">
+
+    <label>End Date</label>
+    <input type="date" name="end_date">
+
+    <label>Contact Email</label>
+    <input type="email" name="contact_email">
+
+    <label>Contact Phone</label>
+    <input type="number" name="contact_phone">
+
+    <label>Upload BRS Document (PDF / DOCX) *</label>
+    <input type="file" name="file" required>
+
+    <button type="submit" class="submit-btn">Next →</button>
+
+  </form>
+
+</div>
+
+</body>
+</html>

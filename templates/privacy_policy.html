@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Privacy Policy — Chakora Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --ink:       #0b0f1a;
+      --paper:     #f7f5f0;
+      --warm:      #e8e2d9;
+      --teal:      #0d9488;
+      --teal-dark: #0f766e;
+      --teal-pale: rgba(13,148,136,0.09);
+      --muted:     #64748b;
+      --rule:      rgba(11,15,26,0.10);
+      --gold:      #c9a84c;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Decorative background ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 50% at 90% 10%, rgba(13,148,136,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 5%  90%, rgba(201,168,76,0.07)  0%, transparent 60%);
+    }
+
+    /* ── Layout ── */
+    .page {
+      position: relative; z-index: 1;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ── Masthead ── */
+    .masthead {
+      border-bottom: 2px solid var(--ink);
+      padding: 52px 0 28px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      animation: fadeUp .55s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    .brand-mark {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .brand-icon {
+      width: 44px; height: 44px;
+      background: var(--ink);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .brand-icon svg { width: 24px; height: 24px; fill: var(--paper); }
+
+    .brand-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+      color: var(--ink);
+    }
+    .brand-name span {
+      display: block;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .doc-meta {
+      text-align: right;
+    }
+    .doc-meta .doc-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--teal);
+    }
+    .doc-meta .doc-date {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* ── Hero headline ── */
+    .hero {
+      padding: 56px 0 48px;
+      border-bottom: 1px solid var(--rule);
+      animation: fadeUp .6s .1s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 18px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      width: 28px; height: 2px;
+      background: var(--teal);
+      display: inline-block;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 7vw, 4.4rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--teal);
+    }
+
+    .hero-sub {
+      margin-top: 20px;
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 520px;
+    }
+
+    /* ── Sections ── */
+    .sections {
+      margin-top: 56px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .policy-section {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 0 40px;
+      padding: 40px 0;
+      border-bottom: 1px solid var(--rule);
+      animation: fadeUp .6s cubic-bezier(.22,1,.36,1) both;
+    }
+    .policy-section:nth-child(1) { animation-delay: .15s; }
+    .policy-section:nth-child(2) { animation-delay: .22s; }
+    .policy-section:nth-child(3) { animation-delay: .29s; }
+    .policy-section:nth-child(4) { animation-delay: .36s; }
+
+    .section-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-top: 4px;
+      position: relative;
+    }
+    .section-number::after {
+      content: '';
+      display: block;
+      width: 24px; height: 2px;
+      background: var(--teal);
+      margin-top: 10px;
+    }
+
+    .section-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    /* ── Info card (collected data / purpose) ── */
+    .info-card {
+      background: var(--teal-pale);
+      border: 1px solid rgba(13,148,136,0.18);
+      border-left: 3px solid var(--teal);
+      border-radius: 12px;
+      padding: 20px 22px;
+    }
+
+    .info-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .info-list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .info-list li::before {
+      content: '';
+      flex-shrink: 0;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--teal);
+    }
+
+    /* ── Commitment banner ── */
+    .commitment-banner {
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: 16px;
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .commitment-icon {
+      flex-shrink: 0;
+      width: 48px; height: 48px;
+      background: var(--teal);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .commitment-icon svg { width: 24px; height: 24px; fill: #fff; }
+    .commitment-text .headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .commitment-text p {
+      font-size: 13.5px;
+      color: rgba(247,245,240,0.65);
+      line-height: 1.55;
+    }
+
+    /* ── Contact section ── */
+    .contact-card {
+      background: var(--warm);
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .contact-card .mail-dot {
+      width: 40px; height: 40px;
+      background: var(--ink);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .contact-card .mail-dot svg { width: 20px; height: 20px; fill: var(--paper); }
+    .contact-card .contact-info .label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .contact-card .contact-info a {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--teal-dark);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+    .contact-card .contact-info a:hover { text-decoration: underline; }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 64px;
+      padding-top: 28px;
+      border-top: 2px solid var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      animation: fadeUp .6s .5s cubic-bezier(.22,1,.36,1) both;
+    }
+    .footer-company {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .footer-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 50px;
+    }
+    .footer-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--teal);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 580px) {
+      .policy-section {
+        grid-template-columns: 1fr;
+        gap: 12px 0;
+      }
+      .section-number::after { margin-bottom: 12px; }
+      .masthead { flex-direction: column; align-items: flex-start; }
+      .doc-meta { text-align: left; }
+      .commitment-banner { flex-direction: column; align-items: flex-start; }
+      .footer { flex-direction: column; align-items: flex-start; gap: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Masthead -->
+    <header class="masthead">
+      <div class="brand-mark">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="brand-name">
+          Chakora Hub
+          <span>OPC Private Limited</span>
+        </div>
+      </div>
+      <div class="doc-meta">
+        <div class="doc-label">Legal Document</div>
+        <div class="doc-date">Effective May 2026</div>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-eyebrow">Privacy Policy</div>
+      <h1>Your data,<br/><em>handled with care.</em></h1>
+      <p class="hero-sub">This document explains what personal information Chakora Hub collects, why we collect it, and how we protect it. We believe in full transparency.</p>
+    </section>
+
+    <!-- Policy Sections -->
+    <div class="sections">
+
+      <!-- Section 01 -->
+      <div class="policy-section">
+        <div class="section-number">§ 01<br/>Data We Collect</div>
+        <div class="section-content">
+          <h2>Information We Collect</h2>
+          <div class="info-card">
+            <ul class="info-list">
+              <li>Full Name</li>
+              <li>Phone Number</li>
+              <li>Email Address</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 02 -->
+      <div class="policy-section">
+        <div class="section-number">§ 02<br/>Purpose</div>
+        <div class="section-content">
+          <h2>Why We Collect It</h2>
+          <div class="info-card">
+            <ul class="info-list">
+              <li>Course registration &amp; enrolment</li>
+              <li>Meeting scheduling with tutors</li>
+              <li>WhatsApp notifications &amp; updates</li>
+              <li>Student communication &amp; support</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 03 -->
+      <div class="policy-section">
+        <div class="section-number">§ 03<br/>Our Commitment</div>
+        <div class="section-content">
+          <h2>Data Protection Promise</h2>
+          <div class="commitment-banner">
+            <div class="commitment-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="commitment-text">
+              <div class="headline">We do not sell your data. Ever.</div>
+              <p>Your personal information is used solely for the purposes listed above and is never shared with or sold to third parties for commercial gain.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 04 -->
+      <div class="policy-section">
+        <div class="section-number">§ 04<br/>Your Rights</div>
+        <div class="section-content">
+          <h2>Data Deletion Requests</h2>
+          <p style="font-size:14.5px; color:var(--muted); margin-bottom:16px; line-height:1.65;">
+            You have the right to request deletion of your personal data at any time. Reach out to us directly and we will process your request promptly.
+          </p>
+          <div class="contact-card">
+            <div class="mail-dot">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div class="contact-info">
+              <div class="label">Contact for deletion requests</div>
+              <a href="mailto:admin@chakorahub.com">admin@chakorahub.com</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /sections -->
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-company">CHAKORA HUB (OPC) PRIVATE LIMITED</div>
+      <div class="footer-badge">Privacy Policy</div>
+    </footer>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,569 @@
+{% extends "base.html" %}
+{% block title %}Create Mock Test - Admin Panel{% endblock %}
+
+{% block head %}
+<style>
+    .question-item {
+        padding: 10px 15px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .question-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .question-item.selected {
+        border-color: var(--accent-blue);
+        background: rgba(59, 130, 246, 0.08);
+    }
+
+    .question-item .q-number {
+        min-width: 30px;
+        font-weight: 600;
+        color: var(--accent-blue);
+        font-size: 0.9rem;
+    }
+
+    .question-item .q-text {
+        flex: 1;
+        font-size: 0.9rem;
+    }
+
+    .question-item .q-meta {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    .question-item input[type="checkbox"] {
+        margin-top: 3px;
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+    }
+
+    .selected-count {
+        background: var(--accent-blue);
+        color: white;
+        padding: 2px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    .question-list-container {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .question-list-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .question-list-container::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 3px;
+    }
+
+    .question-list-container::-webkit-scrollbar-thumb {
+        background: rgba(59, 130, 246, 0.3);
+        border-radius: 3px;
+    }
+
+    .form-control-premium {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        border-radius: 8px;
+        padding: 10px 14px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-premium:focus {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        color: white;
+    }
+
+    .form-control-premium option {
+        background: #1a1a2e;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Header -->
+        <div class="glass-card p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-white mb-1">
+                        <i class="bi bi-journal-plus me-2 text-gradient-blue"></i>
+                        Create Mock Test
+                    </h2>
+                    <p class="text-secondary mb-0">Select questions from the question bank to create a mock test</p>
+                </div>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-premium-outline">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form id="mockTestForm" onsubmit="createMockTest(event)">
+            <div class="row g-4">
+                <!-- Test Details -->
+                <div class="col-lg-4">
+                    <div class="glass-card p-4">
+                        <h5 class="text-white mb-3"><i class="bi bi-info-circle me-2"></i>Test Details</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Test Title *</label>
+                            <input type="text" class="form-control form-control-premium" id="testTitle"
+                                placeholder="e.g. Python Mock Test 2026" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Category *</label>
+                            <div class="d-flex gap-2">
+                                <select class="form-control form-control-premium flex-grow-1" id="testCategory"
+                                    required>
+                                    <option value="">Select Category</option>
+                                </select>
+                                <button type="button" class="btn btn-premium-outline" onclick="loadCategories()"
+                                    title="Refresh Categories">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Duration (minutes) *</label>
+                            <input type="number" class="form-control form-control-premium" id="testDuration"
+                                placeholder="e.g. 60" min="1" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Scheduled Date *</label>
+                            <input type="date" class="form-control form-control-premium" id="testDate" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label text-secondary">Start Time *</label>
+                                <input type="time" class="form-control form-control-premium" id="testStartTime"
+                                    required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-secondary">End Time *</label>
+                                <input type="time" class="form-control form-control-premium" id="testEndTime" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Select Questions -->
+                <div class="col-lg-8">
+                    <div class="glass-card p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="text-white mb-0">
+                                <i class="bi bi-list-check me-2"></i>Select Questions
+                            </h5>
+                            <span class="selected-count" id="selectedCount">0 selected</span>
+                        </div>
+
+                        <!-- Search & Filter -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-7">
+                                <input type="text" class="form-control form-control-premium" id="questionSearch"
+                                    placeholder="Search questions...">
+                            </div>
+                            <div class="col-md-5">
+                                <select class="form-control form-control-premium" id="categoryFilter">
+                                    <option value="">All Categories</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Question List -->
+                        <div class="question-list-container" id="questionList">
+                            <div class="text-center text-secondary py-5">
+                                <div class="spinner-border text-primary"></div>
+                                <p class="mt-2">Loading questions...</p>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex gap-3 mt-4">
+                            <button type="submit" class="btn btn-premium" id="createBtn">
+                                <i class="bi bi-check-circle"></i> Create Mock Test
+                            </button>
+                            <button type="button" class="btn btn-premium-outline" onclick="selectAllQuestions()">
+                                <i class="bi bi-check-all"></i> Select All
+                            </button>
+                            <button type="button" class="btn btn-premium-outline" onclick="clearAllQuestions()">
+                                <i class="bi bi-x-circle"></i> Clear All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // ================================================================
+    // STATE
+    // ================================================================
+    let allQuestions = [];
+    let selectedQuestions = new Set();
+    let categories = [];
+    let isLoading = false;
+
+    // ================================================================
+    // TOAST NOTIFICATIONS (Using Premium Toast from base.html)
+    // ================================================================
+    function showToast(message, type = 'success') {
+        // Use the global premium toast from base.html
+        if (typeof showPremiumToast === 'function') {
+            const titles = {
+                success: '✅ Success',
+                error: '❌ Error',
+                warning: '⚠️ Warning',
+                info: 'ℹ️ Info'
+            };
+            showPremiumToast(message, type, titles[type] || 'Info');
+        } else {
+            // Fallback to Bootstrap toast
+            const toastEl = document.getElementById('toastNotification');
+            const toastMsg = document.getElementById('toastMessage');
+            if (toastEl) {
+                toastEl.classList.remove('toast-success', 'toast-error', 'toast-warning');
+                if (type === 'success') {
+                    toastEl.classList.add('toast-success');
+                } else if (type === 'error') {
+                    toastEl.classList.add('toast-error');
+                } else {
+                    toastEl.classList.add('toast-warning');
+                }
+                toastMsg.textContent = message;
+                const toast = new bootstrap.Toast(toastEl, { delay: 4000, autohide: true });
+                toast.show();
+            } else {
+                alert(message);
+            }
+        }
+    }
+
+    // ================================================================
+    // LOAD CATEGORIES
+    // ================================================================
+    function loadCategories() {
+        fetch('/api/proxy/admin/categories')
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to load categories');
+                return res.json();
+            })
+            .then(data => {
+                let categoryList = [];
+
+                if (Array.isArray(data)) {
+                    if (data.length > 0 && typeof data[0] === 'string') {
+                        categoryList = data.map(cat => ({ category: cat, count: 0 }));
+                    } else if (data.length > 0 && typeof data[0] === 'object') {
+                        categoryList = data;
+                    }
+                }
+
+                categories = categoryList || [];
+
+                const categoryFilter = document.getElementById('categoryFilter');
+                const testCategory = document.getElementById('testCategory');
+
+                categoryFilter.innerHTML = '<option value="">All Categories</option>';
+                testCategory.innerHTML = '<option value="">Select Category</option>';
+
+                categories.forEach(cat => {
+                    const catName = cat.category || cat.name || 'Uncategorized';
+                    const catCount = cat.count || 0;
+                    const display = `${catName} (${catCount})`;
+
+                    const filterOpt = document.createElement('option');
+                    filterOpt.value = catName;
+                    filterOpt.textContent = display;
+                    categoryFilter.appendChild(filterOpt);
+
+                    const testOpt = document.createElement('option');
+                    testOpt.value = catName;
+                    testOpt.textContent = display;
+                    testCategory.appendChild(testOpt);
+                });
+
+                console.log('✅ Categories loaded:', categories.length);
+            })
+            .catch(err => {
+                console.error('Error loading categories:', err);
+                showToast('Failed to load categories', 'error');
+            });
+    }
+
+    // ================================================================
+    // LOAD QUESTIONS
+    // ================================================================
+    function loadQuestions(category = '', search = '') {
+        const questionList = document.getElementById('questionList');
+        isLoading = true;
+        questionList.innerHTML = `
+        <div class="text-center text-secondary py-5">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2">Loading questions...</p>
+        </div>
+    `;
+
+        let url = '/api/proxy/admin/question-bank?page=1&page_size=500';
+        if (category) url += `&category=${encodeURIComponent(category)}`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+
+        fetch(url)
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to load questions');
+                return res.json();
+            })
+            .then(data => {
+                isLoading = false;
+                allQuestions = data.questions || [];
+                displayQuestions(allQuestions);
+            })
+            .catch(err => {
+                isLoading = false;
+                console.error('Error loading questions:', err);
+                questionList.innerHTML = `
+                <div class="text-center text-danger py-5">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                    <p class="mt-2">Failed to load questions. Please refresh.</p>
+                </div>
+            `;
+                showToast('Failed to load questions', 'error');
+            });
+    }
+
+    // ================================================================
+    // DISPLAY QUESTIONS WITH NUMBERS
+    // ================================================================
+    function displayQuestions(questions) {
+        const questionList = document.getElementById('questionList');
+
+        if (!questions || questions.length === 0) {
+            questionList.innerHTML = `
+            <div class="text-center text-secondary py-5">
+                <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                <p class="mt-2">No questions found. Upload questions first.</p>
+            </div>
+        `;
+            return;
+        }
+
+        let html = '';
+        questions.forEach((q, index) => {
+            const qNumber = index + 1;
+            const isSelected = selectedQuestions.has(q.id);
+
+            html += `
+            <div class="question-item ${isSelected ? 'selected' : ''}" onclick="toggleQuestion(${q.id})">
+                <input type="checkbox" ${isSelected ? 'checked' : ''} 
+                       onclick="event.stopPropagation(); toggleQuestion(${q.id})">
+                <span class="q-number">${qNumber}.</span>
+                <div class="q-text">
+                    <div>${escapeHtml(q.question_text)}</div>
+                    <div class="q-meta">
+                        Category: ${escapeHtml(q.category)} | Correct: ${q.correct_option}
+                    </div>
+                </div>
+            </div>
+        `;
+        });
+
+        questionList.innerHTML = html;
+        updateSelectedCount();
+    }
+
+    // ================================================================
+    // TOGGLE QUESTION SELECTION
+    // ================================================================
+    function toggleQuestion(id) {
+        if (selectedQuestions.has(id)) {
+            selectedQuestions.delete(id);
+        } else {
+            selectedQuestions.add(id);
+        }
+        updateSelectedCount();
+        displayQuestions(allQuestions);
+    }
+
+    // ================================================================
+    // SELECT ALL / CLEAR ALL
+    // ================================================================
+    function selectAllQuestions() {
+        allQuestions.forEach(q => selectedQuestions.add(q.id));
+        displayQuestions(allQuestions);
+        showToast(`Selected ${selectedQuestions.size} questions`, 'success');
+    }
+
+    function clearAllQuestions() {
+        selectedQuestions.clear();
+        displayQuestions(allQuestions);
+        showToast('Cleared all selections', 'warning');
+    }
+
+    // ================================================================
+    // UPDATE SELECTED COUNT
+    // ================================================================
+    function updateSelectedCount() {
+        document.getElementById('selectedCount').textContent = `${selectedQuestions.size} selected`;
+    }
+
+    // ================================================================
+    // SEARCH & FILTER
+    // ================================================================
+    let searchDebounceTimeout = null;
+
+    document.getElementById('questionSearch').addEventListener('input', function () {
+        clearTimeout(searchDebounceTimeout);
+        searchDebounceTimeout = setTimeout(() => {
+            applyFilters();
+        }, 500);
+    });
+
+    document.getElementById('categoryFilter').addEventListener('change', function () {
+        applyFilters();
+    });
+
+    function applyFilters() {
+        const search = document.getElementById('questionSearch').value.trim();
+        const category = document.getElementById('categoryFilter').value;
+        loadQuestions(category, search);
+    }
+
+    // ================================================================
+    // CREATE MOCK TEST
+    // ================================================================
+    function createMockTest(event) {
+        event.preventDefault();
+
+        const title = document.getElementById('testTitle').value.trim();
+        const category = document.getElementById('testCategory').value;
+        const duration = parseInt(document.getElementById('testDuration').value);
+        const date = document.getElementById('testDate').value;
+        const startTime = document.getElementById('testStartTime').value;
+        const endTime = document.getElementById('testEndTime').value;
+        const questionIds = Array.from(selectedQuestions);
+
+        if (!title) {
+            showToast('Please enter a test title', 'warning');
+            return;
+        }
+        if (!category) {
+            showToast('Please select a category', 'warning');
+            return;
+        }
+        if (!duration || duration < 1) {
+            showToast('Please enter a valid duration', 'warning');
+            return;
+        }
+        if (!date) {
+            showToast('Please select a scheduled date', 'warning');
+            return;
+        }
+        if (!startTime) {
+            showToast('Please select a start time', 'warning');
+            return;
+        }
+        if (!endTime) {
+            showToast('Please select an end time', 'warning');
+            return;
+        }
+        if (questionIds.length === 0) {
+            showToast('Please select at least one question', 'warning');
+            return;
+        }
+
+        const payload = {
+            title: title,
+            category: category,
+            description: '',
+            duration_minutes: duration,
+            scheduled_date: date,
+            start_time: startTime,
+            end_time: endTime,
+            question_ids: questionIds
+        };
+
+        const createBtn = document.getElementById('createBtn');
+        createBtn.disabled = true;
+        createBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Creating...';
+
+        fetch('/api/proxy/admin/mock-tests', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to create mock test');
+                return res.json();
+            })
+            .then(data => {
+                showToast(`✅ Mock Test "${title}" created successfully with ${questionIds.length} questions!`, 'success');
+                setTimeout(() => {
+                    window.location.href = '/admin/manage-tests';
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('Create error:', err);
+                showToast('Error creating mock test: ' + err.message, 'error');
+            })
+            .finally(() => {
+                createBtn.disabled = false;
+                createBtn.innerHTML = '<i class="bi bi-check-circle"></i> Create Mock Test';
+            });
+    }
+
+    // ================================================================
+    // UTILITY FUNCTIONS
+    // ================================================================
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ================================================================
+    // SET DEFAULT DATE
+    // ================================================================
+    function setDefaultDate() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        document.getElementById('testDate').value = `${year}-${month}-${day}`;
+    }
+
+    // ================================================================
+    // INITIALIZATION
+    // ================================================================
+    document.addEventListener('DOMContentLoaded', function () {
+        setDefaultDate();
+        loadCategories();
+        loadQuestions();
+    });
+</script>
+{% endblock %}

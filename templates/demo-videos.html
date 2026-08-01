@@ -3,156 +3,398 @@
 <head>
   <meta charset="UTF-8" />
   <title>Demo Videos - ChakoraHub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #e1f5fe, #ede7f6);
-      color: #333;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0d0d1a;
+      --ink-soft: #4a4a6a;
+      --surface: #f4f3ff;
+      --card: #ffffff;
+      --accent: #5b4bdb;
+      --accent-2: #a78bfa;
+      --accent-glow: rgba(91, 75, 219, 0.18);
+      --accent-dark: #3730a3;
+      --danger: #ef4444;
+      --danger-soft: #fef2f2;
+      --border: rgba(91, 75, 219, 0.12);
+      --shadow-sm: 0 1px 3px rgba(13,13,26,0.06), 0 4px 12px rgba(91,75,219,0.08);
+      --shadow-md: 0 4px 16px rgba(13,13,26,0.08), 0 12px 32px rgba(91,75,219,0.12);
+      --shadow-lg: 0 8px 32px rgba(13,13,26,0.10), 0 24px 56px rgba(91,75,219,0.16);
+      --radius: 16px;
+      --radius-sm: 10px;
     }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--surface);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background decoration */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -200px; right: -200px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(167,139,250,0.18) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -150px; left: -150px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(91,75,219,0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ── */
     .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 15px 30px;
-      background: linear-gradient(to right, #42a5f5, #7e57c2);
-      color: white;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+      padding: 14px 36px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
     }
-    .logo img { height: 90px; }
+
+    .logo img { height: 72px; object-fit: contain; }
+
     .profile-wrapper { position: relative; cursor: pointer; }
+
     .profile-pic {
-      width: 45px;
-      height: 45px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
-      border: 2px solid white;
+      border: 2px solid var(--accent-2);
       object-fit: cover;
+      box-shadow: 0 0 0 4px var(--accent-glow);
+      transition: box-shadow 0.25s ease, transform 0.25s ease;
     }
+    .profile-wrapper:hover .profile-pic {
+      box-shadow: 0 0 0 6px var(--accent-glow);
+      transform: scale(1.05);
+    }
+
     .dropdown-menu {
       display: none;
       position: absolute;
-      top: 55px;
+      top: calc(100% + 10px);
       right: 0;
-      background-color: white;
-      color: black;
-      border-radius: 6px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-md);
       z-index: 1000;
-      min-width: 160px;
+      min-width: 172px;
+      overflow: hidden;
+      animation: dropIn 0.2s ease;
+    }
+    @keyframes dropIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
     .dropdown-menu a {
-      display: block;
-      padding: 10px 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 16px;
       text-decoration: none;
-      color: #333;
+      color: var(--ink-soft);
+      font-size: 14px;
       font-weight: 500;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s ease, color 0.15s ease;
     }
     .dropdown-menu a:last-child { border-bottom: none; }
-    .dropdown-menu a:hover { background-color: #f0f0f0; }
-
-    h1 {
-      text-align: center;
-      color: #4527a0;
-      margin: 40px 20px 20px;
-      font-size: 26px;
+    .dropdown-menu a:hover {
+      background: var(--accent-glow);
+      color: var(--accent);
     }
 
-    /* Big White Box for All Videos */
+    /* ── PAGE TITLE ── */
+    .page-hero {
+      text-align: center;
+      padding: 52px 20px 32px;
+      position: relative;
+      z-index: 1;
+    }
+    .page-hero .eyebrow {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-glow);
+      border: 1px solid rgba(91,75,219,0.2);
+      border-radius: 100px;
+      padding: 5px 14px;
+      margin-bottom: 16px;
+    }
+    .page-hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+    .page-hero h1 span {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .page-hero .subtitle {
+      margin-top: 10px;
+      font-size: 15px;
+      color: var(--ink-soft);
+      font-weight: 400;
+    }
+
+    /* ── VIDEO CONTAINER ── */
+    .videos-outer {
+      width: min(92%, 1040px);
+      margin: 0 auto 60px;
+      position: relative;
+      z-index: 1;
+    }
+
     .videos-container {
-      width: 75%;
-      margin: 0 auto 40px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-      padding: 30px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      padding: 36px 32px;
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
     }
     .videos-container:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-3px);
     }
 
-    /* Grid of Video Thumbnails */
-    .session-row {
+    .section-header {
       display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
     }
+    .section-header .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-glow);
+    }
+    .section-header span {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    /* ── GRID ── */
+    .session-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 24px;
+      justify-items: center;
+    }
+
     .video-item {
       text-align: center;
+      width: 100%;
+      max-width: 180px;
+      animation: fadeUp 0.5s ease both;
     }
-    .video-item img {
-      width: 140px;
-      height: 90px;
-      border-radius: 8px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.4);
-      transition: transform 0.2s ease;
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-    .video-item img:hover {
-      transform: scale(1.1);
+    .video-item:nth-child(1)  { animation-delay: 0.05s; }
+    .video-item:nth-child(2)  { animation-delay: 0.10s; }
+    .video-item:nth-child(3)  { animation-delay: 0.15s; }
+    .video-item:nth-child(4)  { animation-delay: 0.20s; }
+    .video-item:nth-child(5)  { animation-delay: 0.25s; }
+    .video-item:nth-child(6)  { animation-delay: 0.30s; }
+    .video-item:nth-child(7)  { animation-delay: 0.35s; }
+    .video-item:nth-child(8)  { animation-delay: 0.40s; }
+
+    .thumb-wrap {
+      position: relative;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.25s ease, transform 0.25s ease;
     }
+    .thumb-wrap:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px) scale(1.02);
+    }
+    .thumb-wrap a { display: block; }
+    .thumb-wrap img {
+      width: 100%;
+      aspect-ratio: 16/10;
+      object-fit: cover;
+      display: block;
+      transition: filter 0.25s ease;
+    }
+    .thumb-wrap:hover img { filter: brightness(0.88); }
+
+    /* Play icon overlay */
+    .play-icon {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .thumb-wrap:hover .play-icon { opacity: 1; }
+    .play-icon svg {
+      width: 36px; height: 36px;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+    }
+
     .session-label {
-      font-size: 15px;
-      color: #5e35b1;
-      font-weight: bold;
-      margin-top: 5px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-top: 10px;
+      line-height: 1.35;
+      padding: 0 4px;
     }
 
+    /* ── EMPTY STATE ── */
     .no-videos {
-      font-size: 18px;
-      color: #d32f2f;
-      font-weight: bold;
-      text-align: center;
-      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 60px 20px;
+    }
+    .no-videos svg { opacity: 0.3; }
+    .no-videos p {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink-soft);
     }
 
-    .back-resources { text-align: center; margin: 40px 0; }
+    /* ── BACK BUTTON ── */
+    .back-resources {
+      text-align: center;
+      margin: 0 0 64px;
+      position: relative;
+      z-index: 1;
+    }
     .back-btn {
-      background: #3949ab;
-      padding: 10px 25px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      padding: 12px 28px;
       color: white;
       text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
-      transition: background 0.3s ease;
+      border-radius: 100px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.03em;
+      box-shadow: 0 4px 16px rgba(91,75,219,0.35);
+      transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
       cursor: pointer;
     }
-    .back-btn:hover { background: #303f9f; }
+    .back-btn:hover {
+      background: var(--accent-dark);
+      box-shadow: 0 6px 24px rgba(91,75,219,0.45);
+      transform: translateY(-2px);
+    }
 
-    /* Popup Styles */
+    /* ── POPUP ── */
     .popup-overlay {
       display: none;
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.4);
+      inset: 0;
+      background: rgba(13,13,26,0.45);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
       z-index: 2000;
       justify-content: center;
       align-items: center;
     }
     .popup-box {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 32px 28px;
       text-align: center;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-      width: 300px;
+      box-shadow: var(--shadow-lg);
+      width: 320px;
+      animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
     }
-    .popup-box p { margin-bottom: 20px; font-size: 16px; font-weight: bold; }
-    .popup-buttons { display: flex; justify-content: space-between; }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.88); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .popup-box .popup-icon {
+      width: 52px; height: 52px;
+      background: var(--danger-soft);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .popup-box p {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .popup-box .popup-sub {
+      font-size: 13px;
+      color: var(--ink-soft);
+      margin-bottom: 24px;
+    }
+    .popup-buttons {
+      display: flex;
+      gap: 10px;
+    }
     .popup-buttons button {
-      padding: 8px 18px;
+      flex: 1;
+      padding: 10px 0;
       border: none;
-      border-radius: 6px;
+      border-radius: 100px;
+      font-family: 'DM Sans', sans-serif;
       font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
+      transition: background 0.2s ease, transform 0.15s ease;
     }
-    .popup-buttons .yes-btn { background: #3949ab; color: white; }
-    .popup-buttons .cancel-btn { background: #e0e0e0; color: #333; }
-    .popup-buttons .yes-btn:hover { background: #303f9f; }
-    .popup-buttons .cancel-btn:hover { background: #bdbdbd; }
+    .popup-buttons .yes-btn {
+      background: var(--danger);
+      color: white;
+      box-shadow: 0 4px 14px rgba(239,68,68,0.3);
+    }
+    .popup-buttons .yes-btn:hover { background: #dc2626; transform: translateY(-1px); }
+    .popup-buttons .cancel-btn { background: #f1f0ff; color: var(--ink-soft); }
+    .popup-buttons .cancel-btn:hover { background: #e8e6ff; }
   </style>
 </head>
 <body>
@@ -167,45 +409,85 @@
            src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}"
            alt="Profile" />
       <div class="dropdown-menu" id="dropdownMenu">
-        <a href="{{ url_for('profile') }}">Profile</a>
-        <a href="{{ url_for('settings') }}">Settings</a>
-        <a href="#" onclick="showPopup()">Logout</a>
+        <a href="{{ url_for('profile') }}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Profile
+        </a>
+        <a href="{{ url_for('settings') }}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2m-3.5-7.5-1.4 1.4M6.9 17.1l-1.4 1.4m12 0-1.4-1.4M6.9 6.9 5.5 5.5"/></svg>
+          Settings
+        </a>
+        <a href="#" onclick="showPopup()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </a>
       </div>
     </div>
   </div>
 
-  <h1>Demo Session Videos</h1>
+  <!-- Hero -->
+  <div class="page-hero">
+    <div class="eyebrow">Learning Resources</div>
+    <h1>Demo Session <span>Videos</span></h1>
+    <p class="subtitle">Watch recorded sessions to accelerate your learning</p>
+  </div>
 
   {% if demos %}
-    <div class="videos-container">
-      <div class="session-row">
-        {% for demo in demos %}
-          <div class="video-item">
-            <a href="https://youtu.be/{{ demo.youtube_id }}" target="_blank">
-              <img src="https://img.youtube.com/vi/{{ demo.youtube_id }}/hqdefault.jpg" alt="Demo Video">
-            </a>
-            <div class="session-label">
-              {{ demo.title }}
+    <div class="videos-outer">
+      <div class="videos-container">
+        <div class="section-header">
+          <div class="dot"></div>
+          <span>All Sessions</span>
+        </div>
+        <div class="session-row">
+          {% for demo in demos %}
+            <div class="video-item">
+              <div class="thumb-wrap">
+                <a href="https://youtu.be/{{ demo.youtube_id }}" target="_blank">
+                  <img src="https://img.youtube.com/vi/{{ demo.youtube_id }}/hqdefault.jpg" alt="Demo Video">
+                  <div class="play-icon">
+                    <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="22" cy="22" r="22" fill="rgba(255,255,255,0.92)"/>
+                      <polygon points="17,13 34,22 17,31" fill="#5b4bdb"/>
+                    </svg>
+                  </div>
+                </a>
+              </div>
+              <div class="session-label">{{ demo.title }}</div>
             </div>
-          </div>
-        {% endfor %}
+          {% endfor %}
+        </div>
       </div>
     </div>
   {% else %}
-    <div class="no-videos">No demo videos available at the moment.</div>
+    <div class="videos-outer">
+      <div class="videos-container">
+        <div class="no-videos">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#5b4bdb" stroke-width="1.5"><rect x="2" y="7" width="15" height="10" rx="2"/><path d="m17 9 5-2v10l-5-2"/></svg>
+          <p>No demo videos available at the moment.</p>
+        </div>
+      </div>
+    </div>
   {% endif %}
 
   <div class="back-resources">
-    <a class="back-btn" href="{{ url_for('resources') }}">← Back to Resources</a>
+    <a class="back-btn" href="{{ url_for('resources') }}">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Resources
+    </a>
   </div>
 
   <!-- Popup -->
   <div class="popup-overlay" id="popupOverlay">
     <div class="popup-box">
-      <p>Are you sure you want to Logout?</p>
+      <div class="popup-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </div>
+      <p>Logging out?</p>
+      <p class="popup-sub">You'll need to sign in again to access your account.</p>
       <div class="popup-buttons">
-        <button class="yes-btn" onclick="confirmLogout()">Yes</button>
         <button class="cancel-btn" onclick="closePopup()">Cancel</button>
+        <button class="yes-btn" onclick="confirmLogout()">Yes, Logout</button>
       </div>
     </div>
   </div>

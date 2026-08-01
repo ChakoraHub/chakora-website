@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>About Us - ChakoraHub</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f8;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 10px 20px;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+      height: 80px;
+    }
+
+    .about-main-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+      flex: 1;
+    }
+
+    .about-tabs {
+      display: flex;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #eee;
+      justify-content: center;
+    }
+
+    .about-tab {
+      padding: 15px 30px;
+      cursor: pointer;
+      font-weight: bold;
+      border: none;
+      background: none;
+      font-size: 18px;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .about-tab.active {
+      color: #0078D7;
+      border-bottom: 3px solid #0078D7;
+    }
+
+    .about-tab:hover {
+      color: #0078D7;
+    }
+
+    .about-content {
+      display: none;
+      background: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .about-content.active {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .about-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 40px;
+    }
+
+    .about-image {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .about-image img {
+      width: 100%;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .about-text {
+      flex: 2;
+    }
+
+    .about-text h2 {
+      font-size: 32px;
+      color: #0078D7;
+      margin-bottom: 20px;
+    }
+
+    .about-text p {
+      font-size: 18px;
+      line-height: 1.7;
+      text-align: justify;
+      margin-bottom: 15px;
+    }
+
+    .company-content h2 {
+      font-size: 32px;
+      color: #0078D7;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .company-content p {
+      font-size: 18px;
+      line-height: 1.7;
+      margin-bottom: 15px;
+    }
+
+    .company-content ul {
+      margin-left: 30px;
+      line-height: 1.6;
+    }
+
+    .company-content li {
+      margin-bottom: 10px;
+      font-size: 17px;
+    }
+
+    /* Mantra Footer Styles */
+    .mantra-footer {
+      background: #ffffff;
+      color: #333;
+      padding: 30px 20px;
+      margin-top: 50px;
+      width: 100%;
+      position: relative;
+      border-top: 2px solid #0078D7;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+
+    .mantra-scroll-container {
+      overflow: visible;
+      position: relative;
+      height: auto;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .mantra-text {
+      position: relative;
+      white-space: normal;
+      font-size: 22px;
+      font-weight: bold;
+      color: #0078D7;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .mantra-separator {
+      text-align: center;
+      margin: 10px 0;
+      color: #0078D7;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    /* Home Button */
+    .home-button-container {
+      margin: 30px 0;
+      text-align: center;
+    }
+
+    .home-button {
+      background-color: #0078D7;
+      color: white;
+      text-decoration: none;
+      padding: 12px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .home-button:hover {
+      background-color: #005a9e;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="/">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="ChakoraHub Logo" class="logo">
+    </a>
+  </div>
+
+  <div class="about-main-container">
+    <div class="about-tabs">
+      <button class="about-tab active" onclick="switchTab('founder')">Founder</button>
+      <button class="about-tab" onclick="switchTab('company')">Company</button>
+    </div>
+
+    <div id="founderContent" class="about-content active">
+      <div class="about-container">
+        <div class="about-image">
+          <img src="{{ url_for('static', filename='aboutus.jpg') }}" alt="Founder">
+        </div>
+        <div class="about-text">
+          <h2>About the Founder</h2>
+          <p>
+            This website has been founded by <strong>V. Subhash Chandra</strong>, a graduate in engineering from the class of 2011. Over the years, he has gained professional experience across various multinational corporations such as TCS, Cognizant, and Wipro. He is currently engaged as an Online trainer at Radical Technologies, sharing his knowledge and expertise with aspiring professionals.
+          </p>
+	    <p>
+            In March 2020, he received brahmana initiation from <strong>Bhuvanagiri Venkata Subrahmanya Sastry</strong> Garu, marking a significant spiritual milestone. His journey to pursue a spiritual life while continuing in the field of Information Technology has been deeply enriched from the very beginning by the timeless teachings of <strong>His Divine Grace A.C. Bhaktivedanta Swami Prabhupada</strong>, the Founder-Acharya of ISKCON, who appeared in the disciplic succession of the Brahma-Madhva-Gaudiya Sampradaya.
+          </p>
+          <p>
+            Deeply inspired by these profound Vedic teachings, he was moved to make a humble offering in the form of this website — a space intended to serve, uplift, and spiritually nourish seekers from all walks of life. May this small endeavor become a meaningful contribution for the benefit of humanity at large.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div id="companyContent" class="about-content">
+      <div class="company-content">
+        <h2>About the Company</h2>
+        
+<p><strong>Chakora Hub Pvt. Ltd.</strong> is a multi-domain innovation, education, and technology company with a mission to uplift society through <strong>knowledge, creativity, and meaningful problem-solving.</strong></p>
+        <p>We specialize in:</p>
+        <ul>
+          <li><strong>Automation & Software Development</strong></li>
+          <li><strong>Artificial Intelligence & Machine Learning Solutions</strong></li>
+          <li><strong>Cloud Technologies & Infrastructure Consulting</strong></li>
+          <li><strong>Master Data Management (MDM) Services</strong></li>
+          <li><strong>End-to-End IT Project Implementation & Support</strong></li>
+        </ul>
+        <p>Alongside services, we also provide <strong>high-quality training</strong> that bridges the gap between learning and real-world application.</p>
+        <p>Our training includes:</p>
+        <ul>
+          <li>IT Technologies (Python, Cloud, DevOps, Data Engineering, etc.)</li>
+          <li>Automation Frameworks</li>
+          <li>AI / ML Project Implementation</li>
+          <li>Photoshop, UI/UX Fundamentals, and Digital Design</li>
+        </ul>
+        <p>We are also expanding into <strong>Creative & Cultural Education</strong>, enabling learners to grow in both <strong>technology and art.</strong></p>
+      </div>
+    </div>
+
+    <div class="home-button-container">
+      <a href="/" class="home-button">Home</a>
+    </div>
+  </div>
+
+  <!-- Mantra Footer -->
+  <div class="mantra-footer">
+    <div class="mantra-separator">~</div>
+
+    <div class="mantra-scroll-container">
+      <div class="mantra-text">
+        Oṁ Vajra-nakhāya Vidhmahe <br>
+        Tīkṣṇa-daṁṣṭrāya Dhīmahi <br>
+        Tanno Nṛsiṁhaḥ Pracodayāt
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName) {
+      document.querySelectorAll('.about-tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelector(`.about-tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+
+      document.querySelectorAll('.about-content').forEach(content => content.classList.remove('active'));
+      document.getElementById(tabName + 'Content').classList.add('active');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash;
+      if (hash === '#company') switchTab('company');
+      if (hash === '#founder') switchTab('founder');
+    });
+  </script>
+
+</body>
+</html>

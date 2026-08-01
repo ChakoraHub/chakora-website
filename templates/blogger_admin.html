@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Admin Panel - ChakoraHub</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- TinyMCE - Rich Text Editor -->
+    <script src="https://cdn.tiny.cloud/1/2h2bv2sprc1h99lmya7yxam624zouv2al7xodr7ppe2oc7xr/tinymce/6/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+    
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #10b981;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .admin-header h1 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .form-section h4 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            padding: 12px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            padding: 14px 40px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            border: none;
+            padding: 14px 40px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .btn-danger {
+            padding: 14px 40px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .post-preview {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid #e0e0e0;
+            margin-top: 20px;
+        }
+
+        .alert {
+            border-radius: 10px;
+            padding: 15px 20px;
+        }
+
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            min-height: 50px;
+        }
+
+        .tag-chip {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .tag-chip .remove-tag {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .posts-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .post-item {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .post-item:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .post-item h5 {
+            margin: 0 0 10px 0;
+            color: var(--primary);
+        }
+
+        .post-item .meta {
+            font-size: 0.85rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body data-is-admin="{{ 'true' if is_admin else 'false' }}">
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1><i class="bi bi-pen"></i> Blog Admin Panel</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Create and manage your blog posts</p>
+        </div>
+
+        {% if not is_admin %}
+        <div class="alert alert-warning">
+            <strong>Employee login required.</strong> You can open this page, but publishing is allowed only when your current session has <code>login_type = employee</code>.
+        </div>
+        {% endif %}
+
+        <!-- Alert Messages -->
+        <div id="alertContainer"></div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="mt-3">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Tab Navigation -->
+        <ul class="nav nav-pills mb-4" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="create-tab" data-bs-toggle="pill" data-bs-target="#create" type="button">
+                    <i class="bi bi-plus-circle"></i> Create New Post
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="manage-tab" data-bs-toggle="pill" data-bs-target="#manage" type="button">
+                    <i class="bi bi-list-ul"></i> Manage Posts
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- CREATE POST TAB -->
+            <div class="tab-pane fade show active" id="create" role="tabpanel">
+                <form id="blogPostForm" method="post" action="{{ blogger_service_url }}/blogger/admin/new_post" target="bloggerSubmitFrame" onsubmit="return submitPostDirect(event)">
+                    
+                    <!-- Basic Information -->
+                    <div class="form-section">
+                        <h4><i class="bi bi-info-circle"></i> Basic Information</h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Post Title *</label>
+                            <input type="text" class="form-control" id="postTitle" name="title" required 
+                                   placeholder="Enter an engaging title for your blog post">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Summary *</label>
+                            <textarea class="form-control" id="postSummary" name="summary" rows="3" required
+                                      placeholder="Write a brief summary (shown in the post list)"></textarea>
+                            <small class="text-muted">This appears in the blog list - keep it concise and engaging</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Author</label>
+                                        <input type="text" class="form-control" id="postAuthor" name="author"
+                                       value="V. Subhash Chandra" placeholder="Author name">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Publish Date</label>
+                                <input type="date" class="form-control" id="postDate" name="publish_date" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="form-section">
+                        <h4><i class="bi bi-file-text"></i> Post Content</h4>
+                        <textarea id="postContent"></textarea>
+                        <input type="hidden" id="postContentField" name="content">
+                        <small class="text-muted d-block mt-2">
+                            Use the rich text editor to format your content with headings, lists, links, etc.
+                        </small>
+                    </div>
+
+                    <!-- Settings -->
+                    <div class="form-section">
+                        <h4><i class="bi bi-gear"></i> Post Settings</h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tags</label>
+                            <input type="text" class="form-control" id="tagInput" 
+                                   placeholder="Type a tag and press Enter">
+                            <div id="tagsContainer" class="tag-input-container mt-2">
+                                <small class="text-muted">No tags added</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Access Control</label>
+                                <select class="form-select" id="postLocked" name="is_locked">
+                                    <option value="false">🌍 Public - Anyone can read</option>
+                                    <option value="true">🔒 Members Only - Requires employee login</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Publishing Status</label>
+                                <select class="form-select" id="postPublished" name="is_published">
+                                    <option value="true">✅ Published - Visible to users</option>
+                                    <option value="false">📝 Draft - Save for later</option>
+                                </select>
+                            </div>
+                        </div>
+                        <input type="hidden" id="tagsField" name="tags">
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-3 justify-content-end">
+                        <button type="button" class="btn btn-danger" onclick="resetForm()">
+                            <i class="bi bi-x-circle"></i> Clear Form
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="previewPost()">
+                            <i class="bi bi-eye"></i> Preview
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Publish Post
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Preview -->
+                <div id="previewSection" class="post-preview" style="display: none;">
+                    <h3 class="mb-4">Preview</h3>
+                    <div id="previewContent"></div>
+                </div>
+            </div>
+
+            <!-- MANAGE POSTS TAB -->
+            <div class="tab-pane fade" id="manage" role="tabpanel">
+                <div class="quick-actions">
+                    <button class="btn btn-primary" onclick="loadPosts()">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="loadPosts('published')">
+                        <i class="bi bi-check-circle"></i> Published Only
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="loadPosts('drafts')">
+                        <i class="bi bi-file-earmark"></i> Drafts Only
+                    </button>
+                </div>
+
+                <div id="postsListContainer" class="posts-list">
+                    <p class="text-center text-muted">Click "Refresh" to load posts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <iframe name="bloggerSubmitFrame" id="bloggerSubmitFrame" style="display:none;"></iframe>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        const canManagePosts = document.body.dataset.isAdmin === 'true';
+        const directPostsUrl = '{{ blogger_service_url }}/blogger/posts';
+        console.log('Blogger admin page access flag:', document.body.dataset.isAdmin);
+
+        // ==================== INITIALIZATION ====================
+        
+        // Initialize TinyMCE Rich Text Editor
+        tinymce.init({
+            selector: '#postContent',
+            height: 500,
+            menubar: false,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | link image media | code fullscreen',
+            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 16px; }',
+            placeholder: 'Write your blog post content here...'
+        });
+
+        // Set default date to today
+        document.getElementById('postDate').valueAsDate = new Date();
+
+        // Tags array
+        let tags = [];
+
+        // Handle tag input
+        document.getElementById('tagInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const tag = this.value.trim();
+                if (tag && !tags.includes(tag)) {
+                    tags.push(tag);
+                    updateTagsDisplay();
+                    this.value = '';
+                }
+            }
+        });
+
+        // ==================== TAG MANAGEMENT ====================
+        
+        function updateTagsDisplay() {
+            const container = document.getElementById('tagsContainer');
+            
+            if (tags.length === 0) {
+                container.innerHTML = '<small class="text-muted">No tags added</small>';
+                return;
+            }
+
+            container.innerHTML = tags.map(tag => `
+                <div class="tag-chip">
+                    <span>${tag}</span>
+                    <span class="remove-tag" onclick="removeTag('${tag}')">&times;</span>
+                </div>
+            `).join('');
+        }
+
+        function removeTag(tag) {
+            tags = tags.filter(t => t !== tag);
+            updateTagsDisplay();
+        }
+
+        // ==================== FORM SUBMISSION ====================
+        
+        function submitPostDirect(event) {
+            // Validate form
+            if (tags.length === 0) {
+                event.preventDefault();
+                showAlert('Please add at least one tag', 'warning');
+                return false;
+            }
+
+            // Get TinyMCE content
+            const content = tinymce.get('postContent').getContent();
+            
+            if (!content || content.trim().length < 50) {
+                event.preventDefault();
+                showAlert('Post content is too short. Please write more content.', 'warning');
+                return false;
+            }
+
+            const authorField = document.getElementById('postAuthor');
+            if (!authorField.value.trim()) {
+                authorField.value = 'Admin';
+            }
+
+            document.getElementById('postTitle').value = document.getElementById('postTitle').value.trim();
+            document.getElementById('postSummary').value = document.getElementById('postSummary').value.trim();
+            document.getElementById('postContentField').value = content;
+            document.getElementById('tagsField').value = tags.join(',');
+
+            showAlert('Submitting post... wait 3-5 seconds, then use Refresh in Manage Posts to confirm.', 'success');
+
+            setTimeout(() => {
+                document.getElementById('manage-tab').click();
+                loadPosts();
+            }, 4000);
+
+            return true;
+        }
+
+        // ==================== PREVIEW ====================
+        
+        function previewPost() {
+            const title = document.getElementById('postTitle').value;
+            const summary = document.getElementById('postSummary').value;
+            const content = tinymce.get('postContent').getContent();
+            const author = document.getElementById('postAuthor').value;
+            const date = document.getElementById('postDate').value;
+            const isLocked = document.getElementById('postLocked').value === 'true';
+
+            const previewHtml = `
+                <div class="blog-post">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                        <div>
+                            <h2 style="color: var(--primary); margin-bottom: 10px;">${title}</h2>
+                            <div style="color: #666; font-size: 0.9rem;">
+                                <i class="bi bi-calendar"></i> ${date} | 
+                                <i class="bi bi-person"></i> ${author} | 
+                                ${tags.map(tag => `<i class="bi bi-tag"></i> ${tag}`).join(' | ')}
+                            </div>
+                        </div>
+                        <span class="badge ${isLocked ? 'bg-danger' : 'bg-success'}">
+                            ${isLocked ? '🔒 Members Only' : '🌍 Public'}
+                        </span>
+                    </div>
+                    
+                    <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
+                        <strong>Summary:</strong><br>
+                        ${summary}
+                    </div>
+                    
+                    <div>
+                        ${content}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('previewContent').innerHTML = previewHtml;
+            document.getElementById('previewSection').style.display = 'block';
+            
+            // Scroll to preview
+            document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ==================== RESET FORM ====================
+        
+        function resetForm() {
+            document.getElementById('blogPostForm').reset();
+            tinymce.get('postContent').setContent('');
+            tags = [];
+            updateTagsDisplay();
+            document.getElementById('previewSection').style.display = 'none';
+            document.getElementById('postDate').valueAsDate = new Date();
+        }
+
+        // ==================== LOAD POSTS ====================
+        
+        async function loadPosts(filter = 'all') {
+            const container = document.getElementById('postsListContainer');
+            container.innerHTML = '<p class="text-center"><i class="bi bi-hourglass-split"></i> Loading...</p>';
+
+            try {
+                const response = await fetch(directPostsUrl, {
+                    method: 'GET'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    let posts = data.posts;
+
+                    // Apply filter
+                    if (filter === 'published') {
+                        // Assuming published posts are those marked as such
+                        // You may need to add is_published to the response
+                        posts = posts.filter(p => !p.title.includes('[DRAFT]'));
+                    } else if (filter === 'drafts') {
+                        posts = posts.filter(p => p.title.includes('[DRAFT]'));
+                    }
+
+                    if (posts.length === 0) {
+                        container.innerHTML = '<p class="text-center text-muted">No posts found</p>';
+                        return;
+                    }
+
+                    const html = posts.map(post => `
+                        <div class="post-item" onclick="editPost(${post.id})">
+                            <h5>${post.title}</h5>
+                            <p class="mb-2">${post.summary.substring(0, 100)}...</p>
+                            <div class="meta">
+                                <i class="bi bi-calendar"></i> ${post.date} | 
+                                <i class="bi bi-person"></i> ${post.author} |
+                                <i class="bi bi-heart"></i> ${post.like_count || 0} likes |
+                                <i class="bi bi-eye"></i> ${post.view_count || 0} views
+                                ${post.locked ? '<span class="badge bg-danger ms-2">🔒 Members Only</span>' : ''}
+                            </div>
+                        </div>
+                    `).join('');
+
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p class="text-center text-danger">Failed to load posts</p>';
+                }
+            } catch (error) {
+                console.error('Error loading posts:', error);
+                container.innerHTML = '<p class="text-center text-danger">Network error</p>';
+            }
+        }
+
+        // ==================== EDIT POST ====================
+        
+        function editPost(postId) {
+            alert(`Edit functionality for post ID ${postId} - Coming soon!\n\nFor now, you can edit posts directly in the database or implement the edit endpoint.`);
+            
+            // TODO: Implement edit functionality
+            // 1. Fetch post by ID
+            // 2. Populate form fields
+            // 3. Switch to create tab
+            // 4. Change submit button to "Update Post"
+        }
+
+        // ==================== ALERTS ====================
+        
+        function showAlert(message, type = 'info') {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            document.getElementById('alertContainer').innerHTML = alertHtml;
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) {
+                    alert.remove();
+                }
+            }, 5000);
+
+            // Scroll to alert
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

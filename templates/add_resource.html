@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Resource — ChakoraHub Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:      #0078D7;
+      --primary-dark: #0e4fa0;
+      --primary-glow: rgba(0,120,215,0.12);
+      --success:      #16a34a;
+      --danger:       #dc2626;
+      --warning:      #d97706;
+      --purple:       #7c3aed;
+      --teal:         #0891b2;
+      --bg:           #f0f4f9;
+      --card:         #ffffff;
+      --border:       #dde4f0;
+      --text:         #1a2340;
+      --muted:        #64748b;
+      --label:        #475569;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      background: linear-gradient(135deg, #1a6fd4 0%, #0e4fa0 60%, #083580 100%);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .header-logo {
+      height: 48px; width: 48px; border-radius: 10px;
+      object-fit: cover; border: 2px solid rgba(255,255,255,0.25);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .header-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #fff;
+      margin: 0;
+    }
+    .header-subtitle {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.65);
+      margin-top: 1px;
+    }
+    .header-back {
+      color: #cfe8ff;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+    .header-back:hover { color: #fff; }
+
+    /* ── MAIN WRAP ── */
+    .main-wrap {
+      max-width: 860px;
+      margin: 40px auto 80px;
+      padding: 0 20px;
+    }
+
+    /* ── PROGRESS STEPS ── */
+    .steps-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 36px;
+      animation: fadeUp 0.4s ease both;
+    }
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+      flex: 1;
+      max-width: 130px;
+    }
+    .step-dot {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: #94a3b8;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      border: 2px solid #e2e8f0;
+      transition: all 0.3s;
+      position: relative;
+      z-index: 2;
+    }
+    .step.active .step-dot {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 5px var(--primary-glow);
+    }
+    .step.done .step-dot {
+      background: var(--success);
+      color: #fff;
+      border-color: var(--success);
+    }
+    .step-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .step.active .step-label { color: var(--primary); }
+    .step.done .step-label   { color: var(--success); }
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: #e2e8f0;
+      margin-top: -18px;
+      position: relative;
+      z-index: 1;
+      max-width: 60px;
+      transition: background 0.3s;
+    }
+    .step-line.done { background: var(--success); }
+
+    /* ── SECTION CARDS ── */
+    .section-card {
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(0,60,140,0.07), 0 1px 4px rgba(0,0,0,0.04);
+      margin-bottom: 24px;
+      overflow: hidden;
+      animation: fadeUp 0.45s ease both;
+    }
+    .section-card:nth-child(2) { animation-delay: 0.05s; }
+    .section-card:nth-child(3) { animation-delay: 0.10s; }
+    .section-card:nth-child(4) { animation-delay: 0.15s; }
+    .section-card:nth-child(5) { animation-delay: 0.20s; }
+    .section-card:nth-child(6) { animation-delay: 0.25s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 28px;
+      border-bottom: 1.5px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s;
+    }
+    .section-header:hover { background: #f8fafc; }
+
+    .section-icon {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .icon-blue    { background: #eff6ff; color: var(--primary); }
+    .icon-purple  { background: #f5f3ff; color: var(--purple); }
+    .icon-teal    { background: #ecfeff; color: var(--teal); }
+    .icon-warning { background: #fffbeb; color: var(--warning); }
+    .icon-red     { background: #fff1f2; color: #e11d48; }
+    .icon-green   { background: #f0fdf4; color: var(--success); }
+
+    .section-title-wrap { flex: 1; }
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .section-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .section-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-right: 8px;
+    }
+    .badge-required { background: #fee2e2; color: #b91c1c; }
+    .badge-optional { background: #f0fdf4; color: #15803d; }
+
+    .section-chevron {
+      color: #94a3b8;
+      font-size: 13px;
+      transition: transform 0.25s;
+    }
+    .section-header.collapsed .section-chevron { transform: rotate(-90deg); }
+
+    .section-body {
+      padding: 26px 28px;
+    }
+
+    /* ── FORM ELEMENTS ── */
+    .field-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--label);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 7px;
+    }
+    .field-label .req { color: #dc2626; margin-left: 2px; }
+    .field-hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .form-control, .form-select {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      background: #f8fafc;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 0 0 4px var(--primary-glow);
+      outline: none;
+    }
+    textarea.form-control { resize: vertical; min-height: 90px; }
+
+    /* ── IMAGE UPLOAD ZONE ── */
+    .img-upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 14px;
+      background: #f8fafc;
+      padding: 36px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .img-upload-zone:hover,
+    .img-upload-zone.dragover {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+    }
+    .img-upload-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-icon {
+      width: 56px; height: 56px;
+      background: #e0eefa;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: var(--primary);
+      margin: 0 auto 14px;
+    }
+    .img-upload-zone h6 {
+      font-size: 0.93rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .img-upload-zone p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin: 0;
+    }
+    .img-preview-wrap {
+      display: none;
+      margin-top: 16px;
+      position: relative;
+      display: none;
+    }
+    .img-preview-wrap img {
+      width: 100%;
+      max-height: 200px;
+      object-fit: contain;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+    }
+    .img-remove {
+      position: absolute;
+      top: 8px; right: 8px;
+      background: #dc2626;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ── FILE UPLOAD ROWS ── */
+    .file-upload-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: #f8fafc;
+      margin-bottom: 12px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    .file-upload-row:hover { border-color: #a5b4fc; }
+    .file-upload-row input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
+      width: 100%; height: 100%;
+    }
+    .file-row-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .file-row-text { flex: 1; }
+    .file-row-text strong { font-size: 0.88rem; display: block; color: var(--text); }
+    .file-row-text span  { font-size: 0.76rem; color: var(--muted); }
+    .file-row-status {
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .status-waiting  { background: #f1f5f9; color: #64748b; }
+    .status-selected { background: #dcfce7; color: #15803d; }
+    .file-row-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: white;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, border-color 0.2s;
+      pointer-events: none;
+    }
+    .file-upload-row:hover .file-row-btn {
+      background: var(--primary-glow);
+      border-color: var(--primary);
+    }
+
+    /* ── YOUTUBE LINKS ── */
+    .yt-entry {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+      animation: fadeUp 0.3s ease both;
+    }
+    .yt-input-wrap {
+      flex: 1;
+      position: relative;
+    }
+    .yt-input-wrap .yt-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #dc2626;
+      font-size: 15px;
+      pointer-events: none;
+    }
+    .yt-input-wrap input {
+      padding-left: 36px;
+    }
+    .yt-label-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: #fee2e2;
+      color: #b91c1c;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .yt-remove-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
+      flex-shrink: 0;
+    }
+    .yt-remove-btn:hover { color: #dc2626; background: #fee2e2; }
+
+    .btn-add-yt {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: none;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 9px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      width: 100%;
+      justify-content: center;
+      margin-top: 6px;
+    }
+    .btn-add-yt:hover { border-color: var(--primary); background: var(--primary-glow); }
+
+    /* ── RESOURCE DETAILS ── */
+    .tag-input-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: #f8fafc;
+      min-height: 46px;
+      cursor: text;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .tag-input-wrap:focus-within {
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 0 0 4px var(--primary-glow);
+    }
+    .tag-item {
+      display: flex; align-items: center; gap: 5px;
+      background: #dbeafe; color: #1d4ed8;
+      font-size: 0.78rem; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px;
+      animation: fadeUp 0.2s ease both;
+    }
+    .tag-item button {
+      background: none; border: none; color: #3b82f6;
+      font-size: 12px; cursor: pointer; padding: 0; line-height: 1;
+    }
+    .tag-item button:hover { color: #dc2626; }
+    .tag-real-input {
+      border: none; outline: none; background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem; color: var(--text);
+      min-width: 120px; flex: 1;
+    }
+
+    /* ── SUBMIT BAR ── */
+    .submit-bar {
+      background: white;
+      border-radius: 16px;
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 4px 24px rgba(0,60,140,0.07);
+      margin-top: 10px;
+      animation: fadeUp 0.5s 0.3s ease both;
+    }
+    .submit-bar-info { font-size: 0.82rem; color: var(--muted); }
+    .submit-bar-info strong { color: var(--text); display: block; font-size: 0.9rem; margin-bottom: 2px; }
+
+    .btn-submit {
+      background: linear-gradient(135deg, #1a85e8, var(--primary-dark));
+      color: white;
+      border: none;
+      border-radius: 11px;
+      padding: 13px 36px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.97rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 9px;
+      box-shadow: 0 4px 18px rgba(0,120,215,0.3);
+      transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s;
+      white-space: nowrap;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0,120,215,0.38);
+    }
+    .btn-submit:active { transform: translateY(0); }
+
+    .btn-draft {
+      background: white;
+      color: var(--primary);
+      border: 1.5px solid var(--border);
+      border-radius: 11px;
+      padding: 12px 24px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      transition: border-color 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+    .btn-draft:hover { border-color: var(--primary); background: var(--primary-glow); }
+
+    /* ── FLASH / STATUS ── */
+    .alert {
+      border-radius: 10px;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .alert i { margin-top: 1px; flex-shrink: 0; }
+
+    /* ── MISC ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 600px) {
+      .two-col { grid-template-columns: 1fr; }
+      .submit-bar { flex-direction: column; align-items: stretch; }
+      .btn-submit, .btn-draft { width: 100%; justify-content: center; }
+    }
+
+    .char-count { font-size: 0.75rem; color: var(--muted); text-align: right; margin-top: 4px; }
+
+    /* ── VISIBILITY TOGGLE ── */
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toggle-switch input { display: none; }
+    .toggle-track {
+      width: 44px; height: 24px;
+      background: #e2e8f0;
+      border-radius: 50px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px;
+      background: white;
+      border-radius: 50%;
+      top: 3px; left: 3px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      transition: left 0.2s;
+    }
+    .toggle-switch input:checked + .toggle-track { background: var(--primary); }
+    .toggle-switch input:checked + .toggle-track::after { left: 23px; }
+    .toggle-label { font-size: 0.88rem; font-weight: 500; color: var(--label); cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+  <div class="header-left">
+    <img src="https://chakrahub-stud.s3.eu-north-2.amazonaws.com/img.jpeg"
+         alt="ChakoraHub" class="header-logo"
+         onerror="this.style.display='none'">
+    <div>
+      <div class="header-title">ChakoraHub Admin</div>
+      <div class="header-subtitle">Learning Resources Management</div>
+    </div>
+  </div>
+  <a href="{{ url_for('resources') }}" class="header-back">
+    <i class="fas fa-arrow-left"></i> Back to Resources
+  </a>
+</div>
+
+<!-- ── FLASH MESSAGES ── -->
+<div class="main-wrap">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' }} alert-dismissible fade show">
+          <i class="fas fa-{{ 'check-circle' if cat == 'success' else 'exclamation-circle' }}"></i>
+          <div>{{ msg }}</div>
+          <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- ── PROGRESS STEPS ── -->
+  <div class="steps-bar">
+    <div class="step active" id="step-1">
+      <div class="step-dot"><i class="fas fa-info"></i></div>
+      <div class="step-label">Details</div>
+    </div>
+    <div class="step-line" id="line-1"></div>
+    <div class="step active" id="step-2">
+      <div class="step-dot"><i class="fas fa-image"></i></div>
+      <div class="step-label">Image</div>
+    </div>
+    <div class="step-line" id="line-2"></div>
+    <div class="step active" id="step-3">
+      <div class="step-dot"><i class="fas fa-file"></i></div>
+      <div class="step-label">Files</div>
+    </div>
+    <div class="step-line" id="line-3"></div>
+    <div class="step active" id="step-4">
+      <div class="step-dot"><i class="fab fa-youtube"></i></div>
+      <div class="step-label">Videos</div>
+    </div>
+  </div>
+
+  <form method="POST" action="{{ url_for('add_resource') }}" enctype="multipart/form-data" id="addResourceForm">
+
+    <!-- ══════════════════════════════════════
+         SECTION 1 — BASIC DETAILS
+    ══════════════════════════════════════ -->
+    <div class="section-card">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-icon icon-blue">
+          <i class="fas fa-layer-group"></i>
+        </div>
+        <div class="section-title-wrap">
+          <div class="section-title">Basic Details</div>
+          <div class="section-desc">Name, category, description and visibility settings</div>
+        </div>
+        <span class="badge-required section-badge">Required</span>
+        <i class="fas fa-chevron-down section-chevron"></i>
+      </div>
+      <div class="section-body">
+        <div class="two-col mb-3">
+          <div>
+            <label class="field-label">Technology / Course Name <span class="req">*</span></label>
+            <input type="text" class="form-control" name="course_name"
+                   placeholder="e.g. Apache Kafka" required
+                   value="{{ entered.course_name if entered else '' }}">
+          </div>
+          <div>
+            <label class="field-label">Course Code <span class="req">*</span></label>
+            <input type="text" class="form-control" name="course_code"
+                   placeholder="e.g. KAFKA" required
+                   value="{{ entered.course_code if entered else '' }}"
+                   style="text-transform:uppercase;">
+            <div class="field-hint">Short unique identifier (all caps)</div>
+          </div>
+        </div>
+
+        <div class="two-col mb-3">
+          <div>
+            <label class="field-label">Category <span class="req">*</span></label>
+            <select class="form-select" name="category" required>
+              <option value="">— Select Category —</option>
+              <option value="data_engineering">Data Engineering</option>
+              <option value="cloud">Cloud Technologies</option>
+              <option value="automation">Automation & Testing</option>
+              <option value="ai_ml">AI / Machine Learning</option>
+              <option value="programming">Programming Languages</option>
+              <option value="devops">DevOps</option>
+              <option value="database">Databases</option>
+              <option value="design">Design & UI/UX</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Difficulty Level</label>
+            <select class="form-select" name="difficulty">
+              <option value="beginner">Beginner</option>
+              <option value="intermediate" selected>Intermediate</option>
+              <option value="advanced">Advanced</option>
+              <option value="all">All Levels</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="field-label">Short Description</label>
+          <textarea class="form-control" name="description" id="descArea" maxlength="300"
+                    placeholder="Briefly describe what students will learn from this resource…"
+                    oninput="updateChar('descArea','descCount',300)">{{ entered.description if entered else '' }}</textarea>
+          <div class="char-count"><span id="descCount">0</span> / 300</div>
+        </div>
+
+        <div class="mb-3">
+          <label class="field-label">Tags / Keywords</label>
+          <div class="tag-input-wrap" id="tagWrap" onclick="document.getElementById('tagInput').focus()">
+            <!-- Tags injected here by JS -->
+            <input type="text" class="tag-real-input" id="tagInput"
+                   placeholder="Type a tag and press Enter…">
+          </div>
+          <input type="hidden" name="tags" id="tagsHidden">
+          <div class="field-hint">Press Enter or comma to add a tag</div>
+        </div>
+
+        <div class="two-col">
+          <div>
+            <label class="field-label">Course Fee (₹)</label>
+            <input type="number" class="form-control" name="course_fee" min="0" step="1"
+                   placeholder="0 for free"
+                   value="{{ entered.course_fee if entered else '' }}">
+          </div>
+          <div>
+            <label class="field-label" style="margin-bottom:12px;">Visibility</label>
+            <div class="toggle-switch">
+              <input type="checkbox" name="is_visible" id="visibilityToggle" checked>
+              <label class="toggle-track" for="visibilityToggle"></label>
+              <label class="toggle-label" for="visibilityToggle">Visible on Resources Page</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 2 — THUMBNAIL IMAGE
+    ══════════════════════════════════════ -->
+    <div class="section-card">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-icon icon-blue">
+          <i class="fas fa-image"></i>
+        </div>
+        <div class="section-title-wrap">
+          <div class="section-title">Thumbnail Image</div>
+          <div class="section-desc">Shown on the resources grid — JPG, PNG, WEBP (max 2 MB)</div>
+        </div>
+        <span class="badge-required section-badge">Required</span>
+        <i class="fas fa-chevron-down section-chevron"></i>
+      </div>
+      <div class="section-body">
+        <div class="img-upload-zone" id="imgZone"
+             ondragover="handleDragOver(event,'imgZone')"
+             ondragleave="handleDragLeave('imgZone')"
+             ondrop="handleDrop(event)">
+          <input type="file" name="thumbnail" id="thumbnailInput"
+                 accept="image/jpeg,image/png,image/webp,image/gif"
+                 onchange="previewImage(event)">
+          <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+          <h6>Drag & drop your image here</h6>
+          <p>or click to browse &nbsp;·&nbsp; JPG, PNG, WEBP, GIF &nbsp;·&nbsp; Max 2 MB</p>
+        </div>
+        <div class="img-preview-wrap" id="imgPreviewWrap">
+          <img id="imgPreview" src="" alt="Preview">
+          <button type="button" class="img-remove" onclick="removeImage()">
+            <i class="fas fa-times me-1"></i>Remove
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 3 — CODE FILES
+    ══════════════════════════════════════ -->
+    <div class="section-card">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-icon icon-purple">
+          <i class="fas fa-code"></i>
+        </div>
+        <div class="section-title-wrap">
+          <div class="section-title">Code Files</div>
+          <div class="section-desc">Upload source code, scripts, notebooks or archives</div>
+        </div>
+        <span class="badge-optional section-badge">Optional</span>
+        <i class="fas fa-chevron-down section-chevron"></i>
+      </div>
+      <div class="section-body">
+        <div id="codeFilesList">
+          <!-- Dynamically added rows -->
+        </div>
+        <div class="file-upload-row" style="cursor:pointer;position:relative;">
+          <input type="file" name="code_files" id="codeFilesInput" multiple
+                 accept=".py,.java,.cpp,.c,.js,.ts,.sql,.sh,.json,.xml,.yaml,.yml,.ipynb,.zip,.tar.gz"
+                 onchange="handleMultiFile(event,'codeFilesList','code')">
+          <div class="file-row-icon icon-purple"><i class="fas fa-folder-open"></i></div>
+          <div class="file-row-text">
+            <strong>Select Code Files</strong>
+            <span>PY, Java, JS, SQL, IPYNB, ZIP and more</span>
+          </div>
+          <button type="button" class="file-row-btn">Browse Files</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 4 — PPT / SLIDES
+    ══════════════════════════════════════ -->
+    <div class="section-card">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-icon icon-warning">
+          <i class="fas fa-file-powerpoint"></i>
+        </div>
+        <div class="section-title-wrap">
+          <div class="section-title">PPT / Slides</div>
+          <div class="section-desc">Upload presentation files for students to download</div>
+        </div>
+        <span class="badge-optional section-badge">Optional</span>
+        <i class="fas fa-chevron-down section-chevron"></i>
+      </div>
+      <div class="section-body">
+        <div id="pptFilesList"></div>
+        <div class="file-upload-row" style="cursor:pointer;position:relative;">
+          <input type="file" name="ppt_files" id="pptFilesInput" multiple
+                 accept=".ppt,.pptx,.pdf,.key"
+                 onchange="handleMultiFile(event,'pptFilesList','ppt')">
+          <div class="file-row-icon icon-warning"><i class="fas fa-file-upload"></i></div>
+          <div class="file-row-text">
+            <strong>Select Presentation Files</strong>
+            <span>PPT, PPTX, PDF, Keynote</span>
+          </div>
+          <button type="button" class="file-row-btn">Browse Files</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 5 — INTERVIEW QUESTIONS
+    ══════════════════════════════════════ -->
+    <div class="section-card">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-icon icon-teal">
+          <i class="fas fa-question-circle"></i>
+        </div>
+        <div class="section-title-wrap">
+          <div class="section-title">Interview Questions</div>
+          <div class="section-desc">Upload Q&A documents or PDF question banks</div>
+        </div>
+        <span class="badge-optional section-badge">Optional</span>
+        <i class="fas fa-chevron-down section-chevron"></i>
+      </div>
+      <div class="section-body">
+        <div id="iqFilesList"></div>
+        <div class="file-upload-row" style="cursor:pointer;position:relative;">
+          <input type="file" name="interview_files" id="iqFilesInput" multiple
+                 accept=".pdf,.doc,.docx,.txt,.xlsx"
+                 onchange="handleMultiFile(event,'iqFilesList','iq')">
+          <div class="file-row-icon icon-teal"><i class="fas fa-file-alt"></i></div>
+          <div class="file-row-text">
+            <strong>Select Interview Q&amp;A Files</strong>
+            <span>PDF, Word, Excel, TXT</span>
+          </div>
+          <button type="button" class="file-row-btn">Browse Files</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SECTION 6 — YOUTUBE VIDEOS
+    ══════════════════════════════════════ -->
+    <div class="section-card">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-icon icon-red">
+          <i class="fab fa-youtube"></i>
+        </div>
+        <div class="section-title-wrap">
+          <div class="section-title">YouTube Videos</div>
+          <div class="section-desc">Add YouTube links — demo lectures, tutorials, playlists</div>
+        </div>
+        <span class="badge-optional section-badge">Optional</span>
+        <i class="fas fa-chevron-down section-chevron"></i>
+      </div>
+      <div class="section-body">
+        <div id="ytList"></div>
+        <button type="button" class="btn-add-yt" onclick="addYtRow()">
+          <i class="fas fa-plus-circle"></i> Add YouTube Link
+        </button>
+        <!-- Hidden textarea that collects all YT links as JSON -->
+        <textarea name="youtube_links" id="ytHidden" style="display:none;"></textarea>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SUBMIT BAR
+    ══════════════════════════════════════ -->
+    <div class="submit-bar">
+      <div class="submit-bar-info">
+        <strong>Ready to publish?</strong>
+        All required fields must be filled before publishing. Optional sections can be added later.
+      </div>
+      <div class="d-flex gap-3 flex-wrap">
+        <button type="button" class="btn-draft" onclick="saveDraft()">
+          <i class="fas fa-save"></i> Save Draft
+        </button>
+        <button type="submit" class="btn-submit" onclick="prepareSubmit()">
+          <i class="fas fa-rocket"></i> Publish Resource
+        </button>
+      </div>
+    </div>
+
+  </form>
+</div><!-- /main-wrap -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  /* ── SECTION COLLAPSE TOGGLE ── */
+  function toggleSection(header) {
+    const body = header.nextElementSibling;
+    header.classList.toggle('collapsed');
+    body.style.display = header.classList.contains('collapsed') ? 'none' : 'block';
+  }
+
+  /* ── CHAR COUNTER ── */
+  function updateChar(textareaId, countId, max) {
+    const len = document.getElementById(textareaId).value.length;
+    document.getElementById(countId).textContent = len;
+  }
+  updateChar('descArea', 'descCount', 300);
+
+  /* ── TAG INPUT ── */
+  let tags = [];
+  const tagInput   = document.getElementById('tagInput');
+  const tagWrap    = document.getElementById('tagWrap');
+  const tagsHidden = document.getElementById('tagsHidden');
+
+  tagInput.addEventListener('keydown', function(e) {
+    if ((e.key === 'Enter' || e.key === ',') && this.value.trim()) {
+      e.preventDefault();
+      addTag(this.value.trim().replace(/,$/, ''));
+      this.value = '';
+    } else if (e.key === 'Backspace' && !this.value && tags.length) {
+      removeTag(tags.length - 1);
+    }
+  });
+
+  function addTag(text) {
+    if (!text || tags.includes(text)) return;
+    tags.push(text);
+    renderTags();
+  }
+
+  function removeTag(i) {
+    tags.splice(i, 1);
+    renderTags();
+  }
+
+  function renderTags() {
+    document.querySelectorAll('.tag-item').forEach(el => el.remove());
+    tags.forEach((t, i) => {
+      const el = document.createElement('span');
+      el.className = 'tag-item';
+      el.innerHTML = `${t}<button type="button" onclick="removeTag(${i})">×</button>`;
+      tagWrap.insertBefore(el, tagInput);
+    });
+    tagsHidden.value = tags.join(',');
+  }
+
+  /* ── IMAGE PREVIEW ── */
+  function previewImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('imgPreview').src = e.target.result;
+      document.getElementById('imgPreviewWrap').style.display = 'block';
+      document.getElementById('imgZone').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removeImage() {
+    document.getElementById('thumbnailInput').value = '';
+    document.getElementById('imgPreviewWrap').style.display = 'none';
+    document.getElementById('imgZone').style.display = 'block';
+  }
+
+  function handleDragOver(event, zoneId) {
+    event.preventDefault();
+    document.getElementById(zoneId).classList.add('dragover');
+  }
+  function handleDragLeave(zoneId) {
+    document.getElementById(zoneId).classList.remove('dragover');
+  }
+  function handleDrop(event) {
+    event.preventDefault();
+    document.getElementById('imgZone').classList.remove('dragover');
+    const file = event.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      document.getElementById('thumbnailInput').files = dt.files;
+      previewImage({ target: { files: [file] } });
+    }
+  }
+
+  /* ── MULTI FILE ROWS ── */
+  const fileIcons = {
+    code: { cls: 'icon-purple', icon: 'fas fa-code' },
+    ppt:  { cls: 'icon-warning', icon: 'fas fa-file-powerpoint' },
+    iq:   { cls: 'icon-teal',   icon: 'fas fa-file-alt' },
+  };
+
+  function handleMultiFile(event, listId, type) {
+    const list = document.getElementById(listId);
+    list.innerHTML = '';
+    Array.from(event.target.files).forEach(file => {
+      const cfg = fileIcons[type];
+      const row = document.createElement('div');
+      row.className = 'file-upload-row';
+      row.style.cursor = 'default';
+      const size = file.size < 1024*1024
+        ? (file.size/1024).toFixed(0) + ' KB'
+        : (file.size/1024/1024).toFixed(1) + ' MB';
+      row.innerHTML = `
+        <div class="file-row-icon ${cfg.cls}"><i class="${cfg.icon}"></i></div>
+        <div class="file-row-text">
+          <strong>${file.name}</strong>
+          <span>${size}</span>
+        </div>
+        <span class="file-row-status status-selected"><i class="fas fa-check me-1"></i>Selected</span>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  /* ── YOUTUBE ROWS ── */
+  let ytCount = 0;
+  const ytData = [];
+
+  function addYtRow() {
+    ytCount++;
+    const idx = ytCount;
+    const div = document.createElement('div');
+    div.className = 'yt-entry';
+    div.id = `yt-row-${idx}`;
+    div.innerHTML = `
+      <span class="yt-label-badge">Link ${idx}</span>
+      <div class="yt-input-wrap">
+        <i class="yt-icon fab fa-youtube"></i>
+        <input type="text" class="form-control"
+               placeholder="https://www.youtube.com/watch?v=..."
+               id="yt-url-${idx}" oninput="syncYt()">
+      </div>
+      <div class="yt-input-wrap" style="max-width:180px;">
+        <i class="yt-icon fas fa-tag" style="color:#64748b;"></i>
+        <input type="text" class="form-control"
+               placeholder="Label (optional)"
+               id="yt-label-${idx}" oninput="syncYt()">
+      </div>
+      <button type="button" class="yt-remove-btn" onclick="removeYtRow(${idx})">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+    document.getElementById('ytList').appendChild(div);
+  }
+
+  function removeYtRow(idx) {
+    const el = document.getElementById(`yt-row-${idx}`);
+    if (el) el.remove();
+    syncYt();
+  }
+
+  function syncYt() {
+    const rows = document.querySelectorAll('#ytList .yt-entry');
+    const links = [];
+    rows.forEach((row, i) => {
+      const n = i + 1;
+      const url   = (document.getElementById(`yt-url-${row.id.split('-')[2]}`) || {}).value || '';
+      const label = (document.getElementById(`yt-label-${row.id.split('-')[2]}`) || {}).value || '';
+      if (url.trim()) links.push({ url: url.trim(), label: label.trim() });
+    });
+    document.getElementById('ytHidden').value = JSON.stringify(links);
+  }
+
+  /* ── FORM SUBMIT PREP ── */
+  function prepareSubmit() {
+    syncYt();
+    tagsHidden.value = tags.join(',');
+  }
+
+  function saveDraft() {
+    syncYt();
+    tagsHidden.value = tags.join(',');
+    // Add a hidden field to signal draft save
+    const inp = document.createElement('input');
+    inp.type = 'hidden'; inp.name = 'save_as_draft'; inp.value = '1';
+    document.getElementById('addResourceForm').appendChild(inp);
+    document.getElementById('addResourceForm').submit();
+  }
+
+  /* ── ADD ONE YT ROW BY DEFAULT ── */
+  addYtRow();
+</script>
+</body>
+</html>

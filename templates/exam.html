@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}{{ exam.title }} - Examination Portal{% endblock %}
+
+{% block head %}
+<style>
+    /* Prevent text selection */
+    body {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    /*
+    FIX #1: Fallback widget positioning styles.
+    These ensure the webcam widget is visible even if base.html's
+    .proctor-webcam-widget class is missing or not loaded.
+    They are intentionally scoped to the widget ID as inline insurance.
+    */
+    #proctorWebcamWidget {
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        width: 200px !important;
+        height: 150px !important;
+        z-index: 9999 !important;
+        border-radius: 10px !important;
+        overflow: hidden !important;
+        border: 2px solid rgba(255, 255, 255, 0.15) !important;
+        background: #000 !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+        cursor: grab !important;
+    }
+
+    #proctorWebcamWidget.disconnected {
+        border-color: rgba(239, 68, 68, 0.6) !important;
+    }
+
+    #proctorWebcamWidget video {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        display: block !important;
+    }
+
+    #proctorWebcamWidget .widget-overlay {
+        position: absolute !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        background: rgba(0, 0, 0, 0.55) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        padding: 4px 8px !important;
+        font-size: 0.7rem !important;
+        z-index: 1 !important;
+    }
+
+    #proctorWebcamWidget .drag-handle {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 28px !important;
+        background: rgba(0, 0, 0, 0.4) !important;
+        cursor: grab !important;
+        z-index: 2 !important;
+    }
+
+    .status-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Main Exam Container -->
+    <div class="col-12 col-lg-8 mx-auto">
+        
+        <!-- Proctoring Warning Toast Container -->
+        <div id="violationToastContainer" class="violation-toast-container"></div>
+
+        <!-- Exam Status Header Card -->
+        <div class="glass-card p-4 mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h3 class="mb-1 text-white">{{ exam.title }}</h3>
+                <p class="text-secondary mb-0" style="font-size: 0.9rem;">
+                    Proctoring is active. Do not exit fullscreen or switch tabs.
+                </p>
+            </div>
+            <div>
+                <div class="timer-badge" id="examTimer">
+                    <i class="bi bi-clock-history"></i>
+                    <span id="timerText">--:--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="glass-card p-4 mb-4">
+            <div class="d-flex justify-content-between text-secondary mb-2" style="font-size: 0.85rem;">
+                <span>Progress</span>
+                <span id="progressText">Question 0 of 0</span>
+            </div>
+            <div class="progress" style="height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 3px;">
+                <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%; background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo)); transition: width 0.3s ease;"></div>
+            </div>
+        </div>
+
+        <!-- Question Card -->
+        <div class="glass-card p-5 mb-4" id="questionCard">
+            <div class="text-center py-5" id="questionLoading">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-secondary mt-3 mb-0">Syncing examination session...</p>
+            </div>
+        </div>
+
+        <!-- Control Action Row -->
+        <div class="d-flex justify-content-between align-items-center">
+            <button class="btn btn-premium-outline py-2 px-4" id="prevBtn" disabled>
+                <i class="bi bi-chevron-left"></i> Previous
+            </button>
+            <button class="btn btn-premium-outline py-2 px-4" id="nextBtn" disabled>
+                Next <i class="bi bi-chevron-right"></i>
+            </button>
+            <button class="btn btn-danger-premium py-2 px-4" id="submitBtn" onclick="confirmManualSubmit()" style="display: none;">
+                Submit Exam <i class="bi bi-send-fill ms-1"></i>
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!--
+    FIX #1: Floating Webcam Proctoring Widget
+    Positioned with inline style as an additional fallback guarantee.
+    The #proctorWebcamWidget CSS block above handles most cases,
+    but inline style catches environments where <style> blocks are stripped.
+-->
+<div id="proctorWebcamWidget" class="proctor-webcam-widget"
+     style="position:fixed;bottom:20px;right:20px;width:200px;height:150px;z-index:9999;border-radius:10px;overflow:hidden;background:#000;border:2px solid rgba(255,255,255,0.15);box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+    <div class="drag-handle" id="proctorWebcamDragHandle"></div>
+    <div class="widget-overlay">
+        <span class="status-dot" style="background-color:#22c55e;animation:pulse 1.5s infinite ease-in-out;"></span>
+        <span class="text-white fw-bold uppercase font-monospace" style="letter-spacing:0.05em;">PROCTOR ACTIVE</span>
+    </div>
+    <video id="proctorVideo" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+</div>
+
+<!-- Metadata passed to JavaScript files -->
+<script>
+    const EXAM_ID = {{ exam.id }};
+    const EXAM_DURATION_MINS = {{ exam.duration_minutes }};
+    const USER_ID = {{ user_id }};
+    const USERNAME = "{{ username }}";
+    const EXAM_TYPE = "{{ exam.exam_type }}";
+    const IS_CUSTOM_MOCK = {{ 'true' if is_custom_mock else 'false' }};
+</script>
+{% endblock %}
+
+{% block scripts %}
+<!-- Drag support & Proctor Telemetry handler -->
+<script src="/static/js/proctor.js"></script>
+<!-- Answers loader & Navigation sync handler -->
+<script src="/static/js/exam_handler.js"></script>
+{% endblock %}

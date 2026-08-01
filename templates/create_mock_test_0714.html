@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% block title %}Create Mock Test - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-lg-10 mx-auto">
+        
+        <!-- Header -->
+        <div class="glass-card p-4 mb-4">
+            <h2 class="text-white mb-1">
+                <i class="bi bi-journal-plus me-2 text-gradient-blue"></i>
+                Create New Mock Test
+            </h2>
+            <p class="text-secondary mb-0">Select questions from the bank and schedule the test</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left: Test Details Form -->
+            <div class="col-md-5">
+                <div class="glass-card p-4">
+                    <h4 class="text-white mb-3">Test Details</h4>
+                    
+                    <form id="testForm">
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Test Title *</label>
+                            <input type="text" class="form-control form-control-premium" id="testTitle" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Category *</label>
+                            <select class="form-control form-control-premium" id="testCategory" required>
+                                <option value="">Select Category</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat }}">{{ cat }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Description</label>
+                            <textarea class="form-control form-control-premium" id="testDescription" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Duration (minutes) *</label>
+                            <input type="number" class="form-control form-control-premium" id="testDuration" min="1" max="180" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Scheduled Date *</label>
+                            <input type="date" class="form-control form-control-premium" id="testDate" required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label text-secondary">Start Time *</label>
+                                <input type="time" class="form-control form-control-premium" id="startTime" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-secondary">End Time *</label>
+                                <input type="time" class="form-control form-control-premium" id="endTime" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Right: Question Selection -->
+            <div class="col-md-7">
+                <div class="glass-card p-4">
+                    <h4 class="text-white mb-3">Select Questions</h4>
+                    
+                    <div class="mb-3 d-flex gap-2">
+                        <input type="text" class="form-control form-control-premium" id="questionSearch" placeholder="Search questions...">
+                        <button class="btn btn-premium-outline" onclick="searchQuestions()">Search</button>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="text-secondary">Filter by Category:</label>
+                        <select class="form-control form-control-premium mt-1" id="questionCategoryFilter">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-white">Selected Questions: <span id="selectedCount">0</span></span>
+                            <button type="button" class="btn btn-sm btn-premium-outline" onclick="clearSelection()">Clear All</button>
+                        </div>
+                    </div>
+                    
+                    <div id="questionsList" style="max-height: 400px; overflow-y: auto;">
+                        <div class="text-center py-5">Loading questions...</div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button class="btn btn-premium w-100" onclick="createMockTest()">
+                            <i class="bi bi-check-circle"></i> Create Mock Test
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+let allQuestions = [];
+let selectedQuestionIds = new Set();
+
+// Load categories and questions
+loadCategories();
+loadQuestions();
+
+function loadCategories() {
+    fetch('/api/proxy/admin/categories')
+        .then(res => res.json())
+        .then(data => {
+            const filterSelect = document.getElementById('questionCategoryFilter');
+            const categorySelect = document.getElementById('testCategory');
+            
+            data.forEach(cat => {
+                const option1 = document.createElement('option');
+                option1.value = cat;
+                option1.textContent = cat;
+                filterSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = cat;
+                option2.textContent = cat;
+                categorySelect.appendChild(option2);
+            });
+        })
+        .catch(err => console.error('Error loading categories:', err));
+}
+
+function loadQuestions() {
+    fetch('/api/proxy/admin/question-bank?limit=500')
+        .then(res => res.json())
+        .then(questions => {
+            allQuestions = questions;
+            displayQuestions(allQuestions);
+        })
+        .catch(err => {
+            console.error('Error loading questions:', err);
+            document.getElementById('questionsList').innerHTML = '<div class="alert alert-danger">Error loading questions</div>';
+        });
+}
+
+function searchQuestions() {
+    const searchTerm = document.getElementById('questionSearch').value.toLowerCase();
+    const category = document.getElementById('questionCategoryFilter').value;
+    
+    let filtered = allQuestions;
+    
+    if (searchTerm) {
+        filtered = filtered.filter(q => q.question_text.toLowerCase().includes(searchTerm));
+    }
+    
+    if (category) {
+        filtered = filtered.filter(q => q.category === category);
+    }
+    
+    displayQuestions(filtered);
+}
+
+function displayQuestions(questions) {
+    const container = document.getElementById('questionsList');
+    
+    if (!questions || questions.length === 0) {
+        container.innerHTML = '<div class="text-center text-secondary py-5">No questions found</div>';
+        return;
+    }
+    
+    let html = '<div class="list-group">';
+    questions.forEach(q => {
+        const isSelected = selectedQuestionIds.has(q.id);
+        html += `
+            <div class="list-group-item glass-card mb-2 p-3" style="cursor: pointer;" onclick="toggleQuestion(${q.id})">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" ${isSelected ? 'checked' : ''} id="q_${q.id}" style="cursor: pointer;">
+                    <label class="form-check-label text-white" for="q_${q.id}" style="cursor: pointer;">
+                        <strong>${escapeHtml(q.question_text.substring(0, 150))}${q.question_text.length > 150 ? '...' : ''}</strong>
+                        <br>
+                        <small class="text-secondary">Category: ${escapeHtml(q.category)} | Correct: ${q.correct_option}</small>
+                    </label>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+    
+    updateSelectedCount();
+}
+
+function toggleQuestion(questionId) {
+    if (selectedQuestionIds.has(questionId)) {
+        selectedQuestionIds.delete(questionId);
+    } else {
+        selectedQuestionIds.add(questionId);
+    }
+    updateSelectedCount();
+    
+    // Update checkbox state without reloading all questions
+    const checkbox = document.getElementById(`q_${questionId}`);
+    if (checkbox) checkbox.checked = selectedQuestionIds.has(questionId);
+}
+
+function clearSelection() {
+    if (confirm('Clear all selected questions?')) {
+        selectedQuestionIds.clear();
+        updateSelectedCount();
+        displayQuestions(allQuestions); // Refresh display
+    }
+}
+
+function updateSelectedCount() {
+    document.getElementById('selectedCount').innerText = selectedQuestionIds.size;
+}
+
+function createMockTest() {
+    const title = document.getElementById('testTitle').value.trim();
+    const category = document.getElementById('testCategory').value;
+    const description = document.getElementById('testDescription').value;
+    const duration = document.getElementById('testDuration').value;
+    const date = document.getElementById('testDate').value;
+    const startTime = document.getElementById('startTime').value;
+    const endTime = document.getElementById('endTime').value;
+    
+    if (!title) { alert('Please enter test title'); return; }
+    if (!category) { alert('Please select category'); return; }
+    if (!duration) { alert('Please enter duration'); return; }
+    if (!date) { alert('Please select date'); return; }
+    if (!startTime) { alert('Please select start time'); return; }
+    if (!endTime) { alert('Please select end time'); return; }
+    
+    if (selectedQuestionIds.size === 0) {
+        alert('Please select at least one question');
+        return;
+    }
+    
+    const payload = {
+        title: title,
+        category: category,
+        description: description,
+        duration_minutes: parseInt(duration),
+        scheduled_date: date,
+        start_time: startTime,
+        end_time: endTime,
+        question_ids: Array.from(selectedQuestionIds)
+    };
+    
+    fetch('/api/proxy/admin/mock-tests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.id) {
+            alert(`Mock test "${title}" created successfully with ${selectedQuestionIds.size} questions!`);
+            window.location.href = '/ope/dashboard';
+        } else {
+            alert('Error: ' + (data.detail || 'Failed to create test'));
+        }
+    })
+    .catch(err => alert('Error creating test: ' + err.message));
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+</script>
+{% endblock %}

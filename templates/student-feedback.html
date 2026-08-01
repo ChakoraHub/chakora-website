@@ -1,131 +1,844 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Student Feedback</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb');
-      background-size: cover;
-      background-position: center;
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 40px;
-      background: rgba(0, 0, 0, 0.4);
-      position: fixed;
-      width: 100%;
-      top: 0;
-      left: 0;
-      z-index: 1000;
-      box-sizing: border-box;
-    }
-    header img { height: 90px; }
-    .profile-container { position: relative; display: inline-block; margin-right: 30px; cursor: pointer; }
-    .profile-pic { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #fff; }
-    .dropdown { display: none; position: absolute; left: 0; background-color: #333; min-width: 120px; box-shadow: 0px 8px 16px rgba(0,0,0,0.2); border-radius: 5px; z-index: 1; }
-    .dropdown a { color: white; padding: 10px; text-decoration: none; display: block; }
-    .dropdown a:hover { background-color: #555; }
-    .feedback-wrapper { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding-top: 120px; }
-    .feedback-container { background-color: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); width: 90%; max-width: 550px; }
-    .feedback-container h2 { margin-top: 0; color: #007acc; font-size: 26px; text-align: center; }
-    input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
-    input[readonly] { background-color: #f3f3f3; }
-    textarea { height: 250px; resize: vertical; }
-    button { background-color: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 18px; }
-    button:hover { background-color: #218838; }
-    .thank-you-box { text-align: center; color: green; font-size: 22px; font-weight: bold; }
-    .resources-btn { display: block; margin: 20px auto; text-align: center; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; width: fit-content; cursor: pointer; }
-    .resources-btn:hover { background-color: #0056b3; }
-    .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-    .modal-content { background: #fff; padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 6px 18px rgba(0,0,0,0.3); width: 320px; }
-    .modal-content h3 { margin-bottom: 20px; color: #3949ab; }
-    .modal-actions button { margin: 8px; padding: 8px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-    .confirm-btn { background: #3949ab; color: white; }
-    .cancel-btn { background: #f0f0f0; color: #333; }
-    .confirm-btn:hover { background: #303f9f; }
-    .cancel-btn:hover { background: #ddd; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Feedback - ChakoraHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Animated background pattern */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  animation: gradientShift 15s ease infinite;
+  pointer-events: none;
+}
+
+@keyframes gradientShift {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+}
+
+header img {
+  height: 60px;
+  transition: transform 0.3s ease;
+}
+
+header img:hover {
+  transform: scale(1.05);
+}
+
+.profile-container {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.profile-pic {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 3px solid #667eea;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.profile-pic:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+.dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 60px;
+  background: white;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
+  animation: dropdownSlide 0.3s ease;
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown a {
+  color: #1e293b;
+  padding: 14px 20px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.dropdown a:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(139, 92, 246, 0.1));
+  color: #667eea;
+}
+
+.dropdown a i {
+  font-size: 1.1rem;
+}
+
+/* Main Content */
+.feedback-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 90px);
+  padding: 40px 20px;
+}
+
+.feedback-container {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  padding: 50px;
+  border-radius: 24px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 650px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative top border */
+.feedback-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+  background-size: 200% 100%;
+  animation: gradientMove 3s linear infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.feedback-container h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 2rem;
+  text-align: center;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #64748b;
+  font-size: 1rem;
+  margin-bottom: 35px;
+  font-weight: 500;
+}
+
+/* Form Elements */
+form label {
+  display: block;
+  margin-bottom: 8px;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.2px;
+}
+
+.required::after {
+  content: " *";
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.input-wrapper {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+  font-size: 1.1rem;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 14px 18px 14px 50px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background: #f8fafc;
+  font-family: 'Inter', sans-serif;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+
+textarea {
+  height: 180px;
+  resize: vertical;
+  padding-top: 14px;
+  padding-left: 18px;
+}
+
+/* Star Rating System */
+.rating-container {
+  margin-bottom: 25px;
+}
+
+.rating-label {
+  display: block;
+  margin-bottom: 12px;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.stars {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.star {
+  font-size: 2.5rem;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.star:hover,
+.star.active {
+  color: #fbbf24;
+  transform: scale(1.15);
+}
+
+.star.active {
+  animation: starPop 0.3s ease;
+}
+
+@keyframes starPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1.15); }
+}
+
+.rating-text {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 600;
+  min-height: 24px;
+  margin-top: 8px;
+}
+
+/* Buttons */
+button[type="submit"] {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 16px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+}
+
+button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.resources-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 25px auto 0;
+  padding: 14px 32px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #667eea;
+  text-decoration: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+.resources-btn:hover {
+  background: white;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
+  color: #667eea;
+}
+
+/* Thank You Box */
+.thank-you-box {
+  text-align: center;
+  padding: 40px 20px;
+  animation: fadeInScale 0.5s ease;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.success-icon {
+  font-size: 5rem;
+  color: #10b981;
+  margin-bottom: 20px;
+  animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.thank-you-title {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #10b981, #059669);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 15px;
+}
+
+.thank-you-message {
+  font-size: 1.1rem;
+  color: #64748b;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.thank-you-name {
+  font-size: 1.3rem;
+  color: #667eea;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 35px;
+  border-radius: 20px;
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlide 0.3s ease;
+}
+
+@keyframes modalSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-content h3 {
+  margin-bottom: 25px;
+  color: #1e293b;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modal-actions button {
+  margin: 0;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.confirm-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.cancel-btn {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.cancel-btn:hover {
+  background: #e2e8f0;
+}
+
+/* Loading animation */
+.loading {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  header {
+    padding: 12px 20px;
+  }
+
+  header img {
+    height: 50px;
+  }
+
+  .feedback-container {
+    padding: 35px 25px;
+    border-radius: 20px;
+  }
+
+  .feedback-container h2 {
+    font-size: 1.75rem;
+  }
+
+  .stars {
+    gap: 6px;
+  }
+
+  .star {
+    font-size: 2rem;
+  }
+
+  .modal-content {
+    padding: 25px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+}
+
+/* Grid layout for form fields */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 576px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+</style>
 </head>
+
 <body>
-  <header>
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
-    <div class="profile-container" onclick="toggleDropdown()">
-      <img src="{{ url_for('static', filename=session.get('profile_pic', 'default_profile.jpg')) }}" class="profile-pic" alt="Profile">
-      <div class="dropdown" id="dropdownMenu">
-        <a href="{{ url_for('profile') }}">Profile</a>
-        <a href="{{ url_for('settings') }}">Settings</a>
-        <a href="#" onclick="openModal()">Logout</a>
-      </div>
+
+<header>
+  <a href="/">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="ChakoraHub Logo">
+  </a>
+
+  {% set profile_pic_file = session.get('profile_pic') %}
+  {% if not profile_pic_file or profile_pic_file == 'default.jpg' or profile_pic_file == 'default_profile.jpg' %}
+    {% set profile_pic_file = 'profile_photo/defaultpicture.jpg' %}
+  {% endif %}
+
+  <div class="profile-container" onclick="toggleDropdown()">
+    <img src="{{ url_for('static', filename=profile_pic_file) }}" 
+         class="profile-pic" 
+         alt="Profile">
+
+    <div class="dropdown" id="dropdownMenu">
+      <a href="{{ url_for('profile') }}">
+        <i class="fas fa-user"></i> Profile
+      </a>
+      <a href="{{ url_for('settings') }}">
+        <i class="fas fa-cog"></i> Settings
+      </a>
+      <a href="#" onclick="openModal(); return false;">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
     </div>
-  </header>
+  </div>
+</header>
 
-  <div class="feedback-wrapper">
-    <div class="feedback-container">
-      {% if feedback_submitted %}
-        <div class="thank-you-box">
-          ✅ Thank you{% if feedback_name %}, {{ feedback_name }}{% endif %} for your feedback!
-        </div>
-        <a class="resources-btn" href="{{ url_for('resources') }}">⬅ Back to Resources</a>
-      {% else %}
-        <h2>Hi, please share your valuable feedback</h2>
+<div class="feedback-wrapper">
+  <div class="feedback-container">
 
-        <form method="POST" action="/feedback">
-          <label for="name">Name:</label>
-          <input type="text" name="name" placeholder="Your Name"
-                 value="{{ user.username if user else '' }}"
-                 {% if logged_in %}readonly{% endif %} required>
+    {% if feedback_submitted %}
 
-          <label for="email">Email:</label>
-          <input type="email" name="email" placeholder="Your Email"
-                 value="{{ user['email'] if user else '' }}"
-                 {% if logged_in %}readonly{% endif %} required>
-
-          <label for="phone">Phone:</label>
-          <input type="tel" name="phone" placeholder="Your Phone"
-                 value="{{ user['phone'] if user else '' }}"
-                 {% if logged_in %}readonly{% endif %} required>
-
-          <textarea name="feedback" placeholder="Write your feedback here..." required></textarea>
-          <button type="submit">Submit</button>
-        </form>
-
-        <a class="resources-btn" href="{{ url_for('resources') }}">⬅ Back to Resources</a>
+    <!-- Thank You Message -->
+    <div class="thank-you-box">
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h2 class="thank-you-title">Feedback Received!</h2>
+      <p class="thank-you-message">Thank you for taking the time to share your thoughts.</p>
+      {% if feedback_name %}
+      <p class="thank-you-name">{{ feedback_name }}</p>
       {% endif %}
+      <p class="thank-you-message">Your feedback helps us improve and provide better learning experiences.</p>
+      
+      <a class="resources-btn" href="{{ url_for('resources') }}">
+        <i class="fas fa-arrow-left"></i> Back to Resources
+      </a>
     </div>
-  </div>
 
-  <!-- Logout Confirmation Modal -->
-  <div id="confirmationModal" class="modal">
-    <div class="modal-content">
-      <h3>Are you sure you want to log out?</h3>
-      <div class="modal-actions">
-        <button class="confirm-btn" onclick="logout()">Yes</button>
-        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+    {% else %}
+
+    <!-- Feedback Form -->
+    <h2><i class="fas fa-comments"></i> Share Your Feedback</h2>
+    <p class="subtitle">We'd love to hear about your experience with ChakoraHub</p>
+
+    {% if feedback_error %}
+    <div class="error-message" style="margin-bottom: 20px; padding: 14px 16px; border-radius: 12px; background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; font-weight: 600;">
+      <i class="fas fa-triangle-exclamation"></i> {{ feedback_error }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/feedback" id="feedbackForm">
+
+      <!-- Name and Email Row -->
+      <div class="form-row">
+        <div>
+          <label class="required"><i class="fas fa-user"></i> Name</label>
+          <div class="input-wrapper">
+            <i class="fas fa-signature input-icon"></i>
+            <input type="text" name="name" placeholder="Your full name" value="{{ user.username if user else '' }}" required>
+          </div>
+        </div>
+
+        <div>
+          <label class="required"><i class="fas fa-envelope"></i> Email</label>
+          <div class="input-wrapper">
+            <i class="fas fa-at input-icon"></i>
+            <input type="email" name="email" placeholder="you@example.com" value="{{ user.email if user else '' }}" required>
+          </div>
+        </div>
       </div>
+
+      <!-- Phone -->
+      <label class="required"><i class="fas fa-phone"></i> Phone</label>
+      <div class="input-wrapper">
+        <i class="fas fa-mobile-alt input-icon"></i>
+        <input type="tel" name="phone" placeholder="10-digit mobile number" pattern="\d{10}" maxlength="10" value="{{ user.phone if user else '' }}" required>
+      </div>
+
+      <!-- Star Rating -->
+      <div class="rating-container">
+        <label class="rating-label required">
+          <i class="fas fa-star"></i> Rate Your Experience
+        </label>
+        <div class="stars" id="starRating">
+          <i class="fas fa-star star" data-rating="1"></i>
+          <i class="fas fa-star star" data-rating="2"></i>
+          <i class="fas fa-star star" data-rating="3"></i>
+          <i class="fas fa-star star" data-rating="4"></i>
+          <i class="fas fa-star star" data-rating="5"></i>
+        </div>
+        <div class="rating-text" id="ratingText">Click on stars to rate</div>
+        <input type="hidden" name="rating" id="ratingValue" required>
+      </div>
+
+      <!-- Feedback Textarea -->
+      <label class="required"><i class="fas fa-pen"></i> Your Feedback</label>
+      <textarea name="feedback" 
+                placeholder="Tell us about your experience, what you liked, and how we can improve..." 
+                required></textarea>
+
+      <!-- Submit Button -->
+      <button type="submit" id="submitBtn">
+        <i class="fas fa-paper-plane"></i> Submit Feedback
+      </button>
+    </form>
+
+    <a class="resources-btn" href="{{ url_for('resources') }}">
+      <i class="fas fa-arrow-left"></i> Back to Resources
+    </a>
+
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div id="confirmationModal" class="modal">
+  <div class="modal-content">
+    <h3><i class="fas fa-sign-out-alt"></i> Confirm Logout</h3>
+    <p style="color: #64748b; margin-bottom: 25px;">Are you sure you want to log out?</p>
+
+    <div class="modal-actions">
+      <button class="confirm-btn" onclick="logout()">
+        <i class="fas fa-check"></i> Yes, Logout
+      </button>
+      <button class="cancel-btn" onclick="closeModal()">
+        <i class="fas fa-times"></i> Cancel
+      </button>
     </div>
   </div>
+</div>
 
-  <script>
-    function toggleDropdown() {
-      const dropdown = document.getElementById('dropdownMenu');
-      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-    }
-    document.addEventListener('click', function(event) {
-      const dropdown = document.getElementById('dropdownMenu');
-      const wrapper = document.querySelector('.profile-container');
-      if (!wrapper.contains(event.target)) { dropdown.style.display = 'none'; }
+<script>
+// Dropdown toggle
+function toggleDropdown() {
+  const dropdown = document.getElementById('dropdownMenu');
+  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+  const dropdown = document.getElementById('dropdownMenu');
+  const wrapper = document.querySelector('.profile-container');
+  if (!wrapper.contains(event.target)) {
+    dropdown.style.display = 'none';
+  }
+});
+
+// Modal functions
+function openModal() {
+  document.getElementById('confirmationModal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('confirmationModal').style.display = 'none';
+}
+
+function logout() {
+  window.location.href = "{{ url_for('logout') }}";
+}
+
+// Star Rating System
+const stars = document.querySelectorAll('.star');
+const ratingValue = document.getElementById('ratingValue');
+const ratingText = document.getElementById('ratingText');
+let currentRating = 0;
+
+const ratingLabels = {
+  1: '⭐ Poor',
+  2: '⭐⭐ Fair',
+  3: '⭐⭐⭐ Good',
+  4: '⭐⭐⭐⭐ Very Good',
+  5: '⭐⭐⭐⭐⭐ Excellent!'
+};
+
+stars.forEach(star => {
+  // Hover effect
+  star.addEventListener('mouseenter', function() {
+    const rating = this.getAttribute('data-rating');
+    highlightStars(rating);
+    ratingText.textContent = ratingLabels[rating];
+  });
+
+  // Click to select
+  star.addEventListener('click', function() {
+    currentRating = this.getAttribute('data-rating');
+    ratingValue.value = currentRating;
+    highlightStars(currentRating);
+    ratingText.textContent = ratingLabels[currentRating];
+    
+    // Make stars stay highlighted
+    stars.forEach(s => {
+      const sRating = s.getAttribute('data-rating');
+      if (sRating <= currentRating) {
+        s.classList.add('active');
+      } else {
+        s.classList.remove('active');
+      }
     });
-    function openModal() { document.getElementById('confirmationModal').style.display = 'flex'; }
-    function closeModal() { document.getElementById('confirmationModal').style.display = 'none'; }
-    function logout() { window.location.href = "{{ url_for('logout') }}"; }
-  </script>
+  });
+});
+
+// Reset stars on mouse leave (if not clicked)
+document.querySelector('.stars').addEventListener('mouseleave', function() {
+  if (currentRating > 0) {
+    highlightStars(currentRating);
+    ratingText.textContent = ratingLabels[currentRating];
+  } else {
+    resetStars();
+    ratingText.textContent = 'Click on stars to rate';
+  }
+});
+
+function highlightStars(rating) {
+  stars.forEach(star => {
+    const starRating = star.getAttribute('data-rating');
+    if (starRating <= rating) {
+      star.style.color = '#fbbf24';
+      star.style.transform = 'scale(1.15)';
+    } else {
+      star.style.color = '#e2e8f0';
+      star.style.transform = 'scale(1)';
+    }
+  });
+}
+
+function resetStars() {
+  stars.forEach(star => {
+    if (!star.classList.contains('active')) {
+      star.style.color = '#e2e8f0';
+      star.style.transform = 'scale(1)';
+    }
+  });
+}
+
+// Form submission — use existing server-side /feedback route
+const feedbackForm = document.getElementById('feedbackForm');
+
+if (feedbackForm) {
+  feedbackForm.addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (!ratingValue.value) {
+      e.preventDefault();
+      alert('Please select a rating before submitting!');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading"></span> Submitting...';
+  });
+}
+</script>
+
 </body>
 </html>

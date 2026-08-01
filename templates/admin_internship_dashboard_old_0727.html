@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChakoraHub - Internship Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --light-bg: #f8fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: var(--dark);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #64748b;
+            margin: 0;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-card .icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card.pending .icon {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .stat-card.approved .icon {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .stat-card.rejected .icon {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .stat-card.total .icon {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card p {
+            color: #64748b;
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        .filters-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .table {
+            margin: 0;
+        }
+
+        .table thead {
+            background: var(--light-bg);
+        }
+
+        .table thead th {
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.bg-warning {
+            background: rgba(245, 158, 11, 0.1) !important;
+            color: var(--warning) !important;
+        }
+
+        .badge.bg-success {
+            background: rgba(16, 185, 129, 0.1) !important;
+            color: var(--success) !important;
+        }
+
+        .badge.bg-danger {
+            background: rgba(239, 68, 68, 0.1) !important;
+            color: var(--danger) !important;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-outline-primary {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .modal-content {
+            border-radius: 16px;
+            border: none;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e2e8f0;
+            padding: 1.5rem;
+        }
+
+        .info-row {
+            display: flex;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--dark);
+            width: 150px;
+            flex-shrink: 0;
+        }
+
+        .info-value {
+            color: #64748b;
+        }
+
+        .document-links a {
+            display: inline-block;
+            margin-right: 1rem;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--light-bg);
+            border-radius: 6px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .document-links a:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .header-top {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                padding: 1rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+            }
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding-left: 2.5rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h4 {
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <div>
+                    <h1><i class="fas fa-users-cog"></i> Internship Admin Panel</h1>
+                    <p>Manage and review internship applications</p>
+                </div>
+                <a href="/employee-resources" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Resources
+                </a>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3 id="totalCount">0</h3>
+                <p>Total Applications</p>
+            </div>
+            <div class="stat-card pending">
+                <div class="icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3 id="pendingCount">0</h3>
+                <p>Pending Review</p>
+            </div>
+            <div class="stat-card approved">
+                <div class="icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 id="approvedCount">0</h3>
+                <p>Approved</p>
+            </div>
+            <div class="stat-card rejected">
+                <div class="icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <h3 id="rejectedCount">0</h3>
+                <p>Rejected</p>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-section">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search by name, email, or ID...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="REJECTED">Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="domainFilter">
+                        <option value="">All Domains</option>
+                        <option value="Web Development">Web Development</option>
+                        <option value="Mobile Development">Mobile Development</option>
+                        <option value="Data Science">Data Science</option>
+                        <option value="AI/ML">AI/ML</option>
+                        <option value="DevOps">DevOps</option>
+                        <option value="UI/UX Design">UI/UX Design</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100" onclick="loadApplications()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Applications Table -->
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Intern ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>College</th>
+                        <th>Domain</th>
+                        <th>Status</th>
+                        <th>Submitted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="applicationsTable">
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <h4>Loading applications...</h4>
+                                <p>Please wait while we fetch the data</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- View Details Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-user"></i> Application Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let applications = [];
+
+        function normalizeApplications(payload) {
+            const rows =
+                (payload && Array.isArray(payload.applications) && payload.applications) ||
+                (payload && Array.isArray(payload.data) && payload.data) ||
+                (payload && Array.isArray(payload.items) && payload.items) ||
+                [];
+
+            return rows.map((row) => ({
+                intern_id: row.intern_id || row.INTERN_ID || row.id || '',
+                full_name: row.full_name || row.FULL_NAME || row.name || '',
+                email: row.email || row.EMAIL || '',
+                mobile: row.mobile || row.MOBILE || '',
+                college_name: row.college_name || row.COLLEGE_NAME || '',
+                branch: row.branch || row.BRANCH || '',
+                year_of_study: row.year_of_study || row.YEAR_OF_STUDY || '',
+                graduation_year: row.graduation_year || row.GRADUATION_YEAR || '',
+                internship_domain: row.internship_domain || row.INTERNSHIP_DOMAIN || '',
+                internship_duration: row.internship_duration || row.INTERNSHIP_DURATION || '',
+                why_chakora: row.why_chakora || row.WHY_CHAKORA || '',
+                skills: row.skills || row.SKILLS || '',
+                status: (row.status || row.STATUS || 'PENDING').toUpperCase(),
+                submitted_at: row.submitted_at || row.SUBMITTED_AT || row.created_at || row.CREATED_AT || '',
+                resume_url: row.resume_url || row.RESUME_URL || '#',
+                id_card_url: row.id_card_url || row.ID_CARD_URL || '#',
+                noc_url: row.noc_url || row.NOC_URL || '#'
+            }));
+        }
+
+        async function loadApplications() {
+            const tbody = document.getElementById('applicationsTable');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <h4>Loading applications...</h4>
+                            <p>Please wait while we fetch the data</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const response = await fetch('/api/internship/admin/applications', {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                });
+                const payload = await response.json();
+
+                if (!response.ok || payload.success === false) {
+                    throw new Error((payload && payload.message) || 'Failed to load applications');
+                }
+
+                applications = normalizeApplications(payload);
+                renderTable();
+                updateStats();
+            } catch (error) {
+                applications = [];
+                updateStats();
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-triangle-exclamation"></i>
+                                <h4>Could not load applications</h4>
+                                <p>${error.message || 'Unexpected error'}</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function renderTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const domainFilter = document.getElementById('domainFilter').value;
+
+            let filtered = applications.filter(app => {
+                const matchesSearch = app.full_name.toLowerCase().includes(searchTerm) ||
+                                    app.email.toLowerCase().includes(searchTerm) ||
+                                    app.intern_id.toLowerCase().includes(searchTerm);
+                const matchesStatus = !statusFilter || app.status === statusFilter;
+                const matchesDomain = !domainFilter || app.internship_domain === domainFilter;
+                return matchesSearch && matchesStatus && matchesDomain;
+            });
+
+            const tbody = document.getElementById('applicationsTable');
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h4>No applications found</h4>
+                                <p>Try adjusting your filters</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(app => `
+                <tr>
+                    <td><strong>${app.intern_id}</strong></td>
+                    <td>${app.full_name}</td>
+                    <td>${app.email}</td>
+                    <td>${app.college_name}</td>
+                    <td>${app.internship_domain}</td>
+                    <td>
+                        <span class="badge bg-${app.status === 'PENDING' ? 'warning' : app.status === 'APPROVED' ? 'success' : 'danger'}">
+                            ${app.status}
+                        </span>
+                    </td>
+                    <td>${new Date(app.submitted_at).toLocaleDateString()}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('${app.intern_id}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            ${app.status === 'PENDING' ? `
+                                <button class="btn btn-sm btn-success" onclick="updateStatus('${app.intern_id}', 'APPROVED')">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="updateStatus('${app.intern_id}', 'REJECTED')">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function viewDetails(internId) {
+            const app = applications.find(a => a.intern_id === internId);
+            if (!app) return;
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="info-row">
+                    <div class="info-label">Intern ID:</div>
+                    <div class="info-value"><strong>${app.intern_id}</strong></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Full Name:</div>
+                    <div class="info-value">${app.full_name}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Email:</div>
+                    <div class="info-value">${app.email}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Mobile:</div>
+                    <div class="info-value">${app.mobile}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">College:</div>
+                    <div class="info-value">${app.college_name}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Branch:</div>
+                    <div class="info-value">${app.branch}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Year of Study:</div>
+                    <div class="info-value">${app.year_of_study}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Graduation Year:</div>
+                    <div class="info-value">${app.graduation_year}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Domain:</div>
+                    <div class="info-value"><strong>${app.internship_domain}</strong></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Duration:</div>
+                    <div class="info-value">${app.internship_duration}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Why ChakoraHub:</div>
+                    <div class="info-value">${app.why_chakora || 'N/A'}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Skills:</div>
+                    <div class="info-value">${app.skills || 'N/A'}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Status:</div>
+                    <div class="info-value">
+                        <span class="badge bg-${app.status === 'PENDING' ? 'warning' : app.status === 'APPROVED' ? 'success' : 'danger'}">
+                            ${app.status}
+                        </span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Submitted:</div>
+                    <div class="info-value">${new Date(app.submitted_at).toLocaleString()}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Documents:</div>
+                    <div class="info-value document-links">
+                        <a href="${app.resume_url}" target="_blank"><i class="fas fa-file-pdf"></i> Resume</a>
+                        <a href="${app.id_card_url}" target="_blank"><i class="fas fa-id-card"></i> ID Card</a>
+                        <a href="${app.noc_url}" target="_blank"><i class="fas fa-file-alt"></i> NOC</a>
+                    </div>
+                </div>
+            `;
+
+            new bootstrap.Modal(document.getElementById('detailsModal')).show();
+        }
+
+        function updateStatus(internId, newStatus) {
+            const app = applications.find(item => item.intern_id === internId);
+            const actionLabel = newStatus === 'APPROVED' ? 'approve' : 'reject';
+            const applicantName = app && app.full_name ? ` for ${app.full_name}` : '';
+
+            if (!confirm(`Are you sure you want to ${actionLabel} this application${applicantName}?`)) {
+                return;
+            }
+
+            fetch('/api/internship/admin/status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    intern_id: internId,
+                    status: newStatus,
+                    send_email: true
+                })
+            })
+            .then(async (res) => {
+                const payload = await res.json();
+                if (!res.ok || payload.success === false) {
+                    throw new Error((payload && payload.message) || 'Failed to update status');
+                }
+                return payload;
+            })
+            .then((payload) => {
+                const actionDone = newStatus === 'APPROVED' ? 'approved' : 'rejected';
+                const emailNote = payload.email_sent ? ' Applicant email sent.' : '';
+                alert(`Application ${actionDone} successfully.${emailNote}`);
+                loadApplications();
+            })
+            .catch((err) => {
+                alert(err.message || 'Failed to update application');
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('totalCount').textContent = applications.length;
+            document.getElementById('pendingCount').textContent = applications.filter(a => a.status === 'PENDING').length;
+            document.getElementById('approvedCount').textContent = applications.filter(a => a.status === 'APPROVED').length;
+            document.getElementById('rejectedCount').textContent = applications.filter(a => a.status === 'REJECTED').length;
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', renderTable);
+        document.getElementById('statusFilter').addEventListener('change', renderTable);
+        document.getElementById('domainFilter').addEventListener('change', renderTable);
+
+        // Load data on page load
+        loadApplications();
+    </script>
+</body>
+</html>

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Project Dashboard (BRS → Project)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+  <style>
+    :root{
+      --ink:#16213e;
+      --bg:#eef1f8;
+      --card:#ffffff;
+      --brand:#3454d1;
+      --brand-dark:#243a94;
+      --teal:#0ea894;
+      --amber:#f5a623;
+      --muted:#6b7280;
+      --border:#e3e7f1;
+      --danger:#d64545;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family:'Inter',system-ui,sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    /* ====== TOP HEADER ====== */
+    .top-header {
+      background: linear-gradient(90deg, var(--brand-dark), var(--brand));
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      box-shadow: 0 6px 18px -6px rgba(22,33,62,.35);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .top-header img.logo {
+      height: 44px;
+    }
+    .top-header .title {
+      font-family:'Sora',sans-serif;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .top-header .profile {
+      height: 44px;
+      width: 44px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.85);
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform .15s;
+    }
+    .top-header .profile:hover{
+      transform: scale(1.05);
+    }
+    .top-header .profile-wrapper {
+      position: relative;
+    }
+    .top-header .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 56px;
+      right: 0;
+      background: white;
+      color: #333;
+      border-radius: 10px;
+      min-width: 170px;
+      box-shadow: 0 12px 32px -8px rgba(22,33,62,.35);
+      z-index: 1000;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .top-header .dropdown-menu a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 14px;
+      text-decoration: none;
+      color: #33415c;
+      font-size: 14px;
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+    .top-header .dropdown-menu a:last-child {
+      border-bottom: none;
+    }
+    .top-header .dropdown-menu a:hover {
+      background: #f4f6fd;
+      color: var(--brand);
+    }
+
+    /* ====== CONTENT AREA ====== */
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 24px 48px;
+    }
+
+    /* PAGE TITLE */
+    .page-title {
+      background: var(--card);
+      padding: 22px 26px;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px -2px rgba(22,33,62,.08);
+      font-family:'Sora',sans-serif;
+      font-size: 25px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 26px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .page-title i{
+      color: var(--brand);
+      font-size: 22px;
+    }
+
+    /* STATS */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 26px;
+    }
+    .stat {
+      background: var(--card);
+      padding: 22px 24px;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px -2px rgba(22,33,62,.08);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--brand);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .stat:hover{
+      transform: translateY(-3px);
+      box-shadow: 0 14px 30px -10px rgba(22,33,62,.2);
+    }
+    .stat .icon{
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 20px;
+      color: #fff;
+      background: linear-gradient(135deg,var(--brand),var(--brand-dark));
+      flex-shrink: 0;
+    }
+    .stat:nth-child(2){ border-left-color: var(--danger); }
+    .stat:nth-child(2) .icon{ background: linear-gradient(135deg,#e2685f,var(--danger)); }
+    .stat:nth-child(3){ border-left-color: var(--teal); }
+    .stat:nth-child(3) .icon{ background: linear-gradient(135deg,#20c3a8,var(--teal)); }
+
+    .stat h2 {
+      font-family:'Sora',sans-serif;
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 2px;
+      line-height: 1;
+    }
+    .stat p {
+      color: var(--muted);
+      font-size: 13.5px;
+      font-weight: 500;
+    }
+
+    /* TABLE */
+    .table-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 2px 10px -2px rgba(22,33,62,.08);
+      overflow-x: auto;
+      border: 1px solid var(--border);
+    }
+    .table-card h3 {
+      font-family:'Sora',sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: var(--ink);
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    thead {
+      background: #f4f6fd;
+      color: var(--ink);
+    }
+
+    th, td {
+      padding: 13px 12px;
+      text-align: left;
+      font-size: 13.5px;
+    }
+
+    th {
+      font-weight: 700;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--muted);
+      border-bottom: 2px solid var(--border);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+
+    tbody tr:hover {
+      background: #f8f9ff;
+    }
+
+    tbody td {
+      color: #33415c;
+    }
+
+    .status {
+      background: #fff3e0;
+      color: #b9760f;
+      padding: 5px 13px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      display: inline-block;
+      letter-spacing: .02em;
+    }
+
+    .status-created {
+      background: #e2f7f2;
+      color: #0b7d69;
+    }
+
+    .btn {
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin: 2px;
+      transition: filter .12s, transform .12s;
+      font-family:'Inter',sans-serif;
+    }
+
+    .btn:hover{
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    .btn-view {
+      background: var(--teal);
+    }
+
+    .btn-edit {
+      background: var(--brand);
+    }
+
+    .back-wrap {
+      text-align: center;
+      margin-top: 34px;
+    }
+
+    .back-btn {
+      background: var(--card);
+      color: var(--brand);
+      border: 1.5px solid var(--brand);
+      padding: 11px 28px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 14.5px;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .15s, color .15s;
+    }
+
+    .back-btn:hover {
+      background: var(--brand);
+      color: #fff;
+    }
+
+    @media (max-width: 640px){
+      .container{ padding: 20px 14px 40px; }
+      .top-header{ padding: 14px 16px; }
+      .top-header .title{ font-size: 17px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- DASHBOARD LOGIN MODAL (same pattern as Track Project Status) -->
+<div id="loginOverlay" style="
+  position:fixed;
+  inset:0;
+  background:rgba(16,20,40,.55);
+  backdrop-filter:blur(2px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+">
+  <div style="
+    background:#fff;
+    padding:34px 30px;
+    width:340px;
+    max-width:90vw;
+    border-radius:16px;
+    text-align:center;
+    box-shadow:0 30px 70px -20px rgba(0,0,0,.45);
+    font-family:'Inter',sans-serif;
+  ">
+    <h3 style="font-family:'Sora',sans-serif;font-size:20px;margin-bottom:18px;color:#16213e;">🔐 Login</h3>
+    <input id="loginUser" placeholder="Email / Phone" style="width:100%;padding:12px 14px;margin:0 0 12px;border:1.5px solid #e3e7f1;border-radius:9px;font-size:14.5px;font-family:'Inter',sans-serif;">
+    <input id="loginPass" type="password" placeholder="Password" style="width:100%;padding:12px 14px;margin-bottom:16px;border:1.5px solid #e3e7f1;border-radius:9px;font-size:14.5px;font-family:'Inter',sans-serif;">
+    <input type="hidden" id="loginContext" value="dashboard">
+    <button onclick="doLogin()" style="width:100%;padding:12px;background:linear-gradient(135deg,#3454d1,#243a94);color:#fff;border:none;border-radius:9px;font-weight:600;font-size:15px;cursor:pointer;font-family:'Inter',sans-serif;">
+      Login
+    </button>
+    <div id="loginError" style="color:#d64545;margin-top:12px;font-size:13.5px;font-weight:600;"></div>
+  </div>
+</div>
+
+  <!-- ===== TOP HEADER ===== -->
+  <div class="top-header">
+    <img src="{{ url_for('static', filename='logo.png') }}" class="logo" alt="Logo">
+    <div class="title"><i class="bi bi-kanban-fill"></i> Project Dashboard</div>
+    <div class="profile-wrapper" onclick="toggleTopDropdown()">
+      <img src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}" class="profile" alt="Profile">
+      <div class="dropdown-menu" id="topDropdown">
+        <a href="{{ url_for('profile') }}"><i class="bi bi-person"></i> Profile</a>
+        <a href="{{ url_for('settings') }}"><i class="bi bi-gear"></i> Settings</a>
+        <a href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CONTENT AREA ===== -->
+  <div class="container">
+
+    <div class="page-title"><i class="bi bi-clipboard-data"></i> Project Dashboard (BRS → Project)</div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="icon"><i class="bi bi-stack"></i></div>
+        <div>
+          <h2 id="totalBRS">0</h2>
+          <p>Total BRS</p>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="icon"><i class="bi bi-hourglass-split"></i></div>
+        <div>
+          <h2 id="notCreated">0</h2>
+          <p>Not Created</p>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="icon"><i class="bi bi-check-circle"></i></div>
+        <div>
+          <h2 id="projectsCreated">0</h2>
+          <p>Projects Created</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <h3><i class="bi bi-table"></i> All BRS Submissions</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Application ID</th>
+            <th>BRS ID</th>
+            <th>Project Name</th>
+            <th>Client</th>
+            <th>Department</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="brsTableBody">
+          <tr><td colspan="10">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="back-wrap">
+      <a href="/resources" class="back-btn"><i class="bi bi-arrow-left"></i> Back to Resources</a>
+    </div>
+
+  </div>
+
+  <script>
+    /* ===== Top header dropdown toggle ===== */
+    function toggleTopDropdown() {
+      const dd = document.getElementById('topDropdown');
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    }
+    
+    document.addEventListener('click', function(e) {
+      const wrapper = document.querySelector('.profile-wrapper');
+      if (!wrapper.contains(e.target)) {
+        const dd = document.getElementById('topDropdown');
+        if (dd) dd.style.display = 'none';
+      }
+    });
+
+    /* ===== Login popup (same pattern as Track Project Status) ===== */
+    async function checkDashboardSession(){
+      try{
+        const res = await fetch("/dashboard-session-check");
+        const data = await res.json();
+        if(!data.logged_in){
+          document.getElementById("loginOverlay").style.display = "flex";
+        }else{
+          loadDashboardData();
+        }
+      }catch(e){
+        console.error("Session check failed", e);
+      }
+    }
+
+    async function doLogin(){
+      const fd = new FormData();
+      fd.append("username", loginUser.value);
+      fd.append("password", loginPass.value);
+      fd.append("context", loginContext.value);
+
+      const res = await fetch("/track-login", {
+        method: "POST",
+        body: fd,
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      });
+      const data = await res.json();
+
+      if(data.success){
+        document.getElementById("loginOverlay").style.display = "none";
+        loadDashboardData();
+      }else{
+        document.getElementById("loginError").innerText = data.error;
+      }
+    }
+
+    /* ===== Load BRS data and update stats ===== */
+    // Same-origin call into app.py, which proxies over plain HTTP to
+    // the Client Collaboration microservice (clientcollabration.py).
+    // No AWS Lambda / API Gateway URL and no hardcoded row here.
+    async function loadDashboardData(){
+      const tbody = document.getElementById("brsTableBody");
+      try{
+        const res = await fetch("/api/project-dashboard/data");
+
+        if(res.status === 401){
+          document.getElementById("loginOverlay").style.display = "flex";
+          return;
+        }
+
+        const data = await res.json();
+
+        if(data.error){
+          tbody.innerHTML = `<tr><td colspan="10">${data.error}</td></tr>`;
+          return;
+        }
+
+        document.getElementById("totalBRS").innerText = data.stats.total_brs;
+        document.getElementById("notCreated").innerText = data.stats.not_created;
+        document.getElementById("projectsCreated").innerText = data.stats.projects_created;
+
+        if(!data.rows.length){
+          tbody.innerHTML = `<tr><td colspan="10">No BRS submissions found</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.rows.map(r => {
+          const created = r.STATUS === "Created";
+          const fmt = d => d ? new Date(d).toLocaleDateString() : "-";
+          return `
+            <tr>
+              <td>${r.APPLICATION_ID ?? "-"}</td>
+              <td>${r.BRS_ID ?? "-"}</td>
+              <td>${r.PROJECT_NAME ?? "-"}</td>
+              <td>${r.CLIENT_NAME ?? "-"}</td>
+              <td>${r.DEPARTMENT ?? "-"}</td>
+              <td>${fmt(r.START_DATE)}</td>
+              <td>${fmt(r.END_DATE)}</td>
+              <td>${r.PRIORITY ?? "-"}</td>
+              <td><span class="status ${created ? "status-created" : ""}">${r.STATUS}</span></td>
+              <td>
+                <button class="btn btn-view">View</button>
+                <button class="btn btn-edit">${created ? "Edit" : "Create"}</button>
+              </td>
+            </tr>`;
+        }).join("");
+
+      }catch(e){
+        console.error("Failed to load dashboard data", e);
+        tbody.innerHTML = `<tr><td colspan="10">Failed to load data</td></tr>`;
+      }
+    }
+
+    window.addEventListener("load", checkDashboardSession);
+  </script>
+
+</body>
+</html>

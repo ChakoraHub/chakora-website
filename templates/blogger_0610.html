@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChakoraHub Blog - Insights, Teachings & Technical Articles</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --success: #10b981;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #4b5563;
+            --gray-800: #1f2937;
+        }
+
+        /* Logo Resizing */
+        .logo-img {
+            max-width: 120px;
+            max-height: 80px;
+            width: auto;
+            height: auto;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.7;
+        }
+
+        /* ==================== HERO HEADER ==================== */
+        .hero-header {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.95) 0%, rgba(139, 92, 246, 0.95) 100%),
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path></svg>');
+            background-size: cover;
+            background-position: center;
+            padding: 80px 0 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 4rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .post-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+            border-radius: 10px;
+        }
+
+        .post-content figure,
+        .post-content .image,
+        .post-content .image-grid,
+        .post-content .row {
+            max-width: 100%;
+        }
+
+        .post-content table {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .post-content [style*="display:grid"],
+        .post-content [style*="display: grid"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+            gap: 12px !important;
+        }
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ==================== MAIN LAYOUT ==================== */
+        .blog-container {
+            max-width: 1400px;
+            margin: -60px auto 40px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .content-wrapper {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        /* ==================== SIDEBAR ==================== */
+        .sidebar {
+            background: linear-gradient(180deg, var(--gray-50) 0%, white 100%);
+            padding: 40px 30px;
+            height: 100%;
+            border-right: 1px solid var(--gray-200);
+        }
+
+        .sidebar-section {
+            margin-bottom: 40px;
+        }
+
+        .sidebar-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-title i {
+            font-size: 1.2rem;
+        }
+
+        /* Archive Styling */
+        .blog-archive {
+            list-style: none;
+            padding: 0;
+        }
+
+        .archive-year {
+            margin-bottom: 12px;
+        }
+
+        .year-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .year-toggle:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+        }
+
+        .year-toggle.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+        }
+
+        .year-label {
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .year-chevron {
+            transition: transform 0.3s;
+        }
+
+        .year-toggle.active .year-chevron {
+            transform: rotate(90deg);
+        }
+
+        .post-count {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .year-toggle.active .post-count {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+        }
+
+        .month-list {
+            display: none;
+            padding: 8px 0 0 12px;
+            margin-top: 8px;
+        }
+
+        .month-list.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .month-item {
+            padding: 10px 16px;
+            margin: 4px 0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            font-size: 0.95rem;
+        }
+
+        .month-item:hover {
+            background: var(--gray-50);
+            border-left-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .month-item.active {
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
+            border-left-color: var(--primary);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Subscription Card */
+        .subscription-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 16px;
+            padding: 30px;
+            color: white;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subscription-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .subscription-card h5 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .subscription-card p {
+            font-size: 0.9rem;
+            opacity: 0.95;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .subscription-card input {
+            border: none;
+            border-radius: 10px;
+            padding: 14px 18px;
+            width: 100%;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.95);
+            position: relative;
+        }
+
+        .subscription-card input:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+
+        .subscription-card button {
+            background: white;
+            color: var(--primary);
+            border: none;
+            border-radius: 10px;
+            padding: 14px 24px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .subscription-card button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .subscriber-badge {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .subscriber-count {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .subscriber-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ==================== BLOG CONTENT ==================== */
+        .blog-content {
+            padding: 50px 40px;
+            background: white;
+        }
+
+        /* Filter Pills */
+        .filter-pills {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            padding: 10px 20px;
+            background: var(--gray-100);
+            border: 2px solid transparent;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--gray-600);
+        }
+
+        .filter-pill:hover {
+            background: var(--gray-200);
+            transform: translateY(-2px);
+        }
+
+        .filter-pill.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+        }
+
+        /* Blog Post Cards */
+        .blog-post {
+            padding: 0;
+            margin-bottom: 40px;
+            border-radius: 20px;
+            background: white;
+            border: 1px solid var(--gray-200);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            display: none;
+        }
+
+        .blog-post.show {
+            display: block;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .blog-post:hover {
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .post-header {
+            padding: 35px 40px 25px;
+            background: linear-gradient(180deg, var(--gray-50) 0%, white 100%);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .post-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .post-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+            cursor: pointer;
+            transition: color 0.3s;
+            line-height: 1.3;
+            flex: 1;
+            padding-right: 20px;
+        }
+
+        .post-title:hover {
+            color: var(--primary);
+        }
+
+        .post-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-public {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        }
+
+        .badge-locked {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+        }
+
+        .post-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .meta-item i {
+            color: var(--primary);
+            font-size: 0.95rem;
+        }
+
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .tag-chip {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            color: var(--primary);
+            padding: 5px 14px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .post-summary {
+            padding: 30px 40px;
+            color: var(--gray-800);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            background: white;
+        }
+
+        .post-content {
+            display: none;
+            padding: 35px 40px;
+            background: white;
+            border-top: 1px solid var(--gray-200);
+            color: var(--gray-800);
+            line-height: 1.9;
+            font-size: 1.05rem;
+        }
+
+        .post-content.show {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .post-content h4 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-top: 30px;
+            margin-bottom: 16px;
+        }
+
+        .post-content p {
+            margin-bottom: 20px;
+        }
+
+        .post-content ul, .post-content ol {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+
+        .post-content li {
+            margin-bottom: 12px;
+        }
+
+        /* Post Actions */
+        .post-actions {
+            display: flex;
+            gap: 16px;
+            padding: 25px 40px;
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .like-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .like-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .like-button.liked {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            border-color: #ff6b6b;
+            box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
+        }
+
+        .like-icon {
+            font-size: 1.3rem;
+            transition: transform 0.3s;
+        }
+
+        .like-button.liked .like-icon {
+            animation: heartBeat 0.6s;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.3); }
+            50% { transform: scale(1.1); }
+            75% { transform: scale(1.25); }
+        }
+
+        .post-stats {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            margin-left: auto;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-item i {
+            color: var(--primary);
+        }
+
+        .post-footer {
+            padding: 25px 40px;
+            background: white;
+        }
+
+        .btn-read-more {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
+        }
+
+        .btn-read-more:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-login-required {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-login-required:hover {
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.35);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            color: var(--gray-600);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--gray-200);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h4 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.5rem;
+            color: var(--gray-800);
+            margin-bottom: 12px;
+        }
+
+        /* Login Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.75);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .login-modal {
+            background: white;
+            border-radius: 24px;
+            padding: 50px;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .login-modal h3 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.8rem;
+            color: var(--dark);
+            margin-bottom: 12px;
+        }
+
+        .login-modal p {
+            color: var(--gray-600);
+            margin-bottom: 30px;
+        }
+
+        .login-modal input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .login-modal input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .btn-modal-login {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
+        }
+
+        .btn-modal-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-modal-cancel {
+            background: var(--gray-100);
+            color: var(--gray-800);
+        }
+
+        .btn-modal-cancel:hover {
+            background: var(--gray-200);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid var(--gray-200);
+            }
+
+            .blog-content {
+                padding: 40px 30px;
+            }
+
+            .post-header, .post-summary, .post-content, .post-actions, .post-footer {
+                padding-left: 30px;
+                padding-right: 30px;
+            }
+
+            .post-title {
+                font-size: 1.7rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .post-title-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .post-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .post-actions {
+                flex-direction: column;
+            }
+
+            .post-stats {
+                margin-left: 0;
+            }
+
+            .login-modal {
+                padding: 35px;
+            }
+
+            .post-content,
+            .post-summary,
+            .post-header,
+            .post-actions,
+            .post-footer {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .post-content img,
+            .post-content figure img {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+                object-fit: contain;
+            }
+
+            .post-content [style*="display:grid"],
+            .post-content [style*="display: grid"] {
+                grid-template-columns: 1fr !important;
+            }
+
+            .post-content .row {
+                display: flex;
+                flex-wrap: wrap;
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            .post-content .row > * {
+                width: 100%;
+                max-width: 100%;
+                padding-left: 0;
+                padding-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Header -->
+    <div class="hero-header">
+        <div class="hero-content text-center">
+            <h1 class="hero-title">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="ChakoraHub" class="logo-img" onerror="this.style.display='none'">
+                ChakoraHub Blog
+            </h1>
+            <p class="hero-subtitle">
+                Explore timeless wisdom, spiritual insights, and cutting-edge technology articles
+            </p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="totalPosts">0</span>
+                    <span class="stat-label">Articles</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="totalLikes">0</span>
+                    <span class="stat-label">Likes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="blog-container">
+        <div class="content-wrapper">
+            <div class="row g-0">
+                <!-- Sidebar -->
+                <div class="col-lg-3">
+                    <div class="sidebar">
+                        <!-- Archive Section -->
+                        <div class="sidebar-section">
+                            <h4 class="sidebar-title">
+                                <i class="bi bi-archive"></i>
+                                Archive
+                            </h4>
+                            <ul class="blog-archive" id="blogArchive">
+                                <!-- Dynamically populated -->
+                            </ul>
+                        </div>
+
+                        <!-- Subscription Section -->
+                        <div class="sidebar-section">
+                            <div class="subscription-card">
+                                <h5><i class="bi bi-bell-fill"></i> Stay Updated</h5>
+                                <p>Get notified when we publish new articles</p>
+                                <input type="email" id="subscribeEmail" placeholder="your@email.com">
+                                <input type="tel" id="subscribePhone" placeholder="Phone Number">
+                                <button onclick="subscribe()">
+                                    <i class="bi bi-send-fill"></i> Subscribe
+                                </button>
+                                <div class="subscriber-badge">
+                                    <span class="subscriber-count" id="subscriberCount">0</span>
+                                    <span class="subscriber-label">Subscribers</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blog Content -->
+                <div class="col-lg-9">
+                    <div class="blog-content">
+                        <!-- Filter Pills (Optional - can remove if not needed) -->
+                        <div class="filter-pills" style="display: none;">
+                            <span class="filter-pill active" onclick="showAllPosts()">
+                                <i class="bi bi-grid"></i> All Posts
+                            </span>
+                            <span class="filter-pill">
+                                <i class="bi bi-fire"></i> Popular
+                            </span>
+                            <span class="filter-pill">
+                                <i class="bi bi-clock-history"></i> Recent
+                            </span>
+                        </div>
+
+                        <!-- Blog Posts -->
+                        <div id="blogPosts">
+                            <!-- Dynamically populated -->
+                        </div>
+
+                        <!-- Empty State -->
+                        <div id="emptyState" class="empty-state" style="display: none;">
+                            <i class="bi bi-inbox"></i>
+                            <h4>No Posts Found</h4>
+                            <p>Select a month from the archive to view posts, or check back later for new content.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="login-modal">
+            <h3><i class="bi bi-shield-lock-fill"></i> Members Only</h3>
+            <p>This content is exclusive to ChakoraHub organization members. Please log in to continue.</p>
+            
+            <input type="text" id="loginUsername" placeholder="Employee ID or Email">
+            <input type="password" id="loginPassword" placeholder="Password">
+            
+            <div class="modal-buttons">
+                <button class="btn-modal-cancel" onclick="closeLoginModal()">
+                    <i class="bi bi-x-lg"></i> Cancel
+                </button>
+                <button class="btn-modal-login" onclick="performLogin()">
+                    <i class="bi bi-check-lg"></i> Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // ==================== BLOG DATA ====================
+        let blogData = [];
+
+        // ==================== STATE ====================
+        let currentFilter = { year: null, month: null };
+        let isLoggedIn = false;
+        let currentLockedPostId = null;
+        let likeStates = {};
+
+        // ==================== LOAD POSTS FROM API ====================
+async function loadPosts() {
+
+    const response = await fetch('/blogger/posts')
+    const data = await response.json()
+
+    if (!data.success) return
+
+    blogData = data.posts.map(p => {
+
+    const d = new Date(p.date)
+
+    return {
+        id: p.id,
+        title: p.title,
+        summary: p.summary,
+        content: p.content || "",
+        contentLoaded: Boolean(p.content),
+
+        author: p.author || "ChakoraHub",
+
+        date: d.toISOString().split('T')[0],
+
+        year: d.getFullYear(),
+
+        month: d.toLocaleString('default',{month:'long'}),
+
+        tags: p.tags || [],
+
+        locked: p.locked,
+
+        view_count: p.view_count || 0,
+
+        like_count: p.like_count || 0
+    }
+})
+
+    buildArchive()
+    displayPosts()
+    updateHeroStats()
+}
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', async function() {
+    checkLoginStatus();
+    
+    // Load in parallel
+    await Promise.all([
+        loadPosts(),
+        loadSubscriberCount(),
+        loadHeroStats()
+    ]);
+});
+
+        // ==================== HERO STATS ====================
+        function updateHeroStats(stats = null) {
+            const totalPosts = stats?.posts ?? blogData.length;
+            const totalLikes = stats?.likes ?? blogData.reduce((sum, post) => sum + (post.like_count || 0), 0);
+
+            // If all are 0 or 1, show N/A
+            const unreleased = false;
+            if (unreleased) {
+                document.getElementById('totalPosts').textContent = 'N/A';
+                document.getElementById('totalLikes').textContent = 'N/A';
+            } else {
+                animateNumber('totalPosts', totalPosts);
+                animateNumber('totalLikes', totalLikes);
+            }
+        }
+
+        async function loadHeroStats() {
+            try {
+                const response = await fetch('/blogger/stats');
+                const data = await response.json();
+
+                if (data.success) {
+                    updateHeroStats({ posts: data.posts || 0, likes: data.likes || 0 });
+                }
+            } catch (error) {
+                console.log('Could not load blog stats');
+            }
+        }
+
+        function animateNumber(elementId, targetNumber) {
+            const element = document.getElementById(elementId);
+            const duration = 500;
+            const steps = 60;
+            const increment = targetNumber / steps;
+            let current = 0;
+            let step = 0;
+
+            const timer = setInterval(() => {
+                current += increment;
+                step++;
+                element.textContent = Math.floor(current);
+
+                if (step >= steps) {
+                    element.textContent = targetNumber;
+                    clearInterval(timer);
+                }
+            }, duration / steps);
+        }
+
+        // ==================== ARCHIVE BUILDING ====================
+        function buildArchive() {
+            const archive = {};
+            
+            blogData.forEach(post => {
+                if (!archive[post.year]) {
+                    archive[post.year] = {};
+                }
+                if (!archive[post.year][post.month]) {
+                    archive[post.year][post.month] = 0;
+                }
+                archive[post.year][post.month]++;
+            });
+
+            const archiveEl = document.getElementById('blogArchive');
+            archiveEl.innerHTML = '';
+
+            Object.keys(archive).sort((a, b) => b - a).forEach(year => {
+                const yearCount = Object.values(archive[year]).reduce((a, b) => a + b, 0);
+                
+                const yearHtml = `
+                    <li class="archive-year">
+                        <div class="year-toggle" onclick="toggleYear(${year})">
+                            <span class="year-label">
+                                <i class="bi bi-chevron-right year-chevron" id="chevron-${year}"></i>
+                                ${year}
+                            </span>
+                            <span class="post-count">${yearCount}</span>
+                        </div>
+                        <ul class="month-list" id="months-${year}">
+                            ${Object.keys(archive[year]).map(month => `
+                                <li class="month-item" onclick="filterByMonth(${year}, '${month}')">
+                                    <i class="bi bi-calendar3"></i>
+                                    ${month} (${archive[year][month]})
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </li>
+                `;
+                
+                archiveEl.innerHTML += yearHtml;
+            });
+        }
+
+        // ==================== ARCHIVE INTERACTION ====================
+        function toggleYear(year) {
+            const monthList = document.getElementById(`months-${year}`);
+            const chevron = document.getElementById(`chevron-${year}`);
+            const yearToggle = chevron.closest('.year-toggle');
+            
+            monthList.classList.toggle('show');
+            yearToggle.classList.toggle('active');
+            
+            if (monthList.classList.contains('show')) {
+                chevron.className = 'bi bi-chevron-down year-chevron';
+            } else {
+                chevron.className = 'bi bi-chevron-right year-chevron';
+            }
+        }
+
+        function filterByMonth(year, month) {
+            currentFilter = { year, month };
+            
+            document.querySelectorAll('.month-item').forEach(el => el.classList.remove('active'));
+            event.target.closest('.month-item').classList.add('active');
+            
+            displayPosts();
+        }
+
+        function showAllPosts() {
+            currentFilter = { year: null, month: null };
+            document.querySelectorAll('.month-item').forEach(el => el.classList.remove('active'));
+            displayPosts();
+        }
+
+        // ==================== DISPLAY POSTS ====================
+        function displayPosts() {
+            const postsContainer = document.getElementById('blogPosts');
+            const emptyState = document.getElementById('emptyState');
+            
+            let filteredPosts = blogData;
+            if (currentFilter.year && currentFilter.month) {
+                filteredPosts = blogData.filter(post => 
+                    post.year === currentFilter.year && post.month === currentFilter.month
+                );
+            }
+
+            postsContainer.innerHTML = '';
+
+            if (filteredPosts.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            filteredPosts.forEach(post => {
+                const postHtml = `
+                    <div class="blog-post show" id="post-${post.id}">
+                        <div class="post-header">
+                            <div class="post-title-row">
+                                <h2 class="post-title" onclick="togglePostContent(${post.id})">
+                                    ${post.title}
+                                </h2>
+                                <span class="post-badge ${post.locked ? 'badge-locked' : 'badge-public'}">
+                                    <i class="bi bi-${post.locked ? 'lock-fill' : 'unlock-fill'}"></i>
+                                    ${post.locked ? 'Members Only' : 'Public'}
+                                </span>
+                            </div>
+                            <div class="post-meta">
+                                <span class="meta-item">
+                                    <i class="bi bi-calendar-event"></i>
+                                    ${post.date}
+                                </span>
+                                <span class="meta-item">
+                                    <i class="bi bi-person-circle"></i>
+                                    ${post.author}
+                                </span>
+                            </div>
+                            <div class="post-tags">
+                                ${post.tags.map(tag => `<span class="tag-chip"><i class="bi bi-tag-fill"></i> ${tag}</span>`).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="post-summary">
+                            ${post.summary}
+                        </div>
+                        
+                        <div class="post-content" id="content-${post.id}">
+                            ${post.content}
+                        </div>
+                        
+                        <div class="post-actions">
+                            <button 
+                                class="like-button" 
+                                id="like-btn-${post.id}" 
+                                onclick="toggleLike(${post.id})"
+                                title="Like this post">
+                                <span class="like-icon" id="like-icon-${post.id}">🤍</span>
+                                <span class="like-count" id="like-count-${post.id}">${post.like_count || 0}</span>
+                            </button>
+                            
+                            <div class="post-stats"></div>
+                        </div>
+                        
+                        <div class="post-footer">
+                            ${post.locked && !isLoggedIn 
+                                ? `<button class="btn-read-more btn-login-required" onclick="showLoginModal(${post.id})">
+                                    <i class="bi bi-lock-fill"></i> Login to Read Full Article
+                                   </button>`
+                                : `<button class="btn-read-more" onclick="togglePostContent(${post.id})">
+                                    <i class="bi bi-book-fill"></i> <span id="btn-text-${post.id}">Read Full Article</span>
+                                   </button>`
+                            }
+                        </div>
+                    </div>
+                `;
+                
+                postsContainer.innerHTML += postHtml;
+                initializeLikeStatus(post.id);
+            });
+        }
+
+        // ==================== POST INTERACTION ====================
+        async function fetchPostContent(postId) {
+            const response = await fetch(`/blogger/post/${postId}`);
+            const data = await response.json();
+
+            if (!data.success || !data.post) {
+                throw new Error('Failed to load post content');
+            }
+
+            const post = blogData.find(p => p.id === postId);
+            if (!post) {
+                throw new Error('Post not found in page state');
+            }
+
+            post.content = data.post.content || '';
+            post.contentLoaded = true;
+            post.like_count = data.post.like_count || post.like_count || 0;
+
+            const contentEl = document.getElementById(`content-${postId}`);
+            if (contentEl) {
+                contentEl.innerHTML = post.content;
+            }
+
+            const likeCountEl = document.getElementById(`like-count-${postId}`);
+            if (likeCountEl) {
+                likeCountEl.textContent = post.like_count;
+            }
+        }
+
+        async function togglePostContent(postId) {
+            const post = blogData.find(p => p.id === postId);
+            
+            if (post.locked && !isLoggedIn) {
+                showLoginModal(postId);
+                return;
+            }
+
+            const contentEl = document.getElementById(`content-${postId}`);
+            const btnText = document.getElementById(`btn-text-${postId}`);
+            
+            if (contentEl.classList.contains('show')) {
+                contentEl.classList.remove('show');
+                btnText.textContent = 'Read Full Article';
+            } else {
+                if (!post.contentLoaded) {
+                    contentEl.innerHTML = '<p>Loading article...</p>';
+
+                    try {
+                        await fetchPostContent(postId);
+                    } catch (error) {
+                        console.error('Post load error:', error);
+                        contentEl.innerHTML = '<p>Could not load article. Please try again.</p>';
+                        return;
+                    }
+                }
+
+                contentEl.classList.add('show');
+                btnText.textContent = 'Show Less';
+            }
+        }
+
+        // ==================== LIKE SYSTEM ====================
+// ==================== LIKE SYSTEM ====================
+
+async function initializeLikeStatus(postId) {
+
+    const liked = localStorage.getItem("liked_" + postId)
+
+    const button = document.getElementById(`like-btn-${postId}`)
+    const icon = document.getElementById(`like-icon-${postId}`)
+
+    if(liked){
+        button.classList.add("liked")
+        icon.textContent = "❤️"
+    }
+}
+
+async function toggleLike(postId) {
+
+    if(localStorage.getItem("liked_" + postId)){
+        return
+    }
+
+    try {
+
+        const response = await fetch(
+        `/blogger/like/${postId}`,
+        {
+            method:"POST"
+        })
+
+        const data = await response.json()
+
+        if(!data.success) return
+
+        const button = document.getElementById(`like-btn-${postId}`)
+        const count = document.getElementById(`like-count-${postId}`)
+        const icon = document.getElementById(`like-icon-${postId}`)
+
+        count.textContent = data.like_count ?? count.textContent
+
+        button.classList.add("liked")
+        icon.textContent = "❤️"
+
+        localStorage.setItem("liked_" + postId,true)
+
+        showLikeFeedback(postId,true)
+
+    } catch(e){
+        console.log("Like error",e)
+    }
+}
+
+        // ==================== LOGIN MODAL ====================
+        function showLoginModal(postId) {
+            currentLockedPostId = postId;
+            document.getElementById('loginModal').classList.add('show');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('show');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        async function performLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
+            }
+
+            try {
+                const response = await fetch('/nrm_logins', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&login_type=employee`
+                });
+
+                if (response.ok) {
+                    isLoggedIn = true;
+                    closeLoginModal();
+                    displayPosts();
+                    
+                    if (currentLockedPostId) {
+                        setTimeout(() => togglePostContent(currentLockedPostId), 300);
+                    }
+                    
+                    alert('✅ Login successful! You now have access to exclusive content.');
+                } else {
+                    alert('❌ Invalid credentials. Please try again.');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('❌ Login failed. Please try again.');
+            }
+        }
+
+        function checkLoginStatus() {
+            fetch('/check_session')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.logged_in && data.login_type === 'employee') {
+                        isLoggedIn = true;
+                        displayPosts();
+                    }
+                })
+                .catch(() => {});
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLoginModal();
+            }
+        });
+
+        // ==================== SUBSCRIPTION ====================
+        async function subscribe() {
+            const email = document.getElementById('subscribeEmail').value;
+            const phone = document.getElementById('subscribePhone').value;
+            if (!email || !email.includes('@')) {
+                alert('Please enter a valid email address');
+                return;
+            }
+            if (!phone || phone.length < 8) {
+                alert('Please enter a valid phone number');
+                return;
+            }
+            try {
+                const response = await fetch('/blogger/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, phone: phone })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Successfully subscribed! You\'ll receive notifications for new posts.');
+                    document.getElementById('subscribeEmail').value = '';
+                    document.getElementById('subscribePhone').value = '';
+                    loadSubscriberCount();
+                } else {
+                    alert(data.message || 'Subscription failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Subscription error:', error);
+                alert('Network error. Please try again.');
+            }
+        }
+
+        async function loadSubscriberCount() {
+            try {
+                const response = await fetch('/blogger/subscriber_count');
+                const data = await response.json();
+                
+                if (data.success) {
+                    animateNumber('subscriberCount', data.count);
+                }
+            } catch (error) {
+                console.log('Could not load subscriber count');
+            }
+        }
+    </script>
+</body>
+</html>

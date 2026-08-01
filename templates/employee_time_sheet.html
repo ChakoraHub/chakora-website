@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChakoraHub — Weekly Time Sheet</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+  <style>
+    :root {
+      --navy: #1a2744;
+      --navy-md: #243258;
+      --navy-lt: #2e3f6e;
+      --gold: #f0a500;
+      --gold-lt: #fbbf24;
+      --gold-pale: #fff8e7;
+      --teal: #0f8080;
+      --teal-lt: #e0f4f4;
+      --slate: #58657d;
+      --border: #dde3ef;
+      --bg: #f3f5fb;
+      --white: #ffffff;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --radius-card: 18px;
+      --radius-sm: 10px;
+      --shadow-card: 0 4px 24px rgba(26, 39, 68, 0.10);
+      --shadow-sm: 0 2px 8px rgba(26, 39, 68, 0.07);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--navy);
+      min-height: 100vh;
+    }
+
+    .portal-header {
+      background: linear-gradient(120deg, var(--navy) 0%, var(--navy-lt) 60%, #3a5298 100%);
+      padding: 18px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(26, 39, 68, 0.22);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .portal-header .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 2px 8px rgba(240, 165, 0, 0.35);
+    }
+
+    .brand-text {
+      color: #fff;
+    }
+
+    .brand-text .name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .brand-text .sub {
+      font-size: 0.72rem;
+      opacity: 0.7;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .emp-chip {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 24px;
+      padding: 7px 16px;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(8px);
+    }
+
+    .emp-chip i {
+      color: var(--gold-lt);
+    }
+
+    .page-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+    }
+
+    .page-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .page-heading h1 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+
+    .page-heading h1 span {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--slate);
+      margin-top: 4px;
+      letter-spacing: 0.2px;
+    }
+
+    .week-navigator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .week-navigator .week-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--navy);
+      min-width: 180px;
+      text-align: center;
+    }
+
+    .week-navigator button {
+      border: none;
+      background: none;
+      color: var(--navy-lt);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+
+    .week-navigator button:hover {
+      background: var(--bg);
+      color: var(--navy);
+    }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .summary-card {
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .summary-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .summary-icon.gold {
+      background: var(--gold-pale);
+      color: var(--gold);
+    }
+
+    .summary-icon.teal {
+      background: var(--teal-lt);
+      color: var(--teal);
+    }
+
+    .summary-icon.green {
+      background: #dcfce7;
+      color: var(--success);
+    }
+
+    .summary-icon.navy {
+      background: #e8ecf8;
+      color: var(--navy-lt);
+    }
+
+    .summary-data .val {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1;
+    }
+
+    .summary-data .lbl {
+      font-size: 0.72rem;
+      color: var(--slate);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .sheet-card {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .sheet-card-header {
+      background: linear-gradient(90deg, var(--navy) 0%, var(--navy-lt) 100%);
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sheet-card-header h2 {
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sheet-card-header h2 i {
+      color: var(--gold-lt);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-gold-sm {
+      border: none;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      color: var(--navy);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.18s;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      box-shadow: 0 2px 8px rgba(240, 165, 0, 0.3);
+    }
+
+    .btn-gold-sm:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(240, 165, 0, 0.4);
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    .time-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+    }
+
+    .time-table thead tr.day-row th {
+      background: linear-gradient(180deg, #eef1fa 0%, #f3f5fb 100%);
+      border-bottom: 2px solid var(--border);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--navy-lt);
+      padding: 12px 0;
+      text-align: center;
+    }
+
+    .time-table thead tr.day-row th:first-child {
+      background: var(--navy);
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.7rem;
+    }
+
+    .day-header-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .day-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .day-date {
+      font-size: 0.7rem;
+      color: var(--slate);
+      font-weight: 400;
+    }
+
+    .day-badge {
+      font-size: 0.62rem;
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .day-badge.today {
+      background: var(--gold-pale);
+      color: #92640a;
+      border: 1px solid #f0c060;
+    }
+
+    .day-badge.past {
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    .day-badge.future {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #cbd5e1;
+    }
+
+    .time-table thead tr.sub-row th {
+      background: #f8f9fd;
+      border-bottom: 2px solid var(--border);
+      padding: 8px 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--slate);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      text-align: center;
+    }
+
+    .time-table thead tr.sub-row th:first-child {
+      background: #f0f2f8;
+    }
+
+    .time-table thead tr.sub-row th.login-hd {
+      color: var(--teal);
+      border-top: 2px solid var(--teal);
+    }
+
+    .time-table thead tr.sub-row th.logout-hd {
+      color: #7c3aed;
+      border-top: 2px solid #7c3aed;
+    }
+
+    .time-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.12s;
+    }
+
+    .time-table tbody tr:hover {
+      background: #f8f9ff;
+    }
+
+    .time-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .row-num {
+      text-align: center;
+      padding: 14px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: rgba(26, 39, 68, 0.35);
+      background: #fafbfe;
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .time-cell {
+      padding: 8px 10px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .time-cell.login-col {
+      border-left: 1px solid #e0f4f4;
+    }
+
+    .time-cell.logout-col {
+      border-right: 1px solid var(--border);
+    }
+
+    .time-input-wrap {
+      position: relative;
+    }
+
+    .time-input-wrap i {
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.8rem;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .time-input-wrap i.login-icon {
+      color: var(--teal);
+    }
+
+    .time-input-wrap i.logout-icon {
+      color: #7c3aed;
+    }
+
+    .flatpickr-input {
+      width: 100%;
+      min-width: 90px;
+      padding: 7px 8px 7px 26px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--navy);
+      background: var(--white);
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      text-align: center;
+    }
+
+    .flatpickr-input:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(15, 128, 128, 0.12);
+    }
+
+    .flatpickr-input.logout-fp:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.10);
+    }
+
+    .flatpickr-input::placeholder {
+      color: #bcc5d8;
+      font-weight: 400;
+    }
+
+    .flatpickr-input.disabled {
+      background: #f1f3f8;
+      color: #94a3b8;
+      cursor: not-allowed;
+      opacity: 0.7;
+      border-color: #dde3ef;
+      pointer-events: none;
+    }
+
+    .flatpickr-input.disabled:focus {
+      box-shadow: none;
+      border-color: var(--border);
+    }
+
+    .flatpickr-input.future-warning {
+      border-color: var(--warning);
+      background: #fffbeb;
+    }
+
+    .flatpickr-input.future-warning:focus {
+      border-color: var(--warning);
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.12);
+    }
+
+    @keyframes errorFlash {
+      0% {
+        border-color: var(--danger);
+        background: #fef2f2;
+      }
+
+      50% {
+        border-color: var(--danger);
+        background: #fee2e2;
+      }
+
+      100% {
+        border-color: var(--warning);
+        background: #fffbeb;
+      }
+    }
+
+    .flatpickr-input.error-flash {
+      animation: errorFlash 0.6s ease;
+    }
+
+    .duration-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #f0fdf4;
+      color: var(--success);
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 3px 9px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .duration-pill.warn {
+      background: #fff7ed;
+      color: #c2410c;
+      border-color: #fed7aa;
+    }
+
+    .duration-pill.empty {
+      background: #f8fafc;
+      color: #94a3b8;
+      border-color: #e2e8f0;
+    }
+
+    .notes-input.disabled {
+      background: #f1f3f8;
+      color: #94a3b8;
+      cursor: not-allowed;
+      opacity: 0.7;
+      border-color: #dde3ef;
+      pointer-events: none;
+    }
+
+    .notes-input.future-warning {
+      border-color: var(--warning);
+      background: #fffbeb;
+    }
+
+    .notes-input.error-flash {
+      animation: errorFlash 0.6s ease;
+    }
+
+    .sheet-footer {
+      background: linear-gradient(90deg, #f8f9fd 0%, #f0f2fa 100%);
+      border-top: 2px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+    }
+
+    .footer-stat .stat-label {
+      color: var(--slate);
+    }
+
+    .footer-stat .stat-val {
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .footer-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, var(--teal), #0d9e9e);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 9px 22px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.18s;
+      box-shadow: 0 2px 10px rgba(15, 128, 128, 0.25);
+    }
+
+    .btn-save:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(15, 128, 128, 0.35);
+    }
+
+    .btn-clear {
+      background: transparent;
+      color: var(--slate);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .btn-clear:hover {
+      border-color: var(--danger);
+      color: var(--danger);
+      background: #fff5f5;
+    }
+
+    .toast-wrap {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast-msg {
+      background: var(--navy);
+      color: #fff;
+      padding: 13px 20px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(26, 39, 68, 0.25);
+      animation: slideUp 0.25s ease;
+      border-left: 4px solid var(--gold);
+    }
+
+    .toast-msg.success {
+      border-left-color: #22c55e;
+    }
+
+    .toast-msg.error {
+      border-left-color: var(--danger);
+    }
+
+    .toast-msg.warning {
+      border-left-color: var(--warning);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+
+    .status-dot.filled {
+      background: var(--success);
+    }
+
+    .status-dot.empty {
+      background: #cbd5e1;
+    }
+
+    .notes-input {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      color: var(--navy);
+      width: 100%;
+      min-width: 80px;
+      background: var(--white);
+      transition: border-color 0.15s;
+    }
+
+    .notes-input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(240, 165, 0, 0.1);
+    }
+
+    .notes-input::placeholder {
+      color: #bcc5d8;
+    }
+
+    @media (max-width: 768px) {
+      .portal-header {
+        padding: 14px 18px;
+      }
+
+      .summary-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .page-wrapper {
+        padding: 20px 12px 48px;
+      }
+
+      .sheet-footer {
+        padding: 12px 16px;
+      }
+    }
+
+    .clock-hint {
+      background: #eef2ff;
+      border-radius: 20px;
+      padding: 2px 12px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #4338ca;
+      border: 1px solid #a5b4fc;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 8px;
+    }
+
+    .clock-hint i {
+      font-size: 0.6rem;
+    }
+
+    /* Toast animation for better visibility */
+    .toast-msg {
+      min-width: 280px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .toast-msg.error {
+      background: #7f1d1d;
+      border-left-color: #fca5a5;
+    }
+
+    .toast-msg.error i {
+      color: #fca5a5;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="portal-header">
+    <a class="brand" href="#">
+      <div class="brand-icon">🎓</div>
+      <div class="brand-text">
+        <div class="name">ChakoraHub</div>
+        <div class="sub">Employee Portal</div>
+      </div>
+    </a>
+    <div class="header-right">
+      <div class="emp-chip"><i class="bi bi-person-badge-fill"></i> <span id="empName">Employee</span> &nbsp;·&nbsp;
+        <span id="empId">#---</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-wrapper">
+
+    <div class="page-heading">
+      <h1>
+        Weekly Time Sheet
+        <span id="monthLabel">Loading week…</span>
+        <span class="clock-hint"><i class="bi bi-clock"></i> 24‑hour</span>
+      </h1>
+      <div class="week-navigator">
+        <button onclick="changeWeek(-1)" title="Previous week"><i class="bi bi-chevron-left"></i></button>
+        <div class="week-label" id="weekRangeLabel">—</div>
+        <button onclick="changeWeek(1)" title="Next week"><i class="bi bi-chevron-right"></i></button>
+      </div>
+    </div>
+
+    <div class="summary-strip">
+      <div class="summary-card">
+        <div class="summary-icon gold"><i class="bi bi-clock-history"></i></div>
+        <div class="summary-data">
+          <div class="val" id="totalHours">0h 0m</div>
+          <div class="lbl">Total hours this week</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon teal"><i class="bi bi-calendar-check"></i></div>
+        <div class="summary-data">
+          <div class="val" id="daysWorked">0 / 7</div>
+          <div class="lbl">Days attended</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon green"><i class="bi bi-graph-up-arrow"></i></div>
+        <div class="summary-data">
+          <div class="val" id="avgHours">—</div>
+          <div class="lbl">Avg hours / day</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon navy"><i class="bi bi-check2-circle"></i></div>
+        <div class="summary-data">
+          <div class="val" id="fillStatus">0 / 7</div>
+          <div class="lbl">Entries filled</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sheet-card">
+      <div class="sheet-card-header">
+        <h2><i class="bi bi-table"></i> Weekly Attendance Log</h2>
+        <div class="header-actions">
+          <button class="btn-gold-sm" onclick="exportCSV()">
+            <i class="bi bi-download"></i> Export CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table class="time-table" id="timeTable">
+          <thead>
+            <tr class="day-row" id="dayHeaderRow">
+              <th style="width:44px">#</th>
+            </tr>
+            <tr class="sub-row" id="subHeaderRow">
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="sheet-footer">
+        <div style="display:flex; gap:24px; flex-wrap:wrap;">
+          <div class="footer-stat">
+            <span class="status-dot filled"></span>
+            <span class="stat-label">Login</span>
+            <span class="stat-val" id="footerLogin">—</span>
+          </div>
+          <div class="footer-stat">
+            <span class="status-dot" style="background:#7c3aed;"></span>
+            <span class="stat-label">Logout</span>
+            <span class="stat-val" id="footerLogout">—</span>
+          </div>
+          <div class="footer-stat">
+            <i class="bi bi-clock text-muted" style="font-size:0.8rem;"></i>
+            <span class="stat-label">Duration today</span>
+            <span class="stat-val" id="footerDuration">—</span>
+          </div>
+        </div>
+        <div class="footer-actions">
+          <button class="btn-clear" onclick="clearTodayOnly()">
+            <i class="bi bi-x-circle"></i> Clear today
+          </button>
+          <button class="btn-save" onclick="saveSheet()">
+            <i class="bi bi-cloud-upload"></i> Save time sheet
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <script>
+    const EMP_NAME = '{{ employee_name|safe }}';
+    const EMP_ID = '#{{ employee_id }}';
+    const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    function toYYYYMMDD(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    document.getElementById('empName').textContent = EMP_NAME;
+    document.getElementById('empId').textContent = EMP_ID;
+
+    let currentWeekOffset = 0;
+    let fpInstances = {};
+
+    function getWeekDates(offset) {
+      const today = new Date();
+      const dow = today.getDay();
+      const mon = new Date(today);
+      mon.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1) + offset * 7);
+      return DAYS.map((_, i) => {
+        const d = new Date(mon);
+        d.setDate(mon.getDate() + i);
+        return d;
+      });
+    }
+
+    function fmt(date) {
+      return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+    }
+
+    function isToday(date) {
+      const t = new Date();
+      return date.toDateString() === t.toDateString();
+    }
+
+    function isPast(date) {
+      const t = new Date();
+      t.setHours(0, 0, 0, 0);
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      return d < t;
+    }
+
+    function isFuture(date) {
+      const t = new Date();
+      t.setHours(0, 0, 0, 0);
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      return d > t;
+    }
+
+    function buildTable() {
+      const dates = getWeekDates(currentWeekOffset);
+
+      const first = dates[0],
+        last = dates[dates.length - 1];
+      document.getElementById('weekRangeLabel').textContent =
+        fmt(first) + ' – ' + fmt(last);
+      document.getElementById('monthLabel').textContent =
+        first.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+
+      const dayRow = document.getElementById('dayHeaderRow');
+      while (dayRow.children.length > 1) dayRow.removeChild(dayRow.lastChild);
+
+      const subRow = document.getElementById('subHeaderRow');
+      while (subRow.children.length > 1) subRow.removeChild(subRow.lastChild);
+
+      dates.forEach(date => {
+        const th = document.createElement('th');
+        th.colSpan = 2;
+        let badge, badgeTxt;
+        if (isToday(date)) {
+          badge = 'today';
+          badgeTxt = 'Today';
+        } else if (isPast(date)) {
+          badge = 'past';
+          badgeTxt = 'Done';
+        } else {
+          badge = 'future';
+          badgeTxt = 'Future';
+        }
+        th.innerHTML = `
+          <div class="day-header-inner">
+            <div class="day-name">${date.toLocaleDateString('en-GB', { weekday: 'short' })}</div>
+            <div class="day-date">${fmt(date)}</div>
+            <div class="day-badge ${badge}">${badgeTxt}</div>
+          </div>`;
+        dayRow.appendChild(th);
+
+        const thL = document.createElement('th');
+        thL.className = 'login-hd';
+        thL.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> In';
+        subRow.appendChild(thL);
+
+        const thO = document.createElement('th');
+        thO.className = 'logout-hd';
+        thO.innerHTML = '<i class="bi bi-box-arrow-right"></i> Out';
+        subRow.appendChild(thO);
+      });
+
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      fpInstances = {};
+
+      const tr = document.createElement('tr');
+      const tdNum = document.createElement('td');
+      tdNum.className = 'row-num';
+      tdNum.textContent = '⏱';
+      tdNum.style.fontSize = '0.9rem';
+      tr.appendChild(tdNum);
+
+      dates.forEach((date, di) => {
+        const key = `d${di}`;
+        const isDisabled = isPast(date);
+        const isFutureDate = isFuture(date);
+        const disabledClass = isDisabled ? 'disabled' : '';
+        const futureClass = isFutureDate ? 'future-warning' : '';
+
+        const tdL = document.createElement('td');
+        tdL.className = 'time-cell login-col';
+        const inId = `login_${key}`;
+        tdL.innerHTML = `
+          <div class="time-input-wrap">
+            <i class="bi bi-sunrise login-icon"></i>
+            <input class="flatpickr-input ${disabledClass} ${futureClass}" id="${inId}" placeholder="--:--" readonly data-date="${date.toISOString()}" data-is-future="${isFutureDate}">
+          </div>`;
+        tr.appendChild(tdL);
+
+        const tdO = document.createElement('td');
+        tdO.className = 'time-cell logout-col';
+        const outId = `logout_${key}`;
+        tdO.innerHTML = `
+          <div class="time-input-wrap">
+            <i class="bi bi-sunset logout-icon"></i>
+            <input class="flatpickr-input logout-fp ${disabledClass} ${futureClass}" id="${outId}" placeholder="--:--" readonly data-date="${date.toISOString()}" data-is-future="${isFutureDate}">
+          </div>`;
+        tr.appendChild(tdO);
+      });
+
+      tbody.appendChild(tr);
+
+      const durRow = document.createElement('tr');
+      durRow.id = 'durRow';
+      durRow.style.background = '#f8f9fd';
+
+      const tdDurLabel = document.createElement('td');
+      tdDurLabel.className = 'row-num';
+      tdDurLabel.style.fontSize = '0.7rem';
+      tdDurLabel.innerHTML = '⏱<br>Hrs';
+      durRow.appendChild(tdDurLabel);
+
+      dates.forEach((_, di) => {
+        const tdDur = document.createElement('td');
+        tdDur.colSpan = 2;
+        tdDur.className = 'time-cell';
+        tdDur.style.textAlign = 'center';
+        tdDur.id = `dur_d${di}`;
+        tdDur.innerHTML = `<span class="duration-pill empty"><i class="bi bi-dash"></i> —</span>`;
+        durRow.appendChild(tdDur);
+      });
+
+      tbody.appendChild(durRow);
+
+      const notesRow = document.createElement('tr');
+      notesRow.style.background = '#fafbfe';
+
+      const tdNoteLabel = document.createElement('td');
+      tdNoteLabel.className = 'row-num';
+      tdNoteLabel.style.fontSize = '0.7rem';
+      tdNoteLabel.innerHTML = '📝';
+      notesRow.appendChild(tdNoteLabel);
+
+      dates.forEach((date, di) => {
+        const tdNote = document.createElement('td');
+        tdNote.colSpan = 2;
+        tdNote.className = 'time-cell';
+        const isDisabled = isPast(date);
+        const isFutureDate = isFuture(date);
+        const disabledClass = isDisabled ? 'disabled' : '';
+        const futureClass = isFutureDate ? 'future-warning' : '';
+        tdNote.innerHTML = `<input type="text" class="notes-input ${disabledClass} ${futureClass}" id="note_d${di}" placeholder="Note…" data-date="${date.toISOString()}" data-is-future="${isFutureDate}">`;
+        notesRow.appendChild(tdNote);
+      });
+
+      tbody.appendChild(notesRow);
+
+      setTimeout(() => {
+        // Handle time inputs - using onValueUpdate which fires before value is set
+        document.querySelectorAll('.flatpickr-input:not(.disabled)').forEach(el => {
+          const isLogout = el.classList.contains('logout-fp');
+          const isFutureField = el.getAttribute('data-is-future') === 'true';
+
+          const fp = flatpickr(el, {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: 'H:i',
+            time_24hr: true,
+            minuteIncrement: 5,
+            defaultHour: isLogout ? 18 : 9,
+            onValueUpdate: function (selectedDates, dateStr, instance) {
+              const inputEl = instance.input;
+              const dateAttr = inputEl.getAttribute('data-date');
+
+              if (dateAttr && isFutureField) {
+                const dateObj = new Date(dateAttr);
+                if (isFuture(dateObj)) {
+                  // Show error toast
+                  showToast('❌ Cannot log time for future dates. Please select today date.', 'error');
+
+                  // Flash the field red
+                  inputEl.classList.add('error-flash');
+                  setTimeout(() => {
+                    inputEl.classList.remove('error-flash');
+                  }, 600);
+
+                  // Clear the value - don't allow future time
+                  instance.setDate('', true);
+                  instance.input.value = '';
+
+                  // Close the picker
+                  setTimeout(() => {
+                    instance.close();
+                  }, 100);
+
+                  return false;
+                }
+              }
+              recalcAll();
+              return true;
+            },
+            onClose: function (selectedDates, dateStr, instance) {
+              const inputEl = instance.input;
+              const dateAttr = inputEl.getAttribute('data-date');
+
+              if (dateAttr && isFutureField) {
+                const dateObj = new Date(dateAttr);
+                if (isFuture(dateObj) && instance.input.value) {
+                  // If somehow a future date value remains, clear it
+                  instance.setDate('', true);
+                  instance.input.value = '';
+                }
+              }
+              recalcAll();
+            }
+          });
+          fpInstances[el.id] = fp;
+        });
+
+        // Handle note inputs for future dates
+        document.querySelectorAll('.notes-input:not(.disabled)').forEach(el => {
+          const isFutureField = el.getAttribute('data-is-future') === 'true';
+
+          el.addEventListener('input', function () {
+            if (isFutureField && this.value.trim() !== '') {
+              showToast('❌ Cannot add notes for future dates.', 'error');
+              this.value = '';
+              this.classList.add('error-flash');
+              setTimeout(() => {
+                this.classList.remove('error-flash');
+              }, 600);
+            }
+          });
+        });
+
+        recalcAll();
+        loadTimesheetData();
+      }, 50);
+    }
+
+    function loadTimesheetData() {
+      const dates = getWeekDates(currentWeekOffset);
+      const start = toYYYYMMDD(dates[0]);
+      const end = toYYYYMMDD(dates[dates.length - 1]);
+
+      fetch(`/api/employee/timesheet?start_date=${start}&end_date=${end}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            const entries = data.timesheet || [];
+            dates.forEach((date, di) => {
+              const dateStr = toYYYYMMDD(date);
+              const entry = entries.find(e => e.date === dateStr);
+              if (entry) {
+                const key = `d${di}`;
+                const loginEl = document.getElementById(`login_${key}`);
+                const logoutEl = document.getElementById(`logout_${key}`);
+                
+                if (loginEl) {
+                  loginEl.value = entry.login || '';
+                  if (fpInstances[loginEl.id]) {
+                    fpInstances[loginEl.id].setDate(entry.login, false);
+                  }
+                }
+                if (logoutEl) {
+                  logoutEl.value = entry.logout || '';
+                  if (fpInstances[logoutEl.id]) {
+                    fpInstances[logoutEl.id].setDate(entry.logout, false);
+                  }
+                }
+                const noteInput = document.getElementById(`note_d${di}`);
+                if (noteInput) {
+                  noteInput.value = entry.note || '';
+                }
+              }
+            });
+            recalcAll();
+          }
+        })
+        .catch(err => console.error('Error loading timesheet:', err));
+    }
+
+    function parseTime(val) {
+      if (!val || val === '--:--') return null;
+      const [h, m] = val.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    function minsToStr(mins) {
+      if (mins <= 0) return null;
+      return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+    }
+
+    function recalcAll() {
+      const dates = getWeekDates(currentWeekOffset);
+      let totalMins = 0,
+        daysWorked = 0,
+        daysFilled = 0;
+
+      dates.forEach((_, di) => {
+        const key = `d${di}`;
+        const inEl = document.getElementById(`login_${key}`);
+        const outEl = document.getElementById(`logout_${key}`);
+        let dayMins = 0;
+        let hasAny = false;
+        if (inEl && outEl && inEl.value && outEl.value) {
+          const diff = parseTime(outEl.value) - parseTime(inEl.value);
+          if (diff > 0) {
+            dayMins = diff;
+            hasAny = true;
+          }
+        }
+
+        const durCell = document.getElementById(`dur_d${di}`);
+        if (durCell) {
+          if (dayMins > 0) {
+            const warn = dayMins < 240;
+            durCell.innerHTML = `<span class="duration-pill ${warn ? 'warn' : ''}">
+              <i class="bi bi-clock${warn ? '' : '-fill'}"></i> ${minsToStr(dayMins)}
+            </span>`;
+          } else {
+            durCell.innerHTML = `<span class="duration-pill empty"><i class="bi bi-dash"></i> —</span>`;
+          }
+        }
+
+        if (hasAny) daysWorked++;
+        if (dayMins > 0) {
+          totalMins += dayMins;
+          daysFilled++;
+        }
+      });
+
+      document.getElementById('totalHours').textContent = minsToStr(totalMins) || '0h 0m';
+      document.getElementById('daysWorked').textContent = daysWorked + ' / 7';
+      document.getElementById('fillStatus').textContent = daysFilled + ' / 7';
+      document.getElementById('avgHours').textContent =
+        daysFilled > 0 ? minsToStr(Math.round(totalMins / daysFilled)) : '—';
+
+      updateTodayFooter(dates);
+    }
+
+    function updateTodayFooter(dates) {
+      const todayIdx = dates.findIndex(d => isToday(d));
+      if (todayIdx < 0) { clearFooter(); return; }
+      const inEl = document.getElementById(`login_d${todayIdx}`);
+      const outEl = document.getElementById(`logout_d${todayIdx}`);
+      document.getElementById('footerLogin').textContent = (inEl && inEl.value) || '—';
+      document.getElementById('footerLogout').textContent = (outEl && outEl.value) || '—';
+      if (inEl && outEl && inEl.value && outEl.value) {
+        const diff = parseTime(outEl.value) - parseTime(inEl.value);
+        document.getElementById('footerDuration').textContent = diff > 0 ? minsToStr(diff) : '—';
+      } else {
+        document.getElementById('footerDuration').textContent = '—';
+      }
+    }
+
+    function clearFooter() {
+      ['footerLogin', 'footerLogout', 'footerDuration'].forEach(id => {
+        document.getElementById(id).textContent = '—';
+      });
+    }
+
+    function changeWeek(dir) {
+      currentWeekOffset += dir;
+      buildTable();
+    }
+
+    function clearTodayOnly() {
+      const dates = getWeekDates(currentWeekOffset);
+      const todayIdx = dates.findIndex(d => isToday(d));
+      if (todayIdx === -1) {
+        showToast('No today entry to clear', '');
+        return;
+      }
+      const key = `d${todayIdx}`;
+      const inEl = document.getElementById(`login_${key}`);
+      const outEl = document.getElementById(`logout_${key}`);
+      const noteEl = document.getElementById(`note_d${todayIdx}`);
+      if (inEl && !inEl.classList.contains('disabled')) {
+        if (fpInstances[inEl.id]) fpInstances[inEl.id].clear();
+      }
+      if (outEl && !outEl.classList.contains('disabled')) {
+        if (fpInstances[outEl.id]) fpInstances[outEl.id].clear();
+      }
+      if (noteEl && !noteEl.classList.contains('disabled')) {
+        noteEl.value = '';
+      }
+      recalcAll();
+      showToast('Today\'s entries cleared', '');
+    }
+
+    function saveSheet() {
+      const dates = getWeekDates(currentWeekOffset);
+
+      // Check if any future date has entries (shouldn't happen since we block them)
+      let hasFutureEntries = false;
+      let futureDateStr = '';
+
+      const payload = dates.map((date, di) => {
+        const key = `d${di}`;
+        const loginV = document.getElementById(`login_${key}`)?.value || '';
+        const logoutV = document.getElementById(`logout_${key}`)?.value || '';
+        const noteV = document.getElementById(`note_d${di}`)?.value || '';
+
+        if (isFuture(date) && (loginV || logoutV || noteV)) {
+          hasFutureEntries = true;
+          futureDateStr = date.toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short' });
+        }
+
+        return {
+          date: toYYYYMMDD(date),
+          note: noteV,
+          login: loginV,
+          logout: logoutV
+        };
+      });
+
+      if (hasFutureEntries) {
+        showToast(`❌ Cannot save future date entries (${futureDateStr}). Please remove them.`, 'error');
+        return;
+      }
+
+      console.log('Time sheet payload:', payload);
+      fetch('/api/employee/timesheet/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ timesheet: payload })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          showToast('Time sheet saved successfully!', 'success');
+        } else {
+          showToast('❌ Failed to save timesheet: ' + (data.message || 'unknown error'), 'error');
+        }
+      })
+      .catch(err => {
+        console.error('Error saving timesheet:', err);
+        showToast('❌ Error connecting to server', 'error');
+      });
+    }
+
+    function exportCSV() {
+      const dates = getWeekDates(currentWeekOffset);
+      let csv = 'Date,Day,Login,Logout,Duration,Note\n';
+      dates.forEach((date, di) => {
+        const inV = document.getElementById(`login_d${di}`)?.value || '';
+        const outV = document.getElementById(`logout_d${di}`)?.value || '';
+        const note = document.getElementById(`note_d${di}`)?.value || '';
+        let dur = '';
+        if (inV && outV) {
+          const diff = parseTime(outV) - parseTime(inV);
+          if (diff > 0) dur = minsToStr(diff);
+        }
+        csv += `${date.toISOString().split('T')[0]},${date.toLocaleDateString('en-GB', { weekday: 'long' })},${inV},${outV},${dur},"${note}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `timesheet_${document.getElementById('weekRangeLabel').textContent.replace(/ /g, '_')}.csv`;
+      a.click();
+      showToast('CSV exported', 'success');
+    }
+
+    function showToast(msg, type) {
+      const wrap = document.getElementById('toastWrap');
+      const toast = document.createElement('div');
+      toast.className = `toast-msg ${type}`;
+      const icon = type === 'success' ? 'bi-check-circle-fill' : type === 'error' ? 'bi-x-circle-fill' : 'bi-exclamation-triangle-fill';
+      toast.innerHTML = `<i class="bi ${icon}"></i> ${msg}`;
+      wrap.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
+    }
+
+    buildTable();
+  </script>
+</body>
+
+</html>

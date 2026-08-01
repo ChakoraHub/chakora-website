@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ChakoraHub Calendar - Festival & Meeting Schedule</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- FullCalendar CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #6366f1;
+      --secondary: #8b5cf6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --festival: #fbbf24;
+      --teams: #5558af;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* ==================== HEADER ==================== */
+    .modern-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 30px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .logo img {
+      height: 70px;
+      transition: transform 0.3s ease;
+    }
+
+    .logo img:hover {
+      transform: scale(1.05);
+    }
+
+    .header-center {
+      flex: 1;
+      text-align: center;
+      color: white;
+    }
+
+    .header-center h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .header-center .subtitle {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .teams-sync-btn {
+      background: var(--teams);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .teams-sync-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(85, 88, 175, 0.4);
+    }
+
+    .teams-sync-btn.synced {
+      background: var(--success);
+    }
+
+    .profile-pic {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 3px solid white;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .profile-pic:hover {
+      transform: scale(1.1);
+    }
+
+    /* ==================== MAIN CONTAINER ==================== */
+    .container-fluid {
+      max-width: 1400px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .calendar-container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+
+    /* ==================== CALENDAR CONTROLS ==================== */
+    .calendar-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .view-selector {
+      display: flex;
+      gap: 10px;
+    }
+
+    .view-btn {
+      padding: 10px 20px;
+      background: #f3f4f6;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .view-btn:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .view-btn.active {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .legend {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .legend-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+    }
+
+    .legend-dot.festival {
+      background: var(--festival);
+      border: 2px solid #f59e0b;
+    }
+
+    .legend-dot.booked {
+      background: var(--danger);
+    }
+
+    .legend-dot.teams {
+      background: var(--teams);
+    }
+
+    .legend-dot.available {
+      background: var(--success);
+    }
+
+    /* ==================== FULLCALENDAR CUSTOMIZATION ==================== */
+    .fc {
+      /* FullCalendar base styles */
+    }
+
+    .fc .fc-toolbar-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .fc .fc-button-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border: none;
+      padding: 10px 20px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .fc .fc-button-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .fc .fc-button-primary:not(:disabled):active,
+    .fc .fc-button-primary:not(:disabled).fc-button-active {
+      background: var(--primary);
+    }
+
+    .fc-daygrid-day.fc-day-today {
+      background: rgba(99, 102, 241, 0.1) !important;
+    }
+
+    .fc-daygrid-day-number {
+      font-weight: 600;
+      color: #333;
+    }
+
+    /* Custom event styling */
+    .fc-event {
+      border: none;
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .fc-event:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .fc-event.festival-event {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #78350f;
+    }
+
+    .fc-event.booking-event {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+    }
+
+    .fc-event.teams-event {
+      background: linear-gradient(135deg, #5558af 0%, #464775 100%);
+      color: white;
+    }
+
+    /* ==================== EVENT DETAILS MODAL ==================== */
+    .event-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .event-modal.show {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content-custom {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-header-custom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .modal-header-custom h3 {
+      color: var(--primary);
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
+      transition: color 0.3s ease;
+    }
+
+    .close-btn:hover {
+      color: var(--danger);
+    }
+
+    .event-detail {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 10px;
+    }
+
+    .event-detail i {
+      font-size: 1.2rem;
+      color: var(--primary);
+      width: 24px;
+      text-align: center;
+    }
+
+    .event-detail strong {
+      min-width: 100px;
+      color: #666;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary-custom {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+    }
+
+    .btn-primary-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-secondary-custom {
+      background: #f3f4f6;
+      color: #333;
+    }
+
+    .btn-secondary-custom:hover {
+      background: #e5e7eb;
+    }
+
+    /* ==================== TEAMS SYNC STATUS ==================== */
+    .sync-status {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+    }
+
+    .sync-status.show {
+      display: flex;
+      animation: slideInRight 0.3s ease;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .sync-status i {
+      font-size: 1.2rem;
+    }
+
+    .sync-status.syncing i {
+      color: var(--info);
+      animation: spin 1s linear infinite;
+    }
+
+    .sync-status.success i {
+      color: var(--success);
+    }
+
+    .sync-status.error i {
+      color: var(--danger);
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+      .header-center h1 {
+        font-size: 1.3rem;
+      }
+
+      .calendar-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .view-selector,
+      .legend {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .modal-content-custom {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="modern-header">
+    <div class="header-content">
+    <div class="logo">
+      <a href="/"><img src="/static/images/logo.png" alt="Logo"></a>
+    </div>
+      
+
+      <div class="header-center">
+        <h1><i class="fas fa-calendar-alt"></i> Calendar & Schedule</h1>
+        <p class="subtitle">Festivals & Meeting Bookings</p>
+      </div>
+      
+      <!-- <div class="profile-section">
+        <button class="teams-sync-btn" id="teamsSyncBtn" onclick="syncWithTeams()">
+          <i class="fab fa-microsoft"></i>
+          <span id="syncBtnText">Sync with Teams</span>
+        </button>
+        
+        <img class="profile-pic" 
+             src="{{ url_for('static', filename=(session.get('profile_pic', 'profile_photo/defaultpicture.jpg'))) }}" 
+             alt="Profile"
+             onclick="window.location.href='/profile'">
+      </div> -->
+    
+      <div class="profile-wrapper" onclick="toggleDropdown()">
+        <button class="teams-sync-btn" id="teamsSyncBtn" onclick="syncWithTeams()">
+          <i class="fab fa-microsoft"></i>
+          <span id="syncBtnText">Sync with Teams</span>
+        </button>
+       {% set profile_pic = (session.get('profile_pic') or '').strip() %}
+      <img class="profile-pic" 
+         src="{{ profile_pic if profile_pic else url_for('static', filename='profile_photo/defaultpicture.jpg') }}" 
+           alt="Profile">
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="{{ url_for('profile') }}">
+          <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="{{ url_for('settings') }}">
+          <i class="fas fa-cog"></i> Settings
+        </a>
+        <a href="#" onclick="openLogoutModal(event)">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </div>
+
+
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container-fluid">
+    <div class="calendar-container">
+      
+      <!-- Calendar Controls -->
+      <div class="calendar-controls">
+        <div class="view-selector">
+          <button class="view-btn active" data-view="dayGridMonth">
+            <i class="fas fa-th"></i> Month
+          </button>
+          <button class="view-btn" data-view="timeGridWeek">
+            <i class="fas fa-calendar-week"></i> Week
+          </button>
+          <button class="view-btn" data-view="timeGridDay">
+            <i class="fas fa-calendar-day"></i> Day
+          </button>
+          <button class="view-btn" data-view="listMonth">
+            <i class="fas fa-list"></i> List
+          </button>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-dot festival"></div>
+            <span>Festival</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot booked"></div>
+            <span>Booked</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot teams"></div>
+            <span>Teams Meeting</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot available"></div>
+            <span>Available</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FullCalendar -->
+      <div id="calendar"></div>
+
+      <!-- Back Button -->
+      <div class="text-center mt-4">
+        <a href="{{ url_for('resources') }}" class="btn btn-lg btn-primary-custom">
+          <i class="fas fa-arrow-left"></i> Back to Resources
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Event Details Modal -->
+  <div class="event-modal" id="eventModal">
+    <div class="modal-content-custom">
+      <div class="modal-header-custom">
+        <h3 id="modalTitle">Event Details</h3>
+        <button class="close-btn" onclick="closeEventModal()">×</button>
+      </div>
+      
+      <div id="modalBody">
+        <!-- Populated dynamically -->
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-secondary-custom" onclick="closeEventModal()">Close</button>
+        <button class="btn-primary-custom" id="modalActionBtn" style="display: none;">
+          Join Meeting
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sync Status Notification -->
+  <div class="sync-status" id="syncStatus">
+    <i class="fas fa-sync-alt"></i>
+    <span id="syncStatusText">Syncing...</span>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- FullCalendar JS -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+  
+  <script>
+    // ==================== DATA ====================
+    const calendarData = {{ calendar_data | tojson }};
+    let calendar;
+    let teamsAccessToken = null;
+
+    // ==================== INITIALIZE CALENDAR ====================
+    document.addEventListener('DOMContentLoaded', function() {
+      const calendarEl = document.getElementById('calendar');
+      
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: ''
+        },
+        height: 'auto',
+        events: generateEvents(),
+        eventClick: handleEventClick,
+        dateClick: handleDateClick,
+        eventDidMount: function(info) {
+          // Add custom styling based on event type
+          if (info.event.extendedProps.type === 'festival') {
+            info.el.classList.add('festival-event');
+          } else if (info.event.extendedProps.type === 'booking') {
+            info.el.classList.add('booking-event');
+          } else if (info.event.extendedProps.type === 'teams') {
+            info.el.classList.add('teams-event');
+          }
+        }
+      });
+      
+      calendar.render();
+      
+      // Check Teams sync status
+      checkTeamsStatus();
+    });
+
+    // ==================== GENERATE EVENTS ====================
+    function generateEvents() {
+      const events = [];
+      
+      Object.keys(calendarData).forEach(dateKey => {
+        const data = calendarData[dateKey];
+        
+        // Festival events
+        if (data.festival) {
+          events.push({
+            title: `🎉 ${data.festival}`,
+            start: dateKey,
+            allDay: true,
+            backgroundColor: '#fbbf24',
+            borderColor: '#f59e0b',
+            textColor: '#78350f',
+            extendedProps: {
+              type: 'festival',
+              name: data.festival
+            }
+          });
+        }
+        
+        // Booking events
+        if (data.bookings && data.bookings.length > 0) {
+          data.bookings.forEach(booking => {
+            if (booking.status === 'Booked') {
+              // teams_link/meeting_link comes from the Bookings table (set by
+              // ms365_service's meeting.booked consumer). If present, style
+              // the event as a Teams meeting and carry the join URL through.
+              const joinUrl = booking.teams_link || booking.meeting_link || '';
+              const hasTeams = Boolean(joinUrl);
+
+              events.push({
+                title: hasTeams ? `${booking.slot} - Teams Meeting` : `${booking.slot} - Booked`,
+                start: `${dateKey}T${getSlotTime(booking.slot)}`,
+                backgroundColor: hasTeams ? '#5558af' : '#ef4444',
+                borderColor: hasTeams ? '#464775' : '#dc2626',
+                extendedProps: {
+                  type: hasTeams ? 'teams' : 'booking',
+                  slot: booking.slot,
+                  status: booking.status,
+                  details: booking.details || 'Meeting booked',
+                  organizer: booking.organizer || '{{ session.get("email", "") }}',
+                  joinUrl: joinUrl,
+                  meetingId: booking.meeting_id || '',
+                  studentEmail: booking.student_email || ''
+                }
+              });
+            }
+          });
+        }
+      });
+      
+      return events;
+    }
+
+    // ==================== SLOT TIME MAPPING ====================
+    function getSlotTime(slot) {
+      const times = {
+        'Slot 1': '09:00:00',
+        'Slot 2': '11:00:00',
+        'Slot 3': '14:00:00',
+        'Slot 4': '16:00:00'
+      };
+      return times[slot] || '09:00:00';
+    }
+
+    // ==================== EVENT CLICK HANDLER ====================
+    function handleEventClick(info) {
+      const event = info.event;
+      const props = event.extendedProps;
+      
+      document.getElementById('modalTitle').textContent = event.title;
+      
+      let modalContent = '';
+      
+      if (props.type === 'festival') {
+        modalContent = `
+          <div class="event-detail">
+            <i class="fas fa-calendar-star"></i>
+            <strong>Type:</strong>
+            <span>Festival</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-gift"></i>
+            <strong>Name:</strong>
+            <span>${props.name}</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-calendar-day"></i>
+            <strong>Date:</strong>
+            <span>${event.start.toLocaleDateString()}</span>
+          </div>
+        `;
+      } else if (props.type === 'booking') {
+        modalContent = `
+          <div class="event-detail">
+            <i class="fas fa-user-clock"></i>
+            <strong>Type:</strong>
+            <span>Booking</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-clock"></i>
+            <strong>Slot:</strong>
+            <span>${props.slot}</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-check-circle"></i>
+            <strong>Status:</strong>
+            <span style="color: var(--danger); font-weight: 600;">${props.status}</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-calendar"></i>
+            <strong>Date:</strong>
+            <span>${event.start.toLocaleString()}</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-info-circle"></i>
+            <strong>Details:</strong>
+            <span>${props.details}</span>
+          </div>
+        `;
+      } else if (props.type === 'teams') {
+        modalContent = `
+          <div class="event-detail">
+            <i class="fab fa-microsoft"></i>
+            <strong>Type:</strong>
+            <span>Teams Meeting</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-user"></i>
+            <strong>Organizer:</strong>
+            <span>${props.organizer || 'Unknown'}</span>
+          </div>
+          ${props.studentEmail ? `
+          <div class="event-detail">
+            <i class="fas fa-user-graduate"></i>
+            <strong>Student:</strong>
+            <span>${props.studentEmail}</span>
+          </div>` : ''}
+          <div class="event-detail">
+            <i class="fas fa-calendar"></i>
+            <strong>Time:</strong>
+            <span>${event.start.toLocaleString()}</span>
+          </div>
+          <div class="event-detail">
+            <i class="fas fa-link"></i>
+            <strong>Join URL:</strong>
+            ${props.joinUrl
+              ? `<a href="${props.joinUrl}" target="_blank">Click to join</a>`
+              : `<span>Not available yet</span>`}
+          </div>
+        `;
+        
+        if (props.joinUrl) {
+          document.getElementById('modalActionBtn').style.display = 'block';
+          document.getElementById('modalActionBtn').textContent = 'Join Meeting';
+          document.getElementById('modalActionBtn').onclick = () => window.open(props.joinUrl, '_blank');
+        }
+      }
+      
+      document.getElementById('modalBody').innerHTML = modalContent;
+      document.getElementById('eventModal').classList.add('show');
+    }
+
+    // ==================== DATE CLICK HANDLER ====================
+    function handleDateClick(info) {
+      console.log('Date clicked:', info.dateStr);
+      // Optional: Add new booking functionality
+    }
+
+    // ==================== CLOSE MODAL ====================
+    function closeEventModal() {
+      document.getElementById('eventModal').classList.remove('show');
+      document.getElementById('modalActionBtn').style.display = 'none';
+    }
+
+    // ==================== VIEW SELECTOR ====================
+    document.querySelectorAll('.view-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        calendar.changeView(this.dataset.view);
+      });
+    });
+
+    // ==================== MICROSOFT TEAMS SYNC ====================
+    async function syncWithTeams() {
+      showSyncStatus('syncing', 'Syncing with Teams...');
+      
+      try {
+        // Call backend to initiate Teams auth
+        const response = await fetch('/api/teams/auth', {
+          method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (data.auth_url) {
+          // Open Teams auth in popup
+          const width = 500;
+          const height = 600;
+          const left = (screen.width - width) / 2;
+          const top = (screen.height - height) / 2;
+          
+          window.open(
+            data.auth_url,
+            'TeamsAuth',
+            `width=${width},height=${height},left=${left},top=${top}`
+          );
+          
+          // Listen for auth callback
+          window.addEventListener('message', handleTeamsCallback);
+        }
+      } catch (error) {
+        console.error('Teams sync error:', error);
+        showSyncStatus('error', 'Sync failed. Please try again.');
+      }
+    }
+
+    function handleTeamsCallback(event) {
+      if (event.data.type === 'teams_auth_success') {
+        teamsAccessToken = event.data.token;
+        fetchTeamsMeetings();
+      }
+    }
+
+    async function fetchTeamsMeetings() {
+      try {
+        const response = await fetch('/api/teams/meetings', {
+          headers: {
+            'Authorization': `Bearer ${teamsAccessToken}`
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Add Teams meetings to calendar
+          data.meetings.forEach(meeting => {
+            calendar.addEvent({
+              title: meeting.subject,
+              start: meeting.start,
+              end: meeting.end,
+              backgroundColor: '#5558af',
+              borderColor: '#464775',
+              extendedProps: {
+                type: 'teams',
+                organizer: meeting.organizer,
+                joinUrl: meeting.joinUrl
+              }
+            });
+          });
+          
+          showSyncStatus('success', `✓ ${data.meetings.length} meetings synced`);
+          
+          // Update button
+          document.getElementById('teamsSyncBtn').classList.add('synced');
+          document.getElementById('syncBtnText').textContent = 'Synced with Teams';
+        }
+      } catch (error) {
+        console.error('Fetch meetings error:', error);
+        showSyncStatus('error', 'Failed to fetch meetings');
+      }
+    }
+
+    function checkTeamsStatus() {
+      // Check if already synced
+      fetch('/api/teams/status')
+        .then(res => res.json())
+        .then(data => {
+          if (data.synced) {
+            document.getElementById('teamsSyncBtn').classList.add('synced');
+            document.getElementById('syncBtnText').textContent = 'Synced with Teams';
+            teamsAccessToken = data.token;
+          }
+        })
+        .catch(err => console.log('Teams status check failed'));
+    }
+
+    function showSyncStatus(type, message) {
+      const status = document.getElementById('syncStatus');
+      status.className = `sync-status show ${type}`;
+      document.getElementById('syncStatusText').textContent = message;
+      
+      if (type !== 'syncing') {
+        setTimeout(() => {
+          status.classList.remove('show');
+        }, 3000);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+{% block title %}Candidate Dashboard — Examination Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+
+        <!-- Header -->
+        <div class="glass-card p-4 mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h3 class="mb-1 text-white">Welcome, {{ username }}</h3>
+                <p class="text-secondary mb-0" style="font-size:0.9rem;">Select an exam below to begin.</p>
+            </div>
+            <a href="{{ url_for('logout') }}" class="btn btn-premium-outline py-2 px-4">
+                <i class="bi bi-box-arrow-right me-1"></i> Logout
+            </a>
+        </div>
+
+        <!-- Two-Tab Nav -->
+        <ul class="nav nav-tabs mb-4" id="dashTabs" role="tablist"
+            style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="cert-tab" data-bs-toggle="tab"
+                        data-bs-target="#certPanel" type="button" role="tab"
+                        aria-controls="certPanel" aria-selected="true"
+                        style="color:var(--accent-blue);background:transparent;border-color:transparent;border-bottom-color:var(--accent-blue);">
+                    <i class="bi bi-award me-2"></i>Certification Exams
+                    <span class="badge ms-2" style="background:rgba(59,130,246,0.15);color:var(--accent-blue);">
+                        {{ cert_exams|length }}
+                    </span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="mock-tab" data-bs-toggle="tab"
+                        data-bs-target="#mockPanel" type="button" role="tab"
+                        aria-controls="mockPanel" aria-selected="false"
+                        style="color:var(--text-secondary);background:transparent;border-color:transparent;">
+                    <i class="bi bi-journal-bookmark me-2"></i>Mock Tests
+                    <span class="badge ms-2" style="background:rgba(255,255,255,0.05);color:var(--text-secondary);">
+                        {{ mock_exams|length }}
+                    </span>
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+
+            <!-- ===================== TAB 1: CERTIFICATION ===================== -->
+            <div class="tab-pane fade show active" id="certPanel" role="tabpanel" aria-labelledby="cert-tab">
+
+                {% if cert_exams %}
+                <div class="row g-4 mb-5">
+                    {% for exam in cert_exams %}
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="glass-card p-4 h-100 d-flex flex-column">
+                            <div class="d-flex align-items-start gap-3 mb-3">
+                                <div style="width:42px;height:42px;border-radius:10px;background:rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i class="bi bi-shield-check" style="color:var(--accent-blue);font-size:1.2rem;"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-white mb-1">{{ exam.title }}</h5>
+                                    <span class="badge" style="background:rgba(59,130,246,0.12);color:var(--accent-blue);font-size:0.72rem;">
+                                        CERTIFICATION
+                                    </span>
+                                </div>
+                            </div>
+                            {% if exam.description %}
+                            <p class="text-secondary mb-3" style="font-size:0.88rem;flex-grow:1;">
+                                {{ exam.description[:140] }}{% if exam.description|length > 140 %}…{% endif %}
+                            </p>
+                            {% endif %}
+                            <div class="d-flex align-items-center justify-content-between mt-auto">
+                                <span class="text-secondary" style="font-size:0.82rem;">
+                                    <i class="bi bi-clock me-1"></i>{{ exam.duration_minutes }} min
+                                    &nbsp;·&nbsp;
+                                    <i class="bi bi-camera-video me-1"></i>Webcam + Proctored
+                                </span>
+                                <a href="{{ url_for('exam', exam_id=exam.id) }}"
+                                   class="btn btn-sm btn-premium px-3 py-1">
+                                    Start <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="glass-card p-5 text-center mb-5">
+                    <i class="bi bi-award" style="font-size:3rem;color:var(--text-muted);"></i>
+                    <h5 class="text-secondary mt-3">No certification exams available yet.</h5>
+                    <p class="text-muted" style="font-size:0.88rem;">Contact your administrator to set up an exam.</p>
+                </div>
+                {% endif %}
+
+                <!-- Past Certification Results -->
+                {% set cert_results = results | selectattr("exam_type", "undefined") | list if results else [] %}
+                {% if results %}
+                <h5 class="text-white mb-3"><i class="bi bi-bar-chart me-2"></i>Your Results</h5>
+                <div class="glass-card p-0 mb-5" style="overflow:hidden;">
+                    <table class="table table-dark table-hover mb-0" style="font-size:0.88rem;">
+                        <thead style="background:rgba(255,255,255,0.04);">
+                            <tr>
+                                <th class="px-4 py-3 text-secondary fw-normal">Exam</th>
+                                <th class="px-3 py-3 text-secondary fw-normal">Score</th>
+                                <th class="px-3 py-3 text-secondary fw-normal">Status</th>
+                                <th class="px-3 py-3 text-secondary fw-normal">Violations</th>
+                                <th class="px-3 py-3 text-secondary fw-normal"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in results %}
+                            <tr>
+                                <td class="px-4 py-3 text-white">{{ r.exam_title }}</td>
+                                <td class="px-3 py-3 text-white">
+                                    {{ r.score | int }}/{{ r.total_questions }}
+                                    <span class="text-secondary ms-1">({{ "%.1f"|format(r.percentage) }}%)</span>
+                                </td>
+                                <td class="px-3 py-3">
+                                    <span class="badge px-2 py-1"
+                                          style="background:{% if r.status == 'PASS' %}rgba(34,197,94,0.15){% else %}rgba(239,68,68,0.15){% endif %};color:{% if r.status == 'PASS' %}#22c55e{% else %}#ef4444{% endif %};">
+                                        {{ r.status }}
+                                    </span>
+                                </td>
+                                <td class="px-3 py-3 text-secondary">{{ r.violations_count }}</td>
+                                <td class="px-3 py-3 text-end">
+                                    <a href="{{ url_for('exam_result', attempt_id=r.attempt_id) }}"
+                                       class="btn btn-sm btn-premium-outline py-1 px-3">
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+
+            </div><!-- /certPanel -->
+
+            <!-- ===================== TAB 2: MOCK TESTS ===================== -->
+            <div class="tab-pane fade" id="mockPanel" role="tabpanel" aria-labelledby="mock-tab">
+
+                <!-- Feature callout -->
+                <div class="glass-card p-3 mb-4 d-flex align-items-center gap-3"
+                     style="border-color:rgba(99,102,241,0.3);background:rgba(99,102,241,0.06);">
+                    <i class="bi bi-lightbulb" style="color:#a78bfa;font-size:1.4rem;flex-shrink:0;"></i>
+                    <div style="font-size:0.87rem;">
+                        <strong class="text-white">Practice Mode</strong>
+                        <span class="text-secondary ms-2">
+                            Instant answer feedback · Explanations shown · Webcam recorded · Unlimited attempts
+                        </span>
+                    </div>
+                </div>
+
+                {% if mock_exams %}
+                <div class="row g-4 mb-5">
+                    {% for exam in mock_exams %}
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="glass-card p-4 h-100 d-flex flex-column">
+                            <div class="d-flex align-items-start gap-3 mb-3">
+                                <div style="width:42px;height:42px;border-radius:10px;background:rgba(99,102,241,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i class="bi bi-journal-bookmark" style="color:#a78bfa;font-size:1.2rem;"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-white mb-1">{{ exam.title }}</h5>
+                                    <span class="badge" style="background:rgba(99,102,241,0.12);color:#a78bfa;font-size:0.72rem;">
+                                        MOCK TEST
+                                    </span>
+                                </div>
+                            </div>
+                            {% if exam.description %}
+                            <p class="text-secondary mb-3" style="font-size:0.88rem;flex-grow:1;">
+                                {{ exam.description[:140] }}{% if exam.description|length > 140 %}…{% endif %}
+                            </p>
+                            {% endif %}
+                            <div class="d-flex align-items-center justify-content-between mt-auto">
+                                <span class="text-secondary" style="font-size:0.82rem;">
+                                    <i class="bi bi-clock me-1"></i>{{ exam.duration_minutes }} min
+                                    &nbsp;·&nbsp;
+                                    <i class="bi bi-camera-video me-1"></i>Webcam
+                                    &nbsp;·&nbsp;
+                                    <i class="bi bi-arrow-repeat me-1"></i>Unlimited
+                                </span>
+                                {% if exam.is_custom_mock %}
+                                <a href="/exam/mock/{{ exam.id }}"
+                                   class="btn btn-sm px-3 py-1"
+                                   style="background:rgba(99,102,241,0.15);color:#a78bfa;border:1px solid rgba(99,102,241,0.3);">
+                                    Practice <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                                {% else %}
+                                <a href="{{ url_for('exam', exam_id=exam.id) }}"
+                                   class="btn btn-sm px-3 py-1"
+                                   style="background:rgba(99,102,241,0.15);color:#a78bfa;border:1px solid rgba(99,102,241,0.3);">
+                                    Practice <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="glass-card p-5 text-center mb-5">
+                    <i class="bi bi-journal-bookmark" style="font-size:3rem;color:var(--text-muted);"></i>
+                    <h5 class="text-secondary mt-3">No mock tests available yet.</h5>
+                    <p class="text-muted" style="font-size:0.88rem;">Check back soon — practice tests will appear here.</p>
+                </div>
+                {% endif %}
+
+            </div><!-- /mockPanel -->
+
+        </div><!-- /tab-content -->
+
+        <!-- Upcoming Tests Section -->
+        <div class="glass-card p-4 mb-4">
+            <h4 class="text-white mb-3">
+                <i class="bi bi-calendar-event me-2 text-gradient-blue"></i>
+                Upcoming Scheduled Tests
+            </h4>
+            <div id="upcomingTestsList">
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" style="width: 1.5rem; height: 1.5rem;"></div>
+                    <p class="text-secondary mt-2 mb-0">Loading upcoming tests...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Previous Attempts Section -->
+        <div class="glass-card p-4">
+            <h4 class="text-white mb-3">
+                <i class="bi bi-clock-history me-2 text-gradient-purple"></i>
+                Your Previous Attempts
+            </h4>
+            <div id="previousAttemptsList">
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" style="width: 1.5rem; height: 1.5rem;"></div>
+                    <p class="text-secondary mt-2 mb-0">Loading your history...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Preserve active tab across page reload -->
+<script>
+(function() {
+    const stored = sessionStorage.getItem('dashTab');
+    if (stored) {
+        const btn = document.getElementById(stored);
+        if (btn) {
+            const tab = bootstrap.Tab.getOrCreateInstance(btn);
+            tab.show();
+        }
+    }
+    document.querySelectorAll('#dashTabs button[data-bs-toggle="tab"]').forEach(btn => {
+        btn.addEventListener('shown.bs.tab', e => {
+            sessionStorage.setItem('dashTab', e.target.id);
+        });
+    });
+})();
+
+// Load upcoming tests for candidate
+function loadUpcomingTests() {
+    fetch('/api/proxy/candidate/upcoming-tests')
+        .then(res => res.json())
+        .then(tests => {
+            const container = document.getElementById('upcomingTestsList');
+            if (!tests || tests.length === 0) {
+                container.innerHTML = '<div class="text-center text-secondary py-3"><i class="bi bi-calendar-x"></i> No upcoming tests scheduled</div>';
+                return;
+            }
+            
+            container.innerHTML = tests.map(test => `
+                <div class="glass-card p-3 mb-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white mb-1">${escapeHtml(test.title)}</h6>
+                        <small class="text-secondary">
+                            <i class="bi bi-tag"></i> ${escapeHtml(test.category)} | 
+                            <i class="bi bi-clock"></i> ${test.duration_minutes} min
+                        </small>
+                        <div class="mt-1">
+                            <small class="text-info">
+                                <i class="bi bi-calendar"></i> ${test.scheduled_date} | 
+                                <i class="bi bi-hourglass-split"></i> ${test.start_time} - ${test.end_time}
+                            </small>
+                        </div>
+                    </div>
+                    <a href="/exam/mock/${test.id}" class="btn btn-premium btn-sm">
+                        Start <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            `).join('');
+        })
+        .catch(err => {
+            console.error('Error loading upcoming tests:', err);
+            document.getElementById('upcomingTestsList').innerHTML = '<div class="text-center text-danger py-3">Error loading tests</div>';
+        });
+}
+
+function loadPreviousAttempts() {
+    fetch('/api/proxy/candidate/previous-attempts')
+        .then(res => res.json())
+        .then(attempts => {
+            const container = document.getElementById('previousAttemptsList');
+            if (!attempts || attempts.length === 0) {
+                container.innerHTML = '<div class="text-center text-secondary py-3"><i class="bi bi-journal-x"></i> No previous attempts found</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="table-responsive">
+                    <table class="table table-premium">
+                        <thead>
+                            <tr><th>Test</th><th>Date</th><th>Score</th><th>Percentage</th><th>Result</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            ${attempts.map(attempt => `
+                                <tr>
+                                    <td class="text-white">${escapeHtml(attempt.test_title)}</td>
+                                    <td class="text-secondary">${attempt.attempt_date}</td>
+                                    <td class="text-white">${attempt.score}/${attempt.total_questions}</td>
+                                    <td class="text-white">${attempt.percentage}%</td>
+                                    <td>
+                                        <span class="badge ${attempt.percentage >= 50 ? 'bg-success' : 'bg-danger'} bg-opacity-10 text-${attempt.percentage >= 50 ? 'success' : 'danger'}">
+                                            ${attempt.percentage >= 50 ? 'PASS' : 'FAIL'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="/exam/attempt/${attempt.id}/result" class="btn btn-sm btn-premium-outline">View</a>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        })
+        .catch(err => {
+            console.error('Error loading previous attempts:', err);
+            document.getElementById('previousAttemptsList').innerHTML = '<div class="text-center text-danger py-3">Error loading history</div>';
+        });
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Call when page loads
+loadUpcomingTests();
+loadPreviousAttempts();
+</script>
+{% endblock %}

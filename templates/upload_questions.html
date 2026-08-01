@@ -1,0 +1,697 @@
+{% extends "base.html" %}
+{% block title %}Upload Questions - Admin Panel{% endblock %}
+
+{% block head %}
+<style>
+    .preview-table {
+        max-height: 400px;
+        overflow-y: auto;
+        font-size: 0.85rem;
+    }
+
+    .preview-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .preview-table th,
+    .preview-table td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .preview-table th {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--accent-blue);
+        position: sticky;
+        top: 0;
+    }
+
+    .drop-zone {
+        border: 2px dashed rgba(59, 130, 246, 0.3);
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+        border-color: var(--accent-blue);
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    .stat-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        margin-right: 10px;
+    }
+
+    .stat-success {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+    }
+
+    .stat-error {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+
+    .stat-warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+    }
+
+    .category-badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--accent-blue);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-lg-10 mx-auto">
+
+        <!-- Header -->
+        <div class="glass-card p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-white mb-1">
+                        <i class="bi bi-file-spreadsheet me-2 text-gradient-blue"></i>
+                        Bulk Question Upload
+                    </h2>
+                    <p class="text-secondary mb-0">Upload CSV or Excel files with multiple questions at once</p>
+                </div>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-premium-outline">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Upload Form -->
+        <div class="glass-card p-4 mb-4">
+            <h4 class="text-white mb-3">1. Select File</h4>
+
+            <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                <i class="bi bi-cloud-upload" style="font-size: 3rem; color: var(--accent-blue);"></i>
+                <p class="text-secondary mt-2 mb-0">Click or drag file here</p>
+                <small class="text-muted">Supported formats: .csv, .xlsx (max 10MB)</small>
+                <input type="file" id="fileInput" accept=".csv,.xlsx" style="display: none;">
+            </div>
+
+            <div class="mt-3" id="fileInfo" style="display: none;">
+                <div class="alert alert-info bg-opacity-10 text-info border-info">
+                    <i class="bi bi-info-circle"></i>
+                    Selected: <strong id="fileName"></strong>
+                    <span class="category-badge ms-2" id="selectedCategoryBadge">Uncategorized</span>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label class="form-label text-secondary">Category</label>
+                    <select class="form-control form-control-premium" id="categorySelect">
+                        <option value="Uncategorized">Uncategorized</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}">{{ cat }}</option>
+                        {% endfor %}
+                        <option value="new">+ Create New Category</option>
+                    </select>
+                    <input type="text" class="form-control form-control-premium mt-2" id="newCategoryInput"
+                        placeholder="New category name" style="display: none;">
+                    <small class="text-muted mt-1 d-block">Selected category will be applied to all questions in this
+                        file</small>
+                </div>
+                <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
+                    <button class="btn btn-premium-outline btn-sm" onclick="downloadSampleCSV()">
+                        <i class="bi bi-download"></i> Download Sample CSV
+                    </button>
+                    <button class="btn btn-premium-outline btn-sm" onclick="loadCategories()">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh Categories
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-4" id="previewSection" style="display: none;">
+                <h4 class="text-white mb-3">2. Preview Data</h4>
+                <div id="previewStats" class="mb-3"></div>
+                <div class="preview-table" id="previewTable"></div>
+
+                <div class="mt-4 d-flex gap-3">
+                    <button class="btn btn-premium" id="confirmUploadBtn" onclick="confirmUpload()">
+                        <i class="bi bi-check-circle"></i> Save All Questions
+                    </button>
+                    <button class="btn btn-premium-outline" onclick="resetUpload()">
+                        <i class="bi bi-arrow-repeat"></i> Clear & Select New File
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="glass-card p-4">
+            <h5 class="text-white mb-3"><i class="bi bi-question-circle me-2"></i> File Format Requirements</h5>
+            <table class="table table-sm text-secondary">
+                <thead>
+                    <tr>
+                        <th>Column Name</th>
+                        <th>Required</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Question</td>
+                        <td>Yes</td>
+                        <td>The multiple choice question text</td>
+                    </tr>
+                    <tr>
+                        <td>Option A</td>
+                        <td>Yes</td>
+                        <td>First option text</td>
+                    </tr>
+                    <tr>
+                        <td>Option B</td>
+                        <td>Yes</td>
+                        <td>Second option text</td>
+                    </tr>
+                    <tr>
+                        <td>Option C</td>
+                        <td>Yes</td>
+                        <td>Third option text</td>
+                    </tr>
+                    <tr>
+                        <td>Option D</td>
+                        <td>Yes</td>
+                        <td>Fourth option text</td>
+                    </tr>
+                    <tr>
+                        <td>Correct Answer</td>
+                        <td>Yes</td>
+                        <td>A, B, C, or D</td>
+                    </tr>
+                    <tr>
+                        <td>Explanation</td>
+                        <td>No</td>
+                        <td>Optional explanation shown after answering</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="alert alert-info bg-opacity-10 text-info border-info mt-3">
+                <i class="bi bi-info-circle"></i>
+                <strong>Note:</strong> All questions in the file will be saved under the selected category.
+                To add questions to different categories, upload separate files for each category.
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<script>
+    (function () {
+        let currentFile = null;
+        let previewData = null;
+        let isLoadingCategories = false;
+
+        // Get DOM elements
+        const categorySelect = document.getElementById('categorySelect');
+        const newCategoryInput = document.getElementById('newCategoryInput');
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const selectedCategoryBadge = document.getElementById('selectedCategoryBadge');
+
+        // ================================================================
+        // TOAST NOTIFICATIONS (Using Premium Toast from base.html)
+        // ================================================================
+        function showToast(message, type = 'success') {
+            if (typeof showPremiumToast === 'function') {
+                const titles = {
+                    success: '✅ Success',
+                    error: '❌ Error',
+                    warning: '⚠️ Warning',
+                    info: 'ℹ️ Info'
+                };
+                showPremiumToast(message, type, titles[type] || 'Info');
+            } else {
+                alert(message);
+            }
+        }
+
+        // ================================================================
+        // LOAD CATEGORIES
+        // ================================================================
+        function loadCategories() {
+            if (isLoadingCategories) return;
+            isLoadingCategories = true;
+
+            fetch('/api/proxy/admin/categories')
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                    return res.json();
+                })
+                .then(data => {
+                    let categoryList = [];
+
+                    if (Array.isArray(data)) {
+                        if (data.length > 0 && typeof data[0] === 'string') {
+                            categoryList = data;
+                        } else if (data.length > 0 && typeof data[0] === 'object') {
+                            categoryList = data.map(item => item.category || item.name || 'Uncategorized');
+                        }
+                    }
+
+                    categoryList = [...new Set(categoryList)];
+
+                    const currentValue = categorySelect ? categorySelect.value : 'Uncategorized';
+
+                    if (categorySelect) {
+                        categorySelect.innerHTML = '';
+
+                        const defaultOpt = document.createElement('option');
+                        defaultOpt.value = 'Uncategorized';
+                        defaultOpt.textContent = 'Uncategorized';
+                        categorySelect.appendChild(defaultOpt);
+
+                        categoryList.forEach(cat => {
+                            const opt = document.createElement('option');
+                            opt.value = cat;
+                            opt.textContent = cat;
+                            categorySelect.appendChild(opt);
+                        });
+
+                        const newOpt = document.createElement('option');
+                        newOpt.value = 'new';
+                        newOpt.textContent = '+ Create New Category';
+                        categorySelect.appendChild(newOpt);
+
+                        if (currentValue && categoryList.includes(currentValue)) {
+                            categorySelect.value = currentValue;
+                        } else if (currentValue === 'new') {
+                            categorySelect.value = 'Uncategorized';
+                        }
+
+                        updateCategoryBadge(categorySelect.value);
+                    }
+
+                    console.log('✅ Categories loaded:', categoryList.length);
+                })
+                .catch(err => {
+                    console.error('Error loading categories:', err);
+                    showToast('Failed to load categories. Please refresh.', 'error');
+                })
+                .finally(() => {
+                    isLoadingCategories = false;
+                });
+        }
+
+        // ================================================================
+        // UPDATE CATEGORY BADGE
+        // ================================================================
+        function updateCategoryBadge(category) {
+            if (selectedCategoryBadge) {
+                if (category === 'new') {
+                    const newName = newCategoryInput ? newCategoryInput.value.trim() : '';
+                    selectedCategoryBadge.textContent = newName || 'New Category';
+                } else {
+                    selectedCategoryBadge.textContent = category || 'Uncategorized';
+                }
+            }
+        }
+
+        // ================================================================
+        // CATEGORY SELECT HANDLING
+        // ================================================================
+        if (categorySelect) {
+            categorySelect.addEventListener('change', function () {
+                if (this.value === 'new') {
+                    newCategoryInput.style.display = 'block';
+                    newCategoryInput.required = true;
+                    newCategoryInput.focus();
+                    selectedCategoryBadge.textContent = 'New Category';
+                } else {
+                    newCategoryInput.style.display = 'none';
+                    newCategoryInput.required = false;
+                    updateCategoryBadge(this.value);
+                }
+            });
+        }
+
+        if (newCategoryInput) {
+            newCategoryInput.addEventListener('input', function () {
+                if (categorySelect && categorySelect.value === 'new') {
+                    const val = this.value.trim();
+                    selectedCategoryBadge.textContent = val || 'New Category';
+                }
+            });
+        }
+
+        // ================================================================
+        // DROP ZONE HANDLING
+        // ================================================================
+        if (dropZone) {
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file && (file.name.endsWith('.csv') || file.name.endsWith('.xlsx'))) {
+                    handleFile(file);
+                } else {
+                    showToast('Please upload a CSV or Excel file', 'warning');
+                }
+            });
+        }
+
+        // ================================================================
+        // FILE INPUT HANDLING
+        // ================================================================
+        if (fileInput) {
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files[0]) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+        }
+
+        // ================================================================
+        // HANDLE FILE
+        // ================================================================
+        function handleFile(file) {
+            currentFile = file;
+            const fileNameSpan = document.getElementById('fileName');
+            const fileInfoDiv = document.getElementById('fileInfo');
+            if (fileNameSpan) fileNameSpan.innerText = file.name;
+            if (fileInfoDiv) fileInfoDiv.style.display = 'block';
+            previewFile(file);
+        }
+
+        // ================================================================
+        // PREVIEW FILE
+        // ================================================================
+        function previewFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const previewSection = document.getElementById('previewSection');
+            const previewStats = document.getElementById('previewStats');
+
+            if (previewSection) previewSection.style.display = 'none';
+            if (previewStats) previewStats.innerHTML = '<div class="text-center"><div class="spinner-border text-primary"></div><p class="mt-2">Processing file...</p></div>';
+
+            fetch('/api/proxy/admin/upload-questions/preview', {
+                method: 'POST',
+                body: formData
+            })
+                .then(async res => {
+                    const text = await res.text();
+                    try {
+                        const data = JSON.parse(text);
+                        return data;
+                    } catch (e) {
+                        if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+                            throw new Error('Server returned an HTML error page. Please check server logs.');
+                        }
+                        throw new Error('Server returned invalid response: ' + text.substring(0, 100));
+                    }
+                })
+                .then(data => {
+                    if (data.error || data.detail) {
+                        throw new Error(data.error || data.detail);
+                    }
+                    if (!data.columns || !data.preview) {
+                        throw new Error('File format not recognized. Please check your CSV/Excel format.');
+                    }
+                    previewData = data;
+                    displayPreview(data);
+                    showToast(`File processed successfully! Found ${data.total_rows || 0} questions.`, 'success');
+                })
+                .catch(err => {
+                    console.error('Preview error:', err);
+                    const errorMsg = err.message || 'Unknown error';
+                    showToast('Error processing file: ' + errorMsg, 'error');
+                    if (previewStats) {
+                        previewStats.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <strong>Failed to process file:</strong> ${escapeHtml(errorMsg)}
+                                <hr>
+                                <small>If you're uploading an Excel (.xlsx) file, make sure <code>openpyxl</code> is installed on the server.</small>
+                            </div>
+                        `;
+                    }
+                });
+        }
+
+        // ================================================================
+        // DISPLAY PREVIEW
+        // ================================================================
+        function displayPreview(data) {
+            if (!data) {
+                showToast('No data received from server', 'error');
+                return;
+            }
+
+            const columns = data.columns || [];
+            const previewRows = data.preview || [];
+            const totalRows = data.total_rows || 0;
+            const columnsDisplay = columns.length > 0 ? columns.join(', ') : 'No columns found';
+
+            const statsHtml = `
+                <div class="d-flex flex-wrap gap-3">
+                    <span class="stat-badge stat-success"><i class="bi bi-check-circle"></i> Total Rows: ${totalRows}</span>
+                    <span class="stat-badge"><i class="bi bi-table"></i> Columns: ${escapeHtml(columnsDisplay)}</span>
+                    ${previewRows.length > 0 ? `<span class="stat-badge"><i class="bi bi-eye"></i> Preview: ${previewRows.length} rows</span>` : ''}
+                </div>
+            `;
+            const previewStats = document.getElementById('previewStats');
+            if (previewStats) previewStats.innerHTML = statsHtml;
+
+            let tableHtml = '';
+            if (previewRows.length > 0 && columns.length > 0) {
+                tableHtml = '<table class="table"><thead><tr>';
+                columns.forEach(col => {
+                    tableHtml += `<th>${escapeHtml(col)}</th>`;
+                });
+                tableHtml += '</tr></thead><tbody>';
+
+                previewRows.forEach(row => {
+                    tableHtml += '<tr>';
+                    columns.forEach(col => {
+                        let val = row[col] || '';
+                        if (String(val).length > 50) val = String(val).substring(0, 50) + '...';
+                        tableHtml += `<td>${escapeHtml(String(val))}</td>`;
+                    });
+                    tableHtml += '</tr>';
+                });
+                tableHtml += '</tbody></table>';
+            } else {
+                tableHtml = '<div class="text-center text-secondary py-4"><i class="bi bi-inbox" style="font-size: 2rem;"></i><p class="mt-2">No data to preview. Please check your file format.</p></div>';
+            }
+
+            const previewTable = document.getElementById('previewTable');
+            const previewSection = document.getElementById('previewSection');
+
+            if (previewTable) previewTable.innerHTML = tableHtml;
+            if (previewSection) previewSection.style.display = 'block';
+        }
+
+        // ================================================================
+        // CONFIRM UPLOAD - FIXED (Using Premium Modal)
+        // ================================================================
+        window.confirmUpload = function () {
+            let category = categorySelect ? categorySelect.value : 'Uncategorized';
+
+            if (category === 'new') {
+                category = newCategoryInput ? newCategoryInput.value.trim() : '';
+                if (!category) {
+                    showToast('Please enter a category name', 'warning');
+                    return;
+                }
+            }
+
+            if (!category || category.trim() === '') {
+                category = 'Uncategorized';
+            }
+
+            if (!currentFile) {
+                showToast('Please select a file first', 'warning');
+                return;
+            }
+
+            const totalRows = previewData ? previewData.total_rows : 0;
+            if (totalRows === 0) {
+                showToast('No questions found in the file to save.', 'warning');
+                return;
+            }
+
+            // Use premium modal instead of confirm
+            if (typeof showPremiumModal === 'function') {
+                showPremiumModal(
+                    `Save ${totalRows} questions to category "${category}"?`,
+                    'Confirm Upload',
+                    'info',
+                    'Save Questions'
+                ).then((confirmed) => {
+                    if (!confirmed) return;
+                    performUpload(category);
+                });
+            } else {
+                if (confirm(`Save ${totalRows} questions to category "${category}"?`)) {
+                    performUpload(category);
+                }
+            }
+        };
+
+        function performUpload(category) {
+            const formData = new FormData();
+            formData.append('file', currentFile);
+            formData.append('category', category);
+
+            const confirmBtn = document.getElementById('confirmUploadBtn');
+            if (confirmBtn) {
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Saving...';
+            }
+
+            showToast(`Saving ${previewData.total_rows} questions...`, 'info', 'Processing');
+
+            fetch('/api/proxy/admin/upload-questions/save', {
+                method: 'POST',
+                body: formData
+            })
+                .then(async res => {
+                    const text = await res.text();
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        throw new Error('Server returned invalid JSON: ' + text.substring(0, 100));
+                    }
+                })
+                .then(data => {
+                    if (data.success) {
+                        const errors = data.errors || [];
+                        let message = `✅ Successfully saved ${data.saved_count} out of ${data.total_rows} questions to category "${category}".`;
+                        if (errors.length > 0) {
+                            message += `\n⚠️ Errors: ${errors.join(', ')}`;
+                        }
+                        showToast(message, 'success');
+                        if (data.saved_count > 0) {
+                            setTimeout(() => {
+                                window.location.href = '/admin/question-bank';
+                            }, 2000);
+                        }
+                    } else {
+                        showToast('Error: ' + (data.detail || 'Unknown error'), 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error('Save error:', err);
+                    showToast('Error saving questions: ' + err.message, 'error');
+                })
+                .finally(() => {
+                    if (confirmBtn) {
+                        confirmBtn.disabled = false;
+                        confirmBtn.innerHTML = '<i class="bi bi-check-circle"></i> Save All Questions';
+                    }
+                });
+        }
+
+        // ================================================================
+        // RESET UPLOAD
+        // ================================================================
+        window.resetUpload = function () {
+            currentFile = null;
+            previewData = null;
+            const fileInfo = document.getElementById('fileInfo');
+            const previewSection = document.getElementById('previewSection');
+            const fileInputEl = document.getElementById('fileInput');
+            const categorySelectEl = document.getElementById('categorySelect');
+            const newCategoryInputEl = document.getElementById('newCategoryInput');
+
+            if (fileInfo) fileInfo.style.display = 'none';
+            if (previewSection) previewSection.style.display = 'none';
+            if (fileInputEl) fileInputEl.value = '';
+            if (categorySelectEl) categorySelectEl.value = 'Uncategorized';
+            if (newCategoryInputEl) {
+                newCategoryInputEl.style.display = 'none';
+                newCategoryInputEl.value = '';
+            }
+            updateCategoryBadge('Uncategorized');
+            showToast('Upload form reset', 'warning');
+        };
+
+        // ================================================================
+        // DOWNLOAD SAMPLE CSV
+        // ================================================================
+        window.downloadSampleCSV = function () {
+            const sampleData = [
+                ['Question', 'Option A', 'Option B', 'Option C', 'Option D', 'Correct Answer', 'Explanation'],
+                ['What is the capital of France?', 'London', 'Berlin', 'Paris', 'Madrid', 'C', 'Paris is the capital of France'],
+                ['Which language is used for web development?', 'Python', 'Java', 'HTML/CSS', 'C++', 'C', 'HTML/CSS is used for web structure'],
+                ['What is 2+2?', '3', '4', '5', '6', 'B', '2+2 equals 4'],
+                ['Which planet is known as the Red Planet?', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'B', 'Mars is called the Red Planet']
+            ];
+
+            let csvContent = sampleData.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sample_questions.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Sample CSV downloaded!', 'success');
+        };
+
+        // ================================================================
+        // UTILITY FUNCTIONS
+        // ================================================================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ================================================================
+        // INITIALIZATION
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', function () {
+            loadCategories();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const errorMsg = urlParams.get('error');
+            if (errorMsg) {
+                showToast(decodeURIComponent(errorMsg), 'error');
+            }
+
+            const successMsg = urlParams.get('success');
+            if (successMsg) {
+                showToast(decodeURIComponent(successMsg), 'success');
+            }
+
+            console.log('✅ Upload page initialized');
+        });
+    })();
+</script>
+{% endblock %}

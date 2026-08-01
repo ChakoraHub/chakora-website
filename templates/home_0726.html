@@ -215,6 +215,42 @@
       text-align: center;
       font-size: 14px;
     }
+    .login-links {
+    margin-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    }
+
+    .forgot-dropdown {
+        position: relative;
+    }
+
+    .forgot-dropdown-content {
+        display: none;
+        position: absolute;
+        background: #fff;
+        min-width: 160px;
+        box-shadow: 0 4px 12px rgba(0,0,0,.15);
+        border-radius: 6px;
+        z-index: 1000;
+    }
+
+    .forgot-dropdown-content a {
+        display: block;
+        padding: 10px;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .forgot-dropdown-content a:hover {
+        background: #f1f1f1;
+    }
+
+    .forgot-dropdown:hover .forgot-dropdown-content {
+        display: block;
+    }
+
 
     /* --- Batch Section --- */
     .batch-section {
@@ -450,14 +486,18 @@
     }
 
     /* --- Feedback Section --- */
+    /* --- Feedback Section --- */
     .feedback-section {
-      min-width: 500px;
-      background-color: #eef6fa;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-      font-family: 'Segoe UI', sans-serif;
-    }
+  background: #eef6fa;
+  padding: 30px;
+  border-radius: 15px;
+  width: 450px;
+  margin-left: 500px;
+   box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.08),
+    0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
 
     .feedback-section h2 {
       text-align: center;
@@ -550,27 +590,19 @@
       line-height: 1.6;
     }
 
-    /* --- Video & Enquiry --- */
-    .video-enquiry-wrapper {
+    /* --- Enquiry Section --- */
+    .enquiry-wrapper {
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      gap: 60px;
+      align-items: center;
       margin: 50px auto;
-      flex-wrap: wrap;
       padding: 0 20px;
       max-width: 1100px;
     }
 
-    .youtube-box iframe {
-      width: 420px;
-      height: 270px;
-      border-radius: 10px;
-    }
-
     .enquiry-box {
-      flex: 1;
-      max-width: 400px;
+      width: 100%;
+      max-width: 500px;
       background: #fff;
       border-radius: 10px;
       padding: 30px;
@@ -766,6 +798,7 @@
           <a href="/solutions#api">API Solutions</a>
         </div>
       </div>
+      <a href="/client">Client</a>
       <div class="dropdown">
         <a href="/aboutus">About Us ▾</a>
         <div class="dropdown-content">
@@ -827,9 +860,14 @@
                placeholder="Enter your password" required>
 
         <button type="submit">Login</button>
-        <div class="register-link">
-          New user? <a href="{{ url_for('register') }}">Register here</a>
-        </div>
+        <div class="login-links">
+
+    <a href="/forgot-password">Forgot Password?</a>
+
+    New user?<a href="/register">Register Here</a>
+
+</div>
+
       </form>
     </div>
   </div>
@@ -916,25 +954,34 @@
   </div>
 
   <!-- Feedback Section -->
+  <div class="feedback-section">
+  <h2>Student Feedback</h2>
+
   {% if feedbacks %}
-  <div class="services-wrapper">
-    <div class="feedback-section" data-search="student feedback">
-      <h2>💬 Student Feedback</h2>
-      <div class="feedback-scroll-wrapper">
-        <div class="feedback-scroll-content">
-          {% for feedback in feedbacks %}
+   
+
+    <div class="feedback-scroll-wrapper">
+      <div class="feedback-scroll-content">
+
+        {% for fb in feedbacks %}
           <div class="feedback-item">
-            <span class="feedback-msg">"{{ feedback.feedback_message }}"</span>
-            <span class="feedback-name">— {{ feedback.username }}</span>
+            <span class="feedback-msg">
+              "{{ fb.feedback_message }}"
+            </span>
+            <span class="feedback-name">
+              - {{ fb.username }}
+            </span>
           </div>
-          {% endfor %}
-          <!-- Duplicate for seamless scrolling -->
-          
-        </div>
+        {% endfor %}
+
       </div>
     </div>
-  </div>
+
+  {% else %}
+    <p style="text-align:center;">No feedback available.</p>
   {% endif %}
+</div>
+
 
   <!-- Certificate Section -->
   <div class="certificate-wrapper">
@@ -951,16 +998,8 @@
     </div>
   </div>
 
-  <!-- Video + Enquiry -->
-  <div class="video-enquiry-wrapper">
-    <div class="youtube-box" data-search="video">
-      <iframe src="https://www.youtube.com/embed/tqA7J9-1yNo"
-        title="Lord Balaji" frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen>
-      </iframe>
-    </div>
-
+  <!-- Enquiry Section -->
+  <div class="enquiry-wrapper">
     <div class="enquiry-box" data-search="enquiry" id="enquirySection">
       <h2 data-search="enquiry heading">Quick Enquiry</h2>
       
@@ -1049,7 +1088,8 @@
 
           const formData = new FormData(this);
 
-          fetch(this.action, {
+          fetch( 
+          "/home/enquiry", {
             method: 'POST',
             body: formData,
             headers: { 'X-Requested-With': 'XMLHttpRequest' }

@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChakoraHub - Blog</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        /* HEADER */
+        .blog-header {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            padding: 30px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .blog-header h1 {
+            color: white;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .blog-header .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        /* MAIN CONTAINER */
+        .main-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: #f8f9fa;
+            padding: 30px 20px;
+            border-right: 1px solid #e0e0e0;
+            min-height: 600px;
+        }
+
+        .sidebar h4 {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        /* ARCHIVE */
+        .blog-archive {
+            list-style: none;
+            padding: 0;
+        }
+
+        .archive-year {
+            margin-bottom: 15px;
+        }
+
+        .year-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #e0e0e0;
+        }
+
+        .year-toggle:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .year-toggle.active {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .year-label {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .post-count {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+
+        .month-list {
+            display: none;
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .month-list.show {
+            display: block;
+        }
+
+        .month-item {
+            padding: 8px 15px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .month-item:hover {
+            background: #e3f2fd;
+            border-left-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .month-item.active {
+            background: #e3f2fd;
+            border-left-color: var(--secondary);
+            font-weight: 600;
+        }
+
+        /* SUBSCRIPTION BOX */
+        .subscription-box {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .subscription-box h5 {
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .subscription-box input {
+            width: 100%;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a1a2e;
+            font-weight: 500;
+            transition: border 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .subscription-box input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+        }
+
+        .subscription-box button {
+            background: white;
+            color: var(--primary);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-weight: 700;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .subscription-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* BLOG CONTENT */
+        .blog-content {
+            padding: 40px;
+        }
+
+        .blog-post {
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s;
+            display: none;
+        }
+
+        .blog-post.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .blog-post:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .post-title {
+            color: var(--dark);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .post-title:hover {
+            color: var(--primary);
+        }
+
+        .post-meta {
+            display: flex;
+            gap: 15px;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .post-meta i {
+            color: var(--primary);
+        }
+
+        .post-badge {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-locked {
+            background: linear-gradient(to right, #f59e0b, #ef4444);
+        }
+
+        .post-summary {
+            color: #555;
+            line-height: 1.8;
+            font-size: 1.05rem;
+            margin: 20px 0;
+        }
+
+        .post-content {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .post-content.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .post-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-read-more {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-read-more:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-login-required {
+            background: linear-gradient(to right, #f59e0b, #ef4444);
+        }
+
+        .btn-login-required:hover {
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+
+        /* LOGIN MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        .login-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .login-modal h3 {
+            color: var(--dark);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .login-modal p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .login-modal input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .login-modal input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-modal-login {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-modal-cancel {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .btn-modal-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-modal-cancel:hover {
+            background: #d0d0d0;
+        }
+
+        /* SUBSCRIBER COUNT */
+        .subscriber-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .subscriber-count .count {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .subscriber-count .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .blog-content {
+                padding: 20px;
+            }
+
+            .post-title {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="blog-header">
+        <div class="container">
+            <h1>
+                <img src="/static/logo.png" alt="Logo" class="logo-img" />
+                <i class="bi bi-journal-richtext"></i>
+                ChakoraHub Blog
+            </h1>
+            <p class="subtitle">Insights, Teachings, and Technical Articles</p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="main-container">
+            <div class="row g-0">
+                <!-- Sidebar -->
+                <div class="col-lg-3 sidebar">
+                    <h4><i class="bi bi-archive"></i> Archive</h4>
+                    <ul class="blog-archive" id="blogArchive">
+                        <!-- Dynamically populated -->
+                    </ul>
+
+                    <!-- Subscription Box -->
+                    <div class="subscription-box">
+                        <h5><i class="bi bi-bell"></i> Subscribe</h5>
+                        <p style="font-size: 0.9rem; margin-bottom: 15px;">Get notified when new posts are published!</p>
+                        <input type="email" id="subscribeEmail" placeholder="Enter your email" />
+                        <input type="tel" id="subscribePhone" placeholder="Enter your phone number" />
+                        <button onclick="subscribe()">Subscribe Now</button>
+                        
+                        <div class="subscriber-count">
+                            <span class="count" id="subscriberCount">0</span>
+                            <span class="label">Subscribers</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blog Content -->
+                <div class="col-lg-9 blog-content">
+                    <div id="blogPosts">
+                        <!-- Dynamically populated -->
+                    </div>
+                    
+                    <div id="emptyState" class="empty-state" style="display: none;">
+                        <i class="bi bi-inbox"></i>
+                        <h4>No Posts Found</h4>
+                        <p>Select a month from the archive to view posts.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="login-modal">
+            <h3><i class="bi bi-lock"></i> Organization Login Required</h3>
+            <p>This blog post is restricted to ChakoraHub organization members only.</p>
+            
+            <input type="text" id="loginUsername" placeholder="Employee ID or Email" />
+            <input type="password" id="loginPassword" placeholder="Password" />
+            
+            <div class="modal-buttons">
+                <button class="btn-modal-cancel" onclick="closeLoginModal()">Cancel</button>
+                <button class="btn-modal-login" onclick="performLogin()">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== BLOG DATA ====================
+        const blogData = [
+            {
+                id: 1,
+                title: "Vatapi Jeernam",
+                summary: "An exploration of the ancient Vedic wisdom and spiritual practices. This article delves into the profound teachings that have guided seekers for millennia.",
+                content: `
+                    <h4>Introduction to Vatapi Jeernam</h4>
+                    <p>The ancient wisdom of Vatapi Jeernam represents a cornerstone of Vedic knowledge...</p>
+                    
+                    <h4>Historical Context</h4>
+                    <p>Throughout history, this teaching has been passed down through generations of spiritual masters...</p>
+                    
+                    <h4>Practical Applications</h4>
+                    <p>In modern times, these principles can be applied to daily life in the following ways...</p>
+                    
+                    <h4>Conclusion</h4>
+                    <p>The timeless wisdom of Vatapi Jeernam continues to inspire and guide us today...</p>
+                `,
+                date: "2026-03-15",
+                author: "V. Subhash Chandra",
+                tags: ["Spirituality", "Vedic Wisdom", "Philosophy"],
+                locked: false,
+                year: 2026,
+                month: "March"
+            },
+            {
+                id: 2,
+                title: "Srivatsa",
+                summary: "A deep dive into the sacred symbolism and its significance in spiritual practices. Understanding the mystical representations in ancient traditions.",
+                content: `
+                    <h4>The Sacred Symbol of Srivatsa</h4>
+                    <p>Srivatsa holds profound significance in Hindu iconography and spiritual practice...</p>
+                    
+                    <h4>Symbolism and Meaning</h4>
+                    <p>The intricate patterns represent the eternal nature of consciousness...</p>
+                    
+                    <h4>Meditation Practices</h4>
+                    <p>Practitioners use this symbol as a focal point for deep meditation...</p>
+                    
+                    <h4>Modern Interpretations</h4>
+                    <p>Contemporary spiritual seekers continue to find meaning in these ancient symbols...</p>
+                `,
+                date: "2026-03-10",
+                author: "V. Subhash Chandra",
+                tags: ["Symbolism", "Meditation", "Spirituality"],
+                locked: false, // Public (no login required)
+                year: 2026,
+                month: "March"
+            },
+            {
+                id: 3,
+                title: "Machine Learning in Cloud Computing",
+                summary: "Exploring the intersection of AI and cloud infrastructure for scalable solutions.",
+                content: `
+                    <h4>Introduction to Cloud-based ML</h4>
+                    <p>Modern machine learning workloads require scalable infrastructure...</p>
+                    
+                    <h4>Architecture Patterns</h4>
+                    <p>Best practices for deploying ML models in cloud environments...</p>
+                `,
+                date: "2026-02-20",
+                author: "V. Subhash Chandra",
+                tags: ["Machine Learning", "Cloud", "Technology"],
+                locked: true,
+                year: 2026,
+                month: "February"
+            }
+        ];
+
+        // ==================== STATE ====================
+        let currentFilter = { year: null, month: null };
+        let isLoggedIn = false;
+        let currentLockedPostId = null;
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            buildArchive();
+            loadSubscriberCount();
+            checkLoginStatus();
+            showAllPosts(); // Show all posts initially
+        });
+
+        // ==================== ARCHIVE BUILDING ====================
+        function buildArchive() {
+            const archive = {};
+            
+            // Group posts by year and month
+            blogData.forEach(post => {
+                if (!archive[post.year]) {
+                    archive[post.year] = {};
+                }
+                if (!archive[post.year][post.month]) {
+                    archive[post.year][post.month] = 0;
+                }
+                archive[post.year][post.month]++;
+            });
+
+            // Build HTML
+            const archiveEl = document.getElementById('blogArchive');
+            archiveEl.innerHTML = '';
+
+            Object.keys(archive).sort((a, b) => b - a).forEach(year => {
+                const yearCount = Object.values(archive[year]).reduce((a, b) => a + b, 0);
+                
+                const yearHtml = `
+                    <li class="archive-year">
+                        <div class="year-toggle" onclick="toggleYear(${year})">
+                            <span class="year-label">
+                                <i class="bi bi-chevron-right" id="chevron-${year}"></i>
+                                ${year}
+                            </span>
+                            <span class="post-count">${yearCount}</span>
+                        </div>
+                        <ul class="month-list" id="months-${year}">
+                            ${Object.keys(archive[year]).map(month => `
+                                <li class="month-item" onclick="filterByMonth(${year}, '${month}')">
+                                    <i class="bi bi-calendar3"></i>
+                                    ${month} (${archive[year][month]})
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </li>
+                `;
+                
+                archiveEl.innerHTML += yearHtml;
+            });
+        }
+
+        // ==================== ARCHIVE INTERACTION ====================
+        function toggleYear(year) {
+            const monthList = document.getElementById(`months-${year}`);
+            const chevron = document.getElementById(`chevron-${year}`);
+            const yearToggle = chevron.closest('.year-toggle');
+            
+            monthList.classList.toggle('show');
+            yearToggle.classList.toggle('active');
+            
+            if (monthList.classList.contains('show')) {
+                chevron.className = 'bi bi-chevron-down';
+            } else {
+                chevron.className = 'bi bi-chevron-right';
+            }
+        }
+
+        function filterByMonth(year, month) {
+            currentFilter = { year, month };
+            
+            // Update active state
+            document.querySelectorAll('.month-item').forEach(el => el.classList.remove('active'));
+            event.target.closest('.month-item').classList.add('active');
+            
+            // Filter and display posts (DOM manipulation - no page reload)
+            displayPosts();
+        }
+
+        function showAllPosts() {
+            currentFilter = { year: null, month: null };
+            document.querySelectorAll('.month-item').forEach(el => el.classList.remove('active'));
+            displayPosts();
+        }
+
+        // ==================== DISPLAY POSTS ====================
+        function displayPosts() {
+            const postsContainer = document.getElementById('blogPosts');
+            const emptyState = document.getElementById('emptyState');
+            
+            // Filter posts
+            let filteredPosts = blogData;
+            if (currentFilter.year && currentFilter.month) {
+                filteredPosts = blogData.filter(post => 
+                    post.year === currentFilter.year && post.month === currentFilter.month
+                );
+            }
+
+            // Clear current posts
+            postsContainer.innerHTML = '';
+
+            if (filteredPosts.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            // Display filtered posts
+            filteredPosts.forEach(post => {
+                const postHtml = `
+                    <div class="blog-post show" id="post-${post.id}">
+                        <div class="post-header">
+                            <div>
+                                <h2 class="post-title" onclick="togglePostContent(${post.id})">
+                                    ${post.title}
+                                </h2>
+                                <div class="post-meta">
+                                    <span><i class="bi bi-calendar"></i> ${post.date}</span>
+                                    <span><i class="bi bi-person"></i> ${post.author}</span>
+                                    ${post.tags.map(tag => `<span><i class="bi bi-tag"></i> ${tag}</span>`).join('')}
+                                </div>
+                            </div>
+                            <span class="post-badge ${post.locked ? 'badge-locked' : ''}">
+                                <i class="bi bi-${post.locked ? 'lock' : 'unlock'}"></i>
+                                ${post.locked ? 'Members Only' : 'Public'}
+                            </span>
+                        </div>
+                        
+                        <div class="post-summary">
+                            ${post.summary}
+                        </div>
+                        
+                        <div class="post-content" id="content-${post.id}">
+                            ${post.content}
+                        </div>
+                        
+                        <div class="post-footer">
+                            ${post.locked && !isLoggedIn 
+                                ? `<button class="btn-read-more btn-login-required" onclick="showLoginModal(${post.id})">
+                                    <i class="bi bi-lock"></i> Login to Read Full Post
+                                   </button>`
+                                : `<button class="btn-read-more" onclick="togglePostContent(${post.id})">
+                                    <i class="bi bi-book"></i> <span id="btn-text-${post.id}">Read More</span>
+                                   </button>`
+                            }
+                        </div>
+                    </div>
+                `;
+                
+                postsContainer.innerHTML += postHtml;
+            });
+        }
+
+        // ==================== POST INTERACTION ====================
+        function togglePostContent(postId) {
+            const post = blogData.find(p => p.id === postId);
+            
+            if (post.locked && !isLoggedIn) {
+                showLoginModal(postId);
+                return;
+            }
+
+            const contentEl = document.getElementById(`content-${postId}`);
+            const btnText = document.getElementById(`btn-text-${postId}`);
+            
+            if (contentEl.classList.contains('show')) {
+                contentEl.classList.remove('show');
+                btnText.textContent = 'Read More';
+            } else {
+                contentEl.classList.add('show');
+                btnText.textContent = 'Show Less';
+            }
+        }
+
+        // ==================== LOGIN MODAL ====================
+        function showLoginModal(postId) {
+            currentLockedPostId = postId;
+            document.getElementById('loginModal').classList.add('show');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('show');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        async function performLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
+            }
+
+            try {
+                const response = await fetch('/nrm_logins', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&login_type=employee`
+                });
+
+                if (response.ok) {
+                    isLoggedIn = true;
+                    closeLoginModal();
+                    
+                    // Refresh posts to show unlocked content
+                    displayPosts();
+                    
+                    // Auto-expand the locked post
+                    if (currentLockedPostId) {
+                        setTimeout(() => {
+                            togglePostContent(currentLockedPostId);
+                        }, 300);
+                    }
+                    
+                    alert('Login successful! You now have access to member-only content.');
+                } else {
+                    alert('Invalid credentials. Please try again.');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed. Please try again.');
+            }
+        }
+
+        function checkLoginStatus() {
+            // Check if user is already logged in via session
+            fetch('/check_session')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.logged_in && data.login_type === 'employee') {
+                        isLoggedIn = true;
+                        displayPosts();
+                    }
+                })
+                .catch(err => console.log('Not logged in'));
+        }
+
+        // ==================== SUBSCRIPTION ====================
+        async function subscribe() {
+            const email = document.getElementById('subscribeEmail').value.trim();
+            const phone = document.getElementById('subscribePhone').value.trim();
+            
+            if (!email || !email.includes('@')) {
+                alert('Please enter a valid email address');
+                return;
+            }
+
+            if (!phone || phone.length < 6) {
+                alert('Please enter a valid phone number');
+                return;
+            }
+
+            try {
+                const response = await fetch('/blogger/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, phone: phone })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Successfully subscribed! You will receive notifications for new posts.');
+                    document.getElementById('subscribeEmail').value = '';
+                    loadSubscriberCount();
+                } else {
+                    alert(data.message || 'Subscription failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Subscription error:', error);
+                alert('Subscription failed. Please try again.');
+            }
+        }
+
+        async function loadSubscriberCount() {
+            try {
+                const response = await fetch('/blogger/subscriber_count');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('subscriberCount').textContent = data.count;
+                }
+            } catch (error) {
+                console.log('Could not load subscriber count');
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLoginModal();
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

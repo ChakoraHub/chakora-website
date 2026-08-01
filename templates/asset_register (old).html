@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Asset — ChakoraHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --slate:        #0f172a;
+      --slate-mid:    #1e293b;
+      --slate-light:  #334155;
+      --steel:        #475569;
+      --muted:        #64748b;
+      --border:       #e2e8f0;
+      --bg:           #f1f5f9;
+      --card:         #ffffff;
+      --accent:       #0ea5e9;
+      --accent-dark:  #0369a1;
+      --accent-glow:  rgba(14,165,233,0.12);
+      --green:        #059669;
+      --green-bg:     #ecfdf5;
+      --green-bdr:    #a7f3d0;
+      --amber:        #d97706;
+      --amber-bg:     #fffbeb;
+      --rose:         #e11d48;
+      --mono:         'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--slate);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .page-header {
+      background: linear-gradient(135deg, var(--slate) 0%, var(--slate-mid) 60%, #162032 100%);
+      padding: 14px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+      position: sticky; top: 0; z-index: 100; gap: 14px;
+    }
+    .hd-left { display: flex; align-items: center; gap: 14px; }
+    .hd-logo { height: 44px; width: 44px; border-radius: 10px; object-fit: cover; border: 2px solid rgba(255,255,255,0.15); }
+    .hd-title { font-size: 1rem; font-weight: 700; color: #fff; }
+    .hd-sub   { font-size: 0.72rem; color: rgba(255,255,255,0.45); }
+    .hd-right { display: flex; align-items: center; gap: 10px; }
+    .hd-link  {
+      color: #94a3b8; text-decoration: none; font-size: 0.82rem;
+      font-weight: 500; display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.2s;
+    }
+    .hd-link:hover { color: #fff; border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.06); }
+    .hd-link.primary {
+      background: var(--accent); color: white; border-color: transparent;
+      box-shadow: 0 3px 12px rgba(14,165,233,0.3);
+    }
+    .hd-link.primary:hover { background: var(--accent-dark); }
+
+    /* ── MAIN ── */
+    .main-wrap { max-width: 900px; margin: 32px auto 80px; padding: 0 18px; }
+
+    /* ── PROGRESS BAR ── */
+    .progress-strip {
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 20px 28px;
+      margin-bottom: 22px;
+      display: flex; align-items: center; gap: 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+      animation: fadeUp 0.4s ease both;
+    }
+    .ps-step {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 6px; flex: 1; position: relative;
+    }
+    .ps-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--border); color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; position: relative; z-index: 2;
+      transition: all 0.3s;
+    }
+    .ps-step.active .ps-dot  { background: var(--accent); color: white; box-shadow: 0 0 0 5px var(--accent-glow); }
+    .ps-step.done .ps-dot    { background: var(--green); color: white; }
+    .ps-lbl { font-size: 0.69rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; text-align: center; }
+    .ps-step.active .ps-lbl  { color: var(--accent); }
+    .ps-step.done .ps-lbl    { color: var(--green); }
+    .ps-line { flex: 1; height: 2px; background: var(--border); margin-top: -18px; position: relative; z-index: 1; max-width: 80px; }
+    .ps-line.done { background: var(--green); }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(16px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* ── SECTION CARDS ── */
+    .sc {
+      background: var(--card);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 14px rgba(0,0,0,0.05);
+      margin-bottom: 18px;
+      overflow: hidden;
+      animation: fadeUp 0.4s ease both;
+    }
+    .sc:nth-child(2){ animation-delay:.06s; }
+    .sc:nth-child(3){ animation-delay:.12s; }
+    .sc:nth-child(4){ animation-delay:.18s; }
+    .sc:nth-child(5){ animation-delay:.22s; }
+
+    .sc-head {
+      display: flex; align-items: center; gap: 13px;
+      padding: 16px 24px; border-bottom: 1.5px solid var(--border);
+      background: #fafbfc;
+    }
+    .sc-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .i-sky    { background: #e0f2fe; color: var(--accent); }
+    .i-green  { background: var(--green-bg); color: var(--green); }
+    .i-amber  { background: var(--amber-bg); color: var(--amber); }
+    .i-slate  { background: #f1f5f9; color: var(--slate-light); }
+    .i-violet { background: #f5f3ff; color: #7c3aed; }
+
+    .sc-title { font-size: 0.93rem; font-weight: 700; color: var(--slate); }
+    .sc-sub   { font-size: 0.73rem; color: var(--muted); margin-top: 1px; }
+    .sc-tag   {
+      margin-left: auto; font-family: var(--mono); font-size: 0.64rem;
+      background: #f0f9ff; color: var(--accent-dark);
+      border: 1px solid #bae6fd; border-radius: 5px; padding: 2px 8px; white-space: nowrap;
+    }
+    .sc-body { padding: 22px 24px; }
+
+    /* ── FIELD GRID ── */
+    .fgrid   { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .fgrid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+    .full    { grid-column: 1 / -1; }
+    @media(max-width:600px){
+      .fgrid, .fgrid-3 { grid-template-columns: 1fr; }
+    }
+
+    .fg {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .fg label {
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--steel); text-transform: uppercase; letter-spacing: 0.6px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .fg label .ctag {
+      font-family: var(--mono); font-size: 0.6rem;
+      background: #f0f9ff; color: var(--accent-dark);
+      padding: 1px 5px; border-radius: 3px; font-weight: 500;
+    }
+    .fg label .req { color: var(--rose); margin-left: 1px; }
+
+    .fg input, .fg select, .fg textarea {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 13px;
+      background: #f8fafc;
+      color: var(--slate);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      width: 100%;
+    }
+    .fg input:focus, .fg select:focus, .fg textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #fff;
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .fg textarea { resize: vertical; min-height: 80px; }
+    .fg .hint { font-size: 0.72rem; color: var(--muted); }
+
+    /* Asset ID generator */
+    .asset-id-wrap { position: relative; }
+    .asset-id-wrap input { padding-right: 110px; font-family: var(--mono); font-size: 0.88rem; font-weight: 600; letter-spacing: 0.5px; }
+    .gen-btn {
+      position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+      background: var(--accent); color: white; border: none;
+      border-radius: 6px; padding: 5px 12px; font-size: 0.72rem;
+      font-weight: 700; cursor: pointer; transition: background 0.18s;
+      font-family: 'Outfit', sans-serif;
+    }
+    .gen-btn:hover { background: var(--accent-dark); }
+
+    /* ── WARRANTY INDICATOR ── */
+    .warranty-bar {
+      height: 6px; border-radius: 6px; background: var(--border);
+      margin-top: 6px; overflow: hidden;
+    }
+    .warranty-fill { height: 100%; border-radius: 6px; width: 0%; transition: width 0.4s, background 0.4s; }
+
+    /* ── SUBMIT BAR ── */
+    .submit-bar {
+      background: var(--card); border-radius: 16px;
+      border: 1px solid var(--border); padding: 20px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; flex-wrap: wrap;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.05);
+      animation: fadeUp 0.5s 0.25s ease both;
+    }
+    .sb-info strong { display: block; font-size: 0.9rem; font-weight: 700; color: var(--slate); margin-bottom: 2px; }
+    .sb-info span   { font-size: 0.78rem; color: var(--muted); }
+    .sb-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, #38bdf8, var(--accent-dark));
+      color: white; border: none; border-radius: 10px;
+      padding: 11px 26px; font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(14,165,233,0.3);
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 7px 22px rgba(14,165,233,0.4); }
+
+    .btn-sec {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: #f1f5f9; color: var(--steel);
+      border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 10px 20px; font-family: 'Outfit', sans-serif;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      transition: background 0.18s;
+    }
+    .btn-sec:hover { background: #e2e8f0; }
+
+    /* ── FLASH ── */
+    .flash {
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;
+      font-size: 0.87rem; display: flex; align-items: center; gap: 9px;
+    }
+    .flash-ok  { background: var(--green-bg); border: 1px solid var(--green-bdr); color: #065f46; }
+    .flash-err { background: #fff1f2; border: 1px solid #fecdd3; color: #be123c; }
+
+    /* ── ASSET TYPE PILLS ── */
+    .type-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .type-pill {
+      padding: 7px 16px; border-radius: 8px; border: 1.5px solid var(--border);
+      background: #f8fafc; font-size: 0.82rem; font-weight: 600;
+      color: var(--steel); cursor: pointer; transition: all 0.18s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .type-pill:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+    .type-pill.selected { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="page-header">
+  <div class="hd-left">
+    <img src="https://chakrahub-stud.s3.eu-north-2.amazonaws.com/img.jpeg" alt="ChakoraHub" class="hd-logo" onerror="this.style.display='none'">
+    <div>
+      <div class="hd-title">Asset Registration</div>
+      <div class="hd-sub">ChakoraHub Assets Module</div>
+    </div>
+  </div>
+  <div class="hd-right">
+    <a href="{{ url_for('asset_tracker') }}" class="hd-link">
+      <i class="fas fa-chart-bar"></i> Asset Tracker
+    </a>
+    <a href="{{ url_for('employee_resources') }}" class="hd-link">
+      <i class="fas fa-arrow-left"></i> Back
+    </a>
+  </div>
+</div>
+
+<div class="main-wrap">
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for cat, msg in messages %}
+      <div class="flash flash-{{ 'ok' if cat=='success' else 'err' }}">
+        <i class="fas fa-{{ 'check-circle' if cat=='success' else 'exclamation-circle' }}"></i>{{ msg }}
+      </div>
+    {% endfor %}{% endif %}
+  {% endwith %}
+
+  <!-- Progress strip -->
+  <div class="progress-strip">
+    <div class="ps-step active" id="s1"><div class="ps-dot">1</div><div class="ps-lbl">Identity</div></div>
+    <div class="ps-line" id="l1"></div>
+    <div class="ps-step" id="s2"><div class="ps-dot">2</div><div class="ps-lbl">Hardware</div></div>
+    <div class="ps-line" id="l2"></div>
+    <div class="ps-step" id="s3"><div class="ps-dot">3</div><div class="ps-lbl">Ownership</div></div>
+    <div class="ps-line" id="l3"></div>
+    <div class="ps-step" id="s4"><div class="ps-dot">4</div><div class="ps-lbl">Status</div></div>
+  </div>
+
+  <form method="POST" action="{{ url_for('register_asset') }}" id="assetForm">
+
+  <!-- ══════════════════════════
+       SECTION 1 — ASSET IDENTITY
+       Tables: assets · asset_types · asset_models · asset_serials
+  ══════════════════════════ -->
+  <div class="sc">
+    <div class="sc-head">
+      <div class="sc-icon i-sky"><i class="fas fa-qrcode"></i></div>
+      <div>
+        <div class="sc-title">Asset Identity</div>
+        <div class="sc-sub">Unique ID, type, model and serial number</div>
+      </div>
+      <span class="sc-tag">assets · asset_types · asset_models · asset_serials</span>
+    </div>
+    <div class="sc-body">
+
+      <!-- Asset ID -->
+      <div class="fg full mb-4">
+        <label>Asset ID <span class="ctag">ASSET_ID</span> <span class="req">*</span></label>
+        <div class="asset-id-wrap">
+          <input type="text" name="ASSET_ID" id="assetIdInput"
+                 value="{{ entered.ASSET_ID if entered else '' }}"
+                 placeholder="e.g. CHK-LAP-2024-001" required>
+          <button type="button" class="gen-btn" onclick="generateId()">
+            <i class="fas fa-magic"></i> Auto
+          </button>
+        </div>
+        <span class="hint">Format: CHK-{TYPE}-{YEAR}-{SEQ} — or click Auto to generate</span>
+      </div>
+
+      <!-- Asset Type pills + hidden select -->
+      <div class="fg full mb-4">
+        <label>Asset Type <span class="ctag">TYPE_ID → asset_types</span> <span class="req">*</span></label>
+        <div class="type-pills" id="typePills">
+          {% for t in asset_types %}
+          <div class="type-pill" data-id="{{ t.ID }}" onclick="selectType(this, '{{ t.ID }}', '{{ t.TYPE_NAME }}')">
+            <i class="fas fa-{{ 'laptop' if 'laptop' in t.TYPE_NAME.lower() else 'desktop' if 'desktop' in t.TYPE_NAME.lower() else 'mobile' if 'mobile' in t.TYPE_NAME.lower() else 'print' if 'print' in t.TYPE_NAME.lower() else 'server' if 'server' in t.TYPE_NAME.lower() else 'keyboard' if 'keyboard' in t.TYPE_NAME.lower() else 'cube' }}"></i>
+            {{ t.TYPE_NAME }}
+          </div>
+          {% endfor %}
+        </div>
+        <select name="TYPE_ID" id="typeSelect" style="display:none;" required>
+          <option value="">— Select Type —</option>
+          {% for t in asset_types %}
+          <option value="{{ t.ID }}">{{ t.TYPE_NAME }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="fgrid">
+        <!-- Model -->
+        <div class="fg">
+          <label>Model <span class="ctag">MODEL_ID → asset_models</span> <span class="req">*</span></label>
+          <select name="MODEL_ID" id="modelSelect" required>
+            <option value="">— Select Model —</option>
+            {% for m in asset_models %}
+            <option value="{{ m.ID }}" data-type="{{ m.TYPE_ID }}">{{ m.MODEL_NAME }}</option>
+            {% endfor %}
+          </select>
+          <span class="hint">Filtered by selected type</span>
+        </div>
+
+        <!-- Serial Number -->
+        <div class="fg">
+          <label>Serial Number <span class="ctag">SERIAL_ID → asset_serials.SERIAL_NO</span></label>
+          <select name="SERIAL_ID">
+            <option value="">— Select or type below —</option>
+            {% for s in asset_serials %}
+            <option value="{{ s.ID }}">{{ s.SERIAL_NO }}</option>
+            {% endfor %}
+          </select>
+          <span class="hint">Or enter a new serial below</span>
+        </div>
+
+        <!-- New Serial (if not in list) -->
+        <div class="fg">
+          <label>New Serial No. <span class="ctag">asset_serials.SERIAL_NO</span></label>
+          <input type="text" name="NEW_SERIAL_NO" placeholder="Enter if not in list above" style="font-family:var(--mono);font-size:0.85rem;">
+          <span class="hint">Will be auto-registered in asset_serials</span>
+        </div>
+
+        <!-- Vendor -->
+        <div class="fg">
+          <label>Vendor <span class="ctag">VENDOR_ID → asset_vendors</span></label>
+          <select name="VENDOR_ID">
+            <option value="">— Select Vendor —</option>
+            {% for v in asset_vendors %}
+            <option value="{{ v.ID }}">{{ v.VENDOR_NAME }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════
+       SECTION 2 — HARDWARE SPECS
+       Table: assets (OS, RAM, SSD)
+  ══════════════════════════ -->
+  <div class="sc">
+    <div class="sc-head">
+      <div class="sc-icon i-violet"><i class="fas fa-microchip"></i></div>
+      <div>
+        <div class="sc-title">Hardware Specifications</div>
+        <div class="sc-sub">OS, RAM, storage — leave blank for non-computing assets</div>
+      </div>
+      <span class="sc-tag">assets</span>
+    </div>
+    <div class="sc-body">
+      <div class="fgrid-3">
+        <div class="fg">
+          <label>Operating System <span class="ctag">OS</span></label>
+          <select name="OS">
+            <option value="">— Select OS —</option>
+            <option value="Windows 11">Windows 11</option>
+            <option value="Windows 10">Windows 10</option>
+            <option value="macOS Sonoma">macOS Sonoma</option>
+            <option value="macOS Ventura">macOS Ventura</option>
+            <option value="Ubuntu 22.04">Ubuntu 22.04</option>
+            <option value="Ubuntu 20.04">Ubuntu 20.04</option>
+            <option value="ChromeOS">ChromeOS</option>
+            <option value="Android">Android</option>
+            <option value="iOS">iOS</option>
+            <option value="N/A">N/A (Non-computing)</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>RAM <span class="ctag">RAM</span></label>
+          <select name="RAM">
+            <option value="">— Select RAM —</option>
+            <option value="4 GB">4 GB</option>
+            <option value="8 GB">8 GB</option>
+            <option value="16 GB">16 GB</option>
+            <option value="32 GB">32 GB</option>
+            <option value="64 GB">64 GB</option>
+            <option value="N/A">N/A</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>SSD / Storage <span class="ctag">SSD</span></label>
+          <select name="SSD">
+            <option value="">— Select Storage —</option>
+            <option value="128 GB SSD">128 GB SSD</option>
+            <option value="256 GB SSD">256 GB SSD</option>
+            <option value="512 GB SSD">512 GB SSD</option>
+            <option value="1 TB SSD">1 TB SSD</option>
+            <option value="256 GB HDD">256 GB HDD</option>
+            <option value="500 GB HDD">500 GB HDD</option>
+            <option value="1 TB HDD">1 TB HDD</option>
+            <option value="N/A">N/A</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════
+       SECTION 3 — OWNERSHIP & FINANCIALS
+       Table: assets (OWNED_BY, PURCHASE_DATE, WARRANTY_EXPIRY, PRICE, LOCATION)
+  ══════════════════════════ -->
+  <div class="sc">
+    <div class="sc-head">
+      <div class="sc-icon i-green"><i class="fas fa-receipt"></i></div>
+      <div>
+        <div class="sc-title">Ownership & Financials</div>
+        <div class="sc-sub">Purchase details, price, warranty and location</div>
+      </div>
+      <span class="sc-tag">assets</span>
+    </div>
+    <div class="sc-body">
+      <div class="fgrid">
+
+        <div class="fg">
+          <label>Assigned To <span class="ctag">OWNED_BY</span></label>
+          <select name="OWNED_BY">
+            <option value="">— Unassigned —</option>
+            <option value="Organization">Organization (Pool Asset)</option>
+            {% for u in users %}
+            <option value="{{ u.USERNAME }}">{{ u.USERNAME }} ({{ u.USERTYPE }})</option>
+            {% endfor %}
+          </select>
+          <span class="hint">Person or department owning this asset</span>
+        </div>
+
+        <div class="fg">
+          <label>Location <span class="ctag">LOCATION</span></label>
+          <input type="text" name="LOCATION"
+                 value="{{ entered.LOCATION if entered else '' }}"
+                 placeholder="e.g. Office Room 3, Hyderabad">
+        </div>
+
+        <div class="fg">
+          <label>Purchase Date <span class="ctag">PURCHASE_DATE</span></label>
+          <input type="date" name="PURCHASE_DATE"
+                 value="{{ entered.PURCHASE_DATE if entered else '' }}"
+                 id="purchaseDateInput" onchange="calcWarranty()">
+        </div>
+
+        <div class="fg">
+          <label>Warranty Expiry <span class="ctag">WARRANTY_EXPIRY</span></label>
+          <input type="date" name="WARRANTY_EXPIRY"
+                 value="{{ entered.WARRANTY_EXPIRY if entered else '' }}"
+                 id="warrantyInput" onchange="calcWarranty()">
+          <div class="warranty-bar"><div class="warranty-fill" id="warrantyFill"></div></div>
+          <span class="hint" id="warrantyHint">Select purchase and warranty dates</span>
+        </div>
+
+        <div class="fg">
+          <label>Purchase Price (₹) <span class="ctag">PRICE</span></label>
+          <input type="number" name="PRICE" min="0" step="0.01"
+                 value="{{ entered.PRICE if entered else '' }}"
+                 placeholder="e.g. 65000.00">
+        </div>
+
+        <div class="fg">
+          <label>Condition <span class="ctag">CONDITION</span> <span class="req">*</span></label>
+          <select name="CONDITION" required>
+            <option value="">— Select —</option>
+            <option value="New">🟢 New</option>
+            <option value="Good">🟡 Good</option>
+            <option value="Fair">🟠 Fair</option>
+            <option value="Poor">🔴 Poor</option>
+            <option value="Under Repair">🔧 Under Repair</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════
+       SECTION 4 — STATUS & NOTES
+       Table: assets (STATUS, NOTES)
+  ══════════════════════════ -->
+  <div class="sc">
+    <div class="sc-head">
+      <div class="sc-icon i-amber"><i class="fas fa-toggle-on"></i></div>
+      <div>
+        <div class="sc-title">Status & Notes</div>
+        <div class="sc-sub">Current status and any additional remarks</div>
+      </div>
+      <span class="sc-tag">assets</span>
+    </div>
+    <div class="sc-body">
+      <div class="fgrid">
+        <div class="fg">
+          <label>Status <span class="ctag">STATUS</span> <span class="req">*</span></label>
+          <select name="STATUS" required>
+            <option value="">— Select Status —</option>
+            <option value="Active">Active — In Use</option>
+            <option value="Available">Available — In Stock</option>
+            <option value="Under Repair">Under Repair</option>
+            <option value="Retired">Retired</option>
+            <option value="Disposed">Disposed</option>
+            <option value="Lost">Lost / Stolen</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Log Action <span class="ctag">asset_audit_log.ACTION</span></label>
+          <select name="INITIAL_ACTION">
+            <option value="REGISTERED">REGISTERED (default)</option>
+            <option value="ASSIGNED">ASSIGNED</option>
+            <option value="RECEIVED">RECEIVED</option>
+          </select>
+        </div>
+        <div class="fg full">
+          <label>Notes / Remarks <span class="ctag">NOTES</span></label>
+          <textarea name="NOTES" placeholder="Any additional details — accessories included, known issues, special instructions…">{{ entered.NOTES if entered else '' }}</textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUBMIT BAR ── -->
+  <div class="submit-bar">
+    <div class="sb-info">
+      <strong>Ready to register?</strong>
+      <span>All required fields (marked *) must be filled. Asset ID, Type, Condition and Status are mandatory.</span>
+    </div>
+    <div class="sb-actions">
+      <button type="button" class="btn-sec" onclick="this.form.reset(); resetPills();">
+        <i class="fas fa-rotate-left"></i> Reset
+      </button>
+      <button type="submit" class="btn-primary">
+        <i class="fas fa-floppy-disk"></i> Register Asset
+      </button>
+    </div>
+  </div>
+
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  /* ── AUTO GENERATE ASSET ID ── */
+  function generateId() {
+    const typeEl = document.getElementById('typeSelect');
+    const typeName = typeEl.options[typeEl.selectedIndex]?.text || 'AST';
+    const prefix = typeName.substring(0,3).toUpperCase();
+    const year = new Date().getFullYear();
+    const seq  = String(Math.floor(Math.random() * 900) + 100);
+    document.getElementById('assetIdInput').value = `CHK-${prefix}-${year}-${seq}`;
+  }
+
+  /* ── TYPE PILLS ── */
+  function selectType(el, id, name) {
+    document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('selected'));
+    el.classList.add('selected');
+    const sel = document.getElementById('typeSelect');
+    sel.value = id;
+    // Filter models
+    const modelSel = document.getElementById('modelSelect');
+    Array.from(modelSel.options).forEach(opt => {
+      if (!opt.value) return;
+      opt.style.display = (opt.dataset.type == id) ? 'block' : 'none';
+    });
+    modelSel.value = '';
+    // Update auto-ID prefix
+    generateId();
+  }
+
+  function resetPills() {
+    document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('selected'));
+    document.getElementById('typeSelect').value = '';
+  }
+
+  /* ── WARRANTY BAR ── */
+  function calcWarranty() {
+    const pd  = document.getElementById('purchaseDateInput').value;
+    const wd  = document.getElementById('warrantyInput').value;
+    const fill = document.getElementById('warrantyFill');
+    const hint = document.getElementById('warrantyHint');
+    if (!pd || !wd) return;
+    const purchase = new Date(pd);
+    const expiry   = new Date(wd);
+    const total    = expiry - purchase;
+    const remaining = expiry - new Date();
+    if (total <= 0) { fill.style.width = '0%'; hint.textContent = 'Invalid dates'; return; }
+    const pct = Math.max(0, Math.min(100, (remaining / total) * 100));
+    fill.style.width = pct + '%';
+    fill.style.background = pct > 50 ? '#059669' : pct > 20 ? '#d97706' : '#e11d48';
+    const days = Math.ceil(remaining / 86400000);
+    hint.textContent = days > 0 ? `${days} days remaining (${pct.toFixed(0)}%)` : 'Warranty expired';
+  }
+
+  /* ── PROGRESS STEPS (scroll-based) ── */
+  window.addEventListener('scroll', () => {
+    const sections = document.querySelectorAll('.sc');
+    sections.forEach((sc, i) => {
+      const rect = sc.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.6) {
+        const step = document.getElementById(`s${i+1}`);
+        const line = document.getElementById(`l${i}`);
+        if (step && i > 0) { step.classList.add('active'); }
+        if (line) line.classList.add('done');
+      }
+    });
+  });
+document.addEventListener("DOMContentLoaded", function () {
+
+  const form = document.getElementById("assetForm");
+
+  if (!form) return;
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault(); // ❗ stop normal submit
+
+    const formData = new FormData(form);
+
+    // 🔄 Optional: disable submit button
+    const submitBtn = form.querySelector("button[type='submit']");
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Submitting...";
+    }
+
+    fetch(form.action, {
+      method: "POST",
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+
+      // 🔁 Enable button back
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Submit";
+      }
+
+      if (data.success) {
+        alert("✅ " + data.message);
+        form.reset();
+      } else {
+        alert("❌ " + data.message);
+      }
+    })
+    .catch(error => {
+      console.error("Error:", error);
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Submit";
+      }
+
+      alert("Server error. Please try again.");
+    });
+  });
+
+});
+
+</script>
+</body>
+</html>

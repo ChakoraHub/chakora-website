@@ -1,209 +1,627 @@
+<!-- Gayathri -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ChakoraHub Resources</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #e3f2fd, #ffffff);
-      color: #222;
+    :root {
+      --primary: #0078D7;
+      --secondary: #6c5ce7;
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-header: linear-gradient(to right, #64b5f6, #9575cd);
     }
-    .header {
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* ==========================================
+       HEADER
+       ========================================== */
+    .modern-header {
+      background: var(--gradient-header);
+      color: white;
+      padding: 20px 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+      width: 100%;
+    }
+
+    .header-content {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 30px;
-      background: linear-gradient(to right, #64b5f6, #9575cd);
-      height: 100px;
-      color: white;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      position: relative;
+      width: 100%;
+      padding: 0 30px;
     }
-    .logo img { height: 80px; }
-    .center-text {
+
+    .logo img {
+      height: 70px;
+      transition: transform 0.3s ease;
+    }
+
+    .logo img:hover {
+      transform: scale(1.05);
+    }
+
+    .festival-text {
       flex: 1;
       text-align: center;
       font-size: 1.3rem;
-      font-weight: bold;
+      font-weight: 700;
+      animation: pulse 2s infinite;
     }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
     .profile-section {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 15px;
     }
-    .reg-id {
+
+    .user-meta {
+      display: flex;
+      align-items: center;
+    }
+
+    .user-badge {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.25);
+      padding: 8px 14px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      min-width: 170px;
+    }
+
+    .user-badge-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #ffffff;
+      font-weight: 600;
       font-size: 0.9rem;
-      font-weight: 500;
-      color: #fffbea;
-      background: rgba(0,0,0,0.2);
-      padding: 4px 10px;
-      border-radius: 8px;
+      line-height: 1.1;
+      white-space: nowrap;
     }
-    .profile-wrapper { position: relative; cursor: pointer; transition: transform 0.3s ease; }
-    .profile-pic { width: 50px; height: 50px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
-    .profile-wrapper:hover { transform: scale(1.05); }
+
+    .user-badge-line.sub {
+      font-size: 0.75rem;
+      opacity: 0.9;
+    }
+
+    .profile-wrapper {
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .profile-wrapper:hover {
+      transform: scale(1.1);
+    }
+
+    .profile-pic {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      border: 3px solid white;
+      object-fit: cover;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
     .dropdown-menu {
       display: none;
       position: absolute;
-      top: 60px;
+      top: 65px;
       right: 0;
-      background-color: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
       z-index: 1000;
-      min-width: 140px;
-    }
-    .dropdown-menu a {
-      display: block;
-      padding: 10px 15px;
-      color: #444;
-      font-weight: 500;
-      text-decoration: none;
-      border-bottom: 1px solid #eee;
-    }
-    .dropdown-menu a:last-child { border-bottom: none; }
-    .dropdown-menu a:hover { background-color: #f0f0f0; }
-    .main-wrapper { display: flex; margin-top: 10px; }
-    .sidebar {
-      width: 230px;
-      background-color: #e8eaf6;
-      padding: 20px;
-      min-height: calc(100vh - 120px);
-      box-shadow: 2px 0 6px rgba(0,0,0,0.05);
-    }
-    .sidebar h3 { color: #3f51b5; margin-bottom: 15px; }
-    .sidebar a {
-      display: block;
-      color: #333;
-      padding: 10px 0;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-    .sidebar a:hover { color: #5e35b1; transform: translateX(8px); }
-    .sidebar-submenu { display: none; padding-left: 10px; }
-    .sidebar-toggle { cursor: pointer; padding: 10px 0; font-weight: 500; color: #333; transition: all 0.3s ease; }
-    .sidebar-toggle:hover { color: #5e35b1; transform: translateX(8px); }
-    .content-area { flex: 1; padding: 10px 20px; background: #fdfdfd; }
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: flex-start;
-    }
-    .subject-box {
-      width: calc(25% - 20px);
-      text-align: center;
-      margin-bottom: 10px;
-      position: relative;
+      min-width: 160px;
+      overflow: hidden;
     }
 
-    /* Wrapper around image */
+    .dropdown-menu a {
+      display: block;
+      padding: 12px 20px;
+      color: #333;
+      font-weight: 500;
+      text-decoration: none;
+      border-bottom: 1px solid #f0f0f0;
+      transition: all 0.3s ease;
+    }
+
+    .dropdown-menu a:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-menu a:hover {
+      background: linear-gradient(to right, #f8f9fa, #e9ecef);
+      color: var(--primary);
+      padding-left: 25px;
+    }
+
+    /* ==========================================
+       LAYOUT
+       ========================================== */
+    .main-wrapper {
+      display: flex;
+      width: 100%;
+      gap: 20px;
+      flex: 1;
+      padding: 20px;
+    }
+
+    /* ==========================================
+       SIDEBAR
+       ========================================== */
+    .modern-sidebar {
+      width: 260px;
+      min-width: 260px;
+      flex-shrink: 0;
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      height: fit-content;
+      position: sticky;
+      top: 120px;
+    }
+
+    .modern-sidebar h3 {
+      color: var(--primary);
+      margin-bottom: 20px;
+      font-weight: 700;
+      font-size: 1.3rem;
+      padding-bottom: 15px;
+      border-bottom: 3px solid var(--primary);
+    }
+
+    .modern-sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #333;
+      padding: 12px 15px;
+      text-decoration: none;
+      font-weight: 500;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      margin-bottom: 5px;
+    }
+
+    .modern-sidebar a:hover {
+      background: linear-gradient(135deg, #667eea20, #764ba220);
+      color: var(--primary);
+      transform: translateX(8px);
+    }
+
+    .sidebar-toggle {
+      cursor: pointer;
+      padding: 12px 15px;
+      font-weight: 500;
+      color: #333;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-toggle:hover {
+      background: linear-gradient(135deg, #667eea20, #764ba220);
+      color: var(--primary);
+      transform: translateX(8px);
+    }
+
+    .sidebar-submenu {
+      display: none;
+      padding-left: 25px;
+      margin-top: 5px;
+    }
+
+    .sidebar-submenu a {
+      font-size: 0.9rem;
+      padding: 8px 12px;
+    }
+
+    .new-badge {
+      position: absolute;
+      top: -6px;
+      right: -10px;
+      background: linear-gradient(135deg, #ff416c, #ff4b2b);
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(255, 65, 108, 0.4);
+      animation: bounce 1s infinite;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-3px);
+      }
+    }
+
+    /* ==========================================
+       CONTENT AREA
+       ========================================== */
+    .content-area {
+      flex: 1;
+      min-width: 0;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .content-area h1 {
+      color: #1f2a44;
+      font-weight: 800;
+      margin-bottom: 22px;
+      font-size: 2rem;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section-subtitle {
+      color: #58657d;
+      font-size: 0.95rem;
+      margin-bottom: 18px;
+    }
+
+    .registration-banner {
+      background: linear-gradient(135deg, #fff7ed, #ffedd5);
+      border: 1px solid #fdba74;
+      color: #9a3412;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .registration-banner a {
+      text-decoration: none;
+      font-weight: 700;
+      color: #1d4ed8;
+    }
+
+    .registration-banner a:hover {
+      text-decoration: underline;
+    }
+
+    .navigation-section {
+      margin-top: 24px;
+      border-top: 2px dashed #d7dfef;
+      padding-top: 20px;
+    }
+
+    /* ==========================================
+       SUBJECT GRID
+       ========================================== */
+    .subjects-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 25px;
+      width: 100%;
+      justify-items: center;
+    }
+
+    .subject-card {
+      text-align: center;
+      position: relative;
+      transition: transform 0.3s ease;
+      width: 100%;
+      max-width: 220px;
+    }
+
+    .subject-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .subject-card.active .image-wrapper {
+      box-shadow: 0 8px 28px rgba(102, 126, 234, 0.35);
+      border: 2px solid #667eea;
+    }
+
+    .subject-card.active .subject-title {
+      color: #0078D7;
+    }
+
     .image-wrapper {
       position: relative;
       display: inline-block;
       width: 100%;
-      max-width: 180px;
+      max-width: 200px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
     }
+
+    .image-wrapper:hover {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
+
     .image-wrapper img {
       width: 100%;
       height: auto;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease;
-      cursor: pointer;
       display: block;
+      cursor: pointer;
+      transition: transform 0.3s ease;
     }
-    .image-wrapper:hover img { transform: scale(1.05); }
 
-    /* Diagonal Offer Ribbon */
-    .offer-badge {
+    .image-wrapper:hover img {
+      transform: scale(1.1);
+    }
+
+    .offer-ribbon {
       position: absolute;
-      top: 8%;
-      right: -25%;
-      background: crimson;
+      top: 10px;
+      right: -35px;
+      background: linear-gradient(135deg, #ff416c, #ff4b2b);
       color: white;
-      font-size: 0.7em;
+      font-size: 0.7rem;
       font-weight: bold;
-      padding: 0.3em 2em;
+      padding: 5px 40px;
       transform: rotate(45deg);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      z-index: 2;
-      text-align: center;
+      box-shadow: 0 4px 12px rgba(255, 65, 108, 0.5);
+      z-index: 10;
       white-space: nowrap;
     }
 
     .subject-title {
-      margin-top: 8px;
-      font-weight: bold;
-      color: #5e35b1;
-      font-size: 15px;
+      margin-top: 12px;
+      font-weight: 700;
+      color: var(--secondary);
+      font-size: 1rem;
       cursor: pointer;
-    }
-    .submenu {
-      display: none;
-      margin-top: 10px;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .submenu-tile {
-      background-color: #d1c4e9;
-      border-radius: 10px;
-      text-align: center;
-      padding: 10px;
-      min-width: 90px;
-      text-decoration: none;
-      color: #4a148c;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-    .submenu-tile:hover {
-      background-color: #b39ddb;
-      color: #311b92;
-      transform: scale(1.05);
-    }
-    .tile-icon { font-size: 18px; }
-    .tile-label { font-size: 13px; }
-    .lang-submenu {
-      display: none;
-      flex-direction: column;
-      margin-top: 8px;
-      background-color: #ede7f6;
-      padding: 6px;
-      border-radius: 8px;
-    }
-    .lang-submenu a {
-      background: #d1c4e9;
-      color: #311b92;
-      padding: 5px 10px;
-      border-radius: 6px;
-      margin: 4px 0;
-      text-decoration: none;
-      font-size: 13px;
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-    .lang-submenu a:hover {
-      background-color: #b39ddb;
-      color: #000;
-      transform: scale(1.02);
-    }
-    footer {
-      text-align: center;
-      padding: 20px;
-      background: linear-gradient(to right, #9575cd, #7986cb);
-      color: #fff;
-      font-size: 13px;
-      margin-top: 20px;
+      transition: color 0.3s ease;
     }
 
-    /* Modal for Logout */
+    .subject-title:hover {
+      color: var(--primary);
+    }
+
+    /* ==========================================
+       TAB PANEL
+       ========================================== */
+    .tab-resource-panel {
+      display: none;
+      margin-top: 0;
+      border: 1px solid #dbe5f8;
+      border-radius: 14px;
+      padding: 20px;
+      background: linear-gradient(135deg, #f4f8ff 0%, #ffffff 100%);
+      width: 100%;
+      min-height: 280px;
+      box-shadow: 0 8px 28px rgba(54, 83, 148, 0.08);
+    }
+
+    .tab-resource-panel.show {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tab-resource-title {
+      font-weight: 700;
+      color: #2f3b52;
+      margin-bottom: 14px;
+      font-size: 1.1rem;
+    }
+
+    .resource-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #e9edf7;
+      padding-bottom: 10px;
+    }
+
+    .resource-tab {
+      border: none;
+      background: #eef2ff;
+      color: #38435a;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .resource-tab.active,
+    .resource-tab:hover {
+      background: var(--gradient-primary);
+      color: #fff;
+      box-shadow: 0 5px 16px rgba(102, 126, 234, 0.28);
+    }
+
+    .tab-pane-panel {
+      display: none;
+      width: 100%;
+    }
+
+    .tab-pane-panel.active {
+      display: block;
+    }
+
+    /* PPT — plain download hyperlinks, no animation */
+    .ppt-links-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .ppt-download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: underline;
+      color: #0a4fb5;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 2px 0;
+      border-radius: 4px;
+      transition: color 0.2s ease;
+    }
+
+    .ppt-download-link:hover {
+      color: #083a82;
+      text-decoration-thickness: 2px;
+    }
+
+    .ppt-download-link i {
+      color: #e04b2a;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    /* VIDEO links — UNCHANGED */
+    .video-links-list {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 16px;
+      align-items: center;
+      width: 100%;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .video-links-list::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .video-links-list::-webkit-scrollbar-thumb {
+      background: #c6d3ee;
+      border-radius: 999px;
+    }
+
+    .video-inline-link {
+      text-decoration: underline;
+      color: #0a4fb5;
+      font-weight: 700;
+      white-space: nowrap;
+      padding: 2px 0;
+      border-radius: 4px;
+      transition: color 0.2s ease;
+    }
+
+    .video-inline-link:hover {
+      color: #083a82;
+      text-decoration-thickness: 2px;
+    }
+
+    /* CODE & INTERVIEW links — same style as video */
+    .doc-links-list {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 16px;
+      align-items: center;
+      width: 100%;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .doc-links-list::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .doc-links-list::-webkit-scrollbar-thumb {
+      background: #c6d3ee;
+      border-radius: 999px;
+    }
+
+    .doc-inline-link {
+      text-decoration: underline;
+      color: #0a4fb5;
+      font-weight: 700;
+      white-space: nowrap;
+      padding: 2px 0;
+      border-radius: 4px;
+      transition: color 0.2s ease;
+    }
+
+    .doc-inline-link:hover {
+      color: #083a82;
+      text-decoration-thickness: 2px;
+    }
+
+    .resource-placeholder {
+      width: 100%;
+      color: #627086;
+      background: #ffffff;
+      border: 1px dashed #cfd8ea;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-weight: 500;
+    }
+
+    /* ==========================================
+       MODAL
+       ========================================== */
     .modal {
       display: none;
       position: fixed;
@@ -212,361 +630,682 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.6);
       justify-content: center;
       align-items: center;
+      backdrop-filter: blur(5px);
     }
+
     .modal-content {
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
+      background: white;
+      padding: 35px;
+      border-radius: 16px;
       text-align: center;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-      width: 320px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      width: 350px;
+      animation: slideIn 0.3s ease;
     }
-    .modal-content h3 { margin-bottom: 20px; color: #3949ab; }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-content h3 {
+      margin-bottom: 25px;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
     .modal-actions button {
       margin: 8px;
-      padding: 8px 20px;
+      padding: 12px 30px;
       border: none;
-      border-radius: 8px;
-      font-weight: bold;
+      border-radius: 10px;
+      font-weight: 600;
       cursor: pointer;
+      transition: all 0.3s ease;
     }
-    .confirm-btn { background: #3949ab; color: white; }
-    .cancel-btn { background: #f0f0f0; color: #333; }
-    .confirm-btn:hover { background: #303f9f; }
-    .cancel-btn:hover { background: #ddd; }
 
-    /* Flash messages styling */
-    .flashes {
-      list-style-type: none;
-      padding: 10px 20px;
-      margin: 0;
-      background: #ffebee;
-      border-bottom: 1px solid #f44336;
-      color: #c62828;
+    .confirm-btn {
+      background: var(--gradient-primary);
+      color: white;
     }
-    .flashes li {
-      padding: 5px 0;
+
+    .confirm-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .cancel-btn {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .cancel-btn:hover {
+      background: #e0e0e0;
+    }
+
+    /* ==========================================
+       FOOTER
+       ========================================== */
+    .modern-footer {
+      background: var(--gradient-header);
+      color: white;
+      text-align: center;
+      padding: 25px;
+      margin-top: auto;
+      font-size: 0.95rem;
+    }
+
+    /* ==========================================
+       FLASH
+       ========================================== */
+    .alert-custom {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+      color: white;
+      padding: 15px 25px;
+      margin: 0;
+      border-radius: 0;
+      border: none;
+      box-shadow: 0 4px 12px rgba(238, 90, 111, 0.3);
+    }
+
+    /* ==========================================
+       RESPONSIVE
+       ========================================== */
+    @media (min-width: 1200px) {
+      .subjects-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (min-width: 992px) and (max-width: 1199px) {
+      .subjects-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 991px) {
+      .main-wrapper {
+        flex-direction: column;
+        padding: 15px;
+      }
+
+      .modern-sidebar {
+        width: 100%;
+        position: static;
+      }
+
+      .subjects-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .resource-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 767px) {
+      .header-content {
+        padding: 0 15px;
+      }
+
+      .festival-text {
+        font-size: 1rem;
+      }
+
+      .content-area {
+        padding: 20px 15px;
+      }
+
+      .content-area h1 {
+        font-size: 1.5rem;
+      }
+
+      .user-badge {
+        min-width: 150px;
+        padding: 7px 12px;
+      }
+
+      .user-badge-line {
+        font-size: 0.82rem;
+      }
+
+      .user-badge-line.sub {
+        font-size: 0.72rem;
+      }
+
+      .profile-pic {
+        width: 45px;
+        height: 45px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-wrapper {
+        padding: 10px;
+      }
+
+      .modern-sidebar {
+        padding: 20px 15px;
+      }
+
+      .subjects-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+
+      .content-area {
+        padding: 15px 10px;
+      }
     }
   </style>
 </head>
-<body>
-  <!-- Flash Messages -->
+
+<body data-reg-required="{% if registration_required %}true{% else %}false{% endif %}">
+
   {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <ul class="flashes">
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+  {% if messages %}
+  <div class="alert alert-custom alert-dismissible fade show m-0" role="alert">
+    {% for message in messages %}{{ message }}{% endfor %}
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+  </div>
+  {% endif %}
   {% endwith %}
 
-<div class="header">
-  <div class="logo">
-    <a href="/"><img src="{{ url_for('static', filename='logo.png') }}" alt="Logo"></a>
+  <!-- HEADER -->
+  <header class="modern-header">
+    <div class="header-content">
+      <div class="logo">
+        <a href="/"><img src="https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/logo.jpeg"
+            alt="ChakoraHub Logo"></a>
+      </div>
+      <div class="festival-text">
+        {% if festival_today %}🎉 Happy {{ festival_today }}! 🎉{% endif %}
+      </div>
+      <div class="profile-section">
+        <div class="user-meta">
+          <div class="user-badge" title="{{ username }}">
+            <div class="user-badge-line">
+              <i class="fas fa-user"></i> {{ username }}
+            </div>
+            <div class="user-badge-line sub">
+              <i class="fas fa-id-badge"></i> #{{ reg_id }}
+            </div>
+          </div>
+        </div>
+        <div class="profile-wrapper" onclick="toggleDropdown()">
+          <img class="profile-pic"
+            src="{{ profile_pic if profile_pic else url_for('static', filename='profile_photo/defaultpicture.jpg') }}"
+            alt="Profile">
+          <div class="dropdown-menu" id="dropdownMenu">
+            <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+            <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+            <a href="#" onclick="openModal('logout')"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <div class="main-wrapper">
+
+    <!-- SIDEBAR -->
+    <aside class="modern-sidebar">
+      <h3>📚 Resources</h3>
+
+      <a href="{{ url_for('syllabus_page') }}"><i class="fas fa-book"></i> Syllabus</a>
+      <a href="{{ url_for('meeting_home') }}"><i class="fas fa-clock"></i> Meeting hours</a>
+
+
+      <div style="position: relative;">
+        <a href="{{ url_for('blogger') }}"><i class="fas fa-pen"></i> Blogger</a>
+
+      </div>
+
+      <a href="{{ url_for('nrm_enquiries') }}"><i class="fas fa-envelope"></i> Enquiry</a>
+      <a href="{{ url_for('demo_videos') }}"><i class="fas fa-video"></i> Demo Videos</a>
+
+      <div style="position: relative;">
+        <a href="{{ url_for('shop') }}" style="color: #6c5ce7; font-weight: 600;">
+          <i class="fas fa-shopping-bag"></i> Shopping Cart
+        </a>
+
+      </div>
+
+      <a id="practice-toggle" href="{{ url_for('login') }}" class="sidebar-toggle" style="text-decoration: none;">
+        <i class="fas fa-pen-square"></i> Practice Tests
+        <span
+          style="margin-left: auto; background: linear-gradient(135deg, #ff416c, #ff4b2b); color: white; font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 12px;">NEW</span>
+      </a>
+
+      <a href="{{ url_for('feedback_form') }}"><i class="fas fa-comments"></i> Feedback</a>
+      <a href="{{ url_for('calendar_page') }}"><i class="fas fa-calendar"></i> Calendar</a>
+
+      <!-- Resources Register link -->
+      <a href="{{ url_for('register') }}"><i class="fas fa-user-plus"></i> Resources Register</a>
+
+      {% if usertype and usertype|lower in ['admin', 'administrator'] %}
+      <a href="{{ url_for('upload_page') }}"><i class="fas fa-upload"></i> Admin Upload</a>
+      <a href="{{ url_for('admin_blogger') }}"><i class="fas fa-pen-nib"></i> Admin Blogger</a>
+      <a href="{{ url_for('admin_dashboard_page') }}"><i class="fas fa-tachometer-alt"></i> Admin Dashboard</a>
+
+      <a href="{{ url_for('asset_tracker') }}"><i class="fas fa-chart-line"></i> Asset Tracker</a>
+      <a href="{{ url_for('billing') }}"><i class="fas fa-credit-card"></i> Billing</a>
+      <a href="{{ url_for('batch_schedule') }}"><i class="fas fa-calendar-plus"></i> Manage Batches</a>
+      <a href="{{ url_for('admin_report') }}"><i class="fas fa-chart-bar"></i> Resources report</a>
+      <a href="{{ url_for('generate_student_report') }}"><i class="fas fa-file-alt"></i> Student report</a>
+      <a href="{{ url_for('offers_page') }}"><i class="fas fa-gift"></i> Offers</a>
+      <a href="{{ url_for('employee_report') }}"><i class="fas fa-users"></i> Employee Report</a>
+      <a href="{{ url_for('admin_internship_page') }}"><i class="fas fa-user-graduate"></i> Admin Internship</a>
+      <a href="/admin/active-users"><i class="fas fa-signal"></i> Active Users Monitor</a>
+      {% endif %}
+    </aside>
+
+    <!-- CONTENT -->
+    <main class="content-area">
+      <h1>Learning Resources Dashboard</h1>
+
+      {% if registration_required %}
+      <div class="registration-banner">
+        <span>Complete ChakoraHub registration to unlock Code, PPT, Videos, and Interview resources.</span>
+        <a href="{{ url_for('register') }}">Complete Registration</a>
+      </div>
+      {% endif %}
+
+      <!-- SUBJECT CARDS — static list matching old code -->
+      <div class="subjects-grid">
+
+        {% set subjects = [
+        ('Informatica', 'sub1', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/informatica.webp'),
+        ('Unix', 'sub2', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/unix.webp'),
+        ('Oracle', 'sub3', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/Oracle.webp'),
+        ('IICS', 'sub4', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/iics.webp'),
+        ('Python for web development', 'sub5',
+        'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/python.webp'),
+        ('Informatica MDM', 'sub6', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/Informatica-MDM.webp'),
+        ('Informatica BDM', 'sub7', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/informaticaBDM.webp'),
+        ('Python for automation', 'sub8',
+        'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/python+with+automation.webp'),
+        ('Snowflake', 'sub9', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/snowflake.webp'),
+        ('Cybersecurity', 'sub10', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/cybersecurity.webp'),
+        ('System design', 'sub11', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/system%2Bdesign.webp'),
+        ('Microsoft Excel', 'sub12', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/Excel.webp'),
+        ('DevOps', 'sub13', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/devops.webp'),
+        ('Java', 'sub14', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/java.webp'),
+        ('AI & ML', 'sub15', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/AI%26ML.webp'),
+        ('Data science', 'sub16', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/data+science.webp'),
+        ('Blockchain', 'sub17', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/blockchain.webp'),
+        ('Bootstrap', 'sub18', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/Bootstrap.webp'),
+        ('Langchain', 'sub19', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/LangChain.webp'),
+        ('Deep Learning', 'sub20', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/DeepLearning.webp'),
+        ('RAG Workshop Series', 'sub21', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/rag.webp'),
+        ('ASP.NET', 'sub22', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/ASPnet.webp'),
+        ('R Programming', 'sub23', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/Rprogramming.webp'),
+        ('C#', 'sub24', 'https://www.chakorahub.com/lolgos%20and%20other/Webp_Images/C+Programing.webp')
+        ] %}
+
+        {% for subject, sub_id, s3_url in subjects %}
+        {% set loop_index = loop.index %}
+        <div class="subject-card" id="{{ sub_id }}">
+          <div class="image-wrapper">
+            <img src="{{ s3_url }}" loading="{{ 'eager' if loop_index <= 6 else 'lazy' }}"
+              fetchpriority="{{ 'high' if loop_index <= 3 else 'auto' }}" decoding="async" alt="{{ subject }}"
+              data-subject="{{ subject | e }}" onerror="handleImageError(this, this.dataset.subject)"
+              onclick="selectSubject(this.dataset.subject, this.closest('.subject-card'))">
+            {% if offer and offer.discount_percentage %}
+            <div class="offer-ribbon">{{ offer.discount_percentage }}% OFF</div>
+            {% endif %}
+          </div>
+          <div class="subject-title" data-subject="{{ subject | e }}"
+            onclick="selectSubject(this.dataset.subject, this.closest('.subject-card'))">
+            {{ subject }}
+          </div>
+        </div>
+        {% endfor %}
+
+      </div>
+      <!-- /.subjects-grid -->
+
+      <!-- RESOURCE TAB PANEL -->
+      <section class="navigation-section">
+        <p class="section-subtitle">Select a technology above to load its resources.</p>
+
+        <div id="tabResourcePanel" class="tab-resource-panel">
+          <div class="tab-resource-title">
+            Resources for <span id="selectedSubjectLabel">—</span>
+          </div>
+
+          <div class="resource-tabs">
+            <button class="resource-tab active" data-tab="pptTabPane" type="button">
+              <i class="fas fa-file-powerpoint"></i> PPTs
+            </button>
+            <button class="resource-tab" data-tab="videosTabPane" type="button">
+              <i class="fas fa-play-circle"></i> Videos
+            </button>
+            <button class="resource-tab" data-tab="codeTabPane" type="button">
+              <i class="fas fa-code"></i> Code
+            </button>
+            <button class="resource-tab" data-tab="interviewTabPane" type="button">
+              <i class="fas fa-user-tie"></i> Interview Qs
+            </button>
+          </div>
+
+          <!-- PPT tab — plain download hyperlinks -->
+          <div id="pptTabPane" class="tab-pane-panel active">
+            <div id="pptFilesList" class="ppt-links-list">
+              <div class="resource-placeholder">Select a subject to load PPTs.</div>
+            </div>
+          </div>
+
+          <!-- Videos tab — UNCHANGED -->
+          <div id="videosTabPane" class="tab-pane-panel">
+            <div id="videoLinksContainer" class="video-links-list">
+              <div class="resource-placeholder">Select a technology to load videos.</div>
+            </div>
+          </div>
+
+          <!-- Code tab — same style as video links -->
+          <div id="codeTabPane" class="tab-pane-panel">
+            <div id="codeFilesList" class="doc-links-list">
+              <div class="resource-placeholder">Select a subject to load code resources.</div>
+            </div>
+          </div>
+
+          <!-- Interview tab — same style as video links -->
+          <div id="interviewTabPane" class="tab-pane-panel">
+            <div id="interviewFilesList" class="doc-links-list">
+              <div class="resource-placeholder">Select a subject to load interview questions.</div>
+            </div>
+          </div>
+
+        </div><!-- /#tabResourcePanel -->
+      </section>
+
+    </main>
   </div>
-  <div class="center-text">
-    {% if festival_today %}
-      🎉 Happy {{ festival_today }}! 🎉
-    {% endif %}
-  </div>
-  <div class="profile-section">
-    <div class="reg-id">ID: {{ reg_id }}</div>
-    <div class="profile-wrapper" onclick="toggleDropdown()">
-      <img class="profile-pic" src="{{ url_for('static', filename=(profile_pic if profile_pic else 'profile_photo/defaultpicture.jpg')) }}" alt="Profile" />
-      <div class="dropdown-menu" id="dropdownMenu">
-        <a href="/profile">Profile</a>
-        <a href="/settings">Settings</a>
-        <a href="#" onclick="openModal('logout')">Logout</a>
+
+  <!-- FOOTER -->
+  <footer class="modern-footer">
+    © 2025 ChakoraHub. All rights reserved.
+  </footer>
+
+  <!-- LOGOUT MODAL -->
+  <div id="confirmationModal" class="modal">
+    <div class="modal-content">
+      <h3 id="modalMessage">Are you sure you want to log out?</h3>
+      <div class="modal-actions">
+        <button class="confirm-btn" id="confirmBtn">Yes, Logout</button>
+        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
       </div>
     </div>
   </div>
-</div>
 
-<div class="main-wrapper">
-  <div class="sidebar">
-    <h3>Resources</h3>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <a href="{{ url_for('syllabus_page') }}">📚 Courses Syllabus</a>
+  <script>
+    // ── URLs pre-rendered by Jinja — available globally before any img onerror fires ──
+    var REGISTER_URL = "{{ url_for('register') }}";
+    var LOGOUT_URL = "{{ url_for('logout') }}";
+    var FALLBACK_IMG = "{{ url_for('static', filename='fallback-course.png') }}";
 
-    <div style="position: relative; display: flex; align-items: center; justify-content: space-between; padding: 10px 0;">
-      <a href="{{ url_for('meeting_home') }}" style="font-weight: 500; color: #333; text-decoration: none;">
-        ⏰ Meeting hours
-      </a>
-    </div>
-
-    <div style="position: relative; display: inline-block; margin-bottom: 10px;">
-      <a href="{{ url_for('blogger_page') }}" style="display: inline-block; font-weight: 500; color: #333; text-decoration: none;">
-        ✍ Blogger
-      </a>
-      <span style="
-        position: absolute;
-        top: -6px;
-        right: -18px;
-        background: crimson;
-        color: white;
-        font-size: 10px;
-        font-weight: bold;
-        padding: 2px 6px;
-        border-radius: 12px;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-      ">
-        NEW
-      </span>
-    </div>
-
-    <a href="{{ url_for('submit_nrm_enquiries') }}">📩 Enquiry</a>
-    <a href="{{ url_for('demo_videos') }}">🎬 Demo Videos</a>
-    <div id="practice-toggle" class="sidebar-toggle">🖍 Practice Tests</div>
-    <div id="practice-submenu" class="sidebar-submenu">
-      {% for s in ['Informatica', 'Informatica MDM', 'Unix', 'Oracle', 'IICS', 'Python for web development', 'Informatica BDM', 'Python for automation'] %}
-        <a href="{{ url_for('practice_test', subject=s) }}">{{ s }}</a>
-      {% endfor %}
-    </div>
-    <a href="{{ url_for('feedback_form') }}">💬 Feedback</a>
-    <a href="{{ url_for('calendar_page') }}">📅 Calendar</a>
-
-    {% if usertype == 'admin' %}
-      <a href="{{ url_for('upload_page') }}">📄 Admin Upload Portal</a>
-      <a href="{{ url_for('add_course') }}">➕Add Course</a>
-      <a href="{{ url_for('admin_dashboard_page') }}">📄Admin Dashboard </a>
-      <a href="{{ url_for('billing') }}">💳 Billing</a>
-      <a href="{{ url_for('admin_register') }}">📝 Register Students</a>
-      <a href="{{ url_for('admin_report') }}">📊 Generate resources report</a>
-      <a href="{{ url_for('generate_student_report') }}">📊 Generate student report</a>
-      <a href="{{ url_for('generate_certificate') }}">🎓 Generate Certificate</a>
-      <a href="{{ url_for('offers_page') }}">🎁 Offers</a>
-      <a href="{{ url_for('project_dashboard') }}">📊 Project Dashboard</a>
-
-      <a href="{{ url_for('employee_report') }}">📋 Employee Report</a>
-    {% endif %}
-  </div>
-
-  <div class="content-area">
-    <h1>Welcome {{ username }}</h1>
-
-    <div class="container">
-      {% set subjects = [
-        ('Informatica', 'sub1', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/informatica.png'),
-        ('Unix', 'sub2', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/unix.png'),
-        ('Oracle', 'sub3', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/Oracle.png'),
-        ('IICS', 'sub4', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/iics.png'),
-        ('Python for web development', 'sub5', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/python.png'),
-        ('Informatica MDM', 'sub6', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/Informatica-MDM.png'),
-        ('Informatica BDM', 'sub7', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/informaticaBDM.png'),
-        ('Python for automation', 'sub8', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/python+with+automation.png'),
-        ('Snowflake', 'sub9', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/snowflake.png'),
-        ('Cybersecurity', 'sub10', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/cybersecurity.png'),
-        ('System design', 'sub11', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/system+design.jpeg'),
-        ('Microsoft Excel', 'sub12', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/Excel.png'),
-        ('DevOps', 'sub13', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/devops.jpeg'),
-        ('Java', 'sub14', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/java.png'),
-        ('AI & ML', 'sub15', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/AI%26ML.png'),
-        ('Data science', 'sub16', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/data+science.jpeg'),
-        ('Blockchain', 'sub17', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/blockchain.png'),
-        ('AWS Cloud Computing','sub18', 'https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/AWS.jpeg'),
-        ('PowerBI','sub19','https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/Power+BI.jpeg'),
-        ('Photo Shop','sub20','https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/PS.jpeg'),
-        ('DSA (Data structures & algorithms)','sub21','https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/DSA.jpeg'),
-        ('Video Editing','sub22','https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/Video+Editing.jpeg'),
-        ('HTML & CSS','sub23','https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/Html%26Css.jpeg'),
-        ('2D & 3D Animation','sub24','https://chakorahub-student.s3.eu-north-1.amazonaws.com/lolgos+and+other/2D+Vs+3D.jpeg')
-      ] %}
-
-      {% for subject, sub_id, s3_url in subjects %}
-        {% set offer = offers.get(subject) if offers else None %}
-        <div class="subject-box">
-          <div class="image-wrapper">
-            <img src="{{ s3_url }}" alt="{{ subject }}" onerror="handleImageError(this, '{{ subject }}')" onclick="toggleSubmenu('{{ sub_id }}')">
-            {% if offer and offer.discount_percentage %}
-              <div class="offer-badge">{{ offer.discount_percentage }}% OFF</div>
-            {% endif %}
-          </div>
-          <div class="subject-title" onclick="toggleSubmenu('{{ sub_id }}')">{{ subject }}</div>
-
-          <div class="submenu" id="{{ sub_id }}">
-            <!-- PPT – Model-2: background AJAX + redirect -->
-            <a class="submenu-tile"
-               href="{{ url_for('view_category_files', tech=subject, file_type='ppt') }}"
-               onclick="loadResourcesAjax('{{ subject }}','ppt', this.href)">
-              <div class="tile-icon">📄</div>
-              <div class="tile-label">PPTs</div>
-            </a>
-
-            <!-- Code – Model-2 -->
-            <a class="submenu-tile"
-               href="{{ url_for('view_category_files', tech=subject, file_type='code') }}"
-               onclick="loadResourcesAjax('{{ subject }}','code', this.href)">
-              <div class="tile-icon">💻</div>
-              <div class="tile-label">Code</div>
-            </a>
-
-            <!-- Videos (still Flask route) -->
-            <div class="submenu-tile" onclick="event.stopPropagation(); toggleLanguageMenu('{{ sub_id }}-lang')">
-              <div class="tile-icon">🎥</div>
-              <div class="tile-label">Videos ▾</div>
-              <div class="lang-submenu" id="{{ sub_id }}-lang">
-                <a href="{{ url_for('video_sessions', tech=subject, lang='telugu') }}"
-                   onclick="return loadVideoAjax('{{ subject }}', 'telugu', this.href)">Telugu</a>
-                <a href="{{ url_for('video_sessions', tech=subject, lang='english') }}"
-                   onclick="return loadVideoAjax('{{ subject }}', 'english', this.href)">English</a>
-                <a href="{{ url_for('video_sessions', tech=subject, lang='hindi') }}"
-                   onclick="return loadVideoAjax('{{ subject }}', 'hindi', this.href)">Hindi</a>
-              </div>
-            </div>
-
-            <!-- Interview – Model-2 -->
-            <a class="submenu-tile"
-               href="{{ url_for('view_category_files', tech=subject, file_type='interview') }}"
-               onclick="loadResourcesAjax('{{ subject }}','interview', this.href)">
-              <div class="tile-icon">❓</div>
-              <div class="tile-label">Interview</div>
-            </a>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-
-  </div>
-</div>
-
-<footer>© 2025 ChakoraHub. All rights reserved.</footer>
-
-<!-- Logout Modal -->
-<div id="confirmationModal" class="modal">
-  <div class="modal-content">
-    <h3 id="modalMessage">Are you sure you want to log out?</h3>
-    <div class="modal-actions">
-      <button class="confirm-btn" id="confirmBtn">Yes</button>
-      <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<script>
-  function toggleDropdown() {
-    const d = document.getElementById('dropdownMenu');
-    d.style.display = d.style.display === 'block' ? 'none' : 'block';
-  }
-  function toggleSubmenu(id) {
-    const allSubmenus = document.querySelectorAll('.submenu');
-    allSubmenus.forEach(sm => { if (sm.id !== id) sm.style.display = 'none'; });
-    const target = document.getElementById(id);
-    target.style.display = (target.style.display === 'flex') ? 'none' : 'flex';
-  }
-  function toggleLanguageMenu(id) {
-    const clickedMenu = document.getElementById(id);
-    clickedMenu.style.display = (clickedMenu.style.display === 'flex') ? 'none' : 'flex';
-  }
-  
-  // Handle image loading errors
-  function handleImageError(img, subject) {
-    console.error(`Failed to load image for ${subject}: ${img.src}`);
-    // Set a fallback image
-    img.src = '{{ url_for("static", filename="fallback-course.png") }}';
-    // Remove the onerror handler to prevent infinite loop
-    img.onerror = null;
-  }
-  
-  document.addEventListener('click', function(e) {
-    if (!document.querySelector('.profile-wrapper').contains(e.target))
-      document.getElementById('dropdownMenu').style.display = 'none';
-    if (!e.target.closest('.subject-box') && !e.target.closest('.submenu') && !e.target.closest('.lang-submenu')) {
-      document.querySelectorAll('.submenu').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.lang-submenu').forEach(el => el.style.display = 'none');
+    // ── handleImageError defined immediately so onerror on any <img> can call it ──
+    function handleImageError(img, subject) {
+      console.error('Failed to load image for ' + (subject || '') + ': ' + img.src);
+      img.src = FALLBACK_IMG;
+      img.onerror = null;
     }
-  });
-  document.addEventListener('DOMContentLoaded', function () {
-    const pt = document.getElementById("practice-toggle");
-    const ps = document.getElementById("practice-submenu");
-    if (pt && ps) {
-      ps.style.display = "none";
-      pt.addEventListener("click", function () {
-        ps.style.display = ps.style.display === "block" ? "none" : "block";
-      });
+
+    // ── Dropdown ──
+    function toggleDropdown() {
+      var d = document.getElementById('dropdownMenu');
+      d.style.display = d.style.display === 'block' ? 'none' : 'block';
     }
-  });
+    document.addEventListener('click', function (e) {
+      if (!document.querySelector('.profile-wrapper').contains(e.target))
+        document.getElementById('dropdownMenu').style.display = 'none';
+    });
 
-  // Logout Modal Logic
-  let actionType = null;
-  function openModal(type) {
-    actionType = type;
-    const modal = document.getElementById('confirmationModal');
-    modal.style.display = 'flex';
-  }
-  function closeModal() {
-    document.getElementById('confirmationModal').style.display = 'none';
-  }
-  document.getElementById('confirmBtn').addEventListener('click', function() {
-    if (actionType === 'logout') {
-      window.location.href = "{{ url_for('logout') }}";
-    }
-  });
+    // ── API Gateway analytics ──
+    var API_GATEWAY_URL = "https://2bkklp3gbf.execute-api.eu-north-1.amazonaws.com/Prod/resources";
 
-  // 🔹 MODEL-2 BACKGROUND AJAX → API Gateway → Lambda (no UI update)
-  const API_GATEWAY_URL = "https://2bkklp3gbf.execute-api.eu-north-1.amazonaws.com/Prod/resources";
-
-  function loadResourcesAjax(subject, fileType, redirectUrl) {
-    // Background call to Lambda (for analytics / warmup / logs)
-    try {
-      fetch(API_GATEWAY_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "get_category_files",
-          subject: subject,
-          file_type: fileType
+    function pingAnalytics(subject, fileType) {
+      try {
+        fetch(API_GATEWAY_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "get_category_files",
+            subject: subject,
+            file_type: fileType
+          })
         })
-      })
-      .then(res => res.json())
-      .then(data => {
-        console.log("Model-2 background Lambda response:", data);
-      })
-      .catch(err => {
-        console.log("Model-2 background error:", err);
+          .then(function (res) { return res.json(); })
+          .then(function (data) { console.log("Analytics Lambda response:", data); })
+          .catch(function (err) { console.log("Analytics error:", err); });
+      } catch (e) {
+        console.log("Analytics exception:", e);
+      }
+    }
+
+    // ── VIDEO loading — UNCHANGED ──
+    function renderVideoLinks(videos) {
+      var container = document.getElementById('videoLinksContainer');
+      if (!container) return;
+
+      if (!Array.isArray(videos) || videos.length === 0) {
+        container.innerHTML = '<div class="resource-placeholder">No videos available for this technology yet.</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+      videos.forEach(function (video, index) {
+        if (!video.youtube_url) return;
+        var link = document.createElement('a');
+        link.className = 'video-inline-link';
+        link.href = video.youtube_url;
+        link.textContent = video.video_title || ('Video ' + (index + 1));
+        link.title = video.video_title || ('Video ' + (index + 1));
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        container.appendChild(link);
       });
-    } catch (e) {
-      console.log("Model-2 fetch exception:", e);
+
+      if (!container.children.length)
+        container.innerHTML = '<div class="resource-placeholder">No valid YouTube links found.</div>';
     }
 
-    // Immediate redirect to Flask full-page view (no waiting)
-    window.location.href = redirectUrl;
-  }
-  
-  // ⭐ MODEL-2 INSTANT REDIRECT FOR VIDEOS ⭐
-  function loadVideoAjax(subject, lang, redirectUrl) {
-    // Always do background logging (non-blocking)
-    fetch('/api/log-video-click', {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ subject: subject, lang: lang })
-    }).catch(() => {});
-
-    // ⭐ ALWAYS INSTANT REDIRECT
-    window.location.href = redirectUrl;
-
-    // ⭐ ALWAYS PREVENT NORMAL RELOAD
-    return false;
-  }
-  
-  console.log('Resources page (Model-2) loaded successfully');
-  console.log('Current user:', '{{ username }}');
-  console.log('User type:', '{{ usertype }}');
-  
-  // ⭐ Prevent full reload when coming back from PPT/Code/Interview pages
-  window.addEventListener("pageshow", function (event) {
-    if (event.persisted) {
-      console.log("♻ Restored from cache — No reload");
+    function loadSubjectVideos(subject) {
+      var c = document.getElementById('videoLinksContainer');
+      if (c) c.innerHTML = '<div class="resource-placeholder">Loading videos\u2026</div>';
+      fetch('/api/course-videos/' + encodeURIComponent(subject))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (!data || !data.success) { renderVideoLinks([]); return; }
+          renderVideoLinks(data.videos || []);
+        })
+        .catch(function () {
+          var c = document.getElementById('videoLinksContainer');
+          if (c) c.innerHTML = '<div class="resource-placeholder">Unable to load videos right now.</div>';
+        });
     }
-  });
 
-  if (performance.getEntriesByType("navigation")[0].type === "back_forward") {
-    console.log("⏪ BFCache back navigation");
-  }
+    // ── PPT renderer — plain download hyperlinks ──
+    function renderPptLinks(ppts) {
+      var container = document.getElementById('pptFilesList');
+      if (!container) return;
 
-</script>
+      if (!Array.isArray(ppts) || ppts.length === 0) {
+        container.innerHTML = '<div class="resource-placeholder">No PPTs available yet for this subject.</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+      ppts.forEach(function (f) {
+        var link = document.createElement('a');
+        link.className = 'ppt-download-link';
+        link.href = f.url;
+        link.download = '';
+        link.innerHTML = '<i class="fas fa-file-powerpoint"></i>' + (f.label ? f.label + ' \u2014 ' : '') + (f.title || f.url);
+        container.appendChild(link);
+      });
+    }
+
+    // ── DOC links renderer — same style as video links ──
+    function renderDocLinks(containerId, files, emptyMsg) {
+      var container = document.getElementById(containerId);
+      if (!container) return;
+
+      if (!Array.isArray(files) || files.length === 0) {
+        container.innerHTML = '<div class="resource-placeholder">' + emptyMsg + '</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+      files.forEach(function (f) {
+        var link = document.createElement('a');
+        link.className = 'doc-inline-link';
+        link.href = f.url;
+        link.textContent = (f.label ? f.label + ' \u2014 ' : '') + (f.title || f.url);
+        link.title = f.title || f.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        container.appendChild(link);
+      });
+    }
+
+    // ── PPT / CODE / INTERVIEW loading ──
+    function loadSubjectResources(subject) {
+      document.getElementById('pptFilesList').innerHTML = '<div class="resource-placeholder">Loading PPTs\u2026</div>';
+      document.getElementById('codeFilesList').innerHTML = '<div class="resource-placeholder">Loading code\u2026</div>';
+      document.getElementById('interviewFilesList').innerHTML = '<div class="resource-placeholder">Loading interview questions\u2026</div>';
+
+      fetch('/api/course-resources/' + encodeURIComponent(subject))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (!data || !data.success) {
+            document.getElementById('pptFilesList').innerHTML = '<div class="resource-placeholder">Not available yet for this subject.</div>';
+            document.getElementById('codeFilesList').innerHTML = '<div class="resource-placeholder">Not available yet for this subject.</div>';
+            document.getElementById('interviewFilesList').innerHTML = '<div class="resource-placeholder">Not available yet for this subject.</div>';
+            return;
+          }
+          renderPptLinks(data.ppts);
+          renderDocLinks('codeFilesList', data.code, 'No code resources available yet for this subject.');
+          renderDocLinks('interviewFilesList', data.interview, 'No interview questions available yet for this subject.');
+
+          pingAnalytics(subject, 'ppt');
+          pingAnalytics(subject, 'code');
+          pingAnalytics(subject, 'interview');
+        })
+        .catch(function () {
+          document.getElementById('pptFilesList').innerHTML = '<div class="resource-placeholder">Unable to load right now. Please try again.</div>';
+          document.getElementById('codeFilesList').innerHTML = '<div class="resource-placeholder">Unable to load right now. Please try again.</div>';
+          document.getElementById('interviewFilesList').innerHTML = '<div class="resource-placeholder">Unable to load right now. Please try again.</div>';
+        });
+    }
+
+    // ── selectSubject ──
+    function selectSubject(subject, cardEl) {
+      if (window.registrationRequired) {
+        alert('Please complete the Resource Register (Gothram, Employed, Experience, Skill set) to access resources.');
+        return;
+      }
+
+      document.querySelectorAll('.subject-card').forEach(function (c) { c.classList.remove('active'); });
+      if (cardEl) cardEl.classList.add('active');
+
+      document.getElementById('selectedSubjectLabel').textContent = subject;
+      document.getElementById('tabResourcePanel').classList.add('show');
+
+      loadSubjectVideos(subject);
+      loadSubjectResources(subject);
+
+      setTimeout(function () {
+        document.getElementById('tabResourcePanel').scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 60);
+    }
+
+    // Set registrationRequired from backend
+    window.registrationRequired = document.body.dataset.regRequired === 'true';
+
+    // ── DOMContentLoaded ──
+    document.addEventListener('DOMContentLoaded', function () {
+
+      // Registration lock UI
+      if (window.registrationRequired) {
+        document.querySelectorAll('.subject-card').forEach(function (card) {
+          card.style.pointerEvents = 'none';
+          card.style.opacity = '0.5';
+        });
+        var panel = document.getElementById('tabResourcePanel');
+        if (panel) panel.classList.remove('show');
+
+        var navSection = document.querySelector('.navigation-section');
+        if (navSection && !document.getElementById('regLockBanner')) {
+          var banner = document.createElement('div');
+          banner.id = 'regLockBanner';
+          banner.className = 'registration-banner';
+          // FIX: use the pre-rendered REGISTER_URL variable — no Jinja inside JS strings
+          banner.innerHTML = '<span><b>Resource Navigation is locked.</b> Complete Resource Register to unlock all resources.</span> <a href="' + REGISTER_URL + '">Complete Registration</a>';
+          navSection.insertBefore(banner, navSection.firstChild);
+        }
+      }
+
+
+
+      // Tab switching
+      var tabs = document.querySelectorAll('.resource-tab');
+      var panes = document.querySelectorAll('.tab-pane-panel');
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          tabs.forEach(function (t) { t.classList.remove('active'); });
+          panes.forEach(function (p) { p.classList.remove('active'); });
+          this.classList.add('active');
+          var pane = document.getElementById(this.getAttribute('data-tab'));
+          if (pane) pane.classList.add('active');
+        });
+      });
+    });
+
+    // ── Logout modal ──
+    var actionType = null;
+    function openModal(type) {
+      actionType = type;
+      document.getElementById('confirmationModal').style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('confirmationModal').style.display = 'none';
+    }
+    document.getElementById('confirmBtn').addEventListener('click', function () {
+      if (actionType === 'logout') window.location.href = LOGOUT_URL;
+    });
+
+    console.log('Resources page loaded successfully');
+    console.log('Current user:', '{{ username }}');
+    console.log('User type:', '{{ usertype }}');
+
+    window.addEventListener("pageshow", function (e) {
+      if (e.persisted) console.log("Restored from cache");
+    });
+
+    if (performance.getEntriesByType("navigation")[0].type === "back_forward") {
+      console.log("BFCache back navigation");
+    }
+  </script>
+
+  {% include 'chatbot_widget.html' %}
 </body>
+
 </html>
