@@ -1,0 +1,38 @@
+name: Deploy Flask Website (Windows)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to Windows EC2
+        uses: appleboy/ssh-action@v1.0.3
+
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USERNAME }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+
+          script: |
+
+            cd "${{ secrets.APP_PATH }}"
+
+            echo "Current Directory"
+            pwd
+
+            echo "Pulling latest code..."
+            git pull origin main
+
+            echo "Restarting NSSM Service..."
+
+            powershell -Command "Restart-Service -Name '${{ secrets.NSSM_SERVICE_NAME }}' -Force"
+
+            echo "Deployment Completed Successfully."
