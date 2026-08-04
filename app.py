@@ -88,6 +88,7 @@ RAG_SERVICE_URL = "http://127.0.0.1:7900"
 ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
 OPE_SERVICE_URL = "http://127.0.0.1:8500"
 WABA_SERVICE_URL = "http://127.0.0.1:2500"
+FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
 REDIS_HOST = "127.0.0.1"
 APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
 LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
@@ -614,6 +615,32 @@ def _get_student_service_json(endpoint, timeout=10):
         return response.status_code, data
     except Exception as e:
         return 503, {"success": False, "message": f"Student service request failed: {e}"}
+
+def _post_feedback_service_json(endpoint, payload, timeout=10):
+    """Post JSON to Feedback Microservice (Port 8003)."""
+    endpoint_path = endpoint if endpoint.startswith("/") else f"/{endpoint}"
+    target_url = f"{FEEDBACK_SERVICE_URL}{endpoint_path}"
+    try:
+        response = requests.post(target_url, json=payload, timeout=timeout)
+        try:
+            return response.status_code, response.json()
+        except ValueError:
+            return response.status_code, {"success": False, "message": "Non-JSON response from Feedback Service"}
+    except Exception as e:
+        return 503, {"success": False, "message": f"Feedback service connection failed: {e}"}
+
+def _get_feedback_service_json(endpoint, params=None, timeout=10):
+    """Get JSON from Feedback Microservice (Port 8003)."""
+    endpoint_path = endpoint if endpoint.startswith("/") else f"/{endpoint}"
+    target_url = f"{FEEDBACK_SERVICE_URL}{endpoint_path}"
+    try:
+        response = requests.get(target_url, params=params, timeout=timeout)
+        try:
+            return response.status_code, response.json()
+        except ValueError:
+            return response.status_code, {"success": False, "message": "Non-JSON response from Feedback Service"}
+    except Exception as e:
+        return 503, {"success": False, "message": f"Feedback service connection failed: {e}"}
 
 def _asset_service_request(method, endpoint, json_body=None, params=None, timeout=None):
     """Call the asset microservice with fast-fail behaviour.
@@ -5856,6 +5883,88 @@ def student_report_view():
     except Exception as e:
         print("❌ ERROR in student_report_view:", e)
         return str(e), 500
+
+# ==========================================
+# CENTRALIZED FEEDBACK SERVICE ROUTES
+# ==========================================
+@app.route("/feedback", methods=["GET"])
+def feedback_student_page():
+    """Renders the public student feedback submission page."""
+    token = request.args.get("token", "").strip()
+    return render_template("student-feedback.html", token=token)
+
+@app.route("/api/student/activities", methods=["GET"])
+def api_student_activities_proxy():
+    reg_id = request.args.get("reg_id", "")
+    email = request.args.get("email", "")
+    
+    if email:
+        status_code, payload = _get_feedback_service_json(f"/feedback/student/{requests.utils.quote(str(email))}")
+        if status_code == 200 and payload.get("success") and payload.get("activities"):
+            # Format activities list for modal
+            acts = []
+            for a in payload.get("activities", []):
+                acts.append({
+                    "id": a.get("ACTIVITY_ID") or a.get("id"),
+                    "type": a.get("MODULE_NAME") or a.get("type"),
+                    "label": f"{a.get('MODULE_NAME')}: {a.get('ACTIVITY_NAME')}",
+                    "eligible": bool(a.get("ELIGIBLE_FOR_FEEDBACK", 1))
+                })
+            return jsonify({"success": True, "activities": acts}), 200
+
+    # Fallback to student_service lookup
+    status_code, payload = _get_student_service_json(f"/api/student/activities?reg_id={requests.utils.quote(str(reg_id))}")
+    return jsonify(payload), status_code
+
+@app.route("/api/student/feedback/generate", methods=["POST"])
+def api_feedback_generate_proxy():
+    data = request.get_json() or {}
+    status_code, payload = _post_feedback_service_json("/feedback/generate", data)
+    
+    # Automatically trigger send email if generated successfully
+    if status_code == 200 and payload.get("success"):
+        feedback_id = payload.get("feedback_id")
+        student_email = data.get("student_email")
+        student_name = data.get("student_name", "Student")
+        expiry_hours = data.get("expiry_hours", 24)
+        
+        if feedback_id and student_email:
+            _post_feedback_service_json("/feedback/send", {
+                "feedback_id": feedback_id,
+                "student_name": student_name,
+                "student_email": student_email,
+                "expiry_hours": expiry_hours
+            })
+            payload["email_sent"] = True
+
+    return jsonify(payload), status_code
+
+@app.route("/api/student/feedback/send", methods=["POST"])
+def api_feedback_send_proxy():
+    data = request.get_json() or {}
+    status_code, payload = _post_feedback_service_json("/feedback/send", data)
+    return jsonify(payload), status_code
+
+@app.route("/api/student/feedback/token/<token>", methods=["GET"])
+def api_feedback_token_proxy(token):
+    status_code, payload = _get_feedback_service_json(f"/feedback/{token}")
+    return jsonify(payload), status_code
+
+@app.route("/api/student/feedback/submit", methods=["POST"])
+def api_feedback_submit_proxy():
+    data = request.get_json() or {}
+    status_code, payload = _post_feedback_service_json("/feedback/submit", data)
+    return jsonify(payload), status_code
+
+@app.route("/api/student/feedback/status", methods=["GET"])
+def api_feedback_status_proxy():
+    status_code, payload = _get_feedback_service_json("/feedback/status")
+    return jsonify(payload), status_code
+
+@app.route("/api/student/feedback/report", methods=["GET"])
+def api_feedback_report_proxy():
+    status_code, payload = _get_feedback_service_json("/feedback/report")
+    return jsonify(payload), status_code
 
 # ==========================================
 # FETCH STUDENTS FOR REPORT PAGE
