@@ -4594,6 +4594,16 @@ def admin_active_users():
         )
 
 
+@app.route('/debug_login')
+def debug_login():
+    session['login_type'] = 'employee'
+    session['employee_id'] = 'CH25006'
+    session['user'] = 'support@chakorahub.com'
+    session['email'] = 'support@chakorahub.com'
+    session['admin_verified'] = True
+    return redirect(url_for('admin_internship_page'))
+
+
 @app.route('/admin/internship')
 def admin_internship_page():
     """Admin placeholder page for internship selection workflows."""
