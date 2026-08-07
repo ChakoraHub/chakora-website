@@ -1231,10 +1231,9 @@ async function identifyUser() {
         const data = await res.json();
 
         const isExisting = data.exists || false;
-        const cacheHit = data.cache_hit || false;
 
         console.log(`🔍 User lookup: ${validation.type}=${validation.normalized}`);
-        console.log(`📊 Existing: ${isExisting} | Cache: ${cacheHit ? 'HIT ✅' : 'MISS ❌'}`);
+        console.log(`📊 Existing: ${isExisting}`);
 
         const emailEl = document.getElementById('studentEmail');
         if (emailEl && validation.type === 'email') {
@@ -1243,7 +1242,7 @@ async function identifyUser() {
         
         const pill = document.getElementById('userTypePill');
         if (isExisting) {
-            pill.textContent = `✦ Existing Student — Welcome back! ${cacheHit ? '(Instant from cache)' : ''}`;
+            pill.textContent = '✦ Existing Student — Welcome back!';
             pill.className = 'pill-existing';
 
             if (data.total_bookings) {
