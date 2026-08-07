@@ -4,7 +4,6 @@ import logging
 import traceback
 import boto3
 import base64
-import redis
 import json
 import time
 import os
@@ -52,7 +51,6 @@ from functools import lru_cache
 # MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL","http://172.31.26.176:7700")
 # EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL","http://172.31.26.176:8002")
 # BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL","http://172.31.26.176:7500")
-# REDIS_SERVICE_URL = os.getenv("REDIS_SERVICE_URL","http://172.31.26.176:6390")
 # BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL","http://172.31.26.176:8020")
 # BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL","http://172.31.26.176:8010")
 # STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
@@ -81,22 +79,23 @@ INTERNSHIP_SERVICE_URL = "http://127.0.0.1:5050"
 MS365_SERVICE_URL = "http://127.0.0.1:7700"
 EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
 BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
-REDIS_SERVICE_URL = "http://127.0.0.1:6390"
 BRS_SERVICE_URL = "http://127.0.0.1:8020"
 BILLING_SERVICE_URL = "http://127.0.0.1:8010"
 RAG_SERVICE_URL = "http://127.0.0.1:7900"
 ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
 OPE_SERVICE_URL = "http://127.0.0.1:8500"
 WABA_SERVICE_URL = "http://127.0.0.1:2500"
-REDIS_HOST = "127.0.0.1"
 APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
 LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
 WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
+FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
 STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
 STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
 INTERNAL_NO_PROXY="127.0.0.1"
 CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
 INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
+sf_client = None
 # STM_SERVICE_URL = os.environ.get("STM_SERVICE_URL", "http://127.0.0.1:7010")
 # STM_INTERNAL_API_KEY = os.environ.get("STM_INTERNAL_API_KEY")  # optional shared secret
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
@@ -138,21 +137,10 @@ key_secret = os.getenv("RZP_KEY_SECRET")
 print(f"[startup] RZP_KEY_ID loaded: {'YES' if os.getenv('RZP_KEY_ID') else 'NO'}")
 print(f"[startup] RZP_KEY_SECRET loaded: {'YES' if os.getenv('RZP_KEY_SECRET') else 'NO'}")
 print(f"key_id: {key_id} and key_secret: {key_secret} also loaded")
-redis_client = None
-try:
-    redis_client = redis.Redis(
-        host=os.getenv("REDIS_HOST", "172.31.26.176"),
-        port=int(os.getenv("REDIS_PORT", "6379")),
-        db=int(os.getenv("REDIS_DB", "0")),
-        password=os.getenv("REDIS_PASSWORD") or None,
-        decode_responses=True,
-        socket_connect_timeout=2
-    )
-    redis_client.ping()
-    print("Redis client connected")
-except Exception as e:
-    print(f"Redis connection failed: {e}")
-    redis_client = None
+
+# Redis is intentionally decoupled for now.
+_local_cache_store = {}
+_local_cache_lock = Lock()
 
 # ── Kafka Producer ──────────────────────────────
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
@@ -173,10 +161,6 @@ AWS_ACCESS_KEY = (os.getenv("AWS_ACCESS_KEY") or os.getenv("AWS_ACCESS_KEY_ID") 
 AWS_SECRET_KEY = (os.getenv("AWS_SECRET_KEY") or os.getenv("AWS_SECRET_ACCESS_KEY") or "").strip()
 AWS_REGION     = (os.getenv("AWS_REGION") or "eu-north-1").strip()
 ADMIN_EMAIL    = (os.getenv("ADMIN_EMAIL") or "admin@chakorahub.com").strip()
-
-REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
-REDIS_DB = int(os.getenv("REDIS_DB", "0"))
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD") or None
 
 CACHE_TTL_SHORT = 300  # 5 minutes
 CACHE_TTL_MEDIUM = 1800  # 30 minutes
@@ -786,51 +770,56 @@ def _forwarded_proto() -> str:
     return proto.split(",")[0].strip().lower()
 
 def cache_get(key: str):
-    """Get value from Redis cache"""
-    if not redis_client:
-        return None
+    """Get value from local in-process cache."""
     try:
-        value = redis_client.get(key)
-        if value:
-            return json.loads(value)
-        return None
-    except Exception as e:
-        print(f"⚠️ Redis GET error: {e}")
+        now_ts = time.time()
+        with _local_cache_lock:
+            payload = _local_cache_store.get(str(key))
+            if not payload:
+                return None
+            expires_at, value = payload
+            if expires_at <= now_ts:
+                _local_cache_store.pop(str(key), None)
+                return None
+            return value
+    except Exception:
         return None
 
 def cache_set(key: str, value: any, ttl: int = CACHE_TTL_MEDIUM):
-    """Set value in Redis cache with TTL"""
-    if not redis_client:
-        return False
+    """Set value in local in-process cache with TTL seconds."""
     try:
-        redis_client.setex(key, ttl, json.dumps(value))
+        ttl_seconds = int(ttl) if ttl is not None else CACHE_TTL_MEDIUM
+        if ttl_seconds <= 0:
+            ttl_seconds = CACHE_TTL_MEDIUM
+        with _local_cache_lock:
+            _local_cache_store[str(key)] = (time.time() + ttl_seconds, value)
         return True
-    except Exception as e:
-        print(f"⚠️ Redis SET error: {e}")
+    except Exception:
         return False
 
 def cache_delete(key: str):
-    """Delete key from Redis cache"""
-    if not redis_client:
-        return False
+    """Delete key from local in-process cache."""
     try:
-        redis_client.delete(key)
+        with _local_cache_lock:
+            _local_cache_store.pop(str(key), None)
         return True
-    except Exception as e:
-        print(f"⚠️ Redis DELETE error: {e}")
+    except Exception:
         return False
 
 def cache_delete_pattern(pattern: str):
-    """Delete all keys matching pattern"""
-    if not redis_client:
-        return False
+    """Delete all keys matching a simple wildcard pattern from local cache."""
     try:
-        keys = redis_client.keys(pattern)
-        if keys:
-            redis_client.delete(*keys)
+        from fnmatch import fnmatch
+
+        with _local_cache_lock:
+            if not pattern:
+                _local_cache_store.clear()
+            else:
+                keys_to_delete = [k for k in _local_cache_store.keys() if fnmatch(k, pattern)]
+                for key in keys_to_delete:
+                    _local_cache_store.pop(key, None)
         return True
-    except Exception as e:
-        print(f"⚠️ Redis DELETE PATTERN error: {e}")
+    except Exception:
         return False
 
 def require_employee_login():
@@ -904,44 +893,6 @@ def validate_e164_phone(phone: str) -> bool:
     """E.164 phone number validation: +[country code][number]"""
     e164_regex = r'^\+[1-9]\d{1,14}$'
     return bool(re.match(e164_regex, phone.strip()))
-
-def _rs_get(path: str) -> dict:
-    """GET redis_service endpoint. Returns {} on any error."""
-    try:
-        print(f"↔️ [redis_service GET] {path} -> {REDIS_SERVICE_URL}")
-        resp = requests.get(
-            f"{REDIS_SERVICE_URL}{path}",
-            timeout=0.6,
-        )
-        print(f"↔️ [redis_service GET] {path} status={resp.status_code} ok={resp.ok}")
-        return resp.json() if resp.ok else {}
-    except Exception as exc:
-        print(f"[redis_service GET] {path} failed: {exc}")
-        return {}
-
-def _rs_post(path: str, body: dict) -> dict:
-    """POST redis_service endpoint (cache write-back). Returns {} on any error."""
-    try:
-        print(f"↔️ [redis_service POST] {path} -> {REDIS_SERVICE_URL} body_keys={sorted(list(body.keys())) if isinstance(body, dict) else type(body).__name__}")
-        resp = requests.post(
-            f"{REDIS_SERVICE_URL}{path}",
-            json=body,
-            timeout=0.6,
-        )
-        print(f"↔️ [redis_service POST] {path} status={resp.status_code} ok={resp.ok}")
-        return resp.json() if resp.ok else {}
-    except Exception as exc:
-        print(f"[redis_service POST] {path} failed: {exc}")
-        return {}
-
-def _rs_delete(path: str) -> dict:
-    """DELETE redis_service endpoint (cache invalidation). Returns {} on any error."""
-    try:
-        resp = requests.delete(f"{REDIS_SERVICE_URL}{path}", timeout=0.6)
-        return resp.json() if resp.ok else {}
-    except Exception as exc:
-        print(f"[redis_service DELETE] {path} failed: {exc}")
-        return {}
 
 def _clean_env_value(raw_value):
     if raw_value is None:
@@ -2723,9 +2674,7 @@ def employee_resources():
 
     This route runs ~15 sequential Snowflake queries to build the view bundle
     (personal, job, dept/desig/manager, salary, bank, leaves, ID card, queries,
-    appraisal, history, profile pic, festival). To keep "Back to Employee
-    Resources" snappy we cache the rendered view dict in Redis for 120s per
-    employee. Cache is invalidated by employee-mutating endpoints below.
+    appraisal, history, profile pic, festival).
     """
     if session.get("login_type") != "employee":
         session.pop("last_visited_path", None)
@@ -2739,19 +2688,6 @@ def employee_resources():
         session.clear()
         flash("Session expired. Please login again.", "error")
         return redirect(url_for("home"))
-
-    # --- Redis short-circuit: skip all the Snowflake work on a warm cache ---
-    EMP_RES_CACHE_KEY = f"emp_resources_view:{employee_id}"
-    EMP_RES_TTL_SECONDS = 120
-    if redis_client:
-        try:
-            raw = redis_client.get(EMP_RES_CACHE_KEY)
-            if raw:
-                view_data = json.loads(raw)
-                print(f"✅ employee-resources Redis HIT for emp_id={employee_id}")
-                return render_template("employee-resources.html", **view_data)
-        except Exception as e:
-            print(f"Redis employee-resources read error: {e}")
 
     try:
         conn = get_db_connection()
@@ -3192,18 +3128,6 @@ def employee_resources():
             "profile_data": profile_data,
         }
 
-        # Warm Redis so subsequent visits skip all ~15 Snowflake queries.
-        if redis_client:
-            try:
-                redis_client.setex(
-                    EMP_RES_CACHE_KEY,
-                    EMP_RES_TTL_SECONDS,
-                    json.dumps(view_data, default=str),
-                )
-                print(f"❄️ employee-resources DB FETCH cached for emp_id={employee_id}")
-            except Exception as e:
-                print(f"Redis employee-resources write error: {e}")
-
         return render_template("employee-resources.html", **view_data)
 
     except Exception as e:
@@ -3561,12 +3485,6 @@ def save_timesheet():
     success, error_message = save_timesheet_data(employee_id, entries)
     print(f"[Timesheet API SAVE] save status: {success}")
     if success:
-        # Clear Redis cache to show latest timesheet state if needed.
-        if redis_client:
-            try:
-                redis_client.delete(f"emp_resources_view:{employee_id}")
-            except Exception as e:
-                print(f"Redis cache clear error: {e}")
         return jsonify({"status": "success"})
     return jsonify({"status": "error", "message": error_message or "Failed to save timesheet"}), 500
 
@@ -3637,14 +3555,6 @@ def personal_details():
             conn.commit()
             cur.close()
             conn.close()
-
-            # Clear Redis cache so next GET is fresh
-            if redis_client:
-                try:
-                    redis_client.delete(f"emp_resources_view:{clean_id}")
-                    redis_client.delete(f"employee:personal:{clean_id}")
-                except Exception:
-                    pass
 
             flash("Updated successfully", "success")
         except Exception as e:
@@ -6061,21 +5971,7 @@ try:
             aws_access_key_id=AWS_ACCESS_KEY,
             aws_secret_access_key=AWS_SECRET_KEY
         )
-        print("✅ AWS SES client initialized with provided credentials")
-        
-        # Test the connection
-        try:
-            # Try to get send quota - this will fail if credentials are wrong
-            quota = ses.get_send_quota()
-            print("✅ Successfully connected to AWS SES")
-            print(f"✅ Max Send Rate: {quota['MaxSendRate']} emails/second")
-        except Exception as conn_error:
-            print(f"❌ Failed to connect to AWS SES: {conn_error}")
-            if hasattr(conn_error, 'response'):
-                error_code = conn_error.response.get('Error', {}).get('Code', 'Unknown')
-                error_msg = conn_error.response.get('Error', {}).get('Message', 'Unknown')
-                print(f"❌ AWS Error Code: {error_code}")
-                print(f"❌ AWS Error Message: {error_msg}")
+        print("✅ AWS SES client initialized (lazy validation mode)")
     else:
         print("❌ AWS credentials are missing or still using placeholder values")
         ses = None
@@ -7014,8 +6910,8 @@ def get_course_offerings():
     return jsonify(payload if isinstance(payload, list) else payload.get("offerings", [])), resp.status_code
 
 
-def _resolve_cached_user_usertype_from_redis():
-    """Fast Redis-backed role resolution with TTL refresh on hit."""
+def _resolve_session_usertype():
+    """Resolve usertype from session only."""
     session_usertype = str(session.get('usertype') or '').strip().lower()
     if session_usertype:
         return session_usertype
@@ -7024,43 +6920,12 @@ def _resolve_cached_user_usertype_from_redis():
         session['usertype'] = 'admin'
         return 'admin'
 
-    user_id = session.get('user_id')
-    if not user_id:
-        return ''
-
-    try:
-        if not redis_client:
-            return ''
-
-        redis_key = f"session:user:{user_id}"
-        raw = redis_client.get(redis_key)
-        if not raw:
-            return ''
-
-        cached_profile = json.loads(raw)
-        if not isinstance(cached_profile, dict):
-            return ''
-
-        usertype = str(
-            cached_profile.get('usertype')
-            or cached_profile.get('role')
-            or ''
-        ).strip().lower()
-        if usertype:
-            session['usertype'] = usertype
-            if usertype in ('admin', 'administrator'):
-                session['role'] = 'admin'
-            redis_client.expire(redis_key, 3600)
-            return usertype
-    except Exception as e:
-        print(f"⚠️ Redis role resolve failed: {e}")
-
     return ''
 
 
 def _is_admin_user(allow_db_fallback=False):
     """Fast admin guard with optional one-time DB fallback on cold cache.
-    Uses direct Redis role cache and optional DB fallback."""
+    Uses DB fallback only when needed."""
     if 'user' not in session:
         return False
 
@@ -7072,7 +6937,7 @@ def _is_admin_user(allow_db_fallback=False):
 
     user_id = session.get('user_id')
     if user_id:
-        usertype = _resolve_cached_user_usertype_from_redis()
+        usertype = _resolve_session_usertype()
         if usertype in ('admin', 'administrator'):
             session['role'] = 'admin'
             return True
@@ -7095,25 +6960,6 @@ def _is_admin_user(allow_db_fallback=False):
         if resolved_usertype in ('admin', 'administrator'):
             session['usertype'] = resolved_usertype
             session['role'] = 'admin'
-
-            if user_id:
-                try:
-                    if redis_client:
-                        redis_key = f"session:user:{user_id}"
-                        existing_raw = redis_client.get(redis_key)
-                        existing_payload = json.loads(existing_raw) if existing_raw else {}
-                        if not isinstance(existing_payload, dict):
-                            existing_payload = {}
-                        existing_payload.update({
-                            'user_id': user_id,
-                            'email': session.get('user'),
-                            'usertype': resolved_usertype,
-                            'role': 'admin',
-                        })
-                        redis_client.setex(redis_key, 3600, json.dumps(existing_payload))
-                except Exception as cache_err:
-                    print(f"⚠️ Redis role cache failed: {cache_err}")
-
             return True
     except Exception as e:
         print(f"⚠️ Admin role DB fallback failed: {e}")
@@ -7466,29 +7312,29 @@ def meeting_identify():
         else:
             return jsonify({"success": False, "message": "Invalid email or E.164 phone number"}), 400
 
-        # ── KAFKA request-response: student lookup ───────────────
-        correlation_id = str(uuid.uuid4())
-        kafka_publish("student.lookup.requested", {
-            "correlation_id": correlation_id,
-            "identity":       identity,
-            "identity_type":  identity_type,
-            "timestamp":      datetime.utcnow().isoformat()
-        })
-        student_data = _wait_for_lookup_result(correlation_id, timeout_seconds=10)
-        if not student_data:
+        # Direct lookup against meeting_service avoids stale cache-derived counts.
+        lookup_response = requests.post(
+            f"{MEETING_SERVICE_URL}/meeting/identify",
+            json={"identity": identity},
+            timeout=12,
+        )
+        lookup_payload = lookup_response.json() if lookup_response.headers.get("Content-Type", "").startswith("application/json") else {}
+        if lookup_response.status_code != 200:
             return jsonify({
                 "success": False,
-                "message": "Student lookup timed out"
-            }), 504
-        if student_data.get("error"):
-            return jsonify({
-                "success": False,
-                "message": f"Student lookup failed: {student_data.get('error')}"
-            }), 500
+                "message": lookup_payload.get("message") or lookup_payload.get("detail") or "Student lookup failed"
+            }), lookup_response.status_code
 
-        existing_student = bool(student_data.get("exists", False))
-        total_bookings = int(student_data.get("total_bookings", 0) or 0)
-        cache_hit = (student_data.get("source") == "redis")
+        existing_student = bool(lookup_payload.get("exists", False))
+        total_bookings = int(lookup_payload.get("total_bookings", 0) or 0)
+        cache_hit = False
+        student_data = {
+            "exists": existing_student,
+            "total_bookings": total_bookings,
+            "student_email": identity if identity_type == "email" else "",
+            "student_phone": identity if identity_type == "phone" else "",
+            "student_name": "",
+        }
 
         suggestions = None
         if existing_student:
@@ -8054,8 +7900,6 @@ def calendar_page():
 @app.route('/calendar/data', methods=['GET'])
 def api_calendar_data():
     """JSON endpoint for /calendar (AJAX-loaded).
-    Cached in Redis (120s TTL per month-year key) so repeat month views skip
-    the cold Snowflake warehouse roundtrip — was the main 3s+ load source.
     TODO: migrate this DB work into a dedicated calendar/meeting microservice.
     """
     try:
@@ -8066,21 +7910,6 @@ def api_calendar_data():
         year = datetime.now().year
 
     print(f"[calendar_data] request month={month} year={year} path={request.path}")
-
-    CAL_CACHE_KEY = f"calendar:data:{year}-{month:02d}"
-    CAL_CACHE_TTL = 120  # 2 min — fresh enough; bookings rarely change minute-to-minute
-    if redis_client:
-        try:
-            raw = redis_client.get(CAL_CACHE_KEY)
-            if raw:
-                cached = json.loads(raw)
-                cached["cached"] = True
-                print(f"[calendar_data] cache_hit key={CAL_CACHE_KEY}")
-                return jsonify(cached)
-        except Exception as e:
-            print(f"Redis calendar cache read error: {e}")
-
-    print(f"[calendar_data] cache_miss key={CAL_CACHE_KEY}")
 
     conn = get_db_connection()
     if not conn:
@@ -8222,12 +8051,6 @@ def api_calendar_data():
         f"[calendar_data] response festival_days={len(month_nrm_festivals)} "
         f"booking_days={len(booked_slots_dict)} teams_days={len(teams_by_date)} teams_events={total_team_events}"
     )
-    # Warm Redis cache so next request for this month is ~5ms instead of ~3s.
-    if redis_client:
-        try:
-            redis_client.setex(CAL_CACHE_KEY, CAL_CACHE_TTL, json.dumps(result, default=str))
-        except Exception as e:
-            print(f"Redis calendar cache write error: {e}")
     return jsonify(result)
 
 # ================== 🎉 Festival Greeting Route ==================
@@ -8350,16 +8173,7 @@ try:
             aws_access_key_id=AWS_ACCESS_KEY,
             aws_secret_access_key=AWS_SECRET_KEY
         )
-        print("✅ AWS SES client initialized with provided credentials")
-        try:
-            quota = ses.get_send_quota()
-            print("✅ Successfully connected to AWS SES")
-            print(f"✅ Max Send Rate: {quota['MaxSendRate']} emails/second")
-        except Exception as conn_error:
-            print(f"❌ Failed to connect to AWS SES: {conn_error}")
-            if hasattr(conn_error, 'response'):
-                print(f"❌ AWS Error Code   : {conn_error.response.get('Error', {}).get('Code', 'Unknown')}")
-                print(f"❌ AWS Error Message: {conn_error.response.get('Error', {}).get('Message', 'Unknown')}")
+        print("✅ AWS SES client initialized (lazy validation mode)")
     else:
         print("❌ AWS credentials are missing or still using placeholder values")
         ses = None
@@ -8781,40 +8595,29 @@ def get_auth():
     return HTTPBasicAuth(str(username), str(username))
 
 # ==========================================
-# UPDATED BILLING ROUTE WITH REDIS & S3
+# UPDATED BILLING ROUTE WITH S3
 # ==========================================
 @app.route('/billing', methods=['GET', 'POST'])
 def billing():
     """
-    Flask proxy route for billing with Redis caching and S3 file upload
+    Flask proxy route for billing and S3 file upload
     """
     
     # GET REQUEST: Render the billing form
     if request.method == 'GET':
         try:
-            # Check Redis cache for courses
-            cache_key = "billing:courses"
-            cached_courses = cache_get(cache_key)
-            
-            if cached_courses:
-                print("✅ Using cached courses")
-                courses = cached_courses
+            auth = get_auth()
+            response = requests.get(
+                f"{FASTAPI_BASE_URL}/courses",
+                auth=auth,
+                timeout=10
+            )
+
+            if response.status_code == 200:
+                courses = response.json().get('courses', [])
             else:
-                # Fetch from FastAPI
-                auth = get_auth()
-                response = requests.get(
-                    f"{FASTAPI_BASE_URL}/courses",
-                    auth=auth,
-                    timeout=10
-                )
-                
-                if response.status_code == 200:
-                    courses = response.json().get('courses', [])
-                    # Cache the courses
-                    cache_set(cache_key, courses, ttl=CACHE_TTL_LONG)
-                else:
-                    courses = []
-                    flash("⚠️ Could not load courses list", "warning")
+                courses = []
+                flash("⚠️ Could not load courses list", "warning")
                     
         except requests.exceptions.RequestException as e:
             courses = []
@@ -8897,9 +8700,6 @@ def billing():
                 receipt_uploaded = data.get('receipt_uploaded', False)
                 receipt_path = data.get('receipt_path')
                 
-                # Invalidate cache for this user's billing history
-                cache_delete_pattern(f"billing:history:{phone}*")
-                
                 # Build success message
                 receipt_msg = ""
                 if receipt_uploaded and receipt_path:
@@ -8936,11 +8736,11 @@ def billing():
         return redirect(url_for('billing'))
 
 # ==========================================
-# BILLING HISTORY WITH REDIS CACHING
+# BILLING HISTORY
 # ==========================================
 @app.route('/billing-history')
 def billing_history():
-    """View billing history for logged-in user with Redis caching"""
+    """View billing history for logged-in user."""
     try:
         auth = get_auth()
         if not auth:
@@ -8952,30 +8752,19 @@ def billing_history():
             flash("❌ Phone number not found in session", "danger")
             return redirect(url_for('billing'))
         
-        # Check Redis cache
-        cache_key = f"billing:history:{phone}"
-        cached_history = cache_get(cache_key)
-        
-        if cached_history:
-            print("✅ Using cached billing history")
-            billing_entries = cached_history.get('entries', [])
+        response = requests.get(
+            f"{FASTAPI_BASE_URL}/billing-history",
+            params={"phone": phone},
+            auth=auth,
+            timeout=10
+        )
+
+        if response.status_code == 200:
+            data = response.json()
+            billing_entries = data.get('entries', [])
         else:
-            # Fetch from FastAPI
-            response = requests.get(
-                f"{FASTAPI_BASE_URL}/billing-history",
-                params={"phone": phone},
-                auth=auth,
-                timeout=10
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                billing_entries = data.get('entries', [])
-                # Cache the result
-                cache_set(cache_key, {'entries': billing_entries}, ttl=CACHE_TTL_MEDIUM)
-            else:
-                flash("❌ Could not fetch billing history", "danger")
-                return redirect(url_for('billing'))
+            flash("❌ Could not fetch billing history", "danger")
+            return redirect(url_for('billing'))
         
         return render_template("billing_history.html", entries=billing_entries)
             
@@ -8984,35 +8773,26 @@ def billing_history():
         return redirect(url_for('billing'))
 
 # ==========================================
-# REDIS STATS ENDPOINT (ADMIN)
+# CACHE STATS ENDPOINT (ADMIN)
 # ==========================================
-@app.route('/admin/redis-stats')
-def redis_stats():
-    """View Redis cache statistics (admin only)"""
+@app.route('/admin/cache-stats')
+def cache_stats():
+    """View local cache statistics (admin only)."""
     if session.get('usertype') != 'admin':
         flash("❌ Admin access required", "danger")
         return redirect(url_for('home'))
     
-    if not redis_client:
-        return jsonify({
-            "connected": False,
-            "error": "Redis not configured"
-        })
-    
     try:
-        info = redis_client.info()
+        now_ts = time.time()
+        with _local_cache_lock:
+            active_items = [k for k, (exp, _) in _local_cache_store.items() if exp > now_ts]
+            expired_items = [k for k, (exp, _) in _local_cache_store.items() if exp <= now_ts]
+
         stats = {
             "connected": True,
-            "used_memory": info.get('used_memory_human'),
-            "total_keys": redis_client.dbsize(),
-            "connected_clients": info.get('connected_clients'),
-            "uptime_days": info.get('uptime_in_days'),
-            "total_commands": info.get('total_commands_processed'),
-            "hit_rate": round(
-                info.get('keyspace_hits', 0) / 
-                max(info.get('keyspace_hits', 0) + info.get('keyspace_misses', 1), 1) * 100, 
-                2
-            )
+            "backend": "local-memory",
+            "total_keys": len(active_items),
+            "expired_keys": len(expired_items),
         }
         return render_template('redis_stats.html', stats=stats)
     except Exception as e:
@@ -9026,7 +8806,7 @@ def redis_stats():
 # ==========================================
 @app.route('/admin/clear-cache', methods=['POST'])
 def clear_cache():
-    """Clear Redis cache (admin only)"""
+    """Clear local in-process cache (admin only)."""
     if session.get('usertype') != 'admin':
         flash("❌ Admin access required", "danger")
         return redirect(url_for('home'))
@@ -9038,15 +8818,12 @@ def clear_cache():
             cache_delete_pattern(pattern)
             flash(f"✅ Cleared cache matching: {pattern}", "success")
         else:
-            if redis_client:
-                redis_client.flushdb()
-                flash("✅ All cache cleared", "success")
-            else:
-                flash("⚠️ Redis not available", "warning")
+            cache_delete_pattern("")
+            flash("✅ All cache cleared", "success")
     except Exception as e:
         flash(f"❌ Error clearing cache: {str(e)}", "danger")
     
-    return redirect(url_for('redis_stats'))
+    return redirect(url_for('cache_stats'))
 
 
 # Employee_Report
@@ -13205,13 +12982,7 @@ def batch_schedule():
                     status, notes, session.get("user_id")
                 ))
                 conn2.commit()
-                # Bust Redis cache so home page shows the new batch immediately
-                try:
-                    import redis as _redis
-                    _rc = _redis.StrictRedis(host="127.0.0.1", port=6379, db=0, decode_responses=True)
-                    _rc.delete("batches:current")
-                except Exception:
-                    pass
+                cache_delete("batches:current")
                 flash("Batch scheduled successfully. Home page will reflect shortly.", "success")
             except Exception as e:
                 conn2.rollback()
@@ -13366,13 +13137,7 @@ def batch_schedule_action(batch_id):
                 return redirect(url_for("batch_schedule"))
 
             conn.commit()
-            # Bust Redis cache
-            try:
-                import redis as _redis
-                _rc = _redis.StrictRedis(host="127.0.0.1", port=6379, db=0, decode_responses=True)
-                _rc.delete("batches:current")
-            except Exception:
-                pass
+            cache_delete("batches:current")
             flash(success_msg, "success")
         except Exception as e:
             conn.rollback()
