@@ -70,32 +70,35 @@ INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com"
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
 
-# HOME_SERVICE_URL = "http://127.0.0.1:5001"
-# STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
-# MEETING_SERVICE_URL = "http://127.0.0.1:9000"
-# CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
-# ASSET_SERVICE_URL = "http://127.0.0.1:8090"
-# INTERNSHIP_SERVICE_URL = "http://127.0.0.1:5050"
-# MS365_SERVICE_URL = "http://127.0.0.1:7700"
-# EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
-# BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
-# BRS_SERVICE_URL = "http://127.0.0.1:8020"
-# BILLING_SERVICE_URL = "http://127.0.0.1:8010"
-# RAG_SERVICE_URL = "http://127.0.0.1:7900"
-# ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
-# OPE_SERVICE_URL = "http://127.0.0.1:8500"
-# WABA_SERVICE_URL = "http://127.0.0.1:2500"
-# APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
-# LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
-# WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
-# FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
-# STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
-# STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
-# INTERNAL_NO_PROXY="127.0.0.1"
-# CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
-# INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+HOME_SERVICE_URL = "http://127.0.0.1:5001"
+STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
+MEETING_SERVICE_URL = "http://127.0.0.1:9000"
+CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
+ASSET_SERVICE_URL = "http://127.0.0.1:8090"
+INTERNSHIP_SERVICE_URL = "http://127.0.0.1:5050"
+MS365_SERVICE_URL = "http://127.0.0.1:7700"
+EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
+BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
+REDIS_SERVICE_URL = "http://127.0.0.1:6390"
+BRS_SERVICE_URL = "http://127.0.0.1:8020"
+BILLING_SERVICE_URL = "http://127.0.0.1:8010"
+RAG_SERVICE_URL = "http://127.0.0.1:7900"
+ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
+OPE_SERVICE_URL = "http://127.0.0.1:8500"
+WABA_SERVICE_URL = "http://127.0.0.1:2500"
+FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
+REDIS_HOST = "127.0.0.1"
+APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
+LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
+WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
+STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
+STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
+INTERNAL_NO_PROXY="127.0.0.1"
+CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
+INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
 STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
 sf_client = None
+
 # STM_SERVICE_URL = os.environ.get("STM_SERVICE_URL", "http://127.0.0.1:7010")
 # STM_INTERNAL_API_KEY = os.environ.get("STM_INTERNAL_API_KEY")  # optional shared secret
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
@@ -257,6 +260,7 @@ ORACLE_PORT = int(os.getenv("ORACLE_PORT", "1521"))
 ORACLE_SERVICE_NAME = os.getenv("ORACLE_SERVICE_NAME", "FREEPDB1")
 ORACLE_USER = os.getenv("ORACLE_USER", "SUPPORT")
 ORACLE_PASSWORD = os.getenv("ORACLE_PASSWORD", "Welcome123")
+ORACLE_SCHEMA = os.getenv("ORACLE_SCHEMA", "CHAKORA").strip().upper()
 
 
 DICT_CURSOR = object()
@@ -322,6 +326,18 @@ class _OracleCompatConnection:
 
 # ================= Helper (or) Custom functions =================
 
+def _clean_request_get(url, params=None, timeout=5):
+    with requests.Session() as s:
+        s.trust_env = False
+        s.proxies = {"http": None, "https": None}
+        return s.get(url, params=params, timeout=timeout)
+
+def _clean_request_post(url, json=None, data=None, timeout=5):
+    with requests.Session() as s:
+        s.trust_env = False
+        s.proxies = {"http": None, "https": None}
+        return s.post(url, json=json, data=data, timeout=timeout)
+
 def get_db_connection():
     """Standard Oracle connection."""
     dsn = oracledb.makedsn(
@@ -339,7 +355,7 @@ def get_db_connection():
     # Keep startup connectivity check
     cur = conn.cursor()
     cur.execute("SELECT 1 FROM DUAL")
-    cur.execute("ALTER SESSION SET CURRENT_SCHEMA = CHAKORA")
+    cur.execute(f"ALTER SESSION SET CURRENT_SCHEMA = {ORACLE_SCHEMA}")
     cur.close()
 
 
@@ -599,6 +615,49 @@ def _get_student_service_json(endpoint, timeout=10):
     except Exception as e:
         return 503, {"success": False, "message": f"Student service request failed: {e}"}
 
+def _post_feedback_service_json(endpoint, payload, timeout=10):
+    """Post JSON to Feedback Microservice (Port 8003)."""
+    endpoint_path = endpoint if endpoint.startswith("/") else f"/{endpoint}"
+    target_url = f"{FEEDBACK_SERVICE_URL}{endpoint_path}"
+    try:
+        with requests.Session() as internal_session:
+            internal_session.trust_env = False
+            internal_session.proxies = {"http": None, "https": None}
+            response = internal_session.post(
+                target_url,
+                json=payload,
+                timeout=timeout,
+                allow_redirects=False,
+            )
+        try:
+            return response.status_code, response.json()
+        except ValueError:
+            return response.status_code, {"success": False, "message": "Non-JSON response from Feedback Service"}
+    except Exception as e:
+        return 503, {"success": False, "message": f"Feedback service connection failed: {e}"}
+
+def _get_feedback_service_json(endpoint, params=None, timeout=10):
+    """Get JSON from Feedback Microservice (Port 8003)."""
+    endpoint_path = endpoint if endpoint.startswith("/") else f"/{endpoint}"
+    target_url = f"{FEEDBACK_SERVICE_URL}{endpoint_path}"
+    try:
+        with requests.Session() as internal_session:
+            internal_session.trust_env = False
+            internal_session.proxies = {"http": None, "https": None}
+            response = internal_session.get(
+                target_url,
+                params=params,
+                timeout=timeout,
+                allow_redirects=False,
+            )
+        try:
+            return response.status_code, response.json()
+        except ValueError:
+            return response.status_code, {"success": False, "message": "Non-JSON response from Feedback Service"}
+    except Exception as e:
+        return 503, {"success": False, "message": f"Feedback service connection failed: {e}"}
+
+
 def _asset_service_request(method, endpoint, json_body=None, params=None, timeout=None):
     """Call the asset microservice with fast-fail behaviour.
 
@@ -824,23 +883,23 @@ def cache_delete_pattern(pattern: str):
 
 def require_employee_login():
     """
-    Helper function to verify employee session.
-    Returns True if valid employee session exists, False otherwise.
+    Helper function to verify employee or admin session.
+    Returns True if valid employee or admin session exists, False otherwise.
     """
-    if session.get('login_type') != 'employee':
-        return False
-    if not session.get('employee_id'):
-        return False
-    return True
+    login_type = str(session.get('login_type') or '').lower()
+    usertype = str(session.get('usertype') or '').lower()
+    role = str(session.get('role') or '').lower()
+    
+    is_admin = session.get('is_admin') or (login_type in ['admin', 'administrator']) or (usertype in ['admin', 'administrator']) or (role in ['admin', 'administrator'])
+    is_employee = (login_type == 'employee') or bool(session.get('employee_id')) or (role == 'employee')
+    
+    return is_admin or is_employee
 
 
 def _has_employee_admin_access() -> bool:
-    """Allow selected admin/report tools for one employee account only."""
-    if session.get("login_type") != "employee":
-        return False
+    """Allow admin and employee accounts to access admin/report tools."""
+    return require_employee_login()
 
-    employee_id = str(session.get("employee_id") or "").strip().upper()
-    return employee_id == "CH25006"
 
 def get_blogger_service_health():
     """
@@ -1518,7 +1577,7 @@ def home():
 
     try:
         # ===== FEEDBACK =====
-        feedback_response = requests.get(
+        feedback_response = _clean_request_get(
             f"{HOME_SERVICE_URL}/home/feedbacks",
             timeout=5
         )
@@ -1533,7 +1592,7 @@ def home():
         print("Final Feedback Count:", len(feedbacks))
 
         # ===== BATCHES =====
-        batches_response = requests.get(
+        batches_response = _clean_request_get(
             f"{HOME_SERVICE_URL}/home/batches",
             timeout=5
         )
@@ -1560,7 +1619,7 @@ def api_home_batches():
     Proxies to HOME_SERVICE_URL/home/batches and returns JSON directly.
     """
     try:
-        batches_response = requests.get(
+        batches_response = _clean_request_get(
             f"{HOME_SERVICE_URL}/home/batches",
             timeout=10
         )
@@ -1591,7 +1650,7 @@ def gallery():
     gallery_items = []
 
     try:
-        gallery_response = requests.get(
+        gallery_response = _clean_request_get(
             f"{HOME_SERVICE_URL}/home/gallery",
             timeout=5
         )
@@ -4508,13 +4567,13 @@ def feedback_scroll():
             # 🔹 FIXED: Get feedback with user names from NRM_USERS table
             cursor.execute("""
                 SELECT 
-                    f.FEEDBACK_MESSAGE,
+                    to_char(f.FEEDBACK_MESSAGE),
                     COALESCE(u.USERNAME, f.NAME, 'Anonymous') as username,
                     f.SUBMITTED_AT
-                FROM chakora.NRM_FEEDBACK f
-                LEFT JOIN chakora.NRM_USERS u ON f.STUDENT_ID = u.ID
+                FROM NRM_FEEDBACK f
+                LEFT JOIN NRM_USERS u ON f.STUDENT_ID = u.ID
                 WHERE f.FEEDBACK_MESSAGE IS NOT NULL 
-                  AND TRIM(f.FEEDBACK_MESSAGE) != ''
+                  AND dbms_lob.getlength(f.FEEDBACK_MESSAGE) > 0
                 ORDER BY f.SUBMITTED_AT DESC
             """)
             rows = cursor.fetchall()
@@ -5695,8 +5754,10 @@ def admin_report():
 #student_report
 @app.route('/generate-student-report', methods=['GET', 'POST'])
 def generate_student_report():
-    if not _has_employee_admin_access():
-        flash("Access denied.", "error")
+    if not require_employee_login():
+        session.pop("last_visited_path", None)
+        session.modified = True
+        flash("Please login as employee first", "error")
         return redirect(url_for("home"), code=303)
 
     reg_id = None
@@ -5751,6 +5812,11 @@ def generate_student_report():
 
 @app.route("/student-report-view")
 def student_report_view():
+    if not require_employee_login():
+        session.pop("last_visited_path", None)
+        session.modified = True
+        flash("Please login as employee first", "error")
+        return redirect(url_for("home"), code=303)
     reg_id = request.args.get("reg_id")
 
     if not reg_id:
@@ -5778,6 +5844,114 @@ def student_report_view():
         return str(e), 500
 
 # ==========================================
+# CENTRALIZED FEEDBACK SERVICE ROUTES
+# ==========================================
+@app.route("/feedback", methods=["GET"])
+def feedback_student_page():
+    """Renders the public student feedback submission page."""
+    token = (request.args.get("token") or "").rstrip("/\\").replace("%5C", "").strip()
+    return render_template("student-feedback.html", token=token)
+
+
+
+@app.route("/api/student/activities", methods=["GET"])
+def api_student_activities_proxy():
+    reg_id = request.args.get("reg_id", "")
+    email = request.args.get("email", "")
+    
+    if email:
+        status_code, payload = _get_feedback_service_json(f"/feedback/student/{requests.utils.quote(str(email))}")
+        if status_code == 200 and payload.get("success") and payload.get("activities"):
+            # Format activities list for modal
+            acts = []
+            for a in payload.get("activities", []):
+                acts.append({
+                    "id": a.get("ACTIVITY_ID") or a.get("id"),
+                    "type": a.get("MODULE_NAME") or a.get("type"),
+                    "label": f"{a.get('MODULE_NAME')}: {a.get('ACTIVITY_NAME')}",
+                    "eligible": bool(a.get("ELIGIBLE_FOR_FEEDBACK", 1))
+                })
+            return jsonify({"success": True, "activities": acts}), 200
+
+    # Fallback to student_service lookup
+    status_code, payload = _get_student_service_json(f"/api/student/activities?reg_id={requests.utils.quote(str(reg_id))}")
+    return jsonify(payload), status_code
+
+@app.route("/api/student/feedback/generate", methods=["POST"])
+def api_feedback_generate_proxy():
+    data = request.get_json() or {}
+    
+    if "activities" in data and ("activity_ids" not in data or not data["activity_ids"]):
+        data["activity_ids"] = [
+            a.get("activity_id") or a.get("id")
+            for a in data.get("activities", [])
+            if isinstance(a, dict) and (a.get("activity_id") or a.get("id"))
+        ]
+
+    status_code, payload = _post_feedback_service_json("/feedback/generate", data)
+    
+    if isinstance(payload, dict) and payload.get("success"):
+        if "requests" not in payload or not payload["requests"]:
+            feedback_url = payload.get("feedback_url", "")
+            feedback_id = payload.get("feedback_id", "")
+            payload["requests"] = [{
+                "feedback_url": feedback_url,
+                "feedback_id": feedback_id
+            }]
+
+    # Automatically trigger send email if generated successfully
+    if status_code == 200 and isinstance(payload, dict) and payload.get("success"):
+        feedback_id = payload.get("feedback_id")
+        student_email = data.get("student_email")
+        student_name = data.get("student_name", "Student")
+        expiry_hours = data.get("expiry_hours", 24)
+        
+        if feedback_id and student_email:
+            _post_feedback_service_json("/feedback/send", {
+                "feedback_id": feedback_id,
+                "student_name": student_name,
+                "student_email": student_email,
+                "expiry_hours": expiry_hours
+            })
+            payload["email_sent"] = True
+
+    return jsonify(payload), status_code
+
+
+@app.route("/api/student/feedback/send", methods=["POST"])
+def api_feedback_send_proxy():
+    data = request.get_json() or {}
+    status_code, payload = _post_feedback_service_json("/feedback/send", data)
+    return jsonify(payload), status_code
+
+@app.route("/api/student/feedback/token/<path:token>", methods=["GET"])
+@app.route("/api/student/feedback/token/", methods=["GET"])
+def api_feedback_token_proxy(token=""):
+    if not token:
+        token = request.args.get("token", "")
+    token = token.rstrip("/\\").replace("%5C", "").strip()
+    status_code, payload = _get_feedback_service_json(f"/feedback/{token}")
+    return jsonify(payload), status_code
+
+
+@app.route("/api/student/feedback/submit", methods=["POST"])
+def api_feedback_submit_proxy():
+    data = request.get_json() or {}
+    status_code, payload = _post_feedback_service_json("/feedback/submit", data)
+    return jsonify(payload), status_code
+
+
+@app.route("/api/student/feedback/status", methods=["GET"])
+def api_feedback_status_proxy():
+    status_code, payload = _get_feedback_service_json("/feedback/status")
+    return jsonify(payload), status_code
+
+@app.route("/api/student/feedback/report", methods=["GET"])
+def api_feedback_report_proxy():
+    status_code, payload = _get_feedback_service_json("/feedback/report")
+    return jsonify(payload), status_code
+
+# ==========================================
 # FETCH STUDENTS FOR REPORT PAGE
 # ==========================================
 
@@ -5797,23 +5971,6 @@ def fetch_students():
         print("❌ ERROR in /students:", e)
         return jsonify({"status": "error", "message": str(e)})
 
-@app.route("/api/student/activities")
-def fetch_student_activities_proxy():
-    reg_id = request.args.get("reg_id")
-    if not reg_id:
-        return jsonify({"status": "error", "message": "Registration ID is required"}), 400
-    try:
-        status_code, payload = _get_student_service_json(
-            f"/api/student/activities?reg_id={requests.utils.quote(str(reg_id))}",
-            timeout=10,
-        )
-        if status_code != 200:
-            return jsonify({"status": "error", "message": "Service unavailable"}), status_code
-        return jsonify(payload)
-    except Exception as e:
-        print("❌ ERROR in fetch_student_activities_proxy:", e)
-        return jsonify({"status": "error", "message": str(e)}), 500
-
 @app.route("/api/student/report/all-activities")
 def fetch_all_student_activities_proxy():
     try:
@@ -5827,22 +5984,6 @@ def fetch_all_student_activities_proxy():
     except Exception as e:
         print("❌ ERROR in fetch_all_student_activities_proxy:", e)
         return jsonify({"success": False, "data": {}}), 500
-
-@app.route("/api/student/feedback/generate", methods=["POST"])
-def generate_student_feedback_proxy():
-    try:
-        data = request.get_json(force=True) or {}
-        status_code, payload = _post_student_service_json(
-            "/api/student/feedback/generate",
-            data,
-            timeout=12,
-        )
-        if status_code != 200:
-            return jsonify({"status": "error", "message": "Feedback service unavailable"}), status_code
-        return jsonify(payload)
-    except Exception as e:
-        print("❌ ERROR in generate_student_feedback_proxy:", e)
-        return jsonify({"status": "error", "message": str(e)}), 500
         
 @app.route("/student-report")
 def student_report_page():
@@ -14361,7 +14502,7 @@ def proxy_stm_razorpay_webhook():
 
 if __name__ == "__main__":
     print("🚀 Starting Dev Server → http://127.0.0.1:8080")
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
 #if __name__ == "__main__":
     #print("🚀 Starting Production Server on 0.0.0.0:8080...")
     #serve(app, host='0.0.0.0', port=8080, threads=50, url_scheme='http')
