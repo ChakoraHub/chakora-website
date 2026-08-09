@@ -42,58 +42,58 @@ from functools import lru_cache
 
 # ================= SERVICE URLS =================
 
-HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL","http://172.31.26.176:5001")
-STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL","http://172.31.26.176:8001")
-MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL","http://172.31.26.176:9000")
-CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL","http://172.31.26.176:7600")
-ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL","http://172.31.26.176:8090")
-INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL","http://172.31.26.176:5050")
-MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL","http://172.31.26.176:7700")
-EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL","http://172.31.26.176:8002")
-BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL","http://172.31.26.176:7500")
-BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL","http://172.31.26.176:8020")
-BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL","http://172.31.26.176:8010")
-STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
-RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL","http://172.31.26.176:7900")
-ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://172.31.26.176:8100")
-OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL","http://172.31.26.176:8500")
-WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL","http://172.31.26.176:2500").rstrip("/")
-FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
-sf_client = None
-APPLICATION_SERVICE_URL = os.getenv("https://mobqdeus63.execute-api.eu-north-1.amazonaws.com/Prod", "http://172.31.26.176:8020")
-LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
-STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
-STUDENT_INTERNAL_NO_PROXY = "172.31.26.176"
-INTERNAL_NO_PROXY="172.31.26.176"
-CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
-INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+# HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL","http://172.31.26.176:5001")
+# STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL","http://172.31.26.176:8001")
+# MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL","http://172.31.26.176:9000")
+# CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL","http://172.31.26.176:7600")
+# ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL","http://172.31.26.176:8090")
+# INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL","http://172.31.26.176:5050")
+# MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL","http://172.31.26.176:7700")
+# EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL","http://172.31.26.176:8002")
+# BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL","http://172.31.26.176:7500")
+# BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL","http://172.31.26.176:8020")
+# BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL","http://172.31.26.176:8010")
+# STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
+# RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL","http://172.31.26.176:7900")
+# ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://172.31.26.176:8100")
+# OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL","http://172.31.26.176:8500")
+# WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL","http://172.31.26.176:2500").rstrip("/")
+# FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
+# sf_client = None
+# APPLICATION_SERVICE_URL = os.getenv("https://mobqdeus63.execute-api.eu-north-1.amazonaws.com/Prod", "http://172.31.26.176:8020")
+# LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
+# STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
+# STUDENT_INTERNAL_NO_PROXY = "172.31.26.176"
+# INTERNAL_NO_PROXY="172.31.26.176"
+# CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
+# INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
 
-# HOME_SERVICE_URL = "http://127.0.0.1:5001"
-# STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
-# MEETING_SERVICE_URL = "http://127.0.0.1:9000"
-# CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
-# ASSET_SERVICE_URL = "http://127.0.0.1:8090"
-# INTERNSHIP_SERVICE_URL = "http://127.0.0.1:5050"
-# MS365_SERVICE_URL = "http://127.0.0.1:7700"
-# EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
-# BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
-# BRS_SERVICE_URL = "http://127.0.0.1:8020"
-# BILLING_SERVICE_URL = "http://127.0.0.1:8010"
-# RAG_SERVICE_URL = "http://127.0.0.1:7900"
-# ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
-# OPE_SERVICE_URL = "http://127.0.0.1:8500"
-# WABA_SERVICE_URL = "http://127.0.0.1:2500"
-# APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
-# LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
-# WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
-# FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
-# STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
-# STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
-# INTERNAL_NO_PROXY="127.0.0.1"
-# CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
-# INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+HOME_SERVICE_URL = "http://127.0.0.1:5001"
+STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
+MEETING_SERVICE_URL = "http://127.0.0.1:9000"
+CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
+ASSET_SERVICE_URL = "http://127.0.0.1:8090"
+INTERNSHIP_SERVICE_URL = "http://127.0.0.1:5050"
+MS365_SERVICE_URL = "http://127.0.0.1:7700"
+EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
+BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
+BRS_SERVICE_URL = "http://127.0.0.1:8020"
+BILLING_SERVICE_URL = "http://127.0.0.1:8010"
+RAG_SERVICE_URL = "http://127.0.0.1:7900"
+ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
+OPE_SERVICE_URL = "http://127.0.0.1:8500"
+WABA_SERVICE_URL = "http://127.0.0.1:2500"
+APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
+LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
+WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
+FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
+STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
+STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
+INTERNAL_NO_PROXY="127.0.0.1"
+CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
+INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
 STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
 sf_client = None
 # STM_SERVICE_URL = os.environ.get("STM_SERVICE_URL", "http://127.0.0.1:7010")
@@ -1666,6 +1666,33 @@ def resources():
     }
 
     courses_for_grid = []
+    try:
+        status_code, payload = _get_student_service_json("/api/student/resources-courses", timeout=10)
+        if status_code == 200 and isinstance(payload, dict):
+            raw_courses = payload.get("courses") or []
+            normalized_courses = []
+            for item in raw_courses:
+                if not isinstance(item, dict):
+                    continue
+                image_url = str(item.get("image_url") or item.get("IMAGE_URL") or "").strip()
+                if image_url:
+                    low = image_url.lower()
+                    if low.startswith("http://") or low.startswith("https://") or image_url.startswith("/"):
+                        resolved_image_url = image_url
+                    else:
+                        resolved_image_url = url_for("static", filename=image_url)
+                else:
+                    resolved_image_url = ""
+
+                normalized = dict(item)
+                normalized["image_url"] = resolved_image_url
+                normalized_courses.append(normalized)
+
+            courses_for_grid = normalized_courses
+        else:
+            print(f"⚠️ [/resources] courses grid load failed: status={status_code} payload={payload}")
+    except Exception as e:
+        print(f"⚠️ [/resources] courses grid exception: {e}")
 
     # ─────────────────────────────────────────
     # RENDER
