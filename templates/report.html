@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Profile Report – ChakoraHub</title>
+  <meta name="description" content="Comprehensive student profile report for {{ student.first_name }} {{ student.last_name }} on ChakoraHub.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg:        #0b0f1e;
+      --surface:   #131929;
+      --surface2:  #1a2236;
+      --border:    rgba(255,255,255,0.07);
+      --text:      #f0f4ff;
+      --muted:     #7a8aa0;
+      --brand:     #6366f1;
+      --brand-light:#818cf8;
+      --success:   #10b981;
+      --warning:   #f59e0b;
+      --danger:    #ef4444;
+      --radius:    18px;
+      --radius-sm: 10px;
+      --shadow:    0 20px 60px rgba(0,0,0,0.5);
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(ellipse at 20% 10%, rgba(99,102,241,0.12) 0%, transparent 55%),
+                  radial-gradient(ellipse at 80% 90%, rgba(16,185,129,0.07) 0%, transparent 50%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 30px 16px 60px;
+    }
+
+    /* ── TOP BAR ─────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 900px;
+      margin: 0 auto 32px;
+    }
+    .topbar a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color .2s;
+    }
+    .topbar a:hover { color: var(--text); }
+    .topbar .logo {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--brand-light);
+      letter-spacing: -0.3px;
+    }
+    .topbar .print-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: rgba(99,102,241,0.15);
+      color: var(--brand-light);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+      text-decoration: none;
+    }
+    .topbar .print-btn:hover { background: rgba(99,102,241,0.25); }
+
+    /* ── HERO CARD ────────────────────────────── */
+    .card {
+      max-width: 900px;
+      margin: 0 auto 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero-banner {
+      background: linear-gradient(135deg, #1e1b4b 0%, #1e293b 100%);
+      padding: 36px 40px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 300px; height: 100%;
+      background: radial-gradient(ellipse at 80% 50%, rgba(99,102,241,0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .avatar {
+      flex-shrink: 0;
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #fff;
+      border: 3px solid rgba(255,255,255,0.2);
+      box-shadow: 0 0 0 6px rgba(99,102,241,0.15);
+      position: relative;
+      z-index: 1;
+    }
+    .hero-info { position: relative; z-index: 1; flex: 1; }
+    .hero-info .full-name {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .hero-info .course-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99,102,241,0.2);
+      color: var(--brand-light);
+      border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 50px;
+      padding: 5px 14px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .hero-info .reg-id {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .hero-info .reg-id span {
+      color: var(--brand-light);
+      font-weight: 700;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+      flex-shrink: 0;
+    }
+    .status-active   { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+    .status-inactive { background: rgba(239,68,68,0.15);  color: #ef4444; border: 1px solid rgba(239,68,68,0.3);  }
+    .status-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ── SECTION LABEL ────────────────────────── */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .section-label i { color: var(--brand-light); font-size: 0.9rem; }
+
+    /* ── INFO GRID ────────────────────────────── */
+    .card-body { padding: 32px 40px; }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+    .info-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px 18px;
+      transition: border-color .2s;
+    }
+    .info-item:hover { border-color: rgba(99,102,241,0.3); }
+    .info-item.full { grid-column: span 3; }
+    .info-item .label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .info-item .label i { font-size: 0.75rem; color: var(--brand-light); }
+    .info-item .value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      word-break: break-word;
+    }
+    .info-item .value.highlight { color: var(--brand-light); }
+
+    /* ── DIVIDER ──────────────────────────────── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    /* ── ACTIVITY TABLE ───────────────────────── */
+    .activity-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .activity-table th {
+      background: var(--surface2);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .activity-table th:first-child { border-radius: 8px 0 0 0; }
+    .activity-table th:last-child  { border-radius: 0 8px 0 0; }
+    .activity-table td {
+      padding: 12px 14px;
+      color: var(--text);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: middle;
+    }
+    .activity-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .activity-table tr:last-child td { border-bottom: none; }
+    .act-type-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(99,102,241,0.1);
+      color: var(--brand-light);
+      border: 1px solid rgba(99,102,241,0.2);
+    }
+    .act-eligible-yes { color: var(--success); font-weight: 600; }
+    .act-eligible-no  { color: var(--muted); }
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .empty-state i { font-size: 2rem; margin-bottom: 10px; display: block; opacity: 0.4; }
+
+    /* ── FOOTER ACTIONS ───────────────────────── */
+    .footer-actions {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 24px;
+      border-radius: 50px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+    }
+    .btn-primary { background: var(--brand); color: #fff; }
+    .btn-primary:hover { background: #4f46e5; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.4); }
+    .btn-ghost   { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+    .btn-success { background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.25); }
+    .btn-success:hover { background: rgba(16,185,129,0.25); }
+
+    /* ── PRINT ────────────────────────────────── */
+    @media print {
+      body { background: #fff; color: #000; padding: 0; }
+      .topbar, .footer-actions, .print-btn { display: none !important; }
+      .card { box-shadow: none; border: 1px solid #ddd; max-width: 100%; }
+      .hero-banner { background: #f3f4f6 !important; }
+      .hero-info .full-name { color: #111; }
+      .info-item { background: #f9fafb; border-color: #e5e7eb; }
+      .info-item .value { color: #111; }
+      .info-item .label { color: #555; }
+    }
+
+    @media (max-width: 640px) {
+      .hero-banner { flex-direction: column; text-align: center; padding: 28px 24px; }
+      .info-grid { grid-template-columns: 1fr 1fr; }
+      .info-item.full { grid-column: span 2; }
+      .card-body { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <a href="/generate-student-report"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    <span class="logo"><i class="fas fa-graduation-cap"></i> ChakoraHub</span>
+    <a href="#" class="print-btn" onclick="window.print(); return false;">
+      <i class="fas fa-print"></i> Print / Export
+    </a>
+  </div>
+
+  <!-- HERO CARD -->
+  <div class="card">
+    <div class="hero-banner">
+      <div class="avatar" id="avatar-initial">
+        {{ student.first_name[0] | upper if student.first_name else 'S' }}
+      </div>
+      <div class="hero-info">
+        <div class="full-name">{{ student.first_name or '' }} {{ student.last_name or '' }}</div>
+        <div class="course-pill">
+          <i class="fas fa-book-open"></i>
+          {{ student.course_name or 'N/A' }}
+        </div>
+        <div class="reg-id">
+          Registration ID: <span>{{ student.registration_id or '—' }}</span>
+        </div>
+      </div>
+      {% set s = (student.status or 'Active') | lower %}
+      <div class="status-badge {{ 'status-active' if 'active' in s else 'status-inactive' }}">
+        <span class="dot"></span>
+        {{ student.status or 'Active' }}
+      </div>
+    </div>
+
+    <div class="card-body">
+
+      <!-- PERSONAL INFORMATION -->
+      <div class="section-label">
+        <i class="fas fa-user-circle"></i> Personal Information
+      </div>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="label"><i class="fas fa-user"></i> First Name</div>
+          <div class="value">{{ student.first_name or '—' }}</div>
+        </div>
+        <div class="info-item">
+          <div class="label"><i class="fas fa-user"></i> Last Name</div>
+          <div class="value">{{ student.last_name or '—' }}</div>
+        </div>
+        <div class="info-item">
+          <div class="label"><i class="fas fa-phone"></i> Phone Number</div>
+          <div class="value">{{ student.phone or '—' }}</div>
+        </div>
+        <div class="info-item full">
+          <div class="label"><i class="fas fa-envelope"></i> Email Address</div>
+          <div class="value">{{ student.email or '—' }}</div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- ENROLLMENT DETAILS -->
+      <div class="section-label">
+        <i class="fas fa-id-badge"></i> Enrollment Details
+      </div>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="label"><i class="fas fa-hashtag"></i> Registration ID</div>
+          <div class="value highlight">{{ student.registration_id or '—' }}</div>
+        </div>
+        <div class="info-item">
+          <div class="label"><i class="fas fa-book-open"></i> Course</div>
+          <div class="value">{{ student.course_name or '—' }}</div>
+        </div>
+        <div class="info-item">
+          <div class="label"><i class="fas fa-calendar-alt"></i> Enrollment Date</div>
+          <div class="value">{{ student.start_date or '—' }}</div>
+        </div>
+        <div class="info-item">
+          <div class="label"><i class="fas fa-circle-dot"></i> Status</div>
+          <div class="value">
+            {% set s = (student.status or 'Active') | lower %}
+            <span style="color: {{ '#10b981' if 'active' in s else '#ef4444' }}; font-weight:700;">
+              {{ student.status or 'Active' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- ACTIVITIES / FEEDBACK -->
+      <div class="section-label">
+        <i class="fas fa-list-check"></i> Activities & Feedback Eligibility
+      </div>
+
+      {% set acts = student.get('activities', []) if student is mapping else [] %}
+      {% if acts %}
+        <table class="activity-table">
+          <thead>
+            <tr>
+              <th>Activity</th>
+              <th>Type</th>
+              <th>Activity ID</th>
+              <th>Feedback Eligible</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for act in acts %}
+            <tr>
+              <td>{{ act.get('label', act.get('ACTIVITY_NAME', '—')) }}</td>
+              <td>
+                <span class="act-type-pill">
+                  <i class="fas fa-layer-group"></i>
+                  {{ act.get('type', act.get('ACTIVITY_TYPE', '—')) }}
+                </span>
+              </td>
+              <td style="color:var(--muted); font-size:0.82rem;">
+                {{ act.get('id', act.get('ACTIVITY_ID', '—')) }}
+              </td>
+              <td>
+                {% if act.get('eligible', act.get('ELIGIBLE_FOR_FEEDBACK', False)) %}
+                  <span class="act-eligible-yes"><i class="fas fa-check-circle"></i> Yes</span>
+                {% else %}
+                  <span class="act-eligible-no"><i class="fas fa-minus-circle"></i> No</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty-state">
+          <i class="fas fa-inbox"></i>
+          No activities recorded for this student.
+        </div>
+      {% endif %}
+
+      <!-- FOOTER ACTIONS -->
+      <div class="footer-actions">
+        <a href="/generate-student-report" class="btn btn-ghost">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <a href="#" class="btn btn-success" onclick="window.print(); return false;">
+          <i class="fas fa-file-pdf"></i> Print / Export PDF
+        </a>
+      </div>
+
+    </div><!-- /card-body -->
+  </div><!-- /card -->
+
+</body>
+</html>
