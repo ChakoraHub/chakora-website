@@ -1725,6 +1725,33 @@ def resources():
     }
 
     courses_for_grid = []
+    try:
+        status_code, payload = _get_student_service_json("/api/student/resources-courses", timeout=10)
+        if status_code == 200 and isinstance(payload, dict):
+            raw_courses = payload.get("courses") or []
+            normalized_courses = []
+            for item in raw_courses:
+                if not isinstance(item, dict):
+                    continue
+                image_url = str(item.get("image_url") or item.get("IMAGE_URL") or "").strip()
+                if image_url:
+                    low = image_url.lower()
+                    if low.startswith("http://") or low.startswith("https://") or image_url.startswith("/"):
+                        resolved_image_url = image_url
+                    else:
+                        resolved_image_url = url_for("static", filename=image_url)
+                else:
+                    resolved_image_url = ""
+
+                normalized = dict(item)
+                normalized["image_url"] = resolved_image_url
+                normalized_courses.append(normalized)
+
+            courses_for_grid = normalized_courses
+        else:
+            print(f"⚠️ [/resources] courses grid load failed: status={status_code} payload={payload}")
+    except Exception as e:
+        print(f"⚠️ [/resources] courses grid exception: {e}")
 
     # ─────────────────────────────────────────
     # RENDER
