@@ -42,58 +42,58 @@ from functools import lru_cache
 
 # ================= SERVICE URLS =================
 
-HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL","http://172.31.26.176:5001")
-STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL","http://172.31.26.176:8001")
-MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL","http://172.31.26.176:9000")
-CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL","http://172.31.26.176:7600")
-ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL","http://172.31.26.176:8090")
-INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL","http://172.31.26.176:5050")
-MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL","http://172.31.26.176:7700")
-EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL","http://172.31.26.176:8002")
-BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL","http://172.31.26.176:7500")
-BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL","http://172.31.26.176:8020")
-BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL","http://172.31.26.176:8010")
-STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
-RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL","http://172.31.26.176:7900")
-ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://172.31.26.176:8100")
-OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL","http://172.31.26.176:8500")
-WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL","http://172.31.26.176:2500").rstrip("/")
-FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
-sf_client = None
-APPLICATION_SERVICE_URL = os.getenv("https://mobqdeus63.execute-api.eu-north-1.amazonaws.com/Prod", "http://172.31.26.176:8020")
-LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
-STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
-STUDENT_INTERNAL_NO_PROXY = "172.31.26.176"
-INTERNAL_NO_PROXY="172.31.26.176"
-CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
-INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+# HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL","http://172.31.26.176:5001")
+# STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL","http://172.31.26.176:8001")
+# MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL","http://172.31.26.176:9000")
+# CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL","http://172.31.26.176:7600")
+# ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL","http://172.31.26.176:8090")
+# INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL","http://172.31.26.176:5050")
+# MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL","http://172.31.26.176:7700")
+# EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL","http://172.31.26.176:8002")
+# BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL","http://172.31.26.176:7500")
+# BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL","http://172.31.26.176:8020")
+# BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL","http://172.31.26.176:8010")
+# STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
+# RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL","http://172.31.26.176:7900")
+# ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://172.31.26.176:8100")
+# OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL","http://172.31.26.176:8500")
+# WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL","http://172.31.26.176:2500").rstrip("/")
+# FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
+# sf_client = None
+# APPLICATION_SERVICE_URL = os.getenv("https://mobqdeus63.execute-api.eu-north-1.amazonaws.com/Prod", "http://172.31.26.176:8020")
+# LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
+# STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
+# STUDENT_INTERNAL_NO_PROXY = "172.31.26.176"
+# INTERNAL_NO_PROXY="172.31.26.176"
+# CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
+# INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
 
-# HOME_SERVICE_URL = "http://127.0.0.1:5001"
-# STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
-# MEETING_SERVICE_URL = "http://127.0.0.1:9000"
-# CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
-# ASSET_SERVICE_URL = "http://127.0.0.1:8090"
-# INTERNSHIP_SERVICE_URL = "http://127.0.0.1:5050"
-# MS365_SERVICE_URL = "http://127.0.0.1:7700"
-# EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
-# BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
-# BRS_SERVICE_URL = "http://127.0.0.1:8020"
-# BILLING_SERVICE_URL = "http://127.0.0.1:8010"
-# RAG_SERVICE_URL = "http://127.0.0.1:7900"
-# ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
-# OPE_SERVICE_URL = "http://127.0.0.1:8500"
-# WABA_SERVICE_URL = "http://127.0.0.1:2500"
-# APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
-# LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
-# WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
-# FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
-# STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
-# STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
-# INTERNAL_NO_PROXY="127.0.0.1"
-# CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
-# INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+HOME_SERVICE_URL = "http://127.0.0.1:5001"
+STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
+MEETING_SERVICE_URL = "http://127.0.0.1:9000"
+CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
+ASSET_SERVICE_URL = "http://127.0.0.1:8090"
+INTERNSHIP_SERVICE_URL = "http://127.0.0.1:5050"
+MS365_SERVICE_URL = "http://127.0.0.1:7700"
+EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
+BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
+BRS_SERVICE_URL = "http://127.0.0.1:8020"
+BILLING_SERVICE_URL = "http://127.0.0.1:8010"
+RAG_SERVICE_URL = "http://127.0.0.1:7900"
+ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
+OPE_SERVICE_URL = "http://127.0.0.1:8500"
+WABA_SERVICE_URL = "http://127.0.0.1:2500"
+APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
+LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
+WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
+FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
+STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
+STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
+INTERNAL_NO_PROXY="127.0.0.1"
+CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
+INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
 STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
 sf_client = None
 # STM_SERVICE_URL = os.environ.get("STM_SERVICE_URL", "http://127.0.0.1:7010")
@@ -1005,6 +1005,162 @@ def _sync_logout_state(login_type, user_id=None, employee_id=None, reason="logou
 
     print(f"❌ Logout sync failed on all targets: type={login_type} reason={reason}")
     return False
+
+
+def _proxy_json_request(base_url, endpoint, method="GET", payload=None, params=None, timeout=15):
+    """Lightweight JSON proxy helper for mobile API routes."""
+    target_url = f"{str(base_url).rstrip('/')}{endpoint}"
+    try:
+        with requests.Session() as internal_session:
+            internal_session.trust_env = False
+            internal_session.proxies = {"http": None, "https": None}
+            response = internal_session.request(
+                method=method.upper(),
+                url=target_url,
+                json=payload,
+                params=params,
+                timeout=timeout,
+                allow_redirects=False,
+            )
+
+        try:
+            data = response.json()
+        except ValueError:
+            data = {
+                "success": False,
+                "message": "Non-JSON response from upstream service",
+                "raw": (response.text or "")[:500],
+            }
+        return data, response.status_code
+    except Exception as exc:
+        return {
+            "success": False,
+            "message": f"Upstream request failed: {exc}",
+        }, 503
+
+
+# ================= Mobile Gateway Routes (Flask -> FastAPI services) =================
+
+@app.route('/home/login', methods=['POST'])
+def mobile_home_login_proxy():
+    payload = request.get_json(silent=True) or request.form.to_dict(flat=True)
+    data, status = _proxy_json_request(HOME_SERVICE_URL, '/home/login', method='POST', payload=payload, timeout=20)
+    return jsonify(data), status
+
+
+@app.route('/home/pin/setup', methods=['POST'])
+def mobile_home_pin_setup_proxy():
+    payload = request.get_json(silent=True) or {}
+    data, status = _proxy_json_request(HOME_SERVICE_URL, '/home/pin/setup', method='POST', payload=payload, timeout=20)
+    return jsonify(data), status
+
+
+@app.route('/home/pin/login', methods=['POST'])
+def mobile_home_pin_login_proxy():
+    payload = request.get_json(silent=True) or {}
+    data, status = _proxy_json_request(HOME_SERVICE_URL, '/home/pin/login', method='POST', payload=payload, timeout=20)
+    return jsonify(data), status
+
+
+@app.route('/home/pin/status', methods=['GET'])
+def mobile_home_pin_status_proxy():
+    data, status = _proxy_json_request(HOME_SERVICE_URL, '/home/pin/status', method='GET', params=request.args, timeout=15)
+    return jsonify(data), status
+
+
+@app.route('/home/logout/user', methods=['POST'])
+def mobile_home_logout_user_proxy():
+    payload = request.get_json(silent=True) or {}
+    data, status = _proxy_json_request(HOME_SERVICE_URL, '/home/logout/user', method='POST', payload=payload, timeout=15)
+    return jsonify(data), status
+
+
+@app.route('/home/batches', methods=['GET'])
+def mobile_home_batches_proxy():
+    data, status = _proxy_json_request(HOME_SERVICE_URL, '/home/batches', method='GET', params=request.args, timeout=15)
+    return jsonify(data), status
+
+
+@app.route('/home/feedbacks', methods=['GET'])
+def mobile_home_feedbacks_proxy():
+    data, status = _proxy_json_request(HOME_SERVICE_URL, '/home/feedbacks', method='GET', params=request.args, timeout=15)
+    return jsonify(data), status
+
+
+@app.route('/home/gallery', methods=['GET'])
+def mobile_home_gallery_proxy():
+    data, status = _proxy_json_request(HOME_SERVICE_URL, '/home/gallery', method='GET', params=request.args, timeout=15)
+    return jsonify(data), status
+
+
+@app.route('/home/blogs', methods=['GET'])
+def mobile_home_blogs_proxy():
+    data, status = _proxy_json_request(HOME_SERVICE_URL, '/home/blogs', method='GET', params=request.args, timeout=15)
+    return jsonify(data), status
+
+
+@app.route('/home/clients', methods=['GET'])
+def mobile_home_clients_proxy():
+    data, status = _proxy_json_request(HOME_SERVICE_URL, '/home/clients', method='GET', params=request.args, timeout=15)
+    return jsonify(data), status
+
+
+@app.route('/api/student/resources-courses', methods=['GET'])
+def mobile_student_resources_courses_proxy():
+    data, status = _proxy_json_request(STUDENT_SERVICE_URL, '/api/student/resources-courses', method='GET', params=request.args, timeout=20)
+    return jsonify(data), status
+
+
+@app.route('/api/student/course-resources', methods=['GET'])
+def mobile_student_course_resources_proxy():
+    data, status = _proxy_json_request(STUDENT_SERVICE_URL, '/api/student/course-resources', method='GET', params=request.args, timeout=20)
+    return jsonify(data), status
+
+
+@app.route('/api/student/course-videos', methods=['GET'])
+def mobile_student_course_videos_proxy():
+    data, status = _proxy_json_request(STUDENT_SERVICE_URL, '/api/student/course-videos', method='GET', params=request.args, timeout=20)
+    return jsonify(data), status
+
+
+@app.route('/api/student/profile', methods=['POST'])
+def mobile_student_profile_proxy():
+    payload = request.get_json(silent=True) or {}
+    data, status = _proxy_json_request(STUDENT_SERVICE_URL, '/api/student/profile', method='POST', payload=payload, timeout=20)
+    return jsonify(data), status
+
+
+@app.route('/api/student/feedback', methods=['POST'])
+def mobile_student_feedback_proxy():
+    payload = request.get_json(silent=True) or {}
+    data, status = _proxy_json_request(STUDENT_SERVICE_URL, '/api/student/feedback', method='POST', payload=payload, timeout=20)
+    return jsonify(data), status
+
+
+@app.route('/api/student/enquiry', methods=['POST'])
+def mobile_student_enquiry_proxy():
+    payload = request.get_json(silent=True) or {}
+    data, status = _proxy_json_request(STUDENT_SERVICE_URL, '/api/student/enquiry', method='POST', payload=payload, timeout=20)
+    return jsonify(data), status
+
+
+@app.route('/api/student/calendar-events', methods=['GET'])
+def mobile_student_calendar_events_proxy():
+    data, status = _proxy_json_request(STUDENT_SERVICE_URL, '/api/student/calendar-events', method='GET', params=request.args, timeout=20)
+    return jsonify(data), status
+
+
+@app.route('/meeting/agentic-suggestions', methods=['POST'])
+def mobile_meeting_agentic_suggestions_proxy():
+    payload = request.get_json(silent=True) or {}
+    data, status = _proxy_json_request(MEETING_SERVICE_URL, '/meeting/agentic-suggestions', method='POST', payload=payload, timeout=20)
+    return jsonify(data), status
+
+
+@app.route('/meeting-price-preview', methods=['GET'])
+def mobile_meeting_price_preview_proxy():
+    data, status = _proxy_json_request(MEETING_SERVICE_URL, '/meeting-price-preview', method='GET', params=request.args, timeout=20)
+    return jsonify(data), status
 
 def send_shop_order_email(user_email, full_name, order_id, payment_id, items=None, financials=None):
     """
@@ -6248,6 +6404,9 @@ def admin_register():
     offerings, languages = student_form_data["offerings"], student_form_data["languages"]
 
     if request.method == "GET":
+        wants_api = (request.args.get("api") or "").strip() == "1"
+        if wants_api:
+            return jsonify(student_form_data), 200
         return render_template("registration.html",
                                offerings=offerings,
                                languages=languages,
