@@ -593,7 +593,7 @@
         </div>
 
         <!-- Form -->
-        <form id="internshipForm" method="post" action="https://api.chakorahub.com/api/internship/apply" enctype="multipart/form-data" autocomplete="off">
+        <form id="internshipForm" method="post" action="/api/internship/apply" enctype="multipart/form-data" autocomplete="off">
 
             <!-- STEP 1: Personal Information -->
             <div class="form-section active" data-section="1">
@@ -1117,7 +1117,7 @@
     const submitStatus = document.getElementById('submitStatus');
     const emailStatusMessage = document.getElementById('emailStatusMessage');
 
-    const PRIMARY_SUBMIT_URL = 'https://api.chakorahub.com/api/internship/apply';
+    const PRIMARY_SUBMIT_URL = '/api/internship/apply';
 
     async function submitApplicationTo(url, formData) {
         const response = await fetch(url, {

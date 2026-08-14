@@ -1331,7 +1331,7 @@ def enforce_canonical_host_redirect():
     if INTERNSHIP_PUBLIC_HOST and host_header == INTERNSHIP_PUBLIC_HOST and request.path not in api_host_allowed_paths:
         return redirect(f"https://{CANONICAL_HOST}/", code=308)
 
-    if request.path in internship_host_paths and INTERNSHIP_PUBLIC_HOST and host_header != INTERNSHIP_PUBLIC_HOST:
+    if request.path in internship_host_paths and INTERNSHIP_PUBLIC_HOST and host_header != INTERNSHIP_PUBLIC_HOST and host_header not in {"localhost", "127.0.0.1", "0.0.0.0"}:
         target_url = f"https://{INTERNSHIP_PUBLIC_HOST}{request.path}"
         if request.query_string:
             target_url = f"{target_url}?{request.query_string.decode('utf-8', errors='ignore')}"
