@@ -1333,15 +1333,17 @@
       const noteEl = document.getElementById(`note_d${todayIdx}`);
       if (inEl && !inEl.classList.contains('disabled')) {
         if (fpInstances[inEl.id]) fpInstances[inEl.id].clear();
+        inEl.value = '';
       }
       if (outEl && !outEl.classList.contains('disabled')) {
         if (fpInstances[outEl.id]) fpInstances[outEl.id].clear();
+        outEl.value = '';
       }
       if (noteEl && !noteEl.classList.contains('disabled')) {
         noteEl.value = '';
       }
       recalcAll();
-      showToast('Today\'s entries cleared', '');
+      showToast("Today's entries cleared. Click 'Save time sheet' to save.", 'warning');
     }
 
     function saveSheet() {
