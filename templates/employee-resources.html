@@ -2949,15 +2949,17 @@ function calShowToast(msg,type){
     const inEl = document.getElementById(`ts_login_${key}`);
     const outEl = document.getElementById(`ts_logout_${key}`);
     const noteEl = document.getElementById(`ts_note_d${todayIdx}`);
-    if (inEl && !inEl.classList.contains('disabled') && window.timesheetState.fpInstances[inEl.id]) {
-      window.timesheetState.fpInstances[inEl.id].clear();
+    if (inEl && !inEl.classList.contains('disabled')) {
+      if (window.timesheetState.fpInstances[inEl.id]) window.timesheetState.fpInstances[inEl.id].clear();
+      inEl.value = '';
     }
-    if (outEl && !outEl.classList.contains('disabled') && window.timesheetState.fpInstances[outEl.id]) {
-      window.timesheetState.fpInstances[outEl.id].clear();
+    if (outEl && !outEl.classList.contains('disabled')) {
+      if (window.timesheetState.fpInstances[outEl.id]) window.timesheetState.fpInstances[outEl.id].clear();
+      outEl.value = '';
     }
     if (noteEl && !noteEl.classList.contains('disabled')) noteEl.value = '';
     tsRecalcAll();
-    tsShowToast('Today\'s entries cleared', 'success');
+    tsShowToast("Today's entries cleared. Click 'Save' to confirm.", 'warning');
   };
 
   window.timesheetSave = function() {
