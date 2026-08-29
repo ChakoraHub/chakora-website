@@ -498,7 +498,12 @@
 <body>
 
 <div class="header">
-  <h1>🎯 Employee Appraisal System</h1>
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <a href="{{ url_for('employee_resources') }}" class="back-to-resources-btn" style="background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 18px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); transition: all 0.2s ease;">
+      ← Back to Resources
+    </a>
+    <h1>🎯 Employee Appraisal System</h1>
+  </div>
   <div class="user-info">
     <img id="headerProfilePic" src="/static/profile_photo/defaultpicture.jpg" alt="Profile" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22%3E%3Ccircle cx=%2220%22 cy=%2220%22 r=%2220%22 fill=%22%23667eea%22/%3E%3C/svg%3E'" />
     <div>
@@ -530,6 +535,12 @@
     </div>
     <div class="sidebar-item" onclick="showSection('manage-trainings')" data-section="manage-trainings">
       📚 My Trainings
+    </div>
+
+    <div style="margin-top: 30px; border-top: 1px solid #edf2f7; padding-top: 15px;">
+      <a href="{{ url_for('employee_resources') }}" class="sidebar-item" style="text-decoration:none; color:#667eea; font-weight:700;">
+        ← Back to Resources
+      </a>
     </div>
   </div>
 
