@@ -800,13 +800,18 @@
 <body>
 
   <header class="portal-header">
-    <a class="brand" href="#">
-      <div class="brand-icon">🎓</div>
-      <div class="brand-text">
-        <div class="name">ChakoraHub</div>
-        <div class="sub">Employee Portal</div>
-      </div>
-    </a>
+    <div style="display: flex; align-items: center; gap: 18px;">
+      <a href="{{ url_for('employee_resources') }}" class="btn-back-resources" style="background: rgba(255,255,255,0.15); color: #fff; text-decoration: none; padding: 7px 16px; border-radius: 50px; font-weight: 600; font-size: 0.84rem; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.25); transition: all 0.2s;">
+        <i class="bi bi-arrow-left"></i> Back to Resources
+      </a>
+      <a class="brand" href="{{ url_for('employee_resources') }}">
+        <div class="brand-icon">🎓</div>
+        <div class="brand-text">
+          <div class="name">ChakoraHub</div>
+          <div class="sub">Employee Portal</div>
+        </div>
+      </a>
+    </div>
     <div class="header-right">
       <div class="emp-chip"><i class="bi bi-person-badge-fill"></i> <span id="empName">Employee</span> &nbsp;·&nbsp;
         <span id="empId">#---</span>
@@ -1398,26 +1403,45 @@
     }
 
     function exportCSV() {
-      const dates = getWeekDates(currentWeekOffset);
-      let csv = 'Date,Day,Login,Logout,Duration,Note\n';
-      dates.forEach((date, di) => {
-        const inV = document.getElementById(`login_d${di}`)?.value || '';
-        const outV = document.getElementById(`logout_d${di}`)?.value || '';
-        const note = document.getElementById(`note_d${di}`)?.value || '';
-        let dur = '';
-        if (inV && outV) {
-          const diff = parseTime(outV) - parseTime(inV);
-          if (diff > 0) dur = minsToStr(diff);
-        }
-        csv += `${date.toISOString().split('T')[0]},${date.toLocaleDateString('en-GB', { weekday: 'long' })},${inV},${outV},${dur},"${note}"\n`;
-      });
+      try {
+        const dates = getWeekDates(currentWeekOffset);
+        let csv = '\uFEFF'; // UTF-8 BOM
+        csv += 'Date,Day,Login,Logout,Duration,Note\n';
+        dates.forEach((date, di) => {
+          const inV = document.getElementById(`login_d${di}`)?.value || '';
+          const outV = document.getElementById(`logout_d${di}`)?.value || '';
+          const note = document.getElementById(`note_d${di}`)?.value || '';
+          const dObj = new Date(date);
+          const dayStr = String(dObj.getDate()).padStart(2, '0');
+          const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          const monthStr = monthNames[dObj.getMonth()];
+          const yearStr = dObj.getFullYear();
+          const dateFormatted = `${dayStr}-${monthStr}-${yearStr}`;
+          let dur = '';
+          if (inV && outV) {
+            const diff = parseTime(outV) - parseTime(inV);
+            if (diff > 0) dur = minsToStr(diff);
+          }
+          csv += `"${dateFormatted}",${date.toLocaleDateString('en-GB', { weekday: 'long' })},${inV},${outV},${dur},"${note.replace(/"/g, '""')}"\n`;
+        });
 
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `timesheet_${document.getElementById('weekRangeLabel').textContent.replace(/ /g, '_')}.csv`;
-      a.click();
-      showToast('CSV exported', 'success');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        a.href = url;
+        const weekLbl = (document.getElementById('weekRangeLabel')?.textContent || 'week').replace(/[^a-zA-Z0-9_]/g, '_');
+        a.download = `timesheet_${weekLbl}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 150);
+        showToast('CSV exported successfully', 'success');
+      } catch(err) {
+        console.error('exportCSV error:', err);
+        showToast('Could not export CSV', 'error');
+      }
     }
 
     function showToast(msg, type) {
