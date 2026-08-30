@@ -945,7 +945,12 @@
 </head>
 <body>
     <!-- Hero Header -->
-    <div class="hero-header">
+    <div class="hero-header" style="position:relative;">
+        <div style="position:absolute;top:20px;left:24px;z-index:10;">
+            <a href="{{ url_for('employee_resources') }}" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.22);color:#fff;text-decoration:none;padding:9px 20px;border-radius:50px;font-weight:700;font-size:0.9rem;border:1.5px solid rgba(255,255,255,0.35);backdrop-filter:blur(10px);box-shadow:0 4px 15px rgba(0,0,0,0.15);transition:all .2s;">
+                <i class="fas fa-arrow-left"></i> Back to Employee Resources
+            </a>
+        </div>
         <div class="hero-content text-center">
             <h1 class="hero-title">
                 <img src="{{ url_for('static', filename='logo.png') }}" alt="ChakoraHub" class="logo-img" onerror="this.style.display='none'">
