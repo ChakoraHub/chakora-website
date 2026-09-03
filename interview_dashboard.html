@@ -1,0 +1,59 @@
+{% extends "interview_base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1>Candidate pipeline</h1>
+    <p class="sub">{{ total_submissions }} feedback submission{{ 's' if total_submissions != 1 else '' }} across {{ candidates|length }} candidate{{ 's' if candidates|length != 1 else '' }}</p>
+  </div>
+  <a class="btn-primary" href="/interview/submit">+ Give feedback</a>
+</header>
+
+{% if deleted %}
+<div class="toast toast-neutral">Candidate removed.</div>
+{% endif %}
+
+{% if not candidates %}
+<div class="empty-state">
+  <p>No feedback yet.</p>
+  <a class="btn-primary" href="/interview/submit">Submit the first feedback</a>
+</div>
+{% else %}
+<div class="card-grid">
+  {% for c in candidates %}
+  <div class="candidate-card">
+    <div class="candidate-card-top">
+      <a class="candidate-card-title" href="/interview/candidate/{{ c.candidate }}">
+        <h2>{{ c.candidate }}</h2>
+        <p class="role">{{ c.position }}</p>
+      </a>
+      <span class="badge {{ rec_class(c.final_recommendation) }}">{{ c.final_recommendation }}</span>
+    </div>
+
+    <a class="score-bars-link" href="/interview/candidate/{{ c.candidate }}">
+      <div class="score-bars">
+        {% for label, value in c.dimension_averages.items() %}
+        <div class="score-row">
+          <span class="score-label">{{ label }}</span>
+          <div class="score-track"><div class="score-fill" style="width: {{ (value / 5 * 100) | round(1) }}%"></div></div>
+          <span class="score-value">{{ '%.1f' | format(value) }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </a>
+
+    <div class="candidate-card-foot">
+      <a href="/interview/candidate/{{ c.candidate }}">
+        <span>Overall <strong>{{ '%.2f' | format(c.overall_average) }}</strong> / 5</span>
+        <span>{{ c.rounds_completed }} round{{ 's' if c.rounds_completed != 1 else '' }} completed</span>
+      </a>
+      <form method="post" action="/interview/candidate/{{ c.candidate }}/delete"
+            onsubmit="return confirm('Remove {{ c.candidate }} and all their feedback? This can\'t be undone.');">
+        <button type="submit" class="btn-delete">Delete</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
