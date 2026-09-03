@@ -1,0 +1,69 @@
+{% extends "interview_base.html" %}
+{% block title %}{{ candidate.candidate }}{% endblock %}
+{% block content %}
+<a class="back-link" href="/interview">&larr; All candidates</a>
+
+{% if submitted %}
+<div class="toast">Feedback submitted.</div>
+{% endif %}
+{% if updated %}
+<div class="toast">Feedback updated.</div>
+{% endif %}
+
+<header class="page-head">
+  <div>
+    <h1>{{ candidate.candidate }}</h1>
+    <p class="sub">{{ candidate.position }} &middot; {{ candidate.rounds_completed }} round{{ 's' if candidate.rounds_completed != 1 else '' }} completed</p>
+  </div>
+  <div class="detail-actions">
+    <span class="badge badge-lg {{ rec_class(candidate.final_recommendation) }}">{{ candidate.final_recommendation }}</span>
+    <form method="post" action="/interview/candidate/{{ candidate.candidate }}/delete"
+          onsubmit="return confirm('Remove {{ candidate.candidate }} and all their feedback? This can\'t be undone.');">
+      <button type="submit" class="btn-delete">Delete candidate</button>
+    </form>
+  </div>
+</header>
+
+<div class="detail-grid">
+  <section class="card">
+    <h3>Score breakdown</h3>
+    <div class="score-bars">
+      {% for label, value in candidate.dimension_averages.items() %}
+      <div class="score-row">
+        <span class="score-label">{{ label }}</span>
+        <div class="score-track"><div class="score-fill" style="width: {{ (value / 5 * 100) | round(1) }}%"></div></div>
+        <span class="score-value">{{ '%.1f' | format(value) }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="overall-line">Overall average <strong>{{ '%.2f' | format(candidate.overall_average) }}</strong> / 5</div>
+  </section>
+
+  <section class="card">
+    <h3>Interview timeline</h3>
+    <div class="timeline">
+      {% for r in rounds %}
+      <div class="timeline-item">
+        <div class="timeline-head">
+          <strong>{{ r.interview_round }}</strong>
+          <div class="timeline-head-actions">
+            <span class="badge {{ rec_class(r.recommendation) }}">{{ r.recommendation }}</span>
+            <a class="link-edit" href="/interview/feedback/{{ r.id }}/edit">Edit</a>
+            <form method="post" action="/interview/feedback/{{ r.id }}/delete"
+                  onsubmit="return confirm('Delete this {{ r.interview_round }} entry from {{ r.interviewer_name }}?');">
+              <button type="submit" class="link-delete">Delete</button>
+            </form>
+          </div>
+        </div>
+        <p class="meta">{{ r.interviewer_name }} &middot; {{ r.interview_date }}</p>
+        <p class="meta scores-inline">
+          Tech {{ r.technical_skills }} &middot; Problem Solving {{ r.problem_solving }} &middot;
+          Communication {{ r.communication }} &middot; Culture Fit {{ r.culture_fit }}
+        </p>
+        {% if r.comments %}<p class="comment">{{ r.comments }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}
