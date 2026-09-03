@@ -14541,6 +14541,181 @@ def proxy_stm_razorpay_webhook():
     response = make_response(resp.content, resp.status_code)
     response.headers["Content-Type"] = resp.headers.get("Content-Type", "application/json")
     return response
+# =============================================================
+#  Interview Feedback proxy routes  (added)
+#  Pure HTTP proxy to interview_service.py (FastAPI, Oracle-backed,
+#  run separately e.g. `uvicorn interview_service:app --port 8500`).
+#  No DB access happens here — mirrors call_fastapi() / the other
+#  microservice proxy routes above.
+# =============================================================
+INTERVIEW_SERVICE_URL = os.getenv("INTERVIEW_SERVICE_URL", "http://127.0.0.1:8500").rstrip("/")
+
+INTERVIEW_ROUNDS = ["Screening", "Technical Round 1", "Technical Round 2", "Hiring Manager Round", "Final Round"]
+INTERVIEW_RECOMMENDATIONS = ["Strong Hire", "Hire", "No Hire", "Strong No Hire"]
+
+
+def _interview_rec_class(rec):
+    """Maps a recommendation string to a CSS class for color-coding."""
+    if "Split" in rec:
+        return "rec-split"
+    if rec in ("Strong Hire", "Hire"):
+        return "rec-hire"
+    return "rec-no-hire"
+
+
+def _interview_service_request(method, endpoint, json_body=None, params=None, timeout=None):
+    """Call interview_service.py endpoints as a pure proxy."""
+    if timeout is None:
+        timeout = (2, 15)
+
+    endpoint_path = endpoint if endpoint.startswith("/") else f"/{endpoint}"
+    target_url = f"{INTERVIEW_SERVICE_URL}{endpoint_path}"
+
+    os.environ["NO_PROXY"] = INTERVIEW_SERVICE_URL
+    os.environ["no_proxy"] = INTERVIEW_SERVICE_URL
+
+    try:
+        with requests.Session() as internal_session:
+            internal_session.trust_env = False
+            internal_session.proxies = {"http": None, "https": None}
+            response = internal_session.request(
+                method=method.upper(),
+                url=target_url,
+                json=json_body,
+                params=params,
+                timeout=timeout,
+            )
+        try:
+            data = response.json()
+        except ValueError:
+            data = {"success": False, "message": "Non-JSON response from interview_service"}
+        return response.status_code, data
+    except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError) as e:
+        print(f"⚠️ Interview service unreachable: {type(e).__name__}: {e}")
+        return 503, {"success": False, "message": "Interview feedback service is currently unreachable."}
+    except Exception as e:
+        return 503, {"success": False, "message": f"Interview service request failed: {e}"}
+
+
+@app.route("/interview")
+def interview_dashboard():
+    deleted = request.args.get("deleted", 0, type=int)
+    status_code, data = _interview_service_request("GET", "/api/interview/feedback")
+    if status_code != 200:
+        return render_template(
+            "interview_dashboard.html",
+            candidates=[], rec_class=_interview_rec_class, total_submissions=0, deleted=deleted,
+        )
+    return render_template(
+        "interview_dashboard.html",
+        candidates=data["candidates"],
+        rec_class=_interview_rec_class,
+        total_submissions=data["total_submissions"],
+        deleted=deleted,
+    )
+
+
+@app.route("/interview/submit", methods=["GET"])
+def interview_submit_form():
+    return render_template(
+        "interview_submit.html",
+        rounds=INTERVIEW_ROUNDS, recommendations=INTERVIEW_RECOMMENDATIONS,
+        today=date.today().isoformat(), edit_mode=False, entry=None, form_action="/interview/submit",
+    )
+
+
+@app.route("/interview/submit", methods=["POST"])
+def interview_submit_feedback():
+    form = request.form
+    payload = {
+        "candidate_name": form["candidate_name"].strip(),
+        "position": form["position"].strip(),
+        "interview_round": form["interview_round"],
+        "interviewer_name": form["interviewer_name"].strip(),
+        "interview_date": form["interview_date"],
+        "technical_skills": int(form["technical_skills"]),
+        "problem_solving": int(form["problem_solving"]),
+        "communication": int(form["communication"]),
+        "culture_fit": int(form["culture_fit"]),
+        "recommendation": form["recommendation"],
+        "comments": form.get("comments", "").strip(),
+    }
+    status_code, data = _interview_service_request("POST", "/api/interview/feedback", json_body=payload)
+    if status_code not in (200, 201):
+        flash(data.get("message", "Could not submit feedback."))
+        return redirect(url_for("interview_submit_form"))
+    return redirect(url_for("interview_candidate_detail", candidate_name=payload["candidate_name"], submitted=1))
+
+
+@app.route("/interview/candidate/<candidate_name>")
+def interview_candidate_detail(candidate_name):
+    submitted = request.args.get("submitted", 0, type=int)
+    updated = request.args.get("updated", 0, type=int)
+    status_code, data = _interview_service_request("GET", f"/api/interview/candidate/{candidate_name}")
+    if status_code != 200:
+        return redirect(url_for("interview_dashboard"))
+    return render_template(
+        "interview_candidate.html",
+        candidate=data["candidate"], rounds=data["rounds"], rec_class=_interview_rec_class,
+        submitted=submitted, updated=updated,
+    )
+
+
+@app.route("/interview/candidate/<candidate_name>/delete", methods=["POST"])
+def interview_delete_candidate(candidate_name):
+    _interview_service_request("DELETE", f"/api/interview/candidate/{candidate_name}")
+    return redirect(url_for("interview_dashboard", deleted=1))
+
+
+@app.route("/interview/feedback/<int:feedback_id>/edit", methods=["GET"])
+def interview_edit_feedback_form(feedback_id):
+    status_code, entry = _interview_service_request("GET", f"/api/interview/feedback/{feedback_id}")
+    if status_code != 200:
+        return redirect(url_for("interview_dashboard"))
+    return render_template(
+        "interview_submit.html",
+        rounds=INTERVIEW_ROUNDS, recommendations=INTERVIEW_RECOMMENDATIONS, today=date.today().isoformat(),
+        edit_mode=True, entry=entry, form_action=url_for("interview_edit_feedback", feedback_id=feedback_id),
+    )
+
+
+@app.route("/interview/feedback/<int:feedback_id>/edit", methods=["POST"])
+def interview_edit_feedback(feedback_id):
+    form = request.form
+    payload = {
+        "candidate_name": form["candidate_name"].strip(),
+        "position": form["position"].strip(),
+        "interview_round": form["interview_round"],
+        "interviewer_name": form["interviewer_name"].strip(),
+        "interview_date": form["interview_date"],
+        "technical_skills": int(form["technical_skills"]),
+        "problem_solving": int(form["problem_solving"]),
+        "communication": int(form["communication"]),
+        "culture_fit": int(form["culture_fit"]),
+        "recommendation": form["recommendation"],
+        "comments": form.get("comments", "").strip(),
+    }
+    status_code, data = _interview_service_request(
+        "PUT", f"/api/interview/feedback/{feedback_id}", json_body=payload
+    )
+    if status_code != 200:
+        flash(data.get("message", "Could not update feedback."))
+        return redirect(url_for("interview_edit_feedback_form", feedback_id=feedback_id))
+    return redirect(url_for("interview_candidate_detail", candidate_name=payload["candidate_name"], updated=1))
+
+
+@app.route("/interview/feedback/<int:feedback_id>/delete", methods=["POST"])
+def interview_delete_feedback_entry(feedback_id):
+    status_code, entry = _interview_service_request("GET", f"/api/interview/feedback/{feedback_id}")
+    if status_code != 200:
+        return redirect(url_for("interview_dashboard"))
+    candidate_name = entry["candidate_name"]
+
+    del_status, del_data = _interview_service_request("DELETE", f"/api/interview/feedback/{feedback_id}")
+    if del_status == 200 and del_data.get("candidate_has_remaining_rounds"):
+        return redirect(url_for("interview_candidate_detail", candidate_name=candidate_name, updated=1))
+    return redirect(url_for("interview_dashboard", deleted=1))
+
 
 if __name__ == "__main__":
     print("🚀 Starting Dev Server → http://127.0.0.1:8080")
