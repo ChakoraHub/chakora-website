@@ -506,7 +506,7 @@
 <header class="header">
   <div class="header-left">
     <a href="{{ url_for('employee_resources') }}">
-      <img class="logo-img" src="{{ url_for('static', filename='logo.png') }}" alt="ChakoraHub" onerror="this.style.display='none'">
+      <img class="logo-img" src="{{ link if link else url_for('static', filename='logo.png') }}" alt="ChakoraHub" onerror="this.onerror=null; this.src='{{ url_for('static', filename='logo.png') }}';">
     </a>
   </div>
   {% if festival_today %}
@@ -517,9 +517,9 @@
     <div class="profile-wrapper" onclick="toggleDropdown()">
       <div class="profile-avatar-wrap" id="profileAvatarWrap">
         <img id="profileHeaderImg"
-             src="{{ profile_pic if (profile_pic and profile_pic.startswith('http')) else url_for('static', filename=(profile_pic if profile_pic else 'profile_photo/defaultpicture.jpg')) }}"
+             src="{{ profile_pic if (profile_pic and (profile_pic.startswith('http') or profile_pic.startswith('/static/'))) else ('/static/' + profile_pic.lstrip('/') if profile_pic else 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg') }}"
              alt="Profile"
-             onerror="this.style.display='none'; document.getElementById('profileInitialsSpan').style.display='flex';">
+             onerror="this.onerror=null; this.src='https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg';">
         <span class="profile-initials-text" id="profileInitialsSpan" style="display:none;"></span>
       </div>
       <div class="dropdown-menu" id="dropdownMenu">
@@ -584,10 +584,7 @@
       <a class="nav-item" href="{{ url_for('employee_hierarchy_page') }}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v6"/><path d="M6 21v-6"/><path d="M18 21v-6"/><path d="M12 9h6a2 2 0 0 1 2 2v4"/><path d="M12 9H6a2 2 0 0 0-2 2v4"/><rect x="9" y="1" width="6" height="4" rx="1"/><rect x="3" y="15" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/></svg>Employee Hierarchy
       </a>
-      <button class="nav-item" onclick="showSection('pay-slip')" data-section="pay-slip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Pay Slip
-        <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
+      <!-- Pay Slip is now merged into Salary Information -->
       <a class="nav-item" href="{{ url_for('dashboard') }}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>360 Dashboard
       </a>
@@ -710,7 +707,24 @@
 
       <!-- PERSONAL DETAILS -->
       <div id="personal-details" class="content-section">
-        <div class="section-header"><h1>Personal Details</h1><p>Your complete personal information on file.</p></div>
+        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h1>Personal Details</h1>
+            <p>Your complete personal information on file.</p>
+          </div>
+          <button onclick="showSection('welcome')" class="btn-back-hub" style="display:inline-flex;align-items:center;gap:7px;background:rgba(108,99,255,0.12);color:var(--primary);border:1.5px solid rgba(108,99,255,0.28);padding:7px 16px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><polyline points="15 18 9 12 15 6"/></svg> Back to Resources
+          </button>
+        </div>
+
+        <!-- Action Bar -->
+        <div style="display:flex;justify-content:flex-end;margin-bottom:18px;">
+          <button id="editPersonalBtn" onclick="openEditPersonalModal()" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--primary),var(--primary-dk));color:#fff;border:none;padding:10px 20px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(108,99,255,.25);transition:all .2s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit Personal Details
+          </button>
+        </div>
+
         <div class="card">
           <div class="card-header"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/></svg></div><span class="card-title">Basic Information</span></div>
           <div class="info-row"><span class="info-label">Full Name</span><span class="info-value">{{ employee_data.full_name }}</span></div>
@@ -718,13 +732,13 @@
           <div class="info-row"><span class="info-label">Date of Birth</span><span class="info-value">{{ employee_data.dob }}</span></div>
           <div class="info-row"><span class="info-label">Gender</span><span class="info-value">{{ employee_data.gender }}</span></div>
           <div class="info-row"><span class="info-label">Email</span><span class="info-value">{{ employee_data.email }}</span></div>
-          <div class="info-row"><span class="info-label">Phone</span><span class="info-value">{{ employee_data.phone }}</span></div>
+          <div class="info-row" id="pdPhoneRow"><span class="info-label">Phone</span><span class="info-value" id="pdPhoneVal">{{ employee_data.phone }}</span></div>
         </div>
         <div class="card">
           <div class="card-header"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div><span class="card-title">Employment Details</span></div>
           <div class="yt-card">
             <div class="yt-icon"><svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="white"/></svg></div>
-            <div><div class="yt-label">Official YouTube Channel</div><a class="yt-link" href="https://www.youtube.com/@chakorahub" target="_blank" rel="noopener noreferrer">▶ Visit Chakora Hub</a></div>
+            <div><div class="yt-label">Official YouTube Channel</div><a class="yt-link" href="https://www.youtube.com/@chakorahub" target="_blank" rel="noopener noreferrer">&#9654; Visit Chakora Hub</a></div>
           </div>
           <div class="info-row"><span class="info-label">Department</span><span class="info-value">{{ employee_data.department }}</span></div>
           <div class="info-row"><span class="info-label">Designation</span><span class="info-value">{{ employee_data.designation }}</span></div>
@@ -733,14 +747,69 @@
         </div>
         <div class="card">
           <div class="card-header"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><span class="card-title">Address</span></div>
-          <div class="info-row"><span class="info-label">Current Address</span><span class="info-value" style="max-width:60%;text-align:right;">{{ employee_data.current_address }}</span></div>
-          <div class="info-row"><span class="info-label">Permanent Address</span><span class="info-value" style="max-width:60%;text-align:right;">{{ employee_data.permanent_address }}</span></div>
+          <div class="info-row"><span class="info-label">Current Address</span><span class="info-value" id="pdCurrentAddr" style="max-width:60%;text-align:right;">{{ employee_data.current_address }}</span></div>
+          <div class="info-row"><span class="info-label">Permanent Address</span><span class="info-value" id="pdPermAddr" style="max-width:60%;text-align:right;">{{ employee_data.permanent_address }}</span></div>
+        </div>
+
+        <!-- Emergency Contact Card -->
+        <div class="card">
+          <div class="card-header"><div class="card-icon" style="background:#fff0f0;"><svg viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><span class="card-title">Emergency Contact</span></div>
+          <div class="info-row"><span class="info-label">Contact Name</span><span class="info-value" id="pdEmergName">{{ employee_data.emergency_contact_name if employee_data.emergency_contact_name else 'Not specified' }}</span></div>
+          <div class="info-row"><span class="info-label">Contact Phone</span><span class="info-value" id="pdEmergPhone">{{ employee_data.emergency_contact_phone if employee_data.emergency_contact_phone else 'Not specified' }}</span></div>
         </div>
       </div>
 
-      <!-- SALARY INFO -->
+      <!-- ==================== EDIT PERSONAL DETAILS MODAL ==================== -->
+      <div id="editPersonalModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+        <div style="background:var(--card);border-radius:20px;padding:32px;max-width:520px;width:92%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);position:relative;">
+          <button onclick="closeEditPersonalModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:22px;line-height:1;">&#10005;</button>
+          <h2 style="font-size:18px;font-weight:800;margin:0 0 6px;">Edit Personal Details</h2>
+          <p style="font-size:13px;color:var(--muted);margin:0 0 22px;">Update your contact and address information.</p>
+          <form id="editPersonalForm" onsubmit="savePersonalDetails(event)">
+            <div style="display:grid;gap:14px;">
+              <div>
+                <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:5px;">Phone Number</label>
+                <input id="ep_phone" type="tel" name="phone" value="{{ employee_data.phone }}" style="width:100%;box-sizing:border-box;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;background:var(--bg);color:var(--fg);outline:none;transition:border .15s;">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:5px;">Current Address</label>
+                <textarea id="ep_current_addr" name="current_address" rows="3" style="width:100%;box-sizing:border-box;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;background:var(--bg);color:var(--fg);outline:none;resize:vertical;transition:border .15s;">{{ employee_data.current_address }}</textarea>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:5px;">Permanent Address</label>
+                <textarea id="ep_perm_addr" name="permanent_address" rows="3" style="width:100%;box-sizing:border-box;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;background:var(--bg);color:var(--fg);outline:none;resize:vertical;transition:border .15s;">{{ employee_data.permanent_address }}</textarea>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div>
+                  <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:5px;">Emergency Contact Name</label>
+                  <input id="ep_emerg_name" type="text" name="emergency_contact_name" value="{{ employee_data.emergency_contact_name if employee_data.emergency_contact_name else '' }}" style="width:100%;box-sizing:border-box;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;background:var(--bg);color:var(--fg);outline:none;transition:border .15s;">
+                </div>
+                <div>
+                  <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:5px;">Emergency Contact Phone</label>
+                  <input id="ep_emerg_phone" type="tel" name="emergency_contact_phone" value="{{ employee_data.emergency_contact_phone if employee_data.emergency_contact_phone else '' }}" style="width:100%;box-sizing:border-box;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;background:var(--bg);color:var(--fg);outline:none;transition:border .15s;">
+                </div>
+              </div>
+            </div>
+            <div id="editPersonalMsg" style="min-height:18px;font-size:13px;font-weight:600;margin:14px 0 0;"></div>
+            <div style="display:flex;gap:10px;margin-top:20px;">
+              <button type="button" onclick="closeEditPersonalModal()" style="flex:1;padding:11px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--fg);font-size:14px;font-weight:600;cursor:pointer;">Cancel</button>
+              <button type="submit" id="editPersonalSaveBtn" style="flex:2;padding:11px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--primary-dk));color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s;">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- SALARY INFO + PAY SLIP (combined) -->
       <div id="salary-info" class="content-section">
-        <div class="section-header"><h1>Salary Information</h1><p>Your salary structure and payment details.</p></div>
+        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h1>Salary &amp; Pay Slip</h1>
+            <p>Your salary structure, payment details, and official pay slip download.</p>
+          </div>
+          <button onclick="showSection('welcome')" class="btn-back-hub" style="display:inline-flex;align-items:center;gap:7px;background:rgba(108,99,255,0.12);color:var(--primary);border:1.5px solid rgba(108,99,255,0.28);padding:7px 16px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><polyline points="15 18 9 12 15 6"/></svg> Back to Resources
+          </button>
+        </div>
         <div class="salary-hero">
           <div class="sh-label">Monthly Gross Salary</div>
           <div class="sh-amount">{{ salary_data.gross_salary }}</div>
@@ -768,14 +837,85 @@
           <div class="info-row"><span class="info-label">Account Number</span><span class="info-value">{{ salary_data.account_number }}</span></div>
           <div class="info-row"><span class="info-label">IFSC Code</span><span class="info-value">{{ salary_data.ifsc_code }}</span></div>
         </div>
+
+        <!-- ===== PAY SLIP SECTION (merged) ===== -->
+        <div style="margin-top:10px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <div style="flex:1;height:1px;background:var(--border);"></div>
+            <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);">Pay Slip Download</span>
+            <div style="flex:1;height:1px;background:var(--border);"></div>
+          </div>
+        </div>
+        {% if payslip_emp %}
+        <div class="emp-info-block">
+          <div class="emp-name">{{ payslip_emp.FULL_NAME }}</div>
+          <div class="emp-role">{{ payslip_emp.DESIGNATION }}&nbsp;&nbsp;·&nbsp;&nbsp;{{ payslip_emp.DEPARTMENT }}</div>
+          <div class="emp-info-grid">
+            <div class="emp-info-field"><div class="eif-lbl">Employee ID</div><div class="eif-val">{{ payslip_emp.EMPLOYEE_ID }}</div></div>
+            <div class="emp-info-field"><div class="eif-lbl">Date of Joining</div><div class="eif-val">{{ payslip_emp.DATE_OF_JOINING }}</div></div>
+            <div class="emp-info-field"><div class="eif-lbl">Email</div><div class="eif-val">{{ payslip_emp.EMAIL }}</div></div>
+            <div class="emp-info-field"><div class="eif-lbl">Phone</div><div class="eif-val">{{ payslip_emp.PHONE }}</div></div>
+          </div>
+        </div>
+        <div class="payslip-hero">
+          <div>
+            <div class="ph-label">Monthly Net Salary</div>
+            <div class="ph-amount">&#8377;{{ "{:,.2f}".format(payslip_emp.NET_SALARY) }}</div>
+            {% if payslip_emp.DEDUCTIONS == 0 %}
+            <span class="ph-nil">&#10003; Zero Deductions</span>
+            {% else %}
+            <span class="ph-nil" style="background:rgba(240,85,106,.25);border-color:rgba(240,85,106,.5);color:#fca5a5;">Deductions: &#8377;{{ "{:,.2f}".format(payslip_emp.DEDUCTIONS) }}</span>
+            {% endif %}
+          </div>
+          <div style="text-align:right;opacity:.85;">
+            <div style="font-size:12px;margin-bottom:4px;">Employment Type</div>
+            <div style="font-size:15px;font-weight:700;">{{ payslip_emp.EMPLOYMENT_TYPE or 'Full-Time' }}</div>
+            <div style="margin-top:8px;font-size:12px;">Status</div>
+            <div style="font-size:14px;font-weight:700;"><span style="background:rgba(255,255,255,.2);padding:2px 10px;border-radius:99px;">{{ payslip_emp.STATUS or 'ACTIVE' }}</span></div>
+          </div>
+        </div>
+        {% if payslip_bank_details and payslip_bank_details.has_bank %}
+        <div class="card">
+          <div class="card-header"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><span class="card-title">Bank Details</span></div>
+          <div class="info-row"><span class="info-label">Bank Name</span><span class="info-value">{{ payslip_bank_details.bank_name }}</span></div>
+          <div class="info-row"><span class="info-label">Account Number</span><span class="info-value" style="letter-spacing:2px;">{{ payslip_bank_details.account_number }}</span></div>
+          <div class="info-row"><span class="info-label">IFSC Code</span><span class="info-value">{{ payslip_bank_details.ifsc_code }}</span></div>
+          <div class="info-row"><span class="info-label">PAN / IT</span><span class="info-value">{{ payslip_bank_details.pan or 'N/A' }}</span></div>
+        </div>
+        {% else %}
+        <div class="card" style="text-align:center;padding:22px;color:var(--muted);"><p>No bank details on file. Please contact HR to add your bank information.</p></div>
+        {% endif %}
+        {% else %}
+        <div style="background:#fdecea;border-left:4px solid #e74c3c;border-radius:12px;padding:18px 22px;margin-bottom:20px;color:#c0392b;">
+          <strong>&#9888; Could not load salary data.</strong><br><span style="font-size:13px;">Please ensure your salary record exists in the system or contact HR.</span>
+        </div>
+        {% endif %}
+        <div class="card">
+          <div class="card-header"><div class="card-icon" style="background:#eaf2fb;"><svg viewBox="0 0 24 24" fill="none" stroke="#1a3c6e" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><span class="card-title">Generate &amp; Download PDF Pay Slip</span></div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Select the pay period and click to download your official pay slip as a PDF.</p>
+          <div class="payslip-form-row">
+            <div class="payslip-form-group"><label for="ps-month">Month</label>
+              <select id="ps-month"><option>January</option><option>February</option><option>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option>November</option><option>December</option></select>
+            </div>
+            <div class="payslip-form-group"><label for="ps-year">Year</label><input type="number" id="ps-year" min="2020" max="2099"></div>
+          </div>
+          <button id="ps-genBtn" class="ps-download-btn" onclick="generatePaySlip()">&#128196; Generate &amp; Download PDF</button>
+          <div id="ps-errMsg" class="ps-msg error"></div>
+          <div id="ps-okMsg"  class="ps-msg ok"></div>
+        </div>
       </div>
 
       <!-- LEAVE TRACKER -->
       
 <div id="leave-tracker" class="content-section">
-  <div class="section-header">
-    <h1>Leave Tracker</h1>
-    <p>Apply leave, monitor balances and review history.</p>
+  <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+      <h1>Leave Tracker</h1>
+      <p>Apply leave, monitor balances and review history.</p>
+    </div>
+    <button onclick="showSection('welcome')" class="btn-back-hub" style="display:inline-flex;align-items:center;gap:7px;background:rgba(108,99,255,0.12);color:var(--primary);border:1.5px solid rgba(108,99,255,0.28);padding:7px 16px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><polyline points="15 18 9 12 15 6"/></svg> Back to Resources
+    </button>
   </div>
 
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px;">
@@ -822,12 +962,12 @@
       <div class="payslip-form-row">
         <div class="payslip-form-group">
           <label>Start Date</label>
-          <input type="date" name="start_date" required>
+          <input type="date" id="leave_start_date" name="start_date" min="{{ today_date }}" required oninput="handleLeaveStartDateChange(this)" onchange="handleLeaveStartDateChange(this)">
         </div>
 
         <div class="payslip-form-group">
           <label>End Date</label>
-          <input type="date" name="end_date" required>
+          <input type="date" id="leave_end_date" name="end_date" min="{{ today_date }}" required oninput="validateLeaveDates()" onchange="validateLeaveDates()">
         </div>
       </div>
 
@@ -886,9 +1026,14 @@
 
 
 <div id="id-card" class="content-section">
-  <div class="section-header">
-    <h1>Employee Profile & ID Card</h1>
-    <p>Professional employee identity and profile management.</p>
+  <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+      <h1>Employee Profile &amp; ID Card</h1>
+      <p>Professional employee identity and profile management.</p>
+    </div>
+    <button onclick="showSection('welcome')" class="btn-back-hub" style="display:inline-flex;align-items:center;gap:7px;background:rgba(108,99,255,0.12);color:var(--primary);border:1.5px solid rgba(108,99,255,0.28);padding:7px 16px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><polyline points="15 18 9 12 15 6"/></svg> Back to Resources
+    </button>
   </div>
 
   <div style="display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start;">
@@ -903,8 +1048,9 @@
         </div>
 
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
-          <img src="{{ employee_profile_pic or 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg' }}"
-               style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.4);">
+          <img src="{{ employee_profile_pic if (employee_profile_pic and (employee_profile_pic.startswith('http') or employee_profile_pic.startswith('/static/'))) else ('/static/' + employee_profile_pic.lstrip('/') if employee_profile_pic else 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg') }}"
+               style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.4);"
+               onerror="this.onerror=null; this.src='https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg';">
 
           <div>
             <div style="font-size:16px;font-weight:800;">{{ employee_data.full_name if employee_data else Employee_name }}</div>
@@ -977,13 +1123,23 @@
         <div class="section-header"><h1>My Profile</h1><p>View and manage your profile information.</p></div>
         <div class="profile-preview-wrap">
           <div class="profile-center">
-            <img id="profilePreviewImg" src="{{ employee_profile_pic or 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg' }}" alt="Profile"/>
+            <img id="profilePreviewImg"
+                 src="{{ employee_profile_pic if (employee_profile_pic and (employee_profile_pic.startswith('http') or employee_profile_pic.startswith('/static/'))) else ('/static/' + employee_profile_pic.lstrip('/') if employee_profile_pic else 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg') }}"
+                 alt="Profile"
+                 style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);margin:0 auto 12px;display:block;"
+                 onerror="this.onerror=null; this.src='https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg';"/>
             <div style="font-size:16px;font-weight:700;color:var(--fg);margin-bottom:3px;">{{ employee_data.full_name }}</div>
             <div style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">{{ employee_data.designation }}</div>
-            <label for="empPhotoInput" class="btn-primary" style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Upload Photo
-            </label>
+            <div style="display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;">
+              <label for="empPhotoInput" class="btn-primary" style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload Photo
+              </label>
+              <button id="empRemoveBtn" onclick="empRemovePhoto()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background:#fef2f2;color:#dc2626;font-size:12.5px;font-weight:600;font-family:inherit;border:1px solid #fecaca;cursor:pointer;transition:background .15s;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                Remove Photo
+              </button>
+            </div>
             <input type="file" id="empPhotoInput" accept="image/*" style="display:none;" onchange="empSubmitPhoto(this)">
             <div id="empPhotoMsg" style="font-size:12px;margin-top:8px;min-height:16px;font-weight:500;"></div>
           </div>
@@ -1003,37 +1159,6 @@
       <!-- SETTINGS -->
       <div id="settings" class="content-section">
         <div class="section-header"><h1>Settings</h1><p>Manage account preferences, security, notifications and appearance.</p></div>
-
-        <!-- ── 1. Profile Photo ── -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/></svg></div>
-            <div><span class="card-title">Profile Photo</span><div style="font-size:12px;color:var(--muted);margin-top:2px;">Stored securely in the cloud — persists across all sessions</div></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:22px;margin-bottom:20px;flex-wrap:wrap;">
-            <div style="width:88px;height:88px;border-radius:50%;border:3px solid var(--primary);padding:3px;flex-shrink:0;background:#fff;box-shadow:0 4px 18px rgba(108,79,247,.20);">
-              <img id="settingsAvatarPreview"
-                   src="{{ employee_profile_pic or 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg' }}"
-                   alt="Profile photo"
-                   style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">
-            </div>
-            <div style="flex:1;min-width:180px;">
-              <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:12px;">Square image, at least 200×200 px · JPG, PNG or GIF · Max 5 MB.</p>
-              <label for="settingsPhotoInput" class="btn-primary" style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                Upload Photo
-              </label>
-              <input type="file" id="settingsPhotoInput" accept="image/*" style="display:none;" onchange="settingsSubmitPhoto(this)">
-              <div id="settingsPhotoMsg" style="font-size:12px;margin-top:10px;min-height:16px;font-weight:500;"></div>
-            </div>
-          </div>
-          <div id="settingsRemoveWrap" class="settings-remove-wrap{% if not employee_profile_pic or employee_profile_pic == 'profile_photo/defaultpicture.jpg' %} hidden{% endif %}">
-            <button onclick="settingsRemovePhoto()" style="display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:10px;background:#fef2f2;color:#dc2626;font-size:13px;font-weight:600;font-family:inherit;border:1px solid #fecaca;cursor:pointer;transition:background .15s;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-              Remove Photo
-            </button>
-          </div>
-        </div>
 
         <!-- ── 2. Display Name ── -->
         <div class="card">
@@ -1188,9 +1313,14 @@
 
       <!-- EMPLOYEE QUERIES -->
       <div id="employee-queries" class="content-section">
-        <div class="section-header">
-          <h1>Employee Queries</h1>
-          <p>Raise a new query or track your existing requests.</p>
+        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h1>Employee Queries</h1>
+            <p>Raise a new query or track your existing requests.</p>
+          </div>
+          <button onclick="showSection('welcome')" class="btn-back-hub" style="display:inline-flex;align-items:center;gap:7px;background:rgba(108,99,255,0.12);color:var(--primary);border:1.5px solid rgba(108,99,255,0.28);padding:7px 16px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><polyline points="15 18 9 12 15 6"/></svg> Back to Resources
+          </button>
         </div>
 
         <!-- Raise a Query form -->
@@ -1273,9 +1403,14 @@
 
       <!-- TIMESHEET -->
       <div id="timesheet" class="content-section">
-        <div class="section-header">
-          <h1>Timesheet</h1>
-          <p>Log your daily work hours - only today is editable.</p>
+        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h1>Timesheet</h1>
+            <p>Log your daily work hours - only today is editable.</p>
+          </div>
+          <button onclick="showSection('welcome')" class="btn-back-hub" style="display:inline-flex;align-items:center;gap:7px;background:rgba(108,99,255,0.12);color:var(--primary);border:1.5px solid rgba(108,99,255,0.28);padding:7px 16px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><polyline points="15 18 9 12 15 6"/></svg> Back to Resources
+          </button>
         </div>
 
         <div class="timesheet-container">
@@ -1353,73 +1488,20 @@
         </div>
       </div>
 
-      <!-- PAY SLIP -->
-      <div id="pay-slip" class="content-section">
-        <div class="section-header"><h1>🧾 Pay Slip</h1><p>Download your official monthly salary slip as a PDF.</p></div>
-        {% if payslip_emp %}
-        <div class="emp-info-block">
-          <div class="emp-name">{{ payslip_emp.FULL_NAME }}</div>
-          <div class="emp-role">{{ payslip_emp.DESIGNATION }}&nbsp;&nbsp;·&nbsp;&nbsp;{{ payslip_emp.DEPARTMENT }}</div>
-          <div class="emp-info-grid">
-            <div class="emp-info-field"><div class="eif-lbl">Employee ID</div><div class="eif-val">{{ payslip_emp.EMPLOYEE_ID }}</div></div>
-            <div class="emp-info-field"><div class="eif-lbl">Date of Joining</div><div class="eif-val">{{ payslip_emp.DATE_OF_JOINING }}</div></div>
-            <div class="emp-info-field"><div class="eif-lbl">Email</div><div class="eif-val">{{ payslip_emp.EMAIL }}</div></div>
-            <div class="emp-info-field"><div class="eif-lbl">Phone</div><div class="eif-val">{{ payslip_emp.PHONE }}</div></div>
-          </div>
-        </div>
-        <div class="payslip-hero">
-          <div>
-            <div class="ph-label">Monthly Net Salary</div>
-            <div class="ph-amount">₹{{ "{:,.2f}".format(payslip_emp.NET_SALARY) }}</div>
-            {% if payslip_emp.DEDUCTIONS == 0 %}
-            <span class="ph-nil">✓ Zero Deductions</span>
-            {% else %}
-            <span class="ph-nil" style="background:rgba(240,85,106,.25);border-color:rgba(240,85,106,.5);color:#fca5a5;">Deductions: ₹{{ "{:,.2f}".format(payslip_emp.DEDUCTIONS) }}</span>
-            {% endif %}
-          </div>
-          <div style="text-align:right;opacity:.85;">
-            <div style="font-size:12px;margin-bottom:4px;">Employment Type</div>
-            <div style="font-size:15px;font-weight:700;">{{ payslip_emp.EMPLOYMENT_TYPE or 'Full-Time' }}</div>
-            <div style="margin-top:8px;font-size:12px;">Status</div>
-            <div style="font-size:14px;font-weight:700;"><span style="background:rgba(255,255,255,.2);padding:2px 10px;border-radius:99px;">{{ payslip_emp.STATUS or 'ACTIVE' }}</span></div>
-          </div>
-        </div>
-        {% if payslip_bank_details and payslip_bank_details.has_bank %}
-        <div class="card">
-          <div class="card-header"><div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><span class="card-title">Bank Details</span></div>
-          <div class="info-row"><span class="info-label">Bank Name</span><span class="info-value">{{ payslip_bank_details.bank_name }}</span></div>
-          <div class="info-row"><span class="info-label">Account Number</span><span class="info-value" style="letter-spacing:2px;">{{ payslip_bank_details.account_number }}</span></div>
-          <div class="info-row"><span class="info-label">IFSC Code</span><span class="info-value">{{ payslip_bank_details.ifsc_code }}</span></div>
-          <div class="info-row"><span class="info-label">PAN / IT</span><span class="info-value">{{ payslip_bank_details.pan or 'N/A' }}</span></div>
-        </div>
-        {% else %}
-        <div class="card" style="text-align:center;padding:22px;color:var(--muted);"><p>No bank details on file. Please contact HR to add your bank information.</p></div>
-        {% endif %}
-        {% else %}
-        <div style="background:#fdecea;border-left:4px solid #e74c3c;border-radius:12px;padding:18px 22px;margin-bottom:20px;color:#c0392b;">
-          <strong>⚠ Could not load salary data.</strong><br><span style="font-size:13px;">Please ensure your salary record exists in the system or contact HR.</span>
-        </div>
-        {% endif %}
-        <div class="card">
-          <div class="card-header"><div class="card-icon" style="background:#eaf2fb;"><svg viewBox="0 0 24 24" fill="none" stroke="#1a3c6e" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><span class="card-title">Generate &amp; Download PDF</span></div>
-          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Select the pay period and click to download your official pay slip as a PDF.</p>
-          <div class="payslip-form-row">
-            <div class="payslip-form-group"><label for="ps-month">Month</label>
-              <select id="ps-month"><option>January</option><option>February</option><option>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option>November</option><option>December</option></select>
-            </div>
-            <div class="payslip-form-group"><label for="ps-year">Year</label><input type="number" id="ps-year" min="2020" max="2099"></div>
-          </div>
-          <button id="ps-genBtn" class="ps-download-btn" onclick="generatePaySlip()">📄 Generate &amp; Download PDF</button>
-          <div id="ps-errMsg" class="ps-msg error"></div>
-          <div id="ps-okMsg"  class="ps-msg ok"></div>
-        </div>
-      </div>
+
+
 
       <!-- ==================== ASSET REGISTER SECTION ==================== -->
+      <!-- ==================== ASSET REGISTER SECTION ==================== -->
       <div id="asset-register" class="content-section">
-        <div class="section-header">
-          <h1>Asset Register</h1>
-          <p>Register and manage company or personal assets assigned to you.</p>
+        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h1>Asset Register</h1>
+            <p>Register and manage company or personal assets assigned to you.</p>
+          </div>
+          <button onclick="showSection('welcome')" class="btn-back-hub" style="display:inline-flex;align-items:center;gap:7px;background:rgba(108,99,255,0.12);color:var(--primary);border:1.5px solid rgba(108,99,255,0.28);padding:7px 16px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><polyline points="15 18 9 12 15 6"/></svg> Back to Resources
+          </button>
         </div>
 
         <!-- SECTION 1 — ASSET DETAILS -->
@@ -1595,12 +1677,17 @@
       <!-- ==================== CALENDAR SECTION ==================== -->
       <div id="calendar-section" class="content-section"
            data-year="{{ current_year }}" data-month="{{ current_month }}">
-        <div class="section-header" style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;">
+        <div class="section-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
           <div><h1>📅 Calendar</h1><p>View festivals, birthdays &amp; team events.</p></div>
-          <button class="btn-primary" id="calSyncBtn" onclick="calDoSync()" style="background:#4e2a9a;">
-            <i class="fas fa-sync-alt" style="font-size:13px;"></i>
-            <span id="calSyncLabel">Refresh</span>
-          </button>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <button class="btn-primary" id="calSyncBtn" onclick="calDoSync()" style="background:#4e2a9a;">
+              <i class="fas fa-sync-alt" style="font-size:13px;"></i>
+              <span id="calSyncLabel">Refresh</span>
+            </button>
+            <button onclick="showSection('welcome')" class="btn-back-hub" style="display:inline-flex;align-items:center;gap:7px;background:rgba(108,99,255,0.12);color:var(--primary);border:1.5px solid rgba(108,99,255,0.28);padding:7px 16px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><polyline points="15 18 9 12 15 6"/></svg> Back to Resources
+            </button>
+          </div>
         </div>
         <div class="cal-card" id="calendarCard">
           <div class="cal-loading-overlay" id="calLoadingOverlay">
@@ -1721,7 +1808,6 @@
     var h=new Date().getHours(),g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
     var el=document.getElementById('welcomeGreeting'); if(el)el.textContent=g;
     var name="{{ Employee_name }}",parts=name.trim().split(' ');
-    var initials=parts.map(function(p){return p[0];}).join('').slice(0,2).toUpperCase();
     var ie=document.getElementById('profileInitialsSpan'); if(ie)ie.textContent=initials;
     var dn=document.getElementById('dropdownName'); if(dn)dn.textContent=name;
   })();
@@ -1733,6 +1819,7 @@
     closeDropdown();
     if(id==='calendar-section'&&!calState.booted){calState.booted=true;calInit();}
     if(id==='timesheet'&&window.timesheetBuild){setTimeout(window.timesheetBuild,50);}
+    try { if(id && id !== 'welcome') history.replaceState(null, '', '#' + id); else history.replaceState(null, '', window.location.pathname); } catch(e){}
   }
   function toggleDropdown(){document.getElementById('dropdownMenu').classList.toggle('open');}
   function closeDropdown(){document.getElementById('dropdownMenu').classList.remove('open');}
@@ -1746,7 +1833,99 @@
   function closeComingSoonModal(){document.getElementById('comingSoonModal').classList.remove('open');}
   document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal();closeComingSoonModal();closeCalDetailModal();}});
 
-  showSection('welcome');
+  // Initial tab loading based on URL hash (e.g. #leave-tracker)
+  var initialHash = (window.location.hash || '').replace('#', '');
+  if (initialHash && document.getElementById(initialHash)) {
+    showSection(initialHash);
+  } else {
+    showSection('welcome');
+  }
+
+  // Lock past dates for leave application - only today and future dates allowed
+  function getLocalTodayStr() {
+    var now = new Date();
+    var y = now.getFullYear();
+    var m = String(now.getMonth() + 1).padStart(2, '0');
+    var d = String(now.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + d;
+  }
+
+  function initLeaveDatePickers() {
+    var todayStr = getLocalTodayStr();
+    var sEl = document.getElementById('leave_start_date');
+    var eEl = document.getElementById('leave_end_date');
+    if (!sEl || !eEl) return;
+
+    sEl.min = todayStr;
+    eEl.min = todayStr;
+
+    if (typeof flatpickr !== 'undefined') {
+      var fpEnd = flatpickr(eEl, {
+        minDate: todayStr,
+        dateFormat: "Y-m-d",
+        altInput: true,
+        altFormat: "d-m-Y",
+        allowInput: false,
+        disableMobile: "true",
+        onChange: function(selectedDates, dateStr) {
+          validateLeaveDates();
+        }
+      });
+
+      var fpStart = flatpickr(sEl, {
+        minDate: todayStr,
+        dateFormat: "Y-m-d",
+        altInput: true,
+        altFormat: "d-m-Y",
+        allowInput: false,
+        disableMobile: "true",
+        onChange: function(selectedDates, dateStr) {
+          if (dateStr) {
+            fpEnd.set('minDate', dateStr);
+            if (eEl.value && eEl.value < dateStr) {
+              fpEnd.setDate(dateStr);
+            }
+          }
+        }
+      });
+    }
+  }
+
+  function handleLeaveStartDateChange(el) {
+    var today = getLocalTodayStr();
+    if (el.value && el.value < today) {
+      alert('Past dates are locked. Please select today or a future date.');
+      el.value = today;
+    }
+    var eEl = document.getElementById('leave_end_date');
+    if (eEl) {
+      var minEnd = el.value || today;
+      eEl.min = minEnd;
+      if (eEl.value && eEl.value < minEnd) {
+        eEl.value = minEnd;
+      }
+    }
+  }
+
+  function validateLeaveDates() {
+    var today = getLocalTodayStr();
+    var sEl = document.getElementById('leave_start_date');
+    var eEl = document.getElementById('leave_end_date');
+    if (sEl && sEl.value && sEl.value < today) {
+      alert('Past dates are locked. Please select today or a future date.');
+      sEl.value = today;
+    }
+    if (eEl && eEl.value) {
+      var minEnd = (sEl && sEl.value) ? sEl.value : today;
+      if (eEl.value < minEnd) {
+        alert('End date cannot be before start date.');
+        eEl.value = minEnd;
+      }
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', initLeaveDatePickers);
+  setTimeout(initLeaveDatePickers, 100);
 
   (function(){
     [['cl-bar','cl-badge','cl-used'],['sl-bar','sl-badge','sl-used'],['pl-bar','pl-badge','pl-used']].forEach(function(item){
@@ -1764,20 +1943,19 @@
   async function submitEmpQuery(){
     var cat=document.getElementById('eq-category').value;
     var subj=document.getElementById('eq-subject').value.trim();
-    var desc=document.getElementById('eq-desc').value.trim();
-    var msg=document.getElementById('eq-msg');
-    if(!cat||!subj||!desc){msg.style.color='#dc2626';msg.textContent='Please fill in all fields.';return;}
-    msg.style.color='var(--muted)';msg.textContent='Submitting…';
+    var desc=document.getElementById('eq-description').value.trim();
+    var msg=document.getElementById('queryMsg');
+    msg.textContent='';msg.style.color='';
+    if(!cat||!subj||!desc){msg.style.color='#dc2626';msg.textContent='Please fill in all required fields.';return;}
     try{
-      var res=await fetch('/employee/queries',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({category:cat,subject:subj,description:desc})});
+      var fd=new FormData();
+      fd.append('category',cat);fd.append('subject',subj);fd.append('description',desc);
+      var res=await fetch('/api/employee/query/submit',{method:'POST',body:fd});
       var data=await res.json();
-      if(res.ok && data.success){
-        msg.style.color='#059669';msg.textContent='✓ Query submitted successfully!';
-        document.getElementById('eq-category').value='';
-        document.getElementById('eq-subject').value='';
-        document.getElementById('eq-desc').value='';
-        setTimeout(function(){window.location.reload();},1500);
-      } else {
+      if(data.success){
+        msg.style.color='#16a34a';msg.textContent='✅ Query submitted successfully! Reference: '+(data.query_id||'');
+        document.getElementById('eq-subject').value='';document.getElementById('eq-description').value='';
+      }else{
         msg.style.color='#dc2626';msg.textContent='❌ '+(data.error||'Failed to submit. Please try again.');
       }
     }catch(e){
@@ -1798,17 +1976,24 @@
     btn.textContent='Submitting…';
     try{
       var fd=new FormData(form);
-      var res=await fetch('/apply-leave',{method:'POST',body:fd,redirect:'follow'});
-      if(res.ok||res.redirected){
-        msgEl.textContent='✅ Leave request submitted successfully!';
+      var res=await fetch('/apply-leave',{
+        method:'POST',
+        body:fd,
+        headers:{'X-Requested-With':'XMLHttpRequest'}
+      });
+      var data={};
+      try { data = await res.json(); } catch(jsonErr){ data = { success: res.ok }; }
+      if(data.success || res.ok){
+        msgEl.textContent='✅ ' + (data.message || 'Leave request submitted successfully! Your manager has been notified.');
         msgEl.style.color='#16a34a';
         form.reset();
-        setTimeout(function(){window.location.reload();},1800);
+        window.location.hash = '#leave-tracker';
+        setTimeout(function(){ window.location.reload(); }, 1200);
       } else {
-        throw new Error('Server returned '+res.status);
+        throw new Error(data.message || 'Server returned '+res.status);
       }
     } catch(err){
-      msgEl.textContent='❌ Could not submit leave. Please try again or contact HR.';
+      msgEl.textContent='❌ ' + (err.message || 'Could not submit leave. Please try again or contact HR.');
       msgEl.style.color='#dc2626';
       console.error('submitLeave error:',err);
     } finally{
@@ -1841,10 +2026,12 @@
       var data=await res.json();
       if(data.success){
         msgEl.textContent='✅ '+data.message;msgEl.style.color='#16a34a';
-        /* S3 URL is returned directly — no /static/ prefix */
-        var src=data.profile_pic;
+        var src=data.profile_pic || 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg';
+        if(!src.startsWith('http') && !src.startsWith('/static/')){
+          src = '/static/' + src.replace(/^\/+/, '');
+        }
         ['settingsAvatarPreview','profilePreviewImg','profileHeaderImg'].forEach(function(id){
-          var el=document.getElementById(id);if(el)el.src=src;
+          var el=document.getElementById(id);if(el){el.src=src; el.style.display='';}
         });
         document.getElementById('settingsRemoveWrap').classList.remove('hidden');
         var rwrap=document.getElementById('empRemoveWrap');if(rwrap)rwrap.classList.remove('hidden');
@@ -1874,6 +2061,57 @@
       }
     }catch(err){
       msgEl.textContent='❌ Error. Please try again.';msgEl.style.color='#dc2626';
+    }
+  }
+
+  /* ── Edit Personal Details Modal ─────────────────────────────────────── */
+  function openEditPersonalModal() {
+    var m = document.getElementById('editPersonalModal');
+    if (m) { m.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  }
+  function closeEditPersonalModal() {
+    var m = document.getElementById('editPersonalModal');
+    if (m) { m.style.display = 'none'; document.body.style.overflow = ''; }
+    var msg = document.getElementById('editPersonalMsg');
+    if (msg) { msg.textContent = ''; msg.style.color = ''; }
+  }
+  // Close modal when clicking overlay
+  document.addEventListener('DOMContentLoaded', function() {
+    var m = document.getElementById('editPersonalModal');
+    if (m) m.addEventListener('click', function(e) { if (e.target === m) closeEditPersonalModal(); });
+  });
+  async function savePersonalDetails(e) {
+    e.preventDefault();
+    var msgEl = document.getElementById('editPersonalMsg');
+    var btn   = document.getElementById('editPersonalSaveBtn');
+    msgEl.textContent = 'Saving…'; msgEl.style.color = '#6c63ff';
+    btn.disabled = true; btn.textContent = 'Saving…';
+    var payload = {
+      phone:                   (document.getElementById('ep_phone')        || {value:''}).value.trim(),
+      current_address:         (document.getElementById('ep_current_addr') || {value:''}).value.trim(),
+      permanent_address:       (document.getElementById('ep_perm_addr')    || {value:''}).value.trim(),
+      emergency_contact_name:  (document.getElementById('ep_emerg_name')   || {value:''}).value.trim(),
+      emergency_contact_phone: (document.getElementById('ep_emerg_phone')  || {value:''}).value.trim(),
+    };
+    try {
+      var res  = await fetch('/api/employee/update-personal', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      var data = await res.json();
+      if (data.success || res.ok) {
+        msgEl.textContent = '✅ Details saved successfully!'; msgEl.style.color = '#16a34a';
+        // Update visible values on the page
+        var ph = document.getElementById('pdPhoneVal');      if (ph && payload.phone)                   ph.textContent = payload.phone;
+        var ca = document.getElementById('pdCurrentAddr');   if (ca && payload.current_address)         ca.textContent = payload.current_address;
+        var pa = document.getElementById('pdPermAddr');      if (pa && payload.permanent_address)       pa.textContent = payload.permanent_address;
+        var en = document.getElementById('pdEmergName');     if (en && payload.emergency_contact_name)  en.textContent = payload.emergency_contact_name;
+        var ep2= document.getElementById('pdEmergPhone');    if (ep2&& payload.emergency_contact_phone) ep2.textContent = payload.emergency_contact_phone;
+        setTimeout(closeEditPersonalModal, 1800);
+      } else {
+        msgEl.textContent = '❌ ' + (data.message || 'Could not save. Please try again.'); msgEl.style.color = '#dc2626';
+      }
+    } catch(err) {
+      msgEl.textContent = '❌ Network error. Please try again.'; msgEl.style.color = '#dc2626';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Save Changes';
     }
   }
 
@@ -2051,11 +2289,13 @@
       if(data.success){
         msgEl.textContent='✅ '+data.message;
         msgEl.style.color='#16a34a';
-        var serverSrc=(data.profile_pic && /^https?:\/\//.test(data.profile_pic)) ? data.profile_pic : '/static/'+data.profile_pic;
-        var prev=document.getElementById('profilePreviewImg');
-        var hdr=document.getElementById('profileHeaderImg');
-        if(prev)prev.src=serverSrc;
-        if(hdr)hdr.src=serverSrc;
+        var serverSrc=data.profile_pic || 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg';
+        if(!serverSrc.startsWith('http') && !serverSrc.startsWith('/static/')){
+          serverSrc = '/static/' + serverSrc.replace(/^\/+/, '');
+        }
+        ['settingsAvatarPreview','profilePreviewImg','profileHeaderImg'].forEach(function(id){
+          var el=document.getElementById(id);if(el){el.src=serverSrc; el.style.display='';}
+        });
       } else {
         msgEl.textContent='❌ '+(data.message||'Upload failed.');
         msgEl.style.color='#dc2626';
@@ -2066,6 +2306,31 @@
       console.error('empSubmitPhoto error:',err);
     } finally{
       input.value='';
+    }
+  }
+
+  async function empRemovePhoto(){
+    var msgEl=document.getElementById('empPhotoMsg');
+    msgEl.textContent='Removing…';
+    msgEl.style.color='#6c63ff';
+    try{
+      var res=await fetch('/employee/remove-photo',{method:'POST'});
+      var data=await res.json();
+      if(data.success){
+        var defaultSrc='https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg';
+        ['profilePreviewImg','profileHeaderImg','settingsAvatarPreview'].forEach(function(id){
+          var el=document.getElementById(id);
+          if(el){ el.src=defaultSrc; el.style.display=''; }
+        });
+        msgEl.textContent='✅ Photo removed.';
+        msgEl.style.color='#16a34a';
+      } else {
+        msgEl.textContent='❌ '+(data.message||'Could not remove.');
+        msgEl.style.color='#dc2626';
+      }
+    } catch(err){
+      msgEl.textContent='❌ Error removing photo.';
+      msgEl.style.color='#dc2626';
     }
   }
 </script>
@@ -3004,26 +3269,61 @@ function calShowToast(msg,type){
   };
 
   window.timesheetExportCSV = function() {
-    const dates = tsGetWeekDates(window.timesheetState.weekOffset);
-    let csv = 'Date,Day,Login,Logout,Duration,Note\n';
-    dates.forEach((date, di) => {
-      const inV = document.getElementById(`ts_login_d${di}`)?.value || '';
-      const outV = document.getElementById(`ts_logout_d${di}`)?.value || '';
-      const note = document.getElementById(`ts_note_d${di}`)?.value || '';
-      let dur = '';
-      if (inV && outV) {
-        const diff = tsParseTime(outV) - tsParseTime(inV);
-        if (diff > 0) dur = tsMinsToStr(diff);
-      }
-      csv += `${toYYYYMMDD(date)},${date.toLocaleDateString('en-GB',{weekday:'long'})},${inV},${outV},${dur},"${note}"\n`;
-    });
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    const label = document.getElementById('tsDayHeaderRow')?.textContent?.trim()?.replace(/\s+/g, '_') || 'timesheet';
-    a.download = `timesheet_${label}.csv`;
-    a.click();
-    tsShowToast('CSV exported', 'success');
+    try {
+      var empId = '{{ reg_id }}';
+      var empName = '{{ Employee_name }}'.replace(/[^a-zA-Z0-9_]/g, '_').substring(0, 30) || 'employee';
+      const dates = tsGetWeekDates(window.timesheetState.weekOffset);
+      // Compute week label for filename
+      var wStart = toYYYYMMDD(dates[0]);
+      var wEnd   = toYYYYMMDD(dates[dates.length - 1]);
+      let csv = '\uFEFF'; // UTF-8 BOM for Excel compatibility
+      csv += 'Employee ID,Employee Name,Date,Day,Login Time,Logout Time,Total Hours,Notes\n';
+      dates.forEach((date, di) => {
+        const inV  = document.getElementById(`ts_login_d${di}`)?.value  || '';
+        const outV = document.getElementById(`ts_logout_d${di}`)?.value || '';
+        const note = document.getElementById(`ts_note_d${di}`)?.value   || '';
+        // Format as DD-MMM-YYYY (e.g., 24-Aug-2026) so Excel columns never show '########'
+        const dObj = new Date(date);
+        const dayStr = String(dObj.getDate()).padStart(2, '0');
+        const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const monthStr = monthNames[dObj.getMonth()];
+        const yearStr = dObj.getFullYear();
+        const dateFormatted = `${dayStr}-${monthStr}-${yearStr}`;
+        const dayName = date.toLocaleDateString('en-GB', { weekday: 'long' });
+        let totalHours = '';
+        if (inV && outV) {
+          const diff = tsParseTime(outV) - tsParseTime(inV);
+          if (diff > 0) totalHours = tsMinsToStr(diff);
+        }
+        csv += `${empId},"${empName}","${dateFormatted}",${dayName},${inV},${outV},${totalHours},"${note.replace(/"/g,'""')}"\n`;
+      });
+      // Weekly summary row
+      let totalMins = 0;
+      dates.forEach((date, di) => {
+        const inV  = document.getElementById(`ts_login_d${di}`)?.value  || '';
+        const outV = document.getElementById(`ts_logout_d${di}`)?.value || '';
+        if (inV && outV) {
+          const diff = tsParseTime(outV) - tsParseTime(inV);
+          if (diff > 0) totalMins += diff;
+        }
+      });
+      csv += `,,,,,,${tsMinsToStr(totalMins)},Weekly Total\n`;
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      a.href = url;
+      a.download = `timesheet_${empId}_${wStart}_to_${wEnd}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function() {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 150);
+      tsShowToast('CSV exported successfully', 'success');
+    } catch (err) {
+      console.error('Error exporting timesheet CSV:', err);
+      tsShowToast('Could not export CSV: ' + err.message, 'error');
+    }
   };
 
   setTimeout(() => {
