@@ -517,9 +517,9 @@
     <div class="profile-wrapper" onclick="toggleDropdown()">
       <div class="profile-avatar-wrap" id="profileAvatarWrap">
         <img id="profileHeaderImg"
-             src="{{ profile_pic if (profile_pic and profile_pic.startswith('http')) else url_for('static', filename=(profile_pic if profile_pic else 'profile_photo/defaultpicture.jpg')) }}"
+             src="{{ profile_pic if (profile_pic and (profile_pic.startswith('http') or profile_pic.startswith('/static/'))) else ('/static/' + profile_pic.lstrip('/') if profile_pic else 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg') }}"
              alt="Profile"
-             onerror="this.style.display='none'; document.getElementById('profileInitialsSpan').style.display='flex';">
+             onerror="this.onerror=null; this.src='https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg';">
         <span class="profile-initials-text" id="profileInitialsSpan" style="display:none;"></span>
       </div>
       <div class="dropdown-menu" id="dropdownMenu">
@@ -1048,8 +1048,9 @@
         </div>
 
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
-          <img src="{{ employee_profile_pic or 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg' }}"
-               style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.4);">
+          <img src="{{ employee_profile_pic if (employee_profile_pic and (employee_profile_pic.startswith('http') or employee_profile_pic.startswith('/static/'))) else ('/static/' + employee_profile_pic.lstrip('/') if employee_profile_pic else 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg') }}"
+               style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.4);"
+               onerror="this.onerror=null; this.src='https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg';">
 
           <div>
             <div style="font-size:16px;font-weight:800;">{{ employee_data.full_name if employee_data else Employee_name }}</div>
@@ -1122,13 +1123,23 @@
         <div class="section-header"><h1>My Profile</h1><p>View and manage your profile information.</p></div>
         <div class="profile-preview-wrap">
           <div class="profile-center">
-            <img id="profilePreviewImg" src="{{ employee_profile_pic or 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg' }}" alt="Profile"/>
+            <img id="profilePreviewImg"
+                 src="{{ employee_profile_pic if (employee_profile_pic and (employee_profile_pic.startswith('http') or employee_profile_pic.startswith('/static/'))) else ('/static/' + employee_profile_pic.lstrip('/') if employee_profile_pic else 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg') }}"
+                 alt="Profile"
+                 style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);margin:0 auto 12px;display:block;"
+                 onerror="this.onerror=null; this.src='https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg';"/>
             <div style="font-size:16px;font-weight:700;color:var(--fg);margin-bottom:3px;">{{ employee_data.full_name }}</div>
             <div style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">{{ employee_data.designation }}</div>
-            <label for="empPhotoInput" class="btn-primary" style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Upload Photo
-            </label>
+            <div style="display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;">
+              <label for="empPhotoInput" class="btn-primary" style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload Photo
+              </label>
+              <button id="empRemoveBtn" onclick="empRemovePhoto()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background:#fef2f2;color:#dc2626;font-size:12.5px;font-weight:600;font-family:inherit;border:1px solid #fecaca;cursor:pointer;transition:background .15s;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                Remove Photo
+              </button>
+            </div>
             <input type="file" id="empPhotoInput" accept="image/*" style="display:none;" onchange="empSubmitPhoto(this)">
             <div id="empPhotoMsg" style="font-size:12px;margin-top:8px;min-height:16px;font-weight:500;"></div>
           </div>
@@ -1148,37 +1159,6 @@
       <!-- SETTINGS -->
       <div id="settings" class="content-section">
         <div class="section-header"><h1>Settings</h1><p>Manage account preferences, security, notifications and appearance.</p></div>
-
-        <!-- ── 1. Profile Photo ── -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/></svg></div>
-            <div><span class="card-title">Profile Photo</span><div style="font-size:12px;color:var(--muted);margin-top:2px;">Stored securely in the cloud — persists across all sessions</div></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:22px;margin-bottom:20px;flex-wrap:wrap;">
-            <div style="width:88px;height:88px;border-radius:50%;border:3px solid var(--primary);padding:3px;flex-shrink:0;background:#fff;box-shadow:0 4px 18px rgba(108,79,247,.20);">
-              <img id="settingsAvatarPreview"
-                   src="{{ employee_profile_pic or 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg' }}"
-                   alt="Profile photo"
-                   style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">
-            </div>
-            <div style="flex:1;min-width:180px;">
-              <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:12px;">Square image, at least 200×200 px · JPG, PNG or GIF · Max 5 MB.</p>
-              <label for="settingsPhotoInput" class="btn-primary" style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                Upload Photo
-              </label>
-              <input type="file" id="settingsPhotoInput" accept="image/*" style="display:none;" onchange="settingsSubmitPhoto(this)">
-              <div id="settingsPhotoMsg" style="font-size:12px;margin-top:10px;min-height:16px;font-weight:500;"></div>
-            </div>
-          </div>
-          <div id="settingsRemoveWrap" class="settings-remove-wrap{% if not employee_profile_pic or employee_profile_pic == 'profile_photo/defaultpicture.jpg' %} hidden{% endif %}">
-            <button onclick="settingsRemovePhoto()" style="display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:10px;background:#fef2f2;color:#dc2626;font-size:13px;font-weight:600;font-family:inherit;border:1px solid #fecaca;cursor:pointer;transition:background .15s;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-              Remove Photo
-            </button>
-          </div>
-        </div>
 
         <!-- ── 2. Display Name ── -->
         <div class="card">
@@ -2046,10 +2026,12 @@
       var data=await res.json();
       if(data.success){
         msgEl.textContent='✅ '+data.message;msgEl.style.color='#16a34a';
-        /* S3 URL is returned directly — no /static/ prefix */
-        var src=data.profile_pic;
+        var src=data.profile_pic || 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg';
+        if(!src.startsWith('http') && !src.startsWith('/static/')){
+          src = '/static/' + src.replace(/^\/+/, '');
+        }
         ['settingsAvatarPreview','profilePreviewImg','profileHeaderImg'].forEach(function(id){
-          var el=document.getElementById(id);if(el)el.src=src;
+          var el=document.getElementById(id);if(el){el.src=src; el.style.display='';}
         });
         document.getElementById('settingsRemoveWrap').classList.remove('hidden');
         var rwrap=document.getElementById('empRemoveWrap');if(rwrap)rwrap.classList.remove('hidden');
@@ -2307,11 +2289,13 @@
       if(data.success){
         msgEl.textContent='✅ '+data.message;
         msgEl.style.color='#16a34a';
-        var serverSrc=(data.profile_pic && /^https?:\/\//.test(data.profile_pic)) ? data.profile_pic : '/static/'+data.profile_pic;
-        var prev=document.getElementById('profilePreviewImg');
-        var hdr=document.getElementById('profileHeaderImg');
-        if(prev)prev.src=serverSrc;
-        if(hdr)hdr.src=serverSrc;
+        var serverSrc=data.profile_pic || 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg';
+        if(!serverSrc.startsWith('http') && !serverSrc.startsWith('/static/')){
+          serverSrc = '/static/' + serverSrc.replace(/^\/+/, '');
+        }
+        ['settingsAvatarPreview','profilePreviewImg','profileHeaderImg'].forEach(function(id){
+          var el=document.getElementById(id);if(el){el.src=serverSrc; el.style.display='';}
+        });
       } else {
         msgEl.textContent='❌ '+(data.message||'Upload failed.');
         msgEl.style.color='#dc2626';
@@ -2322,6 +2306,31 @@
       console.error('empSubmitPhoto error:',err);
     } finally{
       input.value='';
+    }
+  }
+
+  async function empRemovePhoto(){
+    var msgEl=document.getElementById('empPhotoMsg');
+    msgEl.textContent='Removing…';
+    msgEl.style.color='#6c63ff';
+    try{
+      var res=await fetch('/employee/remove-photo',{method:'POST'});
+      var data=await res.json();
+      if(data.success){
+        var defaultSrc='https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg';
+        ['profilePreviewImg','profileHeaderImg','settingsAvatarPreview'].forEach(function(id){
+          var el=document.getElementById(id);
+          if(el){ el.src=defaultSrc; el.style.display=''; }
+        });
+        msgEl.textContent='✅ Photo removed.';
+        msgEl.style.color='#16a34a';
+      } else {
+        msgEl.textContent='❌ '+(data.message||'Could not remove.');
+        msgEl.style.color='#dc2626';
+      }
+    } catch(err){
+      msgEl.textContent='❌ Error removing photo.';
+      msgEl.style.color='#dc2626';
     }
   }
 </script>
