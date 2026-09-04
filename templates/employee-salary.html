@@ -1,255 +1,565 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Salary Details</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f4f6f8;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        
-        .salary-summary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        
-        .salary-breakdown {
-            margin-bottom: 30px;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        
-        .badge {
-            background-color: #28a745;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.85em;
-        }
-        
-        .salary-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 5px;
-        }
-        
-        .net-salary {
-            background: #d4edda;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-        
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            color: #0078D4;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        
-        .alert {
-            padding: 12px 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .alert-info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-        
-        .no-salary-data {
-            text-align: center;
-            padding: 40px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        
-        .no-salary-data i {
-            font-size: 3rem;
-            color: #6c757d;
-            margin-bottom: 15px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Salary Details – ChakoraHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --primary-light: #eef2ff;
+      --secondary: #0ea5e9;
+      --success: #10b981;
+      --success-dark: #059669;
+      --success-light: #ecfdf5;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #f1f5f9 100%);
+      --card-bg: #ffffff;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 10px 25px -5px rgba(79, 70, 229, 0.12), 0 8px 10px -6px rgba(79, 70, 229, 0.08);
+      --shadow-lg: 0 20px 35px -10px rgba(15, 23, 42, 0.12);
+      --radius-lg: 18px;
+      --radius-md: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      color: var(--text-main);
+      padding: 30px 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      animation: fadeIn 0.35s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Top Nav */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary);
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border-color);
+      padding: 9px 18px;
+      border-radius: 99px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+      background: #ffffff;
+      transform: translateX(-3px);
+      box-shadow: var(--shadow-md);
+      color: var(--primary-dark);
+    }
+
+    .status-badge-chip {
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      padding: 6px 14px;
+      border-radius: 99px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Alerts */
+    .alert {
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      margin-bottom: 24px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .alert-error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    /* Hero Summary Card */
+    .salary-summary-card {
+      background: linear-gradient(135deg, #3730a3 0%, #4f46e5 50%, #7c3aed 100%);
+      color: white;
+      padding: 32px 36px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 15px 35px -5px rgba(79, 70, 229, 0.4);
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .salary-summary-card::after {
+      content: '';
+      position: absolute;
+      right: -30px;
+      bottom: -40px;
+      width: 220px;
+      height: 220px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .summary-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .summary-title-wrap h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .summary-title-wrap p {
+      font-size: 0.92rem;
+      opacity: 0.85;
+      margin-top: 4px;
+    }
+
+    .employee-profile-pill {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(8px);
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      background: rgba(0, 0, 0, 0.15);
+      padding: 16px 20px;
+      border-radius: var(--radius-md);
+      backdrop-filter: blur(6px);
+    }
+
+    .meta-item .label {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      opacity: 0.75;
+      font-weight: 600;
+    }
+
+    .meta-item .value {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    /* Breakdown Section */
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 30px;
+      margin-bottom: 28px;
+    }
+
+    .section-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-card-title i {
+      color: var(--primary);
+    }
+
+    .salary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .salary-stat-box {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .salary-stat-box:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+      border-color: #cbd5e1;
+    }
+
+    .salary-stat-box .box-lbl {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .salary-stat-box .box-val {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .salary-stat-box.highlight-net {
+      grid-column: span 3;
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      border: 1.5px solid #a7f3d0;
+      padding: 22px 26px;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .salary-stat-box.highlight-net .box-lbl {
+      font-size: 0.95rem;
+      color: #065f46;
+      font-weight: 700;
+    }
+
+    .salary-stat-box.highlight-net .box-val {
+      font-size: 1.8rem;
+      color: #047857;
+    }
+
+    /* Table Styles */
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      background: #f8fafc;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td {
+      padding: 14px 18px;
+      font-size: 0.92rem;
+      color: var(--text-main);
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: #f8fafc;
+    }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary-light);
+      color: var(--primary);
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .btn-download:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+
+    /* Empty States */
+    .no-data-card {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--text-muted);
+    }
+
+    .no-data-card i {
+      font-size: 3rem;
+      color: #94a3b8;
+      margin-bottom: 16px;
+    }
+
+    .no-data-card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .no-data-card p {
+      font-size: 0.92rem;
+      max-width: 420px;
+      margin: 0 auto 6px auto;
+    }
+
+    @media (max-width: 768px) {
+      .meta-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .salary-grid {
+        grid-template-columns: 1fr;
+      }
+      .salary-stat-box.highlight-net {
+        grid-column: span 1;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .salary-summary-card {
+        padding: 24px;
+      }
+      .section-card {
+        padding: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2><i class="fas fa-money-bill-wave"></i> Employee Salary Details</h2>
-        
-        <!-- Error Messages -->
-        {% if error %}
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-triangle"></i> {{ error }}
-        </div>
-        {% endif %}
 
-        {% if salary_info %}
-        <!-- Salary Summary -->
-        <div class="salary-summary">
-            <h3>Salary Summary</h3>
-            <p><strong>Employee ID:</strong> {{ salary_info.id }}</p>
-            <p><strong>Name:</strong> {{ salary_info.name }}</p>
-            <p><strong>Department:</strong> {{ salary_info.department }}</p>
-            <p><strong>Status:</strong> <span class="badge">{{ salary_info.status }}</span></p>
-        </div>
-
-        <!-- Check if we have actual salary data or just employee info -->
-        {% if salary_info.basic is defined %}
-        <!-- Salary Breakdown -->
-        <div class="salary-breakdown">
-            <h3>Salary Breakdown</h3>
-            <div class="salary-item">
-                <span>Basic Salary:</span>
-                <span>₹ {{ "{:,.2f}".format(salary_info.basic) }}</span>
-            </div>
-            <div class="salary-item">
-                <span>HRA:</span>
-                <span>₹ {{ "{:,.2f}".format(salary_info.hra) }}</span>
-            </div>
-            <div class="salary-item">
-                <span>Allowances:</span>
-                <span>₹ {{ "{:,.2f}".format(salary_info.allowances) }}</span>
-            </div>
-            <div class="salary-item">
-                <span>Deductions:</span>
-                <span>₹ {{ "{:,.2f}".format(salary_info.deductions) }}</span>
-            </div>
-            <div class="salary-item net-salary">
-                <span>Net Salary:</span>
-                <span>₹ {{ "{:,.2f}".format(salary_info.net_salary) }}</span>
-            </div>
-        </div>
-
-        <!-- Salary Slips -->
-        {% if salary_slips %}
-        <div class="salary-slips">
-            <h3>Salary Slips</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Month</th>
-                        <th>Year</th>
-                        <th>Generated Date</th>
-                        <th>Download</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for slip in salary_slips %}
-                    <tr>
-                        <td>{{ slip[1] }}</td>
-                        <td>{{ slip[2] }}</td>
-                        <td>
-                            {% if slip[4] %}
-                                {{ slip[4].strftime('%Y-%m-%d') }}
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if slip[3] %}
-                                <a href="{{ slip[3] }}" target="_blank">Download</a>
-                            {% else %}
-                                Not Available
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div class="no-slips">
-            <h3>Salary Slips</h3>
-            <p>No salary slips available.</p>
-        </div>
-        {% endif %}
-
-        {% else %}
-        <!-- Show message when we have employee info but no salary data -->
-        <div class="no-salary-data">
-            <i class="fas fa-file-invoice-dollar"></i>
-            <h3>Salary Information Not Available</h3>
-            <p>Your salary details are currently not available in the system.</p>
-            <p>Please contact HR or your manager for assistance.</p>
-        </div>
-        {% endif %}
-
-        {% else %}
-        <!-- Show when no employee info is available at all -->
-        <div class="no-salary-data">
-            <i class="fas fa-exclamation-circle"></i>
-            <h3>Unable to Load Salary Information</h3>
-            <p>There was an error loading your salary details.</p>
-            <p>Please try again later or contact system administrator.</p>
-        </div>
-        {% endif %}
-
-        <a href="{{ url_for('employee_resources') }}" class="back-link">
-            <i class="fas fa-arrow-left"></i> Back to Employee Resources
-        </a>
+  <div class="container">
+    <!-- Top Navigation -->
+    <div class="top-nav">
+      <a href="{{ url_for('employee_resources') }}" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i> Back to Employee Resources
+      </a>
+      {% if salary_info and salary_info.status %}
+      <span class="status-badge-chip">
+        <i class="fa-solid fa-circle-check"></i> {{ salary_info.status }}
+      </span>
+      {% endif %}
     </div>
+
+    <!-- Error Messages -->
+    {% if error %}
+    <div class="alert alert-error">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <div>{{ error }}</div>
+    </div>
+    {% endif %}
+
+    {% if salary_info %}
+    <!-- Summary Header Card -->
+    <div class="salary-summary-card">
+      <div class="summary-header-row">
+        <div class="summary-title-wrap">
+          <h2><i class="fa-solid fa-money-bill-wave"></i> Employee Salary Details</h2>
+          <p>Official compensation and payslip statements</p>
+        </div>
+        <div class="employee-profile-pill">
+          <i class="fa-solid fa-id-badge"></i> {{ salary_info.id }}
+        </div>
+      </div>
+
+      <div class="meta-grid">
+        <div class="meta-item">
+          <div class="label">Employee Name</div>
+          <div class="value">{{ salary_info.name }}</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Department</div>
+          <div class="value">{{ salary_info.department }}</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Employment Status</div>
+          <div class="value">{{ salary_info.status }}</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Employee ID</div>
+          <div class="value">{{ salary_info.id }}</div>
+        </div>
+      </div>
+    </div>
+
+    {% if salary_info.basic is defined %}
+    <!-- Salary Breakdown Card -->
+    <div class="section-card">
+      <div class="section-card-title">
+        <i class="fa-solid fa-chart-pie"></i> Compensation Breakdown
+      </div>
+
+      <div class="salary-grid">
+        <div class="salary-stat-box">
+          <span class="box-lbl">Basic Salary</span>
+          <span class="box-val">₹ {{ "{:,.2f}".format(salary_info.basic) }}</span>
+        </div>
+        <div class="salary-stat-box">
+          <span class="box-lbl">House Rent Allowance (HRA)</span>
+          <span class="box-val">₹ {{ "{:,.2f}".format(salary_info.hra) }}</span>
+        </div>
+        <div class="salary-stat-box">
+          <span class="box-lbl">Special Allowances</span>
+          <span class="box-val">₹ {{ "{:,.2f}".format(salary_info.allowances) }}</span>
+        </div>
+        <div class="salary-stat-box">
+          <span class="box-lbl">Total Deductions</span>
+          <span class="box-val" style="color: #dc2626;">- ₹ {{ "{:,.2f}".format(salary_info.deductions) }}</span>
+        </div>
+        <div class="salary-stat-box highlight-net">
+          <div>
+            <div class="box-lbl">Monthly Net Take-Home Salary</div>
+            <div style="font-size: 0.82rem; color: #065f46; opacity: 0.85; margin-top: 2px;">Direct bank credit estimation</div>
+          </div>
+          <div class="box-val">₹ {{ "{:,.2f}".format(salary_info.net_salary) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Salary Slips Card -->
+    <div class="section-card">
+      <div class="section-card-title">
+        <i class="fa-solid fa-file-invoice-dollar"></i> Generated Payslips
+      </div>
+
+      {% if salary_slips %}
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Year</th>
+              <th>Generated Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for slip in salary_slips %}
+            <tr>
+              <td><strong>{{ slip[1] }}</strong></td>
+              <td>{{ slip[2] }}</td>
+              <td>
+                {% if slip[4] %}
+                  {{ slip[4].strftime('%d %b %Y') }}
+                {% else %}
+                  N/A
+                {% endif %}
+              </td>
+              <td>
+                {% if slip[3] %}
+                  <a href="{{ slip[3] }}" target="_blank" class="btn-download">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Download Slip
+                  </a>
+                {% else %}
+                  <span style="color: #94a3b8; font-size: 0.85rem;">Not Available</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="no-data-card">
+        <i class="fa-solid fa-folder-open"></i>
+        <h3>No Payslips Found</h3>
+        <p>Your monthly payslips will appear here once generated by the finance department.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    {% else %}
+    <!-- Employee Info Present but No Salary Structure Defined -->
+    <div class="section-card">
+      <div class="no-data-card">
+        <i class="fa-solid fa-file-invoice-dollar"></i>
+        <h3>Salary Information Not Available</h3>
+        <p>Your detailed compensation structure is currently being updated in the HR system.</p>
+        <p>Please contact HR or finance support for assistance.</p>
+      </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Error or No Data at all -->
+    <div class="section-card">
+      <div class="no-data-card">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <h3>Unable to Load Salary Information</h3>
+        <p>There was an error loading your salary details from the server.</p>
+        <p>Please try again later or contact your system administrator.</p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
 </body>
 </html>
