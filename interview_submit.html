@@ -1,0 +1,85 @@
+{% extends "interview_base.html" %}
+{% block title %}{{ 'Edit feedback' if edit_mode else 'Give feedback' }}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1>{{ 'Edit interview feedback' if edit_mode else 'Give interview feedback' }}</h1>
+    <p class="sub">{{ 'Update this scorecard.' if edit_mode else "Submit your scorecard right after the interview, while it's fresh." }}</p>
+  </div>
+</header>
+
+<form class="form-card" method="post" action="{{ form_action }}">
+  <div class="form-grid">
+    <label class="field">
+      <span>Candidate name</span>
+      <input type="text" name="candidate_name" required placeholder="e.g. Ananya Rao"
+             value="{{ entry.candidate_name if entry else '' }}">
+    </label>
+    <label class="field">
+      <span>Position</span>
+      <input type="text" name="position" required placeholder="e.g. Backend Engineer"
+             value="{{ entry.position if entry else '' }}">
+    </label>
+    <label class="field">
+      <span>Interview round</span>
+      <select name="interview_round" required>
+        {% for r in rounds %}
+        <option value="{{ r }}" {{ 'selected' if entry and entry.interview_round == r else '' }}>{{ r }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field">
+      <span>Your name (interviewer)</span>
+      <input type="text" name="interviewer_name" required placeholder="e.g. Priya Nair"
+             value="{{ entry.interviewer_name if entry else '' }}">
+    </label>
+    <label class="field">
+      <span>Interview date</span>
+      <input type="date" name="interview_date" value="{{ entry.interview_date if entry else today }}" required>
+    </label>
+  </div>
+
+  <div class="score-section">
+    <h3>Scorecard</h3>
+    <p class="hint">Rate each dimension from 1 (poor) to 5 (excellent).</p>
+
+    {% for field, label in [('technical_skills','Technical skills'), ('problem_solving','Problem solving'), ('communication','Communication'), ('culture_fit','Culture fit')] %}
+    <div class="rating-row">
+      <span class="rating-label">{{ label }}</span>
+      <div class="rating-scale">
+        {% for v in range(1,6) %}
+        {% set current = entry[field] if entry else 3 %}
+        <label class="rating-pill">
+          <input type="radio" name="{{ field }}" value="{{ v }}" {{ 'checked' if v == current else '' }} required>
+          <span>{{ v }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="form-grid">
+    <label class="field">
+      <span>Overall recommendation</span>
+      <select name="recommendation" required>
+        {% for r in recommendations %}
+        <option value="{{ r }}" {{ 'selected' if entry and entry.recommendation == r else '' }}>{{ r }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </div>
+
+  <label class="field">
+    <span>Comments</span>
+    <textarea name="comments" rows="4" placeholder="What stood out, positively or negatively?">{{ entry.comments if entry else '' }}</textarea>
+  </label>
+
+  <div class="form-actions">
+    <button type="submit" class="btn-primary">{{ 'Save changes' if edit_mode else 'Submit feedback' }}</button>
+    {% if edit_mode %}
+    <a class="btn-cancel" href="/interview/candidate/{{ entry.candidate_name }}">Cancel</a>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}
