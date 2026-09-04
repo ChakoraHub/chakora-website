@@ -2840,7 +2840,7 @@ def employee_resources():
                 STATUS
             FROM EMPLOYEE_REGISTRATIONS
             WHERE EMPLOYEE_ID = %s
-            LIMIT 1
+            FETCH FIRST 1 ROWS ONLY
         """, (employee_id,))
         reg_row = cursor.fetchone()
 
@@ -2864,7 +2864,7 @@ def employee_resources():
 
         # Profile pic from EMP_NRM_PERSONAL
         cursor.execute(
-            "SELECT PROFILE_PIC FROM EMP_NRM_PERSONAL WHERE EMPLOYEE_ID = %s LIMIT 1",
+            "SELECT PROFILE_PIC, PHOTO_URL FROM EMP_NRM_PERSONAL WHERE EMPLOYEE_ID = %s FETCH FIRST 1 ROWS ONLY",
             (employee_id,)
         )
         pic_row = cursor.fetchone()
@@ -3202,11 +3202,17 @@ def employee_resources():
         conn.close()
         
         # Profile pic: prefer EMP_NRM_PERSONAL, fall back to session
+        raw_db_pic = ''
+        if pic_row:
+            raw_db_pic = _read_val(pic_row.get('PROFILE_PIC') or pic_row.get('PHOTO_URL'))
+        
         profile_pic = (
-            (pic_row.get('PROFILE_PIC') if pic_row else None)
+            raw_db_pic
             or session.get("profile_pic")
             or "https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg"
         )
+        if profile_pic and not profile_pic.startswith('http') and not profile_pic.startswith('/static/'):
+            profile_pic = f"/static/{profile_pic.lstrip('/')}"
 
         bank_data = {
             'has_bank': bool(salary_data.get('bank_name') and salary_data.get('bank_name') != 'Not specified'),
@@ -4293,7 +4299,7 @@ def apply_leave_proxy():
 # ─── Employee Portal: Profile Photo Upload / Remove ──────────────────────────
 @app.route('/employee/upload-photo', methods=['POST'])
 def employee_upload_photo():
-    """Upload employee profile photo to local static folder and update session."""
+    """Upload employee profile photo to local static folder, update session, and persist to Oracle DB."""
     if session.get('login_type') != 'employee':
         return jsonify({'success': False, 'message': 'Not logged in'}), 401
 
@@ -4312,15 +4318,43 @@ def employee_upload_photo():
     try:
         from werkzeug.utils import secure_filename as _secure_fn
         employee_id = session.get('employee_id', 'emp')
-        filename = f"emp_{employee_id}_{_secure_fn(file.filename)}"
-        upload_folder = os.path.join('static', 'profile_photo')
+        clean_fn = _secure_fn(file.filename) or f"photo.{ext}"
+        filename = f"emp_{employee_id}_{int(time.time())}_{clean_fn}"
+        upload_folder = os.path.join(current_app.root_path, 'static', 'profile_photo')
         os.makedirs(upload_folder, exist_ok=True)
         save_path = os.path.join(upload_folder, filename)
         file.save(save_path)
-        pic_path = f'profile_photo/{filename}'
-        session['profile_pic'] = pic_path
+        
+        pic_url = f"/static/profile_photo/{filename}"
+        session['profile_pic'] = pic_url
         session.modified = True
-        return jsonify({'success': True, 'message': 'Photo uploaded successfully!', 'profile_pic': f'/static/{pic_path}'})
+
+        # Persist to Oracle Database
+        try:
+            conn = get_db_connection()
+            if conn and employee_id:
+                cur = conn.cursor()
+                cur.execute("SELECT COUNT(*) FROM CHAKORA.EMP_NRM_PERSONAL WHERE EMPLOYEE_ID = %s", (employee_id,))
+                cnt_row = cur.fetchone()
+                cnt = cnt_row[0] if cnt_row else 0
+                if cnt > 0:
+                    cur.execute(
+                        "UPDATE CHAKORA.EMP_NRM_PERSONAL SET PROFILE_PIC = %s, PHOTO_URL = %s WHERE EMPLOYEE_ID = %s",
+                        (pic_url, pic_url, employee_id)
+                    )
+                else:
+                    cur.execute(
+                        "INSERT INTO CHAKORA.EMP_NRM_PERSONAL (EMPLOYEE_ID, PROFILE_PIC, PHOTO_URL) VALUES (%s, %s, %s)",
+                        (employee_id, pic_url, pic_url)
+                    )
+                conn.commit()
+                cur.close()
+                conn.close()
+                print(f"✅ Persisted profile pic for {employee_id} to EMP_NRM_PERSONAL: {pic_url}")
+        except Exception as db_e:
+            print(f"⚠️ Could not persist profile photo to Oracle DB: {db_e}")
+
+        return jsonify({'success': True, 'message': 'Photo uploaded successfully!', 'profile_pic': pic_url})
     except Exception as upload_err:
         import traceback
         print('❌ employee_upload_photo error:', traceback.format_exc())
@@ -4329,22 +4363,43 @@ def employee_upload_photo():
 
 @app.route('/employee/remove-photo', methods=['POST'])
 def employee_remove_photo():
-    """Remove employee profile photo and revert to default."""
+    """Remove employee profile photo, revert to default, and update Oracle DB."""
     if session.get('login_type') != 'employee':
         return jsonify({'success': False, 'message': 'Not logged in'}), 401
 
     default_pic = 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg'
+    employee_id = session.get('employee_id')
     current_pic = session.get('profile_pic', '')
-    # Remove local file if it's not already a URL
+    
+    # Remove local file if exists
     if current_pic and not current_pic.startswith('http'):
         try:
-            full_path = os.path.join('static', current_pic)
+            rel = current_pic.replace('/static/', '')
+            full_path = os.path.join(current_app.root_path, 'static', rel)
             if os.path.exists(full_path):
                 os.remove(full_path)
         except Exception:
             pass
+            
     session['profile_pic'] = default_pic
     session.modified = True
+
+    # Revert in Oracle Database
+    try:
+        conn = get_db_connection()
+        if conn and employee_id:
+            cur = conn.cursor()
+            cur.execute(
+                "UPDATE CHAKORA.EMP_NRM_PERSONAL SET PROFILE_PIC = %s, PHOTO_URL = %s WHERE EMPLOYEE_ID = %s",
+                (default_pic, default_pic, employee_id)
+            )
+            conn.commit()
+            cur.close()
+            conn.close()
+            print(f"✅ Reverted profile pic for {employee_id} in EMP_NRM_PERSONAL to default.")
+    except Exception as db_e:
+        print(f"⚠️ DB remove error: {db_e}")
+
     return jsonify({'success': True, 'message': 'Photo removed.', 'profile_pic': default_pic})
 
 '''@app.route('/employee/id-card')
