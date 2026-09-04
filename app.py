@@ -2794,6 +2794,32 @@ def employee_resources():
         if festival_row:
             festival_today = festival_row['FESTIVAL_NAME']
         
+        # Get brand logo link from Oracle LOGOS table (always use SUPPORT schema)
+        link = None
+        try:
+            cursor.execute("""
+                SELECT AWS_S3_URL
+                FROM SUPPORT.LOGOS
+                WHERE IS_ACTIVE = 1
+                AND (NAME = 'ChakoraHub' OR SNO = 1)
+                FETCH FIRST 1 ROWS ONLY
+            """)
+            logo_row = cursor.fetchone()
+            if logo_row:
+                if isinstance(logo_row, dict):
+                    # Oracle dict cursor returns column names in original case
+                    link = (
+                        logo_row.get('AWS_S3_URL')
+                        or logo_row.get('aws_s3_url')
+                        or logo_row.get('Aws_S3_Url')
+                    )
+                else:
+                    link = logo_row[0]
+            print(f"🖼️  Logo from Oracle LOGOS: {link}")
+        except Exception as logo_err:
+            print(f"⚠️ Error querying LOGOS table from Oracle: {logo_err}")
+            link = None
+
         # Single query to EMPLOYEE_REGISTRATIONS (same table ID card uses - all data is here)
         employee_data = {}
         cursor.execute("""
@@ -2814,36 +2840,19 @@ def employee_resources():
                 STATUS
             FROM EMPLOYEE_REGISTRATIONS
             WHERE EMPLOYEE_ID = %s
-            LIMIT 1
+            FETCH FIRST 1 ROWS ONLY
         """, (employee_id,))
         reg_row = cursor.fetchone()
-       
-        if reg_row:
-            employee_data = {
-                'first_name': reg_row.get('FIRST_NAME'),
-                'last_name': reg_row.get('LAST_NAME'),
-                'full_name': reg_row.get('FULL_NAME'),
-                'email': reg_row.get('EMAIL'),
-                'phone': reg_row.get('PHONE'),
-                'gender': reg_row.get('GENDER'),
-                'dob': reg_row.get('DOB'),
-                'current_address': reg_row.get('CURRENT_ADDRESS'),
-                'permanent_address': reg_row.get('PERMANENT_ADDRESS'),
-                'department': reg_row.get('DEPARTMENT'),
-                'designation': reg_row.get('DESIGNATION'),
-                'manager': reg_row.get('MANAGER'),
-                'date_of_joining': reg_row.get('DATE_OF_JOINING'),
-                'employment_type': reg_row.get('EMPLOYMENT_TYPE'),
-                'work_location': reg_row.get('WORK_LOCATION'),
-                'status': reg_row.get('STATUS'),
-            }
-    
-        # Profile pic from EMP_NRM_PERSONAL
-        cursor.execute(
-            "SELECT PROFILE_PIC FROM EMP_NRM_PERSONAL WHERE EMPLOYEE_ID = %s LIMIT 1",
-            (employee_id,)
-        )
-        pic_row = cursor.fetchone()
+
+        def _read_val(v):
+            if v is None:
+                return ''
+            if hasattr(v, 'read'):
+                try:
+                    return str(v.read())
+                except Exception:
+                    return str(v)
+            return str(v)
 
         def fmt_date(val):
             if not val:
@@ -2853,29 +2862,36 @@ def employee_resources():
             except Exception:
                 return str(val)
 
+        # Profile pic from EMP_NRM_PERSONAL
+        cursor.execute(
+            "SELECT PROFILE_PIC, PHOTO_URL FROM EMP_NRM_PERSONAL WHERE EMPLOYEE_ID = %s FETCH FIRST 1 ROWS ONLY",
+            (employee_id,)
+        )
+        pic_row = cursor.fetchone()
+
         if reg_row:
             full_name = (
-                reg_row.get('FULL_NAME')
-                or f"{reg_row.get('FIRST_NAME', '')} {reg_row.get('LAST_NAME', '')}".strip()
+                _read_val(reg_row.get('FULL_NAME'))
+                or f"{_read_val(reg_row.get('FIRST_NAME'))} {_read_val(reg_row.get('LAST_NAME'))}".strip()
                 or session.get("employee_name", "Employee")
             )
             employee_data = {
                 'full_name':               full_name,
                 'employee_id':             employee_id,
                 'dob':                     fmt_date(reg_row.get('DOB')),
-                'gender':                  reg_row.get('GENDER')        or 'Not specified',
-                'email':                   reg_row.get('EMAIL')         or session.get("employee_email", "Not specified"),
-                'phone':                   reg_row.get('PHONE')         or 'Not specified',
-                'department':              reg_row.get('DEPARTMENT')    or 'N/A',
-                'designation':             reg_row.get('DESIGNATION')   or 'N/A',
+                'gender':                  _read_val(reg_row.get('GENDER'))        or 'Not specified',
+                'email':                   _read_val(reg_row.get('EMAIL'))         or session.get("employee_email", "Not specified"),
+                'phone':                   _read_val(reg_row.get('PHONE'))         or 'Not specified',
+                'department':              _read_val(reg_row.get('DEPARTMENT'))    or 'N/A',
+                'designation':             _read_val(reg_row.get('DESIGNATION'))   or 'N/A',
                 'date_of_joining':         fmt_date(reg_row.get('DATE_OF_JOINING')),
-                'manager':                 reg_row.get('MANAGER')       or 'Not specified',
-                'current_address':         reg_row.get('CURRENT_ADDRESS')   or 'Not specified',
-                'permanent_address':       reg_row.get('PERMANENT_ADDRESS') or 'Not specified',
-                'emergency_contact_name':  reg_row.get('EMERGENCY_CONTACT_NAME')  or 'Not specified',
-                'emergency_contact_phone': reg_row.get('EMERGENCY_CONTACT_PHONE') or 'Not specified',
-                'employment_type':         reg_row.get('EMPLOYMENT_TYPE') or 'Not specified',
-                'work_location':           reg_row.get('WORK_LOCATION')   or 'Not specified',
+                'manager':                 _read_val(reg_row.get('MANAGER'))       or 'Not specified',
+                'current_address':         _read_val(reg_row.get('CURRENT_ADDRESS'))   or 'Not specified',
+                'permanent_address':       _read_val(reg_row.get('PERMANENT_ADDRESS')) or 'Not specified',
+                'emergency_contact_name':  _read_val(reg_row.get('EMERGENCY_CONTACT_NAME'))  or 'Not specified',
+                'emergency_contact_phone': _read_val(reg_row.get('EMERGENCY_CONTACT_PHONE')) or 'Not specified',
+                'employment_type':         _read_val(reg_row.get('EMPLOYMENT_TYPE')) or 'Not specified',
+                'work_location':           _read_val(reg_row.get('WORK_LOCATION'))   or 'Not specified',
             }
         else:
             employee_data = {
@@ -2931,7 +2947,7 @@ def employee_resources():
                 profile_row = cursor.fetchone()
 
                 if profile_row and profile_row.get('BANK_DETAILS'):
-                    bank_details = profile_row.get('BANK_DETAILS')
+                    bank_details = _read_val(profile_row.get('BANK_DETAILS'))
 
             except Exception as e:
                 print(f"EMP_NRM_PROFILE fetch skipped: {e}")
@@ -2981,74 +2997,86 @@ def employee_resources():
         leave_history = []
         
         try:
-            # Count approved leaves by type (simple logic)
+            # Count approved leaves by type (Oracle compatible date subtraction)
             cursor.execute("""
                 SELECT 
-                    STATUS,
+                    LEAVE_TYPE,
                     COUNT(*) as count,
-                    SUM(DATEDIFF(day, START_DATE, END_DATE) + 1) as total_days
+                    NVL(SUM(TOTAL_DAYS), NVL(SUM((END_DATE - START_DATE) + 1), 0)) as total_days
                 FROM EMP_NRM_LEAVE 
-                WHERE EMPLOYEE_ID = %s AND STATUS = 'Approved'
-                GROUP BY STATUS
+                WHERE EMPLOYEE_ID = %s AND UPPER(STATUS) = 'APPROVED'
+                GROUP BY LEAVE_TYPE
             """, (employee_id,))
             leave_stats = cursor.fetchall()
+            for st in leave_stats:
+                lt = (st.get('LEAVE_TYPE') or '').lower()
+                td = int(st.get('TOTAL_DAYS') or st.get('count') or 0)
+                if 'casual' in lt:
+                    leave_data['casual_leave'] = max(0, 12 - td)
+                elif 'sick' in lt:
+                    leave_data['sick_leave'] = max(0, 8 - td)
+                elif 'privilege' in lt:
+                    leave_data['privilege_leave'] = max(0, 3 - td)
             
-            # Fetch leave history
+            # Fetch leave history with proper Oracle FETCH FIRST syntax
             cursor.execute("""
                 SELECT 
                     LEAVE_ID,
+                    LEAVE_TYPE,
                     START_DATE,
                     END_DATE,
+                    TOTAL_DAYS,
                     REASON,
                     STATUS,
                     APPLIED_AT
                 FROM EMP_NRM_LEAVE 
                 WHERE EMPLOYEE_ID = %s
-                ORDER BY APPLIED_AT DESC
-                LIMIT 10
+                ORDER BY NVL(APPLIED_AT, TO_TIMESTAMP('1970-01-01', 'YYYY-MM-DD')) DESC, LEAVE_ID DESC
+                FETCH FIRST 20 ROWS ONLY
             """, (employee_id,))
             leave_history_rows = cursor.fetchall()
             
             for row in leave_history_rows:
-                from_date = row.get('START_DATE', 'Unknown')
-                to_date = row.get('END_DATE', 'Unknown')
+                from_date = row.get('START_DATE')
+                to_date   = row.get('END_DATE')
                 
-                # Calculate days
-                days = 1
-                if from_date and to_date and from_date != 'Unknown' and to_date != 'Unknown':
+                # Format dates cleanly (YYYY-MM-DD)
+                if hasattr(from_date, 'strftime'):
+                    from_str = from_date.strftime('%Y-%m-%d')
+                else:
+                    from_str = str(from_date)[:10] if from_date else 'N/A'
+                    
+                if hasattr(to_date, 'strftime'):
+                    to_str = to_date.strftime('%Y-%m-%d')
+                else:
+                    to_str = str(to_date)[:10] if to_date else 'N/A'
+                
+                total_days = row.get('TOTAL_DAYS')
+                if total_days is None:
                     try:
-                        if isinstance(from_date, str):
-                            from_date = datetime.strptime(from_date, '%Y-%m-%d')
-                        if isinstance(to_date, str):
-                            to_date = datetime.strptime(to_date, '%Y-%m-%d')
-                        days = (to_date - from_date).days + 1
-                    except:
-                        days = 1
+                        if hasattr(from_date, 'date') and hasattr(to_date, 'date'):
+                            total_days = (to_date.date() - from_date.date()).days + 1
+                        else:
+                            total_days = 1
+                    except Exception:
+                        total_days = 1
+                else:
+                    total_days = int(total_days)
                 
-                # Determine leave type from reason
-                reason = row.get('REASON', '').lower()
-                leave_type = 'Casual'
-                if 'sick' in reason:
-                    leave_type = 'Sick'
-                elif 'privilege' in reason or 'annual' in reason:
-                    leave_type = 'Privilege'
-                elif 'maternity' in reason or 'paternity' in reason:
-                    leave_type = 'Special'
+                leave_type = row.get('LEAVE_TYPE') or 'Casual'
+                status     = row.get('STATUS') or 'Pending'
                 
                 leave_history.append({
                     'type': leave_type,
-                    'from_date': row.get('START_DATE', 'Unknown'),
-                    'to_date': row.get('END_DATE', 'Unknown'),
-                    'days': str(days),
-                    'status': row.get('STATUS', 'Pending')
+                    'from_date': from_str,
+                    'to_date': to_str,
+                    'days': str(total_days),
+                    'status': status
                 })
             
         except Exception as e:
-            print(f"Error fetching leave data: {e}")
-            leave_history = [
-                {'type': 'Casual', 'from_date': 'Dec 20, 2025', 'to_date': 'Dec 22, 2025', 'days': '3', 'status': '✅ Approved'},
-                {'type': 'Sick', 'from_date': 'Nov 15, 2025', 'to_date': 'Nov 15, 2025', 'days': '1', 'status': '✅ Approved'}
-            ]
+            print(f"❌ Error fetching leave data from Oracle: {e}")
+            leave_history = []
         
         # ID Card data from EMP_NRM_IDCARD
         id_card_data = {}
@@ -3174,11 +3202,17 @@ def employee_resources():
         conn.close()
         
         # Profile pic: prefer EMP_NRM_PERSONAL, fall back to session
+        raw_db_pic = ''
+        if pic_row:
+            raw_db_pic = _read_val(pic_row.get('PROFILE_PIC') or pic_row.get('PHOTO_URL'))
+        
         profile_pic = (
-            (pic_row.get('PROFILE_PIC') if pic_row else None)
+            raw_db_pic
             or session.get("profile_pic")
             or "https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg"
         )
+        if profile_pic and not profile_pic.startswith('http') and not profile_pic.startswith('/static/'):
+            profile_pic = f"/static/{profile_pic.lstrip('/')}"
 
         bank_data = {
             'has_bank': bool(salary_data.get('bank_name') and salary_data.get('bank_name') != 'Not specified'),
@@ -3212,6 +3246,8 @@ def employee_resources():
             "appraisal_data": appraisal_data,
             "appraisal_history": appraisal_history,
             "profile_data": profile_data,
+            "link": link,
+            "today_date": datetime.now().strftime("%Y-%m-%d"),
         }
 
         return render_template("employee-resources.html", **view_data)
@@ -3238,6 +3274,7 @@ def employee_resources():
         
         return render_template(
             "employee-resources.html",
+            link=None,
             Employee_name=employee_name,
             employee_name=employee_name,
             employee_id=employee_id,
@@ -4142,69 +4179,228 @@ def admin_leave_approval():
 @app.route("/apply-leave", methods=["POST"])
 def apply_leave_proxy():
     if session.get("login_type") != "employee":
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest" or request.is_json:
+            return jsonify({"success": False, "message": "Not logged in as employee"}), 401
         return redirect(url_for("home"))
 
+    employee_id = session.get("employee_id")
+    if not employee_id:
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest" or request.is_json:
+            return jsonify({"success": False, "message": "Session expired. Please log in again."}), 401
+        return redirect(url_for("login"))
+
     try:
-        leave_type = (request.form.get("leave_type") or "").strip()
-        start_date = (request.form.get("start_date") or "").strip()
-        end_date   = (request.form.get("end_date")   or "").strip()
-        reason     = (request.form.get("reason")     or "").strip()
+        data = request.get_json(silent=True) or {}
+        leave_type = (request.form.get("leave_type") or data.get("leave_type") or "").strip()
+        start_date = (request.form.get("start_date") or data.get("start_date") or data.get("from_date") or "").strip()
+        end_date   = (request.form.get("end_date")   or data.get("end_date")   or data.get("to_date")   or "").strip()
+        reason     = (request.form.get("reason")     or data.get("reason")     or "").strip()
 
         if not leave_type:
-            flash("Leave type is required", "error")
-            return redirect(url_for("leave_tracker"))
+            return jsonify({"success": False, "message": "Leave type is required"}), 400
         if not start_date or not end_date:
-            flash("Start and end dates are required", "error")
-            return redirect(url_for("leave_tracker"))
+            return jsonify({"success": False, "message": "Start and end dates are required"}), 400
 
-        # The microservice expects:
-        #   URL    : /api/employee/leave/apply   (NOT /api/employee/apply-leave)
-        #   Body   : JSON (NOT form-encoded)
-        #   Fields : from_date, to_date         (NOT start_date, end_date)
-        # All three mismatches caused "Not Found" + silent failures previously.
-        payload = {
-            "employee_id": session.get("employee_id"),
-            "leave_type":  leave_type,
-            "from_date":   start_date,
-            "to_date":     end_date,
-            "reason":      reason or None,
-        }
-        resp = requests.post(
-            f"{EMPLOYEE_SERVICE_URL}/api/employee/leave/apply",
-            json=payload,
-            timeout=10,
-        )
-        if resp.status_code == 200:
-            try:
-                body = resp.json()
-            except Exception:
-                body = {}
-            if body.get("success", True):
-                flash("Leave applied successfully! Your manager has been notified.", "success")
-            else:
-                flash(body.get("message") or "Leave request failed", "error")
-        else:
-            try:
-                detail = resp.json()
-                # FastAPI HTTPException → {"detail": "..."}; pydantic validation → {"detail": [...]}
-                d = detail.get("detail")
-                if isinstance(d, list):
-                    msg = "; ".join(str(item.get("msg", item)) for item in d)
-                else:
-                    msg = d or detail.get("message") or "Leave request failed"
-            except Exception:
-                msg = f"Leave request failed (HTTP {resp.status_code})"
-            print(f"❌ apply-leave HTTP {resp.status_code}: {(resp.text or '')[:300]}")
-            flash(msg, "error")
+        # Calculate total days
+        try:
+            from datetime import datetime as _dt
+            d1 = _dt.strptime(start_date, "%Y-%m-%d").date()
+            d2 = _dt.strptime(end_date,   "%Y-%m-%d").date()
+            if d1 > d2:
+                return jsonify({"success": False, "message": "End date must be on or after start date"}), 400
+            total_days = (d2 - d1).days + 1
+        except Exception:
+            total_days = 1
 
-    except requests.exceptions.Timeout:
-        flash("Employee service timed out. Please try again.", "error")
+        # 1. Insert directly into Oracle EMP_NRM_LEAVE table
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get next LEAVE_ID if needed or rely on sequence
+        cursor.execute("SELECT NVL(MAX(LEAVE_ID), 0) + 1 FROM EMP_NRM_LEAVE")
+        next_lid_row = cursor.fetchone()
+        next_lid = next_lid_row[0] if next_lid_row else 1
+        
+        cursor.execute("""
+            INSERT INTO EMP_NRM_LEAVE
+                (LEAVE_ID, EMPLOYEE_ID, LEAVE_TYPE, START_DATE, END_DATE, TOTAL_DAYS, DURATION_TYPE, REASON, STATUS, APPLIED_AT, CREATED_AT)
+            VALUES
+                (%s, %s, %s, TO_DATE(%s, 'YYYY-MM-DD'), TO_DATE(%s, 'YYYY-MM-DD'), %s, 'FULL_DAY', %s, 'Pending', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        """, (next_lid, employee_id, leave_type, start_date, end_date, total_days, reason or 'Personal'))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print(f"✅ Leave #{next_lid} inserted into Oracle EMP_NRM_LEAVE for {employee_id}")
+
+        # 2. Send admin notification email via AWS SES
+        try:
+            if ses_client:
+                emp_name = session.get("employee_name", employee_id)
+                emp_email = session.get("employee_email", "N/A")
+                dept = session.get("employee_department", "N/A")
+                email_html = f"""
+<html><body style="font-family:Arial,sans-serif;background:#f4f6fa;margin:0;padding:0;">
+<div style="max-width:600px;margin:30px auto;background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow:hidden;">
+  <div style="background:linear-gradient(135deg,#6c63ff,#5a52e8);padding:28px 32px;color:#fff;">
+    <h2 style="margin:0;font-size:22px;">&#128197; New Leave Application</h2>
+    <p style="margin:6px 0 0;opacity:.85;font-size:14px;">ChakoraHub Employee Portal</p>
+  </div>
+  <div style="padding:28px 32px;">
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <tr><td style="padding:8px 0;color:#888;width:40%;">Employee Name</td><td style="font-weight:600;">{emp_name}</td></tr>
+      <tr><td style="padding:8px 0;color:#888;">Employee ID</td><td style="font-weight:600;">{employee_id}</td></tr>
+      <tr><td style="padding:8px 0;color:#888;">Email</td><td style="font-weight:600;">{emp_email}</td></tr>
+      <tr><td style="padding:8px 0;color:#888;">Department</td><td style="font-weight:600;">{dept}</td></tr>
+      <tr><td style="padding:8px 0;color:#888;">Leave Type</td><td style="font-weight:600;">{leave_type}</td></tr>
+      <tr><td style="padding:8px 0;color:#888;">From Date</td><td style="font-weight:600;">{start_date}</td></tr>
+      <tr><td style="padding:8px 0;color:#888;">To Date</td><td style="font-weight:600;">{end_date} ({total_days} day(s))</td></tr>
+      <tr><td style="padding:8px 0;color:#888;">Reason</td><td style="font-weight:600;">{reason or 'Not specified'}</td></tr>
+    </table>
+    <div style="margin-top:24px;padding:14px 18px;background:#f0f4ff;border-left:4px solid #6c63ff;border-radius:6px;font-size:13px;color:#555;">
+      Please log in to the HR portal to review and approve or reject this leave request.
+    </div>
+  </div>
+  <div style="padding:16px 32px;background:#f9fafb;font-size:12px;color:#aaa;text-align:center;">
+    &copy; 2025 ChakoraHub &mdash; Automated Leave Notification
+  </div>
+</div>
+</body></html>"""
+                ses_client.send_email(
+                    Source=ADMIN_EMAIL,
+                    Destination={"ToAddresses": [ADMIN_EMAIL]},
+                    Message={
+                        "Subject": {"Data": f"[Leave Request] {emp_name} - {leave_type} ({start_date} to {end_date})"},
+                        "Body": {
+                            "Html": {"Data": email_html},
+                            "Text": {"Data": f"New leave request from {emp_name} ({employee_id}).\nType: {leave_type}\nFrom: {start_date} To: {end_date}\nReason: {reason or 'N/A'}"}
+                        }
+                    }
+                )
+                print(f"✅ Leave notification email sent to {ADMIN_EMAIL}")
+        except Exception as email_err:
+            print(f"⚠️ Could not send leave notification email: {email_err}")
+
+        # Return JSON for AJAX or redirect
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest" or request.is_json:
+            return jsonify({"success": True, "message": "Leave request submitted successfully! Your manager has been notified."})
+        
+        flash("Leave applied successfully! Your manager has been notified.", "success")
+        return redirect(url_for("leave_tracker"))
+
     except Exception as e:
         import traceback
-        print("❌ Apply leave proxy error:", traceback.format_exc())
+        print("❌ Apply leave error:", traceback.format_exc())
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest" or request.is_json:
+            return jsonify({"success": False, "message": f"Unable to submit leave: {str(e)}"}), 500
         flash("Unable to submit leave. Please try again.", "error")
+        return redirect(url_for("leave_tracker"))
 
-    return redirect(url_for("leave_tracker"))
+
+# ─── Employee Portal: Profile Photo Upload / Remove ──────────────────────────
+@app.route('/employee/upload-photo', methods=['POST'])
+def employee_upload_photo():
+    """Upload employee profile photo to local static folder, update session, and persist to Oracle DB."""
+    if session.get('login_type') != 'employee':
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+
+    file = request.files.get('photo')
+    if not file or not file.filename:
+        return jsonify({'success': False, 'message': 'No file provided'}), 400
+
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+    ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+    if ext not in allowed_extensions:
+        return jsonify({'success': False, 'message': 'Invalid file type. Use PNG, JPG, GIF or WebP'}), 400
+
+    if file.content_length and file.content_length > 5 * 1024 * 1024:
+        return jsonify({'success': False, 'message': 'File too large. Max 5 MB'}), 400
+
+    try:
+        from werkzeug.utils import secure_filename as _secure_fn
+        employee_id = session.get('employee_id', 'emp')
+        clean_fn = _secure_fn(file.filename) or f"photo.{ext}"
+        filename = f"emp_{employee_id}_{int(time.time())}_{clean_fn}"
+        upload_folder = os.path.join(current_app.root_path, 'static', 'profile_photo')
+        os.makedirs(upload_folder, exist_ok=True)
+        save_path = os.path.join(upload_folder, filename)
+        file.save(save_path)
+        
+        pic_url = f"/static/profile_photo/{filename}"
+        session['profile_pic'] = pic_url
+        session.modified = True
+
+        # Persist to Oracle Database
+        try:
+            conn = get_db_connection()
+            if conn and employee_id:
+                cur = conn.cursor()
+                cur.execute("SELECT COUNT(*) FROM CHAKORA.EMP_NRM_PERSONAL WHERE EMPLOYEE_ID = %s", (employee_id,))
+                cnt_row = cur.fetchone()
+                cnt = cnt_row[0] if cnt_row else 0
+                if cnt > 0:
+                    cur.execute(
+                        "UPDATE CHAKORA.EMP_NRM_PERSONAL SET PROFILE_PIC = %s, PHOTO_URL = %s WHERE EMPLOYEE_ID = %s",
+                        (pic_url, pic_url, employee_id)
+                    )
+                else:
+                    cur.execute(
+                        "INSERT INTO CHAKORA.EMP_NRM_PERSONAL (EMPLOYEE_ID, PROFILE_PIC, PHOTO_URL) VALUES (%s, %s, %s)",
+                        (employee_id, pic_url, pic_url)
+                    )
+                conn.commit()
+                cur.close()
+                conn.close()
+                print(f"✅ Persisted profile pic for {employee_id} to EMP_NRM_PERSONAL: {pic_url}")
+        except Exception as db_e:
+            print(f"⚠️ Could not persist profile photo to Oracle DB: {db_e}")
+
+        return jsonify({'success': True, 'message': 'Photo uploaded successfully!', 'profile_pic': pic_url})
+    except Exception as upload_err:
+        import traceback
+        print('❌ employee_upload_photo error:', traceback.format_exc())
+        return jsonify({'success': False, 'message': 'Upload failed. Please try again.'}), 500
+
+
+@app.route('/employee/remove-photo', methods=['POST'])
+def employee_remove_photo():
+    """Remove employee profile photo, revert to default, and update Oracle DB."""
+    if session.get('login_type') != 'employee':
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+
+    default_pic = 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg'
+    employee_id = session.get('employee_id')
+    current_pic = session.get('profile_pic', '')
+    
+    # Remove local file if exists
+    if current_pic and not current_pic.startswith('http'):
+        try:
+            rel = current_pic.replace('/static/', '')
+            full_path = os.path.join(current_app.root_path, 'static', rel)
+            if os.path.exists(full_path):
+                os.remove(full_path)
+        except Exception:
+            pass
+            
+    session['profile_pic'] = default_pic
+    session.modified = True
+
+    # Revert in Oracle Database
+    try:
+        conn = get_db_connection()
+        if conn and employee_id:
+            cur = conn.cursor()
+            cur.execute(
+                "UPDATE CHAKORA.EMP_NRM_PERSONAL SET PROFILE_PIC = %s, PHOTO_URL = %s WHERE EMPLOYEE_ID = %s",
+                (default_pic, default_pic, employee_id)
+            )
+            conn.commit()
+            cur.close()
+            conn.close()
+            print(f"✅ Reverted profile pic for {employee_id} in EMP_NRM_PERSONAL to default.")
+    except Exception as db_e:
+        print(f"⚠️ DB remove error: {db_e}")
+
+    return jsonify({'success': True, 'message': 'Photo removed.', 'profile_pic': default_pic})
 
 '''@app.route('/employee/id-card')
 def id_card():
@@ -7914,6 +8110,58 @@ def change_name():
         flash(f"An error occurred: {str(e)}")
 
     return redirect(url_for('settings'))
+
+
+# ─── Employee Portal: Update Personal Details ─────────────────────────────────
+@app.route('/api/employee/update-personal', methods=['POST'])
+def api_employee_update_personal():
+    """Save employee phone, address, and emergency contact to Oracle DB."""
+    if session.get('login_type') != 'employee':
+        return jsonify({'success': False, 'message': 'Not logged in as employee'}), 401
+
+    employee_id = session.get('employee_id')
+    if not employee_id:
+        return jsonify({'success': False, 'message': 'Session expired'}), 401
+
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        phone                   = (data.get('phone')                   or '').strip()
+        current_address         = (data.get('current_address')         or '').strip()
+        permanent_address       = (data.get('permanent_address')       or '').strip()
+        emergency_contact_name  = (data.get('emergency_contact_name')  or '').strip()
+        emergency_contact_phone = (data.get('emergency_contact_phone') or '').strip()
+
+        conn   = get_db_connection()
+        cursor = conn.cursor()
+
+        update_parts = []
+        params       = []
+        if phone:
+            update_parts.append("PHONE = %s"); params.append(phone)
+        if current_address:
+            update_parts.append("ADDRESS = %s"); params.append(current_address)
+        if permanent_address:
+            update_parts.append("PERSONAL_LOCATION = %s"); params.append(permanent_address)
+        if emergency_contact_name:
+            update_parts.append("EMERGENCY_CONTACT_NAME = %s"); params.append(emergency_contact_name)
+        if emergency_contact_phone:
+            update_parts.append("EMERGENCY_CONTACT_PHONE = %s"); params.append(emergency_contact_phone)
+
+        if update_parts:
+            params.append(employee_id)
+            sql = f"UPDATE EMPLOYEE_REGISTRATIONS SET {', '.join(update_parts)} WHERE EMPLOYEE_ID = %s"
+            cursor.execute(sql, tuple(params))
+            conn.commit()
+
+        cursor.close()
+        conn.close()
+        return jsonify({'success': True, 'message': 'Personal details updated successfully!'})
+
+    except Exception as e:
+        import traceback
+        print('❌ api_employee_update_personal error:', traceback.format_exc())
+        return jsonify({'success': False, 'message': 'Failed to save changes. Please try again.'}), 500
+
 
 @app.route('/profile')
 def profile():
