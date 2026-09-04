@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Interview Feedback{% endblock %} · Loopboard</title>
+  <style>
+:root {
+  --navy: #16213E;
+  --navy-soft: #253256;
+  --bg: #F5F6F8;
+  --surface: #FFFFFF;
+  --border: #E4E7EC;
+  --text: #171A21;
+  --text-soft: #6B7280;
+  --teal: #0EA5A0;
+  --hire: #1E8E5A;
+  --hire-bg: #E7F5EE;
+  --nohire: #C0392B;
+  --nohire-bg: #FBEAE8;
+  --split: #A9670F;
+  --split-bg: #FBF1DE;
+  --radius: 10px;
+  --mono: "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---- Rail ---- */
+.rail {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--navy);
+  color: #EDEFF5;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 18px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.brand-mark {
+  width: 32px; height: 32px;
+  background: var(--teal);
+  color: var(--navy);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 13px;
+}
+.brand-name { font-weight: 600; font-size: 15px; letter-spacing: 0.2px; }
+.rail-nav { display: flex; flex-direction: column; gap: 2px; }
+.rail-nav a {
+  padding: 9px 12px;
+  border-radius: 7px;
+  font-size: 14px;
+  color: #C7CCDC;
+}
+.rail-nav a:hover { background: var(--navy-soft); color: #fff; }
+.rail-nav a.active { background: var(--navy-soft); color: #fff; font-weight: 600; }
+.rail-foot {
+  margin-top: auto;
+  font-size: 11px;
+  color: #6E7794;
+  font-family: var(--mono);
+  padding-top: 20px;
+}
+
+/* ---- Content ---- */
+.content {
+  flex: 1;
+  padding: 40px 48px;
+  max-width: 1080px;
+}
+
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  gap: 20px;
+}
+.page-head h1 { margin: 0 0 4px; font-size: 24px; letter-spacing: -0.3px; }
+.sub { margin: 0; color: var(--text-soft); font-size: 14px; }
+
+.btn-primary {
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  padding: 11px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-block;
+}
+.btn-primary:hover { background: var(--navy-soft); }
+
+.back-link {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--text-soft);
+  margin-bottom: 18px;
+}
+.back-link:hover { color: var(--navy); }
+
+.toast {
+  background: var(--hire-bg);
+  color: var(--hire);
+  border: 1px solid #BFE6D2;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+.toast-neutral {
+  background: #EDEFF3;
+  color: var(--text-soft);
+  border: 1px solid var(--border);
+}
+
+/* ---- Badges ---- */
+.badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.badge-lg { font-size: 13px; padding: 7px 14px; }
+.rec-hire { background: var(--hire-bg); color: var(--hire); }
+.rec-no-hire { background: var(--nohire-bg); color: var(--nohire); }
+.rec-split { background: var(--split-bg); color: var(--split); }
+
+/* ---- Candidate cards ---- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+.candidate-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: block;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.candidate-card:hover {
+  box-shadow: 0 6px 20px rgba(22, 33, 62, 0.08);
+  transform: translateY(-1px);
+}
+.candidate-card-title { display: block; margin-bottom: 0; }
+.candidate-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  gap: 10px;
+}
+.candidate-card h2 { margin: 0 0 2px; font-size: 17px; }
+.role { margin: 0; font-size: 13px; color: var(--text-soft); }
+
+.score-bars-link { display: block; }
+.score-bars { display: flex; flex-direction: column; gap: 8px; }
+.score-row { display: grid; grid-template-columns: 108px 1fr 30px; align-items: center; gap: 8px; }
+.score-label { font-size: 12px; color: var(--text-soft); }
+.score-track { height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.score-fill { height: 100%; background: var(--teal); border-radius: 4px; }
+.score-value { font-family: var(--mono); font-size: 12px; text-align: right; color: var(--text); }
+
+.candidate-card-foot {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.candidate-card-foot > a {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-soft);
+  font-family: var(--mono);
+  min-width: 0;
+}
+.candidate-card-foot strong { color: var(--text); font-size: 13px; }
+.candidate-card-foot form { flex-shrink: 0; }
+
+.btn-delete {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--nohire);
+  font-size: 12px;
+  font-family: var(--sans);
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-delete:hover {
+  background: var(--nohire-bg);
+  border-color: var(--nohire);
+}
+.detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.empty-state {
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 48px;
+  text-align: center;
+  color: var(--text-soft);
+}
+.empty-state p { margin-bottom: 16px; }
+
+/* ---- Detail page ---- */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 800px) { .detail-grid { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+}
+.card h3 { margin: 0 0 16px; font-size: 15px; }
+
+.overall-line {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-soft);
+}
+.overall-line strong { color: var(--text); font-family: var(--mono); font-size: 15px; }
+
+.timeline { display: flex; flex-direction: column; gap: 18px; }
+.timeline-item { padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.timeline-item:last-child { border-bottom: none; padding-bottom: 0; }
+.timeline-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.timeline-head-actions { display: flex; align-items: center; gap: 10px; }
+.timeline-head-actions form { display: inline; }
+.link-edit, .link-delete {
+  font-size: 12px;
+  font-family: var(--sans);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text-soft);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.link-edit:hover { color: var(--navy); }
+.link-delete:hover { color: var(--nohire); }
+.meta { margin: 2px 0; font-size: 12px; color: var(--text-soft); }
+.scores-inline { font-family: var(--mono); }
+.comment { margin: 8px 0 0; font-size: 14px; line-height: 1.5; color: var(--text); font-style: italic; }
+
+/* ---- Form ---- */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  max-width: 640px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-soft); }
+.field input, .field select, .field textarea {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text);
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #FCFCFD;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(14, 165, 160, 0.15);
+}
+.field textarea { resize: vertical; font-family: var(--sans); }
+
+.score-section { margin: 24px 0; padding: 18px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.score-section h3 { margin: 0 0 2px; font-size: 15px; }
+.hint { margin: 0 0 16px; font-size: 12px; color: var(--text-soft); }
+
+.rating-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.rating-row:last-child { margin-bottom: 0; }
+.rating-label { font-size: 13px; width: 150px; flex-shrink: 0; }
+.rating-scale { display: flex; gap: 6px; }
+.rating-pill input { display: none; }
+.rating-pill span {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-soft);
+  cursor: pointer;
+}
+.rating-pill input:checked + span {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+  font-weight: 700;
+}
+
+.form-actions { margin-top: 22px; display: flex; align-items: center; gap: 14px; }
+.btn-cancel { font-size: 13px; color: var(--text-soft); text-decoration: underline; text-underline-offset: 2px; }
+.btn-cancel:hover { color: var(--navy); }
+
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="rail">
+      <a class="brand" href="/interview">
+        <span class="brand-mark">LB</span>
+        <span class="brand-name">Loopboard</span>
+      </a>
+      <nav class="rail-nav">
+        <a href="/interview" class="{{ 'active' if request.path == '/interview' else '' }}">Dashboard</a>
+        <a href="/interview/submit" class="{{ 'active' if request.path == '/interview/submit' else '' }}">Give feedback</a>
+      </nav>
+      <div class="rail-foot">Interview Feedback Automation</div>
+    </aside>
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>
