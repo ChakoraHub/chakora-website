@@ -2947,7 +2947,7 @@ def employee_resources():
                 profile_row = cursor.fetchone()
 
                 if profile_row and profile_row.get('BANK_DETAILS'):
-                    bank_details = profile_row.get('BANK_DETAILS')
+                    bank_details = _read_val(profile_row.get('BANK_DETAILS'))
 
             except Exception as e:
                 print(f"EMP_NRM_PROFILE fetch skipped: {e}")
