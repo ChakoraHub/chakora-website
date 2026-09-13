@@ -5748,27 +5748,18 @@ def demo_videos():
 # ---------- Admin Report ----------
 @app.route('/admin-report')
 def admin_report():
-    """Render the centralized Operational Reports Dashboard"""
-    user_type = session.get('user_type')
-    user_id = session.get('user_id')
-    user_email = session.get('user_email')
-    
-    if not (user_type == 'admin' or (user_type == 'employee' and (user_id == 'CH26017' or user_email == 'kondurisumiyonu1122@gmail.com'))):
-        flash('Unauthorized access.', 'danger')
-        return redirect(url_for('login'))
-        
+    if not _has_employee_admin_access():
+        flash("Access denied.", "error")
+        return redirect(url_for("home"), code=303)
+
     return render_template('admin-report.html')
 
 
 @app.route('/api/admin/reports', methods=['GET'])
 def api_admin_reports():
     """API endpoint to dynamically fetch operational reports via Oracle PL/SQL Stored Procedure SP_GET_CHAKORAHUB_REPORT."""
-    user_type = session.get('user_type')
-    user_id = session.get('user_id')
-    user_email = session.get('user_email')
-    
-    if not (user_type == 'admin' or (user_type == 'employee' and (user_id == 'CH26017' or user_email == 'kondurisumiyonu1122@gmail.com'))):
-        return jsonify({"success": False, "error": "Unauthorized access"}), 403
+    if not _has_employee_admin_access():
+        return jsonify({"success": False, "error": "Access denied"}), 403
 
     report_type = request.args.get('type', 'STUDENT').upper().strip()
     from_date_str = request.args.get('from_date', '').strip()
