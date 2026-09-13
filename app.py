@@ -5748,50 +5748,199 @@ def demo_videos():
 # ---------- Admin Report ----------
 @app.route('/admin-report')
 def admin_report():
-    if not _has_employee_admin_access():
-        flash("Access denied.", "error")
-        return redirect(url_for("home"), code=303)
+    """Render the centralized Operational Reports Dashboard"""
+    user_type = session.get('user_type')
+    user_id = session.get('user_id')
+    user_email = session.get('user_email')
+    
+    if not (user_type == 'admin' or (user_type == 'employee' and (user_id == 'CH26017' or user_email == 'kondurisumiyonu1122@gmail.com'))):
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('login'))
+        
+    return render_template('admin-report.html')
 
-    conn = get_db_connection()
-    cur = conn.cursor(DICT_CURSOR)
 
-    # Get all courses
-    cur.execute("SELECT ID, COURSE_NAME FROM NRM_COURSES")
-    courses = cur.fetchall()
+@app.route('/api/admin/reports', methods=['GET'])
+def api_admin_reports():
+    """API endpoint to dynamically fetch operational reports via Oracle PL/SQL Stored Procedure SP_GET_CHAKORAHUB_REPORT."""
+    user_type = session.get('user_type')
+    user_id = session.get('user_id')
+    user_email = session.get('user_email')
+    
+    if not (user_type == 'admin' or (user_type == 'employee' and (user_id == 'CH26017' or user_email == 'kondurisumiyonu1122@gmail.com'))):
+        return jsonify({"success": False, "error": "Unauthorized access"}), 403
 
-    report_data = []
-    for course in courses:
-        course_id = course['ID']            # ✅ FIX
-        course_name = course['COURSE_NAME']
+    report_type = request.args.get('type', 'STUDENT').upper().strip()
+    from_date_str = request.args.get('from_date', '').strip()
+    to_date_str = request.args.get('to_date', '').strip()
+    search_query = request.args.get('search', '').strip()
 
-        folder_name = course_name.replace(" ", "_")
+    p_from_date = None
+    p_to_date = None
+    if from_date_str:
+        try:
+            p_from_date = datetime.strptime(from_date_str, '%Y-%m-%d')
+        except ValueError:
+            pass
+    if to_date_str:
+        try:
+            p_to_date = datetime.strptime(to_date_str, '%Y-%m-%d')
+        except ValueError:
+            pass
 
-        # PPT count
-        ppts_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'ppt', folder_name)
-        ppt_count = len(os.listdir(ppts_dir)) if os.path.exists(ppts_dir) else 0
+    conn = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
 
-        # Video count from DB
-        cur.execute("SELECT COUNT(*) as cnt FROM nrm_video_sessions WHERE course_id = %s", (course_id,))
-        total_video_count = cur.fetchone()['cnt']
+        # Try calling the centralized PL/SQL Stored Procedure first
+        try:
+            p_cursor = conn.cursor()
+            p_code = cur.var(int)
+            p_msg = cur.var(str)
 
-        # Interview Questions count
-        iq_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'interview_questions', folder_name)
-        iq_count = len(os.listdir(iq_dir)) if os.path.exists(iq_dir) else 0
+            cur.callproc("CHAKORA.SP_GET_CHAKORAHUB_REPORT", [
+                report_type,
+                p_from_date,
+                p_to_date,
+                search_query if search_query else None,
+                p_cursor,
+                p_code,
+                p_msg
+            ])
 
-        # Code count
-        code_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'code', folder_name)
-        code_count = len(os.listdir(code_dir)) if os.path.exists(code_dir) else 0
+            code = p_code.getvalue() or 200
+            msg = p_msg.getvalue() or "SUCCESS"
+            columns = [col[0] for col in p_cursor.description] if p_cursor.description else []
+            raw_rows = p_cursor.fetchall()
+            p_cursor.close()
 
-        report_data.append({
-            'course': course_name,
-            'ppt': ppt_count,
-            'videos': total_video_count,
-            'interview_questions': iq_count,
-            'code': code_count
+        except Exception as sp_err:
+            print(f"⚠️ SP_GET_CHAKORAHUB_REPORT fallback triggered: {sp_err}")
+            # Non-disruptive inline fallback
+            search_param = f"%{search_query.upper()}%" if search_query else None
+
+            if report_type == 'STUDENT':
+                cur.execute("""
+                    SELECT s.ID, s.FULL_NAME, s.EMAIL, s.PHONE, s.COURSE_INTERESTED, s.QUALIFICATION,
+                           s.EXPERIENCE_LEVEL, s.ENROLLMENT_STATUS, s.DATE_OF_REGISTRATION, s.ASSIGNED_BATCH_ID
+                    FROM NRM_STUDENTS s
+                    WHERE (:p_search IS NULL OR UPPER(s.FULL_NAME || ' ' || s.EMAIL || ' ' || s.PHONE) LIKE :p_search)
+                    ORDER BY s.DATE_OF_REGISTRATION DESC
+                """, p_search=search_param)
+            elif report_type == 'EMPLOYEE':
+                cur.execute("""
+                    SELECT e.EMPLOYEE_ID, (e.FIRST_NAME || ' ' || e.LAST_NAME) AS FULL_NAME, e.EMAIL,
+                           e.PHONE_NUMBER, e.DESIGNATION, e.DEPARTMENT, e.DATE_OF_JOINING,
+                           e.EMPLOYEE_STATUS, e.WORK_LOCATION
+                    FROM EMP_NRM_EMPLOYEES e
+                    WHERE (:p_search IS NULL OR UPPER(e.FIRST_NAME || ' ' || e.LAST_NAME || ' ' || e.EMAIL || ' ' || e.EMPLOYEE_ID) LIKE :p_search)
+                    ORDER BY e.DATE_OF_JOINING DESC
+                """, p_search=search_param)
+            elif report_type == 'CLIENT':
+                cur.execute("""
+                    SELECT c.ID, c.COMPANY_NAME, c.CONTACT_PERSON, c.EMAIL, c.PHONE,
+                           c.INDUSTRY_TYPE, c.SERVICE_REQUIRED, c.ENGAGEMENT_STATUS, c.ONBOARDING_DATE
+                    FROM NRM_CLIENTS c
+                    WHERE (:p_search IS NULL OR UPPER(c.COMPANY_NAME || ' ' || c.CONTACT_PERSON || ' ' || c.EMAIL) LIKE :p_search)
+                    ORDER BY c.ONBOARDING_DATE DESC
+                """, p_search=search_param)
+            elif report_type == 'APPLICANT':
+                cur.execute("""
+                    SELECT a.ID, a.APPLICANT_NAME, a.EMAIL, a.PHONE, a.APPLIED_POSITION,
+                           a.TOTAL_EXPERIENCE, a.CURRENT_COMPANY, a.APPLICATION_STATUS, a.APPLICATION_DATE
+                    FROM NRM_JOB_APPLICANTS a
+                    WHERE (:p_search IS NULL OR UPPER(a.APPLICANT_NAME || ' ' || a.EMAIL || ' ' || a.APPLIED_POSITION) LIKE :p_search)
+                    ORDER BY a.APPLICATION_DATE DESC
+                """, p_search=search_param)
+            elif report_type == 'INTERN':
+                cur.execute("""
+                    SELECT i.ID, i.INTERN_ID, i.FULL_NAME, i.EMAIL, i.PHONE, i.COLLEGE_NAME, i.BRANCH,
+                           NVL(i.INTERNSHIP_DURATION, '3 Months') AS DURATION, NVL(i.INTERN_MODE, 'Online') AS INTERN_MODE,
+                           i.START_DATE, NVL(i.STATUS, 'PENDING') AS STATUS, i.SUBMITTED_AT
+                    FROM NRM_INTERNSHIP_APPLICATIONS i
+                    WHERE (:p_search IS NULL OR UPPER(i.INTERN_ID || ' ' || i.FULL_NAME || ' ' || i.EMAIL || ' ' || i.COLLEGE_NAME) LIKE :p_search)
+                    ORDER BY i.SUBMITTED_AT DESC
+                """, p_search=search_param)
+            elif report_type == 'COURSE':
+                cur.execute("""
+                    SELECT c.ID AS COURSE_ID, c.COURSE_NAME, c.COURSE_CODE,
+                           (SELECT COUNT(*) FROM NRM_VIDEO_SESSIONS v WHERE v.COURSE_ID = c.ID) AS TOTAL_VIDEOS,
+                           (SELECT COUNT(*) FROM NRM_COURSE_FILES f WHERE f.COURSE_ID = c.ID AND UPPER(f.FILE_TYPE) = 'PPT' AND f.IS_ACTIVE = 1) AS TOTAL_PPTS,
+                           (SELECT COUNT(*) FROM NRM_COURSE_FILES f WHERE f.COURSE_ID = c.ID AND UPPER(f.FILE_TYPE) = 'CODE' AND f.IS_ACTIVE = 1) AS TOTAL_CODE_FILES,
+                           (SELECT COUNT(*) FROM NRM_COURSE_FILES f WHERE f.COURSE_ID = c.ID AND UPPER(f.FILE_TYPE) = 'INTERVIEW_QUESTIONS' AND f.IS_ACTIVE = 1) AS TOTAL_IQ_FILES,
+                           (SELECT COUNT(*) FROM NRM_BATCH_SCHEDULE bs WHERE bs.COURSE_ID = c.ID) AS TOTAL_BATCHES
+                    FROM NRM_COURSES c
+                    WHERE (:p_search IS NULL OR UPPER(c.COURSE_NAME || ' ' || c.COURSE_CODE) LIKE :p_search)
+                    ORDER BY c.ID ASC
+                """, p_search=search_param)
+            elif report_type == 'ACTIVE_USERS':
+                cur.execute("""
+                    SELECT u.ID AS USER_ID, u.USERNAME, u.EMAIL, u.PHONE, NVL(u.USERTYPE, 'STUDENT') AS USER_ROLE,
+                           NVL(l.IS_ACTIVE, 'Y') AS ACCOUNT_ACTIVE, l.LAST_LOGIN, l.LOGOUT_TIME,
+                           NVL(l.FAILED_LOGIN_ATTEMPTS, 0) AS FAILED_ATTEMPTS, NVL(l.ACCOUNT_LOCKED, 'N') AS IS_LOCKED,
+                           u.CREATED_AT AS SIGNUP_DATE
+                    FROM NRM_USERS u
+                    LEFT JOIN NRM_LOGINS l ON u.ID = l.USER_ID
+                    WHERE (:p_search IS NULL OR UPPER(u.USERNAME || ' ' || u.EMAIL || ' ' || u.PHONE) LIKE :p_search)
+                    ORDER BY l.LAST_LOGIN DESC NULLS LAST
+                """, p_search=search_param)
+            elif report_type == 'BATCH':
+                cur.execute("""
+                    SELECT b.ID AS BATCH_ID, c.COURSE_NAME, NVL(b.BATCH_TYPE, 'Regular') AS BATCH_TYPE,
+                           NVL(b.LANGUAGE, 'English') AS LANGUAGE, b.START_DATE, b.END_DATE,
+                           NVL(b.STATUS, 'ACTIVE') AS STATUS, COUNT(ba.ID) AS TOTAL_ENROLLED, b.CREATED_AT
+                    FROM NRM_BATCH_SCHEDULE b
+                    LEFT JOIN NRM_COURSES c ON b.COURSE_ID = c.ID
+                    LEFT JOIN NRM_BATCH_ALLOCATION ba ON b.ID = ba.BATCH_ID
+                    WHERE (:p_search IS NULL OR UPPER(c.COURSE_NAME || ' ' || b.BATCH_TYPE || ' ' || b.STATUS) LIKE :p_search)
+                    GROUP BY b.ID, c.COURSE_NAME, b.BATCH_TYPE, b.LANGUAGE, b.START_DATE, b.END_DATE, b.STATUS, b.CREATED_AT
+                    ORDER BY b.START_DATE DESC
+                """, p_search=search_param)
+            else:
+                return jsonify({"success": False, "error": f"Invalid report type: {report_type}"}), 400
+
+            code = 200
+            msg = "SUCCESS"
+            columns = [col[0] for col in cur.description] if cur.description else []
+            raw_rows = cur.fetchall()
+
+        # Format rows for JSON serialization (handling dates, timestamps, LOBs)
+        formatted_rows = []
+        for r in raw_rows:
+            row_dict = {}
+            for idx, col in enumerate(columns):
+                val = r[idx]
+                if isinstance(val, (datetime, date)):
+                    val = val.strftime("%Y-%m-%d %H:%M:%S") if isinstance(val, datetime) else val.strftime("%Y-%m-%d")
+                elif hasattr(val, 'read'): # CLOB
+                    val = val.read()
+                row_dict[col] = val
+            formatted_rows.append(row_dict)
+
+        cur.close()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "status_code": code,
+            "message": msg,
+            "report_type": report_type,
+            "columns": columns,
+            "total_records": len(formatted_rows),
+            "data": formatted_rows
         })
-
-    conn.close()
-    return render_template('admin-report.html', report_data=report_data)
+    except Exception as e:
+        print(f"❌ Error in api_admin_reports: {e}")
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 #student_report
 @app.route('/generate-student-report', methods=['GET', 'POST'])
