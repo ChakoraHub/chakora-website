@@ -78,7 +78,7 @@ ASSET_SERVICE_URL = "http://127.0.0.1:8090"
 INTERNSHIP_SERVICE_URL = "http://127.0.0.1:5050"
 MS365_SERVICE_URL = "http://127.0.0.1:7700"
 EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
-BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
+BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL", "http://127.0.0.1:7500" if os.name == "nt" else "http://172.31.26.176:7500")
 REDIS_SERVICE_URL = "http://127.0.0.1:6390"
 BRS_SERVICE_URL = "http://127.0.0.1:8020"
 BILLING_SERVICE_URL = "http://127.0.0.1:8010"
@@ -12656,6 +12656,7 @@ def _proxy_create_blog_post_impl():
         or session.get("user_id")
         or session.get("employee_id")
         or session.get("admin_verified")
+        or session.get("usertype")
     )
 
     if not has_any_blog_session:
