@@ -2,28 +2,77 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Admin Report - ChakoraHub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Operational Reports - ChakoraHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #e1f5fe, #ede7f6);
-      color: #333;
+    :root {
+      --primary: #4338ca;
+      --primary-hover: #3730a3;
+      --primary-light: #e0e7ff;
+      --accent: #f59e0b;
+      --accent-light: #fef3c7;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success-bg: #dcfce7;
+      --success-text: #166534;
+      --warning-bg: #fef9c3;
+      --warning-text: #854d0e;
+      --danger-bg: #fee2e2;
+      --danger-text: #991b1b;
     }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Header */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 15px 30px;
-      background: linear-gradient(to right, #42a5f5, #7e57c2);
+      padding: 12px 32px;
+      background: linear-gradient(135deg, #312e81 0%, #4338ca 50%, #6366f1 100%);
       color: white;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     }
 
-    .logo img {
-      height: 90px;
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-area img {
+      height: 48px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+
+    .header-title h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .header-title p {
+      font-size: 12px;
+      color: #c7d2fe;
     }
 
     .profile-wrapper {
@@ -32,108 +81,411 @@
     }
 
     .profile-pic {
-      width: 45px;
-      height: 45px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
-      border: 2px solid white;
+      border: 2px solid rgba(255, 255, 255, 0.8);
       object-fit: cover;
+      transition: transform 0.2s ease;
+    }
+
+    .profile-pic:hover {
+      transform: scale(1.05);
     }
 
     .dropdown-menu {
       display: none;
       position: absolute;
-      top: 55px;
+      top: 52px;
       right: 0;
       background-color: white;
-      color: black;
-      border-radius: 6px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
       z-index: 1000;
-      min-width: 160px;
+      min-width: 170px;
+      border: 1px solid var(--border);
+      overflow: hidden;
     }
 
     .dropdown-menu a {
       display: block;
-      padding: 10px 15px;
+      padding: 11px 16px;
       text-decoration: none;
-      color: #333;
+      color: var(--text-main);
+      font-size: 14px;
       font-weight: 500;
-      border-bottom: 1px solid #eee;
-    }
-
-    .dropdown-menu a:last-child {
-      border-bottom: none;
+      transition: background 0.15s ease;
     }
 
     .dropdown-menu a:hover {
-      background-color: #f0f0f0;
+      background-color: var(--primary-light);
+      color: var(--primary);
     }
 
-    h2 {
+    /* Container Layout */
+    .dashboard-container {
+      max-width: 1440px;
+      width: 95%;
+      margin: 28px auto 40px;
+      flex: 1;
+    }
+
+    .header-breadcrumb {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      color: var(--primary);
+      border: 1px solid var(--border);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .back-btn:hover {
+      background: var(--primary-light);
+      border-color: #c7d2fe;
+      transform: translateX(-2px);
+    }
+
+    .proc-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* Report Selector Tabs */
+    .tabs-wrapper {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      margin-bottom: 24px;
+    }
+
+    .tabs-header {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      padding: 8px 12px 10px;
+    }
+
+    .tabs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+    }
+
+    .tab-item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 10px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
       text-align: center;
-      margin: 40px 20px 30px;
-      font-size: 26px;
-      color: #4527a0;
+      user-select: none;
     }
 
-    .table-container {
-      width: 70%;
-      margin: 0 auto 30px;
-      background-color: #fff;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    .tab-item:hover {
+      background: #eef2ff;
+      border-color: #c7d2fe;
+    }
+
+    .tab-item.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 4px 10px rgba(67, 56, 202, 0.25);
+    }
+
+    .tab-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .tab-tag {
+      position: absolute;
+      top: -6px;
+      right: 6px;
+      background: var(--accent);
+      color: #78350f;
+      background-color: var(--accent-light);
+      border: 1px solid #fcd34d;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
       border-radius: 10px;
-      overflow: hidden;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .table-container:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    .tab-item.active .tab-tag {
+      background: #fef08a;
+      color: #713f12;
+      border-color: #fef08a;
+    }
+
+    /* Filter & Controls Toolbar */
+    .toolbar-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 18px 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      margin-bottom: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    .filters-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: flex-end;
+    }
+
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .filter-item label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .filter-item input,
+    .filter-item select {
+      padding: 9px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      font-size: 13px;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.2s ease;
+      min-width: 160px;
+    }
+
+    .filter-item input:focus,
+    .filter-item select:focus {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .actions-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-outline {
+      background: white;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+
+    .btn-export {
+      background: #059669;
+      color: white;
+    }
+
+    .btn-export:hover {
+      background: #047857;
+    }
+
+    /* Data Table Card */
+    .table-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .table-header-info {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fcfdfe;
+    }
+
+    .table-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .table-title h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .count-badge {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      max-height: 560px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-    }
-
-    th, td {
-      border: 1px solid #ccc;
-      padding: 20px 18px;
-      text-align: center;
-      font-size: 16px;
+      text-align: left;
     }
 
     th {
-      background-color: #3949ab;
-      color: white;
+      background-color: #f1f5f9;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 14px 20px;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
-    tr:nth-child(even) {
-      background-color: #f2f2f2;
+    td {
+      padding: 14px 20px;
+      font-size: 13px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #1e293b;
+      white-space: nowrap;
     }
 
-    .back-resources {
-      text-align: center;
-      margin: 40px 0 60px;
+    tr:hover td {
+      background-color: #f8fafc;
     }
 
-    .back-btn {
-      background: #3949ab;
-      color: white;
-      padding: 10px 25px;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
+    /* Status Pills */
+    .status-pill {
       display: inline-block;
-      transition: background 0.3s ease;
-      cursor: pointer;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
     }
 
-    .back-btn:hover {
-      background: #303f9f;
+    .status-active, .status-success, .status-paid, .status-applied {
+      background: var(--success-bg);
+      color: var(--success-text);
     }
 
-    /* Popout Modal */
+    .status-pending, .status-unassigned, .status-review {
+      background: var(--warning-bg);
+      color: var(--warning-text);
+    }
+
+    .status-inactive, .status-locked, .status-rejected {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+    }
+
+    /* Empty & Loading States */
+    .state-message {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .state-message svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      stroke: #94a3b8;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(67, 56, 202, 0.15);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Confirmation Modal */
     .modal {
       display: none;
       position: fixed;
@@ -142,97 +494,183 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.5);
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(2px);
       justify-content: center;
       align-items: center;
     }
 
     .modal-content {
       background: #fff;
-      padding: 25px;
-      border-radius: 12px;
+      padding: 28px;
+      border-radius: 16px;
       text-align: center;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-      width: 320px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      width: 340px;
     }
 
     .modal-content h3 {
+      font-size: 18px;
       margin-bottom: 20px;
-      color: #3949ab;
+      color: var(--text-main);
     }
 
-    .modal-actions button {
-      margin: 8px;
-      padding: 8px 20px;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
     }
 
-    .confirm-btn {
-      background: #3949ab;
-      color: white;
-    }
-
-    .cancel-btn {
-      background: #f0f0f0;
-      color: #333;
-    }
-
-    .confirm-btn:hover {
-      background: #303f9f;
-    }
-
-    .cancel-btn:hover {
-      background: #ddd;
+    @media (max-width: 768px) {
+      .header {
+        padding: 12px 16px;
+      }
+      .toolbar-card {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filters-group {
+        flex-direction: column;
+      }
+      .filter-item input, .filter-item select {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Top Header -->
   <div class="header">
-    <div class="logo">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" />
+    <div class="logo-area">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="ChakoraHub Logo" onerror="this.src='/static/logo.png'" />
+      <div class="header-title">
+        <h1>Admin Operations Dashboard</h1>
+        <p>Centralized Operational Intelligence &amp; PL/SQL Reporting Hub</p>
+      </div>
     </div>
-    <div class="profile-wrapper" onclick="toggleDropdown()">
+    <div class="profile-wrapper" onclick="toggleDropdown(event)">
       <img class="profile-pic"
            src="{{ url_for('static', filename=session.get('profile_pic', 'profile_photo/defaultpicture.jpg')) }}"
-           alt="Profile" />
+           alt="Admin Profile"
+           onerror="this.src='https://ui-avatars.com/api/?name=Admin&background=4338ca&color=fff'" />
       <div class="dropdown-menu" id="dropdownMenu">
-        <a href="{{ url_for('profile') }}">Profile</a>
+        <a href="{{ url_for('profile') }}">My Profile</a>
         <a href="{{ url_for('settings') }}">Settings</a>
         <a href="#" onclick="openModal('logout')">Logout</a>
       </div>
     </div>
   </div>
 
-  <h2>Admin Resource Upload Report</h2>
+  <div class="dashboard-container">
+    
+    <!-- Top Action Breadcrumbs -->
+    <div class="header-breadcrumb">
+      <a class="back-btn" href="{{ url_for('employee_resources') }}">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Back to Resources
+      </a>
+      <div class="proc-badge">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+        Oracle PL/SQL Engine: SP_GET_CHAKORAHUB_REPORT
+      </div>
+    </div>
 
-  <div class="table-container">
-    <table>
-      <tr>
-        <th>Course</th>
-        <th>PPTs</th>
-        <th>Videos</th>
-        <th>Interview Questions</th>
-        <th>Code</th>
-      </tr>
-      {% for row in report_data %}
-        <tr>
-          <td>{{ row.course }}</td>
-          <td>{{ row.ppt }}</td>
-          <td>{{ row.videos }}</td>
-          <td>{{ row.interview_questions }}</td>
-          <td>{{ row.code }}</td>
-        </tr>
-      {% endfor %}
-    </table>
-  </div>
+    <!-- 8 Reports Selector -->
+    <div class="tabs-wrapper">
+      <div class="tabs-header">Select Operational Report:</div>
+      <div class="tabs-grid">
+        <div class="tab-item active" data-type="STUDENT" onclick="selectReport('STUDENT')">
+          <span class="tab-tag">Priority</span>
+          <span class="tab-name">🎓 Student Report</span>
+        </div>
+        <div class="tab-item" data-type="EMPLOYEE" onclick="selectReport('EMPLOYEE')">
+          <span class="tab-name">💼 Employee Report</span>
+        </div>
+        <div class="tab-item" data-type="CLIENT" onclick="selectReport('CLIENT')">
+          <span class="tab-name">🏢 Client Report</span>
+        </div>
+        <div class="tab-item" data-type="APPLICANT" onclick="selectReport('APPLICANT')">
+          <span class="tab-tag">Priority</span>
+          <span class="tab-name">📝 Applicants Report</span>
+        </div>
+        <div class="tab-item" data-type="INTERN" onclick="selectReport('INTERN')">
+          <span class="tab-name">🌱 Intern Report</span>
+        </div>
+        <div class="tab-item" data-type="COURSE" onclick="selectReport('COURSE')">
+          <span class="tab-tag">Priority</span>
+          <span class="tab-name">📚 Courses Report</span>
+        </div>
+        <div class="tab-item" data-type="ACTIVE_USERS" onclick="selectReport('ACTIVE_USERS')">
+          <span class="tab-tag">Priority</span>
+          <span class="tab-name">👥 Active Users</span>
+        </div>
+        <div class="tab-item" data-type="BATCH" onclick="selectReport('BATCH')">
+          <span class="tab-tag">Priority</span>
+          <span class="tab-name">🗓️ Batches Report</span>
+        </div>
+      </div>
+    </div>
 
-  <div class="back-resources">
-    <a class="back-btn" href="{{ url_for('employee_resources') }}">← Back to Resources</a>
+    <!-- Controls & Filters Toolbar -->
+    <div class="toolbar-card">
+      <div class="filters-group">
+        <div class="filter-item">
+          <label>Search Keyword</label>
+          <input type="text" id="searchInput" placeholder="Search by name, email, id..." oninput="debounceSearch()" />
+        </div>
+        <div class="filter-item">
+          <label>From Date</label>
+          <input type="date" id="fromDateInput" onchange="fetchReportData()" />
+        </div>
+        <div class="filter-item">
+          <label>To Date</label>
+          <input type="date" id="toDateInput" onchange="fetchReportData()" />
+        </div>
+      </div>
+
+      <div class="actions-group">
+        <button class="btn btn-outline" onclick="resetFilters()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          Reset
+        </button>
+        <button class="btn btn-primary" onclick="fetchReportData()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          Refresh
+        </button>
+        <button class="btn btn-export" onclick="exportToCSV()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          Export CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- Data Table Card -->
+    <div class="table-card">
+      <div class="table-header-info">
+        <div class="table-title">
+          <h3 id="currentReportHeading">Student Report</h3>
+          <span class="count-badge" id="recordCount">0 Records</span>
+        </div>
+        <small style="color: var(--text-muted); font-size: 12px;" id="lastLoadedTime"></small>
+      </div>
+
+      <div class="table-responsive" id="tableContainer">
+        <div class="state-message" id="loadingState">
+          <div class="spinner"></div>
+          <p style="margin-top: 14px; font-weight: 500;">Executing SP_GET_CHAKORAHUB_REPORT in Oracle DB...</p>
+        </div>
+        <table id="reportTable" style="display: none;">
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        <div class="state-message" id="emptyState" style="display: none;">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          <p style="font-weight: 600;">No records found for this report and filter criteria.</p>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Confirmation Modal -->
@@ -240,28 +678,191 @@
     <div class="modal-content">
       <h3 id="modalMessage">Are you sure?</h3>
       <div class="modal-actions">
-        <button class="confirm-btn" id="confirmBtn">Yes</button>
-        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" id="confirmBtn">Yes, Proceed</button>
+        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
       </div>
     </div>
   </div>
 
   <script>
-    function toggleDropdown() {
+    let activeReportType = 'STUDENT';
+    let currentData = [];
+    let currentColumns = [];
+    let searchDebounceTimer = null;
+
+    const reportLabels = {
+      'STUDENT': 'Student Report',
+      'EMPLOYEE': 'Employee Report',
+      'CLIENT': 'Client Report',
+      'APPLICANT': 'Applicants Report',
+      'INTERN': 'Intern Report',
+      'COURSE': 'Courses Report',
+      'ACTIVE_USERS': 'Active Users Report',
+      'BATCH': 'Batches Report'
+    };
+
+    function selectReport(type) {
+      if (activeReportType === type) return;
+      activeReportType = type;
+
+      // Update active tab style
+      document.querySelectorAll('.tab-item').forEach(el => {
+        el.classList.toggle('active', el.getAttribute('data-type') === type);
+      });
+
+      document.getElementById('currentReportHeading').textContent = reportLabels[type] || type;
+      fetchReportData();
+    }
+
+    function debounceSearch() {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(fetchReportData, 350);
+    }
+
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('fromDateInput').value = '';
+      document.getElementById('toDateInput').value = '';
+      fetchReportData();
+    }
+
+    async function fetchReportData() {
+      const search = document.getElementById('searchInput').value.trim();
+      const fromDate = document.getElementById('fromDateInput').value;
+      const toDate = document.getElementById('toDateInput').value;
+
+      const loadingEl = document.getElementById('loadingState');
+      const tableEl = document.getElementById('reportTable');
+      const emptyEl = document.getElementById('emptyState');
+      const countEl = document.getElementById('recordCount');
+
+      loadingEl.style.display = 'block';
+      tableEl.style.display = 'none';
+      emptyEl.style.display = 'none';
+
+      const params = new URLSearchParams({
+        type: activeReportType
+      });
+      if (search) params.append('search', search);
+      if (fromDate) params.append('from_date', fromDate);
+      if (toDate) params.append('to_date', toDate);
+
+      try {
+        const response = await fetch(`/api/admin/reports?${params.toString()}`);
+        const res = await response.json();
+
+        loadingEl.style.display = 'none';
+
+        if (!response.ok || !res.success) {
+          throw new Error(res.error || 'Failed to load report');
+        }
+
+        currentColumns = res.columns || [];
+        currentData = res.data || [];
+        countEl.textContent = `${currentData.length} Records`;
+        document.getElementById('lastLoadedTime').textContent = `Updated at ${new Date().toLocaleTimeString()}`;
+
+        if (currentData.length === 0) {
+          emptyEl.style.display = 'block';
+          return;
+        }
+
+        renderTable(currentColumns, currentData);
+        tableEl.style.display = 'table';
+      } catch (err) {
+        loadingEl.style.display = 'none';
+        emptyEl.style.display = 'block';
+        emptyEl.innerHTML = `<p style="color: #ef4444; font-weight: 600;">⚠️ ${err.message}</p>`;
+        countEl.textContent = 'Error';
+      }
+    }
+
+    function formatColumnHeader(col) {
+      return col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    function formatCellValue(col, val) {
+      if (val === null || val === undefined || val === '') return '<span style="color:#94a3b8">—</span>';
+      
+      const colUpper = col.toUpperCase();
+      const valStr = String(val);
+
+      // Status pill formatting
+      if (colUpper.includes('STATUS')) {
+        const lower = valStr.toLowerCase();
+        let cls = 'status-pending';
+        if (['active', 'paid', 'approved', 'applied', 'success', 'y'].includes(lower)) cls = 'status-active';
+        if (['inactive', 'rejected', 'failed', 'locked', 'n'].includes(lower)) cls = 'status-inactive';
+        return `<span class="status-pill ${cls}">${valStr}</span>`;
+      }
+
+      // Email formatting
+      if (colUpper.includes('EMAIL')) {
+        return `<a href="mailto:${valStr}" style="color:var(--primary); text-decoration:none;">${valStr}</a>`;
+      }
+
+      // Currency formatting
+      if (colUpper.includes('SALARY') || colUpper.includes('AMOUNT') || colUpper.includes('FEE')) {
+        const num = Number(val);
+        if (!isNaN(num)) return `₹${num.toLocaleString('en-IN')}`;
+      }
+
+      return valStr;
+    }
+
+    function renderTable(columns, rows) {
+      const thead = document.getElementById('tableHead');
+      const tbody = document.getElementById('tableBody');
+
+      thead.innerHTML = `<tr>${columns.map(c => `<th>${formatColumnHeader(c)}</th>`).join('')}</tr>`;
+      tbody.innerHTML = rows.map(row => `
+        <tr>
+          ${columns.map(c => `<td>${formatCellValue(c, row[c])}</td>`).join('')}
+        </tr>
+      `).join('');
+    }
+
+    function exportToCSV() {
+      if (!currentData || currentData.length === 0) {
+        alert('No data available to export.');
+        return;
+      }
+
+      const headers = currentColumns;
+      const csvRows = [];
+      csvRows.push(headers.map(h => `"${h}"`).join(','));
+
+      currentData.forEach(row => {
+        const values = headers.map(h => {
+          let val = row[h] === null || row[h] === undefined ? '' : String(row[h]);
+          val = val.replace(/"/g, '""');
+          return `"${val}"`;
+        });
+        csvRows.push(values.join(','));
+      });
+
+      const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ChakoraHub_${activeReportType}_Report_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function toggleDropdown(e) {
+      e.stopPropagation();
       const dropdown = document.getElementById('dropdownMenu');
       dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
     }
 
     document.addEventListener('click', function(event) {
       const dropdown = document.getElementById('dropdownMenu');
-      const wrapper = document.querySelector('.profile-wrapper');
-      if (!wrapper.contains(event.target)) {
-        dropdown.style.display = 'none';
-      }
+      if (dropdown) dropdown.style.display = 'none';
     });
 
     let actionType = null;
-
     function openModal(type) {
       actionType = type;
       const modal = document.getElementById('confirmationModal');
@@ -280,6 +881,11 @@
       if (actionType === 'logout') {
         window.location.href = "{{ url_for('logout') }}";
       }
+    });
+
+    // Auto load first report on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchReportData();
     });
   </script>
 
