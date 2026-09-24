@@ -1,0 +1,28 @@
+<div id="student-registration-maintenance-notice" class="container mt-3" style="display:none;">
+  <div class="alert alert-info" role="alert">
+    <strong>Scheduled maintenance notice</strong><br>
+    The Student Registration service will undergo a brief update.
+    You may experience a short interruption while the service restarts.
+    Please refresh the page if it does not load temporarily.
+  </div>
+</div>
+
+<script>
+(function () {
+  const notice = document.getElementById('student-registration-maintenance-notice');
+  if (!notice) return;
+
+  fetch('/static/student-registration-maintenance.flag', {
+    method: 'GET',
+    cache: 'no-store'
+  })
+    .then(function (response) {
+      if (response.ok) {
+        notice.style.display = 'block';
+      }
+    })
+    .catch(function () {
+      // Keep the registration page unchanged when maintenance is disabled.
+    });
+})();
+</script>
