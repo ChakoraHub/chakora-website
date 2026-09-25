@@ -1,3 +1,4 @@
+# local
 import sys
 import io
 import logging
@@ -65,37 +66,39 @@ LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.
 STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
 STUDENT_INTERNAL_NO_PROXY = "172.31.26.176"
 INTERNAL_NO_PROXY="172.31.26.176"
+INTERVIEW_SERVICE_URL = os.getenv("INTERVIEW_SERVICE_URL", "http://172.31.26.176:8003").rstrip("/")
 CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
 INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
 
-HOME_SERVICE_URL = "http://127.0.0.1:5001"
-STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
-MEETING_SERVICE_URL = "http://127.0.0.1:9000"
-CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
-ASSET_SERVICE_URL = "http://127.0.0.1:8090"
-INTERNSHIP_SERVICE_URL = "http://127.0.0.1:5050"
-MS365_SERVICE_URL = "http://127.0.0.1:7700"
-EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
-BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
-REDIS_SERVICE_URL = "http://127.0.0.1:6390"
-BRS_SERVICE_URL = "http://127.0.0.1:8020"
-BILLING_SERVICE_URL = "http://127.0.0.1:8010"
-RAG_SERVICE_URL = "http://127.0.0.1:7900"
-ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
-OPE_SERVICE_URL = "http://127.0.0.1:8500"
-WABA_SERVICE_URL = "http://127.0.0.1:2500"
-FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
-REDIS_HOST = "127.0.0.1"
-APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
-LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
-WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
-STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
-STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
-INTERNAL_NO_PROXY="127.0.0.1"
-CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
-INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+# HOME_SERVICE_URL = "http://127.0.0.1:5001"
+# STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
+# MEETING_SERVICE_URL = "http://127.0.0.1:9000"
+# CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
+# ASSET_SERVICE_URL = "http://127.0.0.1:8090"
+# INTERNSHIP_SERVICE_URL = "http://127.0.0.1:5050"
+# MS365_SERVICE_URL = "http://127.0.0.1:7700"
+# EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
+# BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
+# REDIS_SERVICE_URL = "http://127.0.0.1:6390"
+# BRS_SERVICE_URL = "http://127.0.0.1:8020"
+# BILLING_SERVICE_URL = "http://127.0.0.1:8010"
+# RAG_SERVICE_URL = "http://127.0.0.1:7900"
+# ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
+# OPE_SERVICE_URL = "http://127.0.0.1:8500"
+# WABA_SERVICE_URL = "http://127.0.0.1:2500"
+# FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
+# REDIS_HOST = "127.0.0.1"
+# APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
+# INTERVIEW_SERVICE_URL = os.getenv("INTERVIEW_SERVICE_URL", "http://127.0.0.1:8003").rstrip("/")
+# LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
+# WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
+# STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
+# STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
+# INTERNAL_NO_PROXY="127.0.0.1"
+# CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
+# INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
 STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
 sf_client = None
 
@@ -2794,6 +2797,32 @@ def employee_resources():
         if festival_row:
             festival_today = festival_row['FESTIVAL_NAME']
         
+        # Get brand logo link from Oracle LOGOS table (always use SUPPORT schema)
+        link = None
+        try:
+            cursor.execute("""
+                SELECT AWS_S3_URL
+                FROM SUPPORT.LOGOS
+                WHERE IS_ACTIVE = 1
+                AND (NAME = 'ChakoraHub' OR SNO = 1)
+                FETCH FIRST 1 ROWS ONLY
+            """)
+            logo_row = cursor.fetchone()
+            if logo_row:
+                if isinstance(logo_row, dict):
+                    # Oracle dict cursor returns column names in original case
+                    link = (
+                        logo_row.get('AWS_S3_URL')
+                        or logo_row.get('aws_s3_url')
+                        or logo_row.get('Aws_S3_Url')
+                    )
+                else:
+                    link = logo_row[0]
+            print(f"🖼️  Logo from Oracle LOGOS: {link}")
+        except Exception as logo_err:
+            print(f"⚠️ Error querying LOGOS table from Oracle: {logo_err}")
+            link = None
+
         # Single query to EMPLOYEE_REGISTRATIONS (same table ID card uses - all data is here)
         employee_data = {}
         cursor.execute("""
@@ -2817,33 +2846,16 @@ def employee_resources():
             LIMIT 1
         """, (employee_id,))
         reg_row = cursor.fetchone()
-       
-        if reg_row:
-            employee_data = {
-                'first_name': reg_row.get('FIRST_NAME'),
-                'last_name': reg_row.get('LAST_NAME'),
-                'full_name': reg_row.get('FULL_NAME'),
-                'email': reg_row.get('EMAIL'),
-                'phone': reg_row.get('PHONE'),
-                'gender': reg_row.get('GENDER'),
-                'dob': reg_row.get('DOB'),
-                'current_address': reg_row.get('CURRENT_ADDRESS'),
-                'permanent_address': reg_row.get('PERMANENT_ADDRESS'),
-                'department': reg_row.get('DEPARTMENT'),
-                'designation': reg_row.get('DESIGNATION'),
-                'manager': reg_row.get('MANAGER'),
-                'date_of_joining': reg_row.get('DATE_OF_JOINING'),
-                'employment_type': reg_row.get('EMPLOYMENT_TYPE'),
-                'work_location': reg_row.get('WORK_LOCATION'),
-                'status': reg_row.get('STATUS'),
-            }
-    
-        # Profile pic from EMP_NRM_PERSONAL
-        cursor.execute(
-            "SELECT PROFILE_PIC FROM EMP_NRM_PERSONAL WHERE EMPLOYEE_ID = %s LIMIT 1",
-            (employee_id,)
-        )
-        pic_row = cursor.fetchone()
+
+        def _read_val(v):
+            if v is None:
+                return ''
+            if hasattr(v, 'read'):
+                try:
+                    return str(v.read())
+                except Exception:
+                    return str(v)
+            return str(v)
 
         def fmt_date(val):
             if not val:
@@ -2853,29 +2865,36 @@ def employee_resources():
             except Exception:
                 return str(val)
 
+        # Profile pic from EMP_NRM_PERSONAL
+        cursor.execute(
+            "SELECT PROFILE_PIC FROM EMP_NRM_PERSONAL WHERE EMPLOYEE_ID = %s LIMIT 1",
+            (employee_id,)
+        )
+        pic_row = cursor.fetchone()
+
         if reg_row:
             full_name = (
-                reg_row.get('FULL_NAME')
-                or f"{reg_row.get('FIRST_NAME', '')} {reg_row.get('LAST_NAME', '')}".strip()
+                _read_val(reg_row.get('FULL_NAME'))
+                or f"{_read_val(reg_row.get('FIRST_NAME'))} {_read_val(reg_row.get('LAST_NAME'))}".strip()
                 or session.get("employee_name", "Employee")
             )
             employee_data = {
                 'full_name':               full_name,
                 'employee_id':             employee_id,
                 'dob':                     fmt_date(reg_row.get('DOB')),
-                'gender':                  reg_row.get('GENDER')        or 'Not specified',
-                'email':                   reg_row.get('EMAIL')         or session.get("employee_email", "Not specified"),
-                'phone':                   reg_row.get('PHONE')         or 'Not specified',
-                'department':              reg_row.get('DEPARTMENT')    or 'N/A',
-                'designation':             reg_row.get('DESIGNATION')   or 'N/A',
+                'gender':                  _read_val(reg_row.get('GENDER'))        or 'Not specified',
+                'email':                   _read_val(reg_row.get('EMAIL'))         or session.get("employee_email", "Not specified"),
+                'phone':                   _read_val(reg_row.get('PHONE'))         or 'Not specified',
+                'department':              _read_val(reg_row.get('DEPARTMENT'))    or 'N/A',
+                'designation':             _read_val(reg_row.get('DESIGNATION'))   or 'N/A',
                 'date_of_joining':         fmt_date(reg_row.get('DATE_OF_JOINING')),
-                'manager':                 reg_row.get('MANAGER')       or 'Not specified',
-                'current_address':         reg_row.get('CURRENT_ADDRESS')   or 'Not specified',
-                'permanent_address':       reg_row.get('PERMANENT_ADDRESS') or 'Not specified',
-                'emergency_contact_name':  reg_row.get('EMERGENCY_CONTACT_NAME')  or 'Not specified',
-                'emergency_contact_phone': reg_row.get('EMERGENCY_CONTACT_PHONE') or 'Not specified',
-                'employment_type':         reg_row.get('EMPLOYMENT_TYPE') or 'Not specified',
-                'work_location':           reg_row.get('WORK_LOCATION')   or 'Not specified',
+                'manager':                 _read_val(reg_row.get('MANAGER'))       or 'Not specified',
+                'current_address':         _read_val(reg_row.get('CURRENT_ADDRESS'))   or 'Not specified',
+                'permanent_address':       _read_val(reg_row.get('PERMANENT_ADDRESS')) or 'Not specified',
+                'emergency_contact_name':  _read_val(reg_row.get('EMERGENCY_CONTACT_NAME'))  or 'Not specified',
+                'emergency_contact_phone': _read_val(reg_row.get('EMERGENCY_CONTACT_PHONE')) or 'Not specified',
+                'employment_type':         _read_val(reg_row.get('EMPLOYMENT_TYPE')) or 'Not specified',
+                'work_location':           _read_val(reg_row.get('WORK_LOCATION'))   or 'Not specified',
             }
         else:
             employee_data = {
@@ -2981,74 +3000,86 @@ def employee_resources():
         leave_history = []
         
         try:
-            # Count approved leaves by type (simple logic)
+            # Count approved leaves by type (Oracle compatible date subtraction)
             cursor.execute("""
                 SELECT 
-                    STATUS,
+                    LEAVE_TYPE,
                     COUNT(*) as count,
-                    SUM(DATEDIFF(day, START_DATE, END_DATE) + 1) as total_days
+                    NVL(SUM(TOTAL_DAYS), NVL(SUM((END_DATE - START_DATE) + 1), 0)) as total_days
                 FROM EMP_NRM_LEAVE 
-                WHERE EMPLOYEE_ID = %s AND STATUS = 'Approved'
-                GROUP BY STATUS
+                WHERE EMPLOYEE_ID = %s AND UPPER(STATUS) = 'APPROVED'
+                GROUP BY LEAVE_TYPE
             """, (employee_id,))
             leave_stats = cursor.fetchall()
+            for st in leave_stats:
+                lt = (st.get('LEAVE_TYPE') or '').lower()
+                td = int(st.get('TOTAL_DAYS') or st.get('count') or 0)
+                if 'casual' in lt:
+                    leave_data['casual_leave'] = max(0, 12 - td)
+                elif 'sick' in lt:
+                    leave_data['sick_leave'] = max(0, 8 - td)
+                elif 'privilege' in lt:
+                    leave_data['privilege_leave'] = max(0, 3 - td)
             
-            # Fetch leave history
+            # Fetch leave history with proper Oracle FETCH FIRST syntax
             cursor.execute("""
                 SELECT 
                     LEAVE_ID,
+                    LEAVE_TYPE,
                     START_DATE,
                     END_DATE,
+                    TOTAL_DAYS,
                     REASON,
                     STATUS,
                     APPLIED_AT
                 FROM EMP_NRM_LEAVE 
                 WHERE EMPLOYEE_ID = %s
-                ORDER BY APPLIED_AT DESC
-                LIMIT 10
+                ORDER BY NVL(APPLIED_AT, TO_TIMESTAMP('1970-01-01', 'YYYY-MM-DD')) DESC, LEAVE_ID DESC
+                FETCH FIRST 20 ROWS ONLY
             """, (employee_id,))
             leave_history_rows = cursor.fetchall()
             
             for row in leave_history_rows:
-                from_date = row.get('START_DATE', 'Unknown')
-                to_date = row.get('END_DATE', 'Unknown')
+                from_date = row.get('START_DATE')
+                to_date   = row.get('END_DATE')
                 
-                # Calculate days
-                days = 1
-                if from_date and to_date and from_date != 'Unknown' and to_date != 'Unknown':
+                # Format dates cleanly (YYYY-MM-DD)
+                if hasattr(from_date, 'strftime'):
+                    from_str = from_date.strftime('%Y-%m-%d')
+                else:
+                    from_str = str(from_date)[:10] if from_date else 'N/A'
+                    
+                if hasattr(to_date, 'strftime'):
+                    to_str = to_date.strftime('%Y-%m-%d')
+                else:
+                    to_str = str(to_date)[:10] if to_date else 'N/A'
+                
+                total_days = row.get('TOTAL_DAYS')
+                if total_days is None:
                     try:
-                        if isinstance(from_date, str):
-                            from_date = datetime.strptime(from_date, '%Y-%m-%d')
-                        if isinstance(to_date, str):
-                            to_date = datetime.strptime(to_date, '%Y-%m-%d')
-                        days = (to_date - from_date).days + 1
-                    except:
-                        days = 1
+                        if hasattr(from_date, 'date') and hasattr(to_date, 'date'):
+                            total_days = (to_date.date() - from_date.date()).days + 1
+                        else:
+                            total_days = 1
+                    except Exception:
+                        total_days = 1
+                else:
+                    total_days = int(total_days)
                 
-                # Determine leave type from reason
-                reason = row.get('REASON', '').lower()
-                leave_type = 'Casual'
-                if 'sick' in reason:
-                    leave_type = 'Sick'
-                elif 'privilege' in reason or 'annual' in reason:
-                    leave_type = 'Privilege'
-                elif 'maternity' in reason or 'paternity' in reason:
-                    leave_type = 'Special'
+                leave_type = row.get('LEAVE_TYPE') or 'Casual'
+                status     = row.get('STATUS') or 'Pending'
                 
                 leave_history.append({
                     'type': leave_type,
-                    'from_date': row.get('START_DATE', 'Unknown'),
-                    'to_date': row.get('END_DATE', 'Unknown'),
-                    'days': str(days),
-                    'status': row.get('STATUS', 'Pending')
+                    'from_date': from_str,
+                    'to_date': to_str,
+                    'days': str(total_days),
+                    'status': status
                 })
             
         except Exception as e:
-            print(f"Error fetching leave data: {e}")
-            leave_history = [
-                {'type': 'Casual', 'from_date': 'Dec 20, 2025', 'to_date': 'Dec 22, 2025', 'days': '3', 'status': '✅ Approved'},
-                {'type': 'Sick', 'from_date': 'Nov 15, 2025', 'to_date': 'Nov 15, 2025', 'days': '1', 'status': '✅ Approved'}
-            ]
+            print(f"❌ Error fetching leave data from Oracle: {e}")
+            leave_history = []
         
         # ID Card data from EMP_NRM_IDCARD
         id_card_data = {}
@@ -3212,6 +3243,8 @@ def employee_resources():
             "appraisal_data": appraisal_data,
             "appraisal_history": appraisal_history,
             "profile_data": profile_data,
+            "link": link,
+            "today_date": datetime.now().strftime("%Y-%m-%d"),
         }
 
         return render_template("employee-resources.html", **view_data)
@@ -3238,6 +3271,7 @@ def employee_resources():
         
         return render_template(
             "employee-resources.html",
+            link=None,
             Employee_name=employee_name,
             employee_name=employee_name,
             employee_id=employee_id,
@@ -4142,69 +4176,179 @@ def admin_leave_approval():
 @app.route("/apply-leave", methods=["POST"])
 def apply_leave_proxy():
     if session.get("login_type") != "employee":
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest" or request.is_json:
+            return jsonify({"success": False, "message": "Not logged in as employee"}), 401
         return redirect(url_for("home"))
 
+    employee_id = session.get("employee_id")
+    if not employee_id:
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest" or request.is_json:
+            return jsonify({"success": False, "message": "Session expired. Please log in again."}), 401
+        return redirect(url_for("login"))
+
     try:
-        leave_type = (request.form.get("leave_type") or "").strip()
-        start_date = (request.form.get("start_date") or "").strip()
-        end_date   = (request.form.get("end_date")   or "").strip()
-        reason     = (request.form.get("reason")     or "").strip()
+        data = request.get_json(silent=True) or {}
+        leave_type = (request.form.get("leave_type") or data.get("leave_type") or "").strip()
+        start_date = (request.form.get("start_date") or data.get("start_date") or data.get("from_date") or "").strip()
+        end_date   = (request.form.get("end_date")   or data.get("end_date")   or data.get("to_date")   or "").strip()
+        reason     = (request.form.get("reason")     or data.get("reason")     or "").strip()
 
         if not leave_type:
-            flash("Leave type is required", "error")
-            return redirect(url_for("leave_tracker"))
+            return jsonify({"success": False, "message": "Leave type is required"}), 400
         if not start_date or not end_date:
-            flash("Start and end dates are required", "error")
-            return redirect(url_for("leave_tracker"))
+            return jsonify({"success": False, "message": "Start and end dates are required"}), 400
 
-        # The microservice expects:
-        #   URL    : /api/employee/leave/apply   (NOT /api/employee/apply-leave)
-        #   Body   : JSON (NOT form-encoded)
-        #   Fields : from_date, to_date         (NOT start_date, end_date)
-        # All three mismatches caused "Not Found" + silent failures previously.
-        payload = {
-            "employee_id": session.get("employee_id"),
-            "leave_type":  leave_type,
-            "from_date":   start_date,
-            "to_date":     end_date,
-            "reason":      reason or None,
-        }
-        resp = requests.post(
-            f"{EMPLOYEE_SERVICE_URL}/api/employee/leave/apply",
-            json=payload,
-            timeout=10,
-        )
-        if resp.status_code == 200:
-            try:
-                body = resp.json()
-            except Exception:
-                body = {}
-            if body.get("success", True):
-                flash("Leave applied successfully! Your manager has been notified.", "success")
-            else:
-                flash(body.get("message") or "Leave request failed", "error")
-        else:
-            try:
-                detail = resp.json()
-                # FastAPI HTTPException → {"detail": "..."}; pydantic validation → {"detail": [...]}
-                d = detail.get("detail")
-                if isinstance(d, list):
-                    msg = "; ".join(str(item.get("msg", item)) for item in d)
-                else:
-                    msg = d or detail.get("message") or "Leave request failed"
-            except Exception:
-                msg = f"Leave request failed (HTTP {resp.status_code})"
-            print(f"❌ apply-leave HTTP {resp.status_code}: {(resp.text or '')[:300]}")
-            flash(msg, "error")
+        # Calculate total days
+        try:
+            from datetime import datetime as _dt
+            d1 = _dt.strptime(start_date, "%Y-%m-%d").date()
+            d2 = _dt.strptime(end_date,   "%Y-%m-%d").date()
+            if d1 > d2:
+                return jsonify({"success": False, "message": "End date must be on or after start date"}), 400
+            total_days = (d2 - d1).days + 1
+        except Exception:
+            total_days = 1
 
-    except requests.exceptions.Timeout:
-        flash("Employee service timed out. Please try again.", "error")
+        # 1. Insert directly into Oracle EMP_NRM_LEAVE table
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get next LEAVE_ID if needed or rely on sequence
+        cursor.execute("SELECT NVL(MAX(LEAVE_ID), 0) + 1 FROM EMP_NRM_LEAVE")
+        next_lid_row = cursor.fetchone()
+        next_lid = next_lid_row[0] if next_lid_row else 1
+        
+        cursor.execute("""
+            INSERT INTO EMP_NRM_LEAVE
+                (LEAVE_ID, EMPLOYEE_ID, LEAVE_TYPE, START_DATE, END_DATE, TOTAL_DAYS, DURATION_TYPE, REASON, STATUS, APPLIED_AT, CREATED_AT)
+            VALUES
+                (%s, %s, %s, TO_DATE(%s, 'YYYY-MM-DD'), TO_DATE(%s, 'YYYY-MM-DD'), %s, 'FULL_DAY', %s, 'Pending', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        """, (next_lid, employee_id, leave_type, start_date, end_date, total_days, reason or 'Personal'))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print(f"✅ Leave #{next_lid} inserted into Oracle EMP_NRM_LEAVE for {employee_id}")
+
+        # 2. Send admin notification email via AWS SES
+        try:
+            if ses_client:
+                emp_name = session.get("employee_name", employee_id)
+                emp_email = session.get("employee_email", "N/A")
+                dept = session.get("employee_department", "N/A")
+                email_html = f"""
+<html><body style="font-family:Arial,sans-serif;background:#f4f6fa;margin:0;padding:0;">
+<div style="max-width:600px;margin:30px auto;background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow:hidden;">
+  <div style="background:linear-gradient(135deg,#6c63ff,#5a52e8);padding:28px 32px;color:#fff;">
+    <h2 style="margin:0;font-size:22px;">&#128197; New Leave Application</h2>
+    <p style="margin:6px 0 0;opacity:.85;font-size:14px;">ChakoraHub Employee Portal</p>
+  </div>
+  <div style="padding:28px 32px;">
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <tr><td style="padding:8px 0;color:#888;width:40%;">Employee Name</td><td style="font-weight:600;">{emp_name}</td></tr>
+      <tr><td style="padding:8px 0;color:#888;">Employee ID</td><td style="font-weight:600;">{employee_id}</td></tr>
+      <tr><td style="padding:8px 0;color:#888;">Email</td><td style="font-weight:600;">{emp_email}</td></tr>
+      <tr><td style="padding:8px 0;color:#888;">Department</td><td style="font-weight:600;">{dept}</td></tr>
+      <tr><td style="padding:8px 0;color:#888;">Leave Type</td><td style="font-weight:600;">{leave_type}</td></tr>
+      <tr><td style="padding:8px 0;color:#888;">From Date</td><td style="font-weight:600;">{start_date}</td></tr>
+      <tr><td style="padding:8px 0;color:#888;">To Date</td><td style="font-weight:600;">{end_date} ({total_days} day(s))</td></tr>
+      <tr><td style="padding:8px 0;color:#888;">Reason</td><td style="font-weight:600;">{reason or 'Not specified'}</td></tr>
+    </table>
+    <div style="margin-top:24px;padding:14px 18px;background:#f0f4ff;border-left:4px solid #6c63ff;border-radius:6px;font-size:13px;color:#555;">
+      Please log in to the HR portal to review and approve or reject this leave request.
+    </div>
+  </div>
+  <div style="padding:16px 32px;background:#f9fafb;font-size:12px;color:#aaa;text-align:center;">
+    &copy; 2025 ChakoraHub &mdash; Automated Leave Notification
+  </div>
+</div>
+</body></html>"""
+                ses_client.send_email(
+                    Source=ADMIN_EMAIL,
+                    Destination={"ToAddresses": [ADMIN_EMAIL]},
+                    Message={
+                        "Subject": {"Data": f"[Leave Request] {emp_name} - {leave_type} ({start_date} to {end_date})"},
+                        "Body": {
+                            "Html": {"Data": email_html},
+                            "Text": {"Data": f"New leave request from {emp_name} ({employee_id}).\nType: {leave_type}\nFrom: {start_date} To: {end_date}\nReason: {reason or 'N/A'}"}
+                        }
+                    }
+                )
+                print(f"✅ Leave notification email sent to {ADMIN_EMAIL}")
+        except Exception as email_err:
+            print(f"⚠️ Could not send leave notification email: {email_err}")
+
+        # Return JSON for AJAX or redirect
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest" or request.is_json:
+            return jsonify({"success": True, "message": "Leave request submitted successfully! Your manager has been notified."})
+        
+        flash("Leave applied successfully! Your manager has been notified.", "success")
+        return redirect(url_for("leave_tracker"))
+
     except Exception as e:
         import traceback
-        print("❌ Apply leave proxy error:", traceback.format_exc())
+        print("❌ Apply leave error:", traceback.format_exc())
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest" or request.is_json:
+            return jsonify({"success": False, "message": f"Unable to submit leave: {str(e)}"}), 500
         flash("Unable to submit leave. Please try again.", "error")
+        return redirect(url_for("leave_tracker"))
 
-    return redirect(url_for("leave_tracker"))
+
+# ─── Employee Portal: Profile Photo Upload / Remove ──────────────────────────
+@app.route('/employee/upload-photo', methods=['POST'])
+def employee_upload_photo():
+    """Upload employee profile photo to local static folder and update session."""
+    if session.get('login_type') != 'employee':
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+
+    file = request.files.get('photo')
+    if not file or not file.filename:
+        return jsonify({'success': False, 'message': 'No file provided'}), 400
+
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+    ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+    if ext not in allowed_extensions:
+        return jsonify({'success': False, 'message': 'Invalid file type. Use PNG, JPG, GIF or WebP'}), 400
+
+    if file.content_length and file.content_length > 5 * 1024 * 1024:
+        return jsonify({'success': False, 'message': 'File too large. Max 5 MB'}), 400
+
+    try:
+        from werkzeug.utils import secure_filename as _secure_fn
+        employee_id = session.get('employee_id', 'emp')
+        filename = f"emp_{employee_id}_{_secure_fn(file.filename)}"
+        upload_folder = os.path.join('static', 'profile_photo')
+        os.makedirs(upload_folder, exist_ok=True)
+        save_path = os.path.join(upload_folder, filename)
+        file.save(save_path)
+        pic_path = f'profile_photo/{filename}'
+        session['profile_pic'] = pic_path
+        session.modified = True
+        return jsonify({'success': True, 'message': 'Photo uploaded successfully!', 'profile_pic': f'/static/{pic_path}'})
+    except Exception as upload_err:
+        import traceback
+        print('❌ employee_upload_photo error:', traceback.format_exc())
+        return jsonify({'success': False, 'message': 'Upload failed. Please try again.'}), 500
+
+
+@app.route('/employee/remove-photo', methods=['POST'])
+def employee_remove_photo():
+    """Remove employee profile photo and revert to default."""
+    if session.get('login_type') != 'employee':
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+
+    default_pic = 'https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg'
+    current_pic = session.get('profile_pic', '')
+    # Remove local file if it's not already a URL
+    if current_pic and not current_pic.startswith('http'):
+        try:
+            full_path = os.path.join('static', current_pic)
+            if os.path.exists(full_path):
+                os.remove(full_path)
+        except Exception:
+            pass
+    session['profile_pic'] = default_pic
+    session.modified = True
+    return jsonify({'success': True, 'message': 'Photo removed.', 'profile_pic': default_pic})
 
 '''@app.route('/employee/id-card')
 def id_card():
@@ -5752,46 +5896,187 @@ def admin_report():
         flash("Access denied.", "error")
         return redirect(url_for("home"), code=303)
 
-    conn = get_db_connection()
-    cur = conn.cursor(DICT_CURSOR)
+    return render_template('admin-report.html')
 
-    # Get all courses
-    cur.execute("SELECT ID, COURSE_NAME FROM NRM_COURSES")
-    courses = cur.fetchall()
 
-    report_data = []
-    for course in courses:
-        course_id = course['ID']            # ✅ FIX
-        course_name = course['COURSE_NAME']
+@app.route('/api/admin/reports', methods=['GET'])
+def api_admin_reports():
+    """API endpoint to dynamically fetch operational reports via Oracle PL/SQL Stored Procedure SP_GET_CHAKORAHUB_REPORT."""
+    if not _has_employee_admin_access():
+        return jsonify({"success": False, "error": "Access denied"}), 403
 
-        folder_name = course_name.replace(" ", "_")
+    report_type = request.args.get('type', 'STUDENT').upper().strip()
+    from_date_str = request.args.get('from_date', '').strip()
+    to_date_str = request.args.get('to_date', '').strip()
+    search_query = request.args.get('search', '').strip()
 
-        # PPT count
-        ppts_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'ppt', folder_name)
-        ppt_count = len(os.listdir(ppts_dir)) if os.path.exists(ppts_dir) else 0
+    p_from_date = None
+    p_to_date = None
+    if from_date_str:
+        try:
+            p_from_date = datetime.strptime(from_date_str, '%Y-%m-%d')
+        except ValueError:
+            pass
+    if to_date_str:
+        try:
+            p_to_date = datetime.strptime(to_date_str, '%Y-%m-%d')
+        except ValueError:
+            pass
 
-        # Video count from DB
-        cur.execute("SELECT COUNT(*) as cnt FROM nrm_video_sessions WHERE course_id = %s", (course_id,))
-        total_video_count = cur.fetchone()['cnt']
+    conn = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
 
-        # Interview Questions count
-        iq_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'interview_questions', folder_name)
-        iq_count = len(os.listdir(iq_dir)) if os.path.exists(iq_dir) else 0
+        # Try calling the centralized PL/SQL Stored Procedure first
+        try:
+            p_cursor = conn.cursor()
+            p_code = cur.var(int)
+            p_msg = cur.var(str)
 
-        # Code count
-        code_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'code', folder_name)
-        code_count = len(os.listdir(code_dir)) if os.path.exists(code_dir) else 0
+            cur.callproc("CHAKORA.SP_GET_CHAKORAHUB_REPORT", [
+                report_type,
+                p_from_date,
+                p_to_date,
+                search_query if search_query else None,
+                p_cursor,
+                p_code,
+                p_msg
+            ])
 
-        report_data.append({
-            'course': course_name,
-            'ppt': ppt_count,
-            'videos': total_video_count,
-            'interview_questions': iq_count,
-            'code': code_count
+            code = p_code.getvalue() or 200
+            msg = p_msg.getvalue() or "SUCCESS"
+            columns = [col[0] for col in p_cursor.description] if p_cursor.description else []
+            raw_rows = p_cursor.fetchall()
+            p_cursor.close()
+
+        except Exception as sp_err:
+            print(f"⚠️ SP_GET_CHAKORAHUB_REPORT fallback triggered: {sp_err}")
+            # Non-disruptive inline fallback
+            search_param = f"%{search_query.upper()}%" if search_query else None
+
+            if report_type == 'STUDENT':
+                cur.execute("""
+                    SELECT s.ID, s.FULL_NAME, s.EMAIL, s.PHONE, s.COURSE_INTERESTED, s.QUALIFICATION,
+                           s.EXPERIENCE_LEVEL, s.ENROLLMENT_STATUS, s.DATE_OF_REGISTRATION, s.ASSIGNED_BATCH_ID
+                    FROM NRM_STUDENTS s
+                    WHERE (:p_search IS NULL OR UPPER(s.FULL_NAME || ' ' || s.EMAIL || ' ' || s.PHONE) LIKE :p_search)
+                    ORDER BY s.DATE_OF_REGISTRATION DESC
+                """, p_search=search_param)
+            elif report_type == 'EMPLOYEE':
+                cur.execute("""
+                    SELECT e.EMPLOYEE_ID, (e.FIRST_NAME || ' ' || e.LAST_NAME) AS FULL_NAME, e.EMAIL,
+                           e.PHONE_NUMBER, e.DESIGNATION, e.DEPARTMENT, e.DATE_OF_JOINING,
+                           e.EMPLOYEE_STATUS, e.WORK_LOCATION
+                    FROM EMP_NRM_EMPLOYEES e
+                    WHERE (:p_search IS NULL OR UPPER(e.FIRST_NAME || ' ' || e.LAST_NAME || ' ' || e.EMAIL || ' ' || e.EMPLOYEE_ID) LIKE :p_search)
+                    ORDER BY e.DATE_OF_JOINING DESC
+                """, p_search=search_param)
+            elif report_type == 'CLIENT':
+                cur.execute("""
+                    SELECT c.ID, c.COMPANY_NAME, c.CONTACT_PERSON, c.EMAIL, c.PHONE,
+                           c.INDUSTRY_TYPE, c.SERVICE_REQUIRED, c.ENGAGEMENT_STATUS, c.ONBOARDING_DATE
+                    FROM NRM_CLIENTS c
+                    WHERE (:p_search IS NULL OR UPPER(c.COMPANY_NAME || ' ' || c.CONTACT_PERSON || ' ' || c.EMAIL) LIKE :p_search)
+                    ORDER BY c.ONBOARDING_DATE DESC
+                """, p_search=search_param)
+            elif report_type == 'APPLICANT':
+                cur.execute("""
+                    SELECT a.ID, a.APPLICANT_NAME, a.EMAIL, a.PHONE, a.APPLIED_POSITION,
+                           a.TOTAL_EXPERIENCE, a.CURRENT_COMPANY, a.APPLICATION_STATUS, a.APPLICATION_DATE
+                    FROM NRM_JOB_APPLICANTS a
+                    WHERE (:p_search IS NULL OR UPPER(a.APPLICANT_NAME || ' ' || a.EMAIL || ' ' || a.APPLIED_POSITION) LIKE :p_search)
+                    ORDER BY a.APPLICATION_DATE DESC
+                """, p_search=search_param)
+            elif report_type == 'INTERN':
+                cur.execute("""
+                    SELECT i.ID, i.INTERN_ID, i.FULL_NAME, i.EMAIL, i.PHONE, i.COLLEGE_NAME, i.BRANCH,
+                           NVL(i.INTERNSHIP_DURATION, '3 Months') AS DURATION, NVL(i.INTERN_MODE, 'Online') AS INTERN_MODE,
+                           i.START_DATE, NVL(i.STATUS, 'PENDING') AS STATUS, i.SUBMITTED_AT
+                    FROM NRM_INTERNSHIP_APPLICATIONS i
+                    WHERE (:p_search IS NULL OR UPPER(i.INTERN_ID || ' ' || i.FULL_NAME || ' ' || i.EMAIL || ' ' || i.COLLEGE_NAME) LIKE :p_search)
+                    ORDER BY i.SUBMITTED_AT DESC
+                """, p_search=search_param)
+            elif report_type == 'COURSE':
+                cur.execute("""
+                    SELECT c.ID AS COURSE_ID, c.COURSE_NAME, c.COURSE_CODE,
+                           (SELECT COUNT(*) FROM NRM_VIDEO_SESSIONS v WHERE v.COURSE_ID = c.ID) AS TOTAL_VIDEOS,
+                           (SELECT COUNT(*) FROM NRM_COURSE_FILES f WHERE f.COURSE_ID = c.ID AND UPPER(f.FILE_TYPE) = 'PPT' AND f.IS_ACTIVE = 1) AS TOTAL_PPTS,
+                           (SELECT COUNT(*) FROM NRM_COURSE_FILES f WHERE f.COURSE_ID = c.ID AND UPPER(f.FILE_TYPE) = 'CODE' AND f.IS_ACTIVE = 1) AS TOTAL_CODE_FILES,
+                           (SELECT COUNT(*) FROM NRM_COURSE_FILES f WHERE f.COURSE_ID = c.ID AND UPPER(f.FILE_TYPE) = 'INTERVIEW_QUESTIONS' AND f.IS_ACTIVE = 1) AS TOTAL_IQ_FILES,
+                           (SELECT COUNT(*) FROM NRM_BATCH_SCHEDULE bs WHERE bs.COURSE_ID = c.ID) AS TOTAL_BATCHES
+                    FROM NRM_COURSES c
+                    WHERE (:p_search IS NULL OR UPPER(c.COURSE_NAME || ' ' || c.COURSE_CODE) LIKE :p_search)
+                    ORDER BY c.ID ASC
+                """, p_search=search_param)
+            elif report_type == 'ACTIVE_USERS':
+                cur.execute("""
+                    SELECT u.ID AS USER_ID, u.USERNAME, u.EMAIL, u.PHONE, NVL(u.USERTYPE, 'STUDENT') AS USER_ROLE,
+                           NVL(l.IS_ACTIVE, 'Y') AS ACCOUNT_ACTIVE, l.LAST_LOGIN, l.LOGOUT_TIME,
+                           NVL(l.FAILED_LOGIN_ATTEMPTS, 0) AS FAILED_ATTEMPTS, NVL(l.ACCOUNT_LOCKED, 'N') AS IS_LOCKED,
+                           u.CREATED_AT AS SIGNUP_DATE
+                    FROM NRM_USERS u
+                    LEFT JOIN NRM_LOGINS l ON u.ID = l.USER_ID
+                    WHERE (:p_search IS NULL OR UPPER(u.USERNAME || ' ' || u.EMAIL || ' ' || u.PHONE) LIKE :p_search)
+                    ORDER BY l.LAST_LOGIN DESC NULLS LAST
+                """, p_search=search_param)
+            elif report_type == 'BATCH':
+                cur.execute("""
+                    SELECT b.ID AS BATCH_ID, c.COURSE_NAME, NVL(b.BATCH_TYPE, 'Regular') AS BATCH_TYPE,
+                           NVL(b.LANGUAGE, 'English') AS LANGUAGE, b.START_DATE, b.END_DATE,
+                           NVL(b.STATUS, 'ACTIVE') AS STATUS, COUNT(ba.ID) AS TOTAL_ENROLLED, b.CREATED_AT
+                    FROM NRM_BATCH_SCHEDULE b
+                    LEFT JOIN NRM_COURSES c ON b.COURSE_ID = c.ID
+                    LEFT JOIN NRM_BATCH_ALLOCATION ba ON b.ID = ba.BATCH_ID
+                    WHERE (:p_search IS NULL OR UPPER(c.COURSE_NAME || ' ' || b.BATCH_TYPE || ' ' || b.STATUS) LIKE :p_search)
+                    GROUP BY b.ID, c.COURSE_NAME, b.BATCH_TYPE, b.LANGUAGE, b.START_DATE, b.END_DATE, b.STATUS, b.CREATED_AT
+                    ORDER BY b.START_DATE DESC
+                """, p_search=search_param)
+            else:
+                return jsonify({"success": False, "error": f"Invalid report type: {report_type}"}), 400
+
+            code = 200
+            msg = "SUCCESS"
+            columns = [col[0] for col in cur.description] if cur.description else []
+            raw_rows = cur.fetchall()
+
+        # Format rows for JSON serialization (handling dates, timestamps, LOBs)
+        formatted_rows = []
+        for r in raw_rows:
+            row_dict = {}
+            for idx, col in enumerate(columns):
+                val = r[idx]
+                if isinstance(val, (datetime, date)):
+                    val = val.strftime("%Y-%m-%d %H:%M:%S") if isinstance(val, datetime) else val.strftime("%Y-%m-%d")
+                elif hasattr(val, 'read'): # CLOB
+                    val = val.read()
+                row_dict[col] = val
+            formatted_rows.append(row_dict)
+
+        cur.close()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "status_code": code,
+            "message": msg,
+            "report_type": report_type,
+            "columns": columns,
+            "total_records": len(formatted_rows),
+            "data": formatted_rows
         })
+    except Exception as e:
+        print(f"❌ Error in api_admin_reports: {e}")
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
-    conn.close()
-    return render_template('admin-report.html', report_data=report_data)
 
 #student_report
 @app.route('/generate-student-report', methods=['GET', 'POST'])
@@ -7914,6 +8199,57 @@ def change_name():
         flash(f"An error occurred: {str(e)}")
 
     return redirect(url_for('settings'))
+
+# ─── Employee Portal: Update Personal Details ─────────────────────────────────
+@app.route('/api/employee/update-personal', methods=['POST'])
+def api_employee_update_personal():
+    """Save employee phone, address, and emergency contact to Oracle DB."""
+    if session.get('login_type') != 'employee':
+        return jsonify({'success': False, 'message': 'Not logged in as employee'}), 401
+
+    employee_id = session.get('employee_id')
+    if not employee_id:
+        return jsonify({'success': False, 'message': 'Session expired'}), 401
+
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        phone                   = (data.get('phone')                   or '').strip()
+        current_address         = (data.get('current_address')         or '').strip()
+        permanent_address       = (data.get('permanent_address')       or '').strip()
+        emergency_contact_name  = (data.get('emergency_contact_name')  or '').strip()
+        emergency_contact_phone = (data.get('emergency_contact_phone') or '').strip()
+
+        conn   = get_db_connection()
+        cursor = conn.cursor()
+
+        update_parts = []
+        params       = []
+        if phone:
+            update_parts.append("PHONE = %s"); params.append(phone)
+        if current_address:
+            update_parts.append("ADDRESS = %s"); params.append(current_address)
+        if permanent_address:
+            update_parts.append("PERSONAL_LOCATION = %s"); params.append(permanent_address)
+        if emergency_contact_name:
+            update_parts.append("EMERGENCY_CONTACT_NAME = %s"); params.append(emergency_contact_name)
+        if emergency_contact_phone:
+            update_parts.append("EMERGENCY_CONTACT_PHONE = %s"); params.append(emergency_contact_phone)
+
+        if update_parts:
+            params.append(employee_id)
+            sql = f"UPDATE EMPLOYEE_REGISTRATIONS SET {', '.join(update_parts)} WHERE EMPLOYEE_ID = %s"
+            cursor.execute(sql, tuple(params))
+            conn.commit()
+
+        cursor.close()
+        conn.close()
+        return jsonify({'success': True, 'message': 'Personal details updated successfully!'})
+
+    except Exception as e:
+        import traceback
+        print('❌ api_employee_update_personal error:', traceback.format_exc())
+        return jsonify({'success': False, 'message': 'Failed to save changes. Please try again.'}), 500
+
 
 @app.route('/profile')
 def profile():
@@ -12529,7 +12865,24 @@ def blogger():
     Main blogger page
     Renders the HTML template - all data loaded via AJAX calls to microservice
     """
-    return render_template("blogger.html", is_admin=False)
+    maintenance_mode = False
+    try:
+        status_response = requests.get(
+            f"{BLOGGER_SERVICE_URL}/blogger/maintenance/status",
+            timeout=3,
+        )
+        if status_response.ok:
+            maintenance_mode = bool(
+                status_response.json().get("maintenance_mode", False)
+            )
+    except (requests.RequestException, ValueError) as exc:
+        app.logger.warning("Unable to read Blogger maintenance status: %s", exc)
+
+    return render_template(
+        "blogger.html",
+        is_admin=False,
+        maintenance_mode=maintenance_mode,
+    )
 
 
 # Backward-compatible endpoint alias for older templates still using url_for('blogger_page').
@@ -12656,6 +13009,7 @@ def _proxy_create_blog_post_impl():
         or session.get("user_id")
         or session.get("employee_id")
         or session.get("admin_verified")
+        or session.get("usertype")
     )
 
     if not has_any_blog_session:
@@ -14541,6 +14895,214 @@ def proxy_stm_razorpay_webhook():
     response = make_response(resp.content, resp.status_code)
     response.headers["Content-Type"] = resp.headers.get("Content-Type", "application/json")
     return response
+
+# =============================================================
+#  Interview Feedback proxy routes  (added)
+#  Pure HTTP proxy to interview_service.py (FastAPI, Oracle-backed,
+#  run separately e.g. `uvicorn interview_service:app --port 8003`).
+#  No DB access happens here — mirrors call_fastapi() / the other
+#  microservice proxy routes above.
+# =============================================================
+
+
+INTERVIEW_ROUNDS = ["Screening", "Technical Round 1", "Technical Round 2", "Hiring Manager Round", "Final Round"]
+INTERVIEW_RECOMMENDATIONS = ["Strong Hire", "Hire", "No Hire", "Strong No Hire"]
+
+
+def _interview_rec_class(rec):
+    """Maps a recommendation string to a CSS class for color-coding."""
+    if "Split" in rec:
+        return "rec-split"
+    if rec in ("Strong Hire", "Hire"):
+        return "rec-hire"
+    return "rec-no-hire"
+
+
+def _interview_service_request(method, endpoint, json_body=None, params=None, timeout=None):
+    """Call interview_service.py endpoints as a pure proxy."""
+    if timeout is None:
+        timeout = (2, 15)
+
+    endpoint_path = endpoint if endpoint.startswith("/") else f"/{endpoint}"
+    target_url = f"{INTERVIEW_SERVICE_URL}{endpoint_path}"
+
+    os.environ["NO_PROXY"] = INTERVIEW_SERVICE_URL
+    os.environ["no_proxy"] = INTERVIEW_SERVICE_URL
+
+    try:
+        with requests.Session() as internal_session:
+            internal_session.trust_env = False
+            internal_session.proxies = {"http": None, "https": None}
+            response = internal_session.request(
+                method=method.upper(),
+                url=target_url,
+                json=json_body,
+                params=params,
+                timeout=timeout,
+            )
+        try:
+            data = response.json()
+        except ValueError:
+            data = {"success": False, "message": "Non-JSON response from interview_service"}
+        return response.status_code, data
+    except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError) as e:
+        print(f"⚠️ Interview service unreachable: {type(e).__name__}: {e}")
+        return 503, {"success": False, "message": "Interview feedback service is currently unreachable."}
+    except Exception as e:
+        return 503, {"success": False, "message": f"Interview service request failed: {e}"}
+
+
+@app.route("/interview")
+def interview_dashboard():
+    deleted = request.args.get("deleted", 0, type=int)
+    status_code, data = _interview_service_request("GET", "/api/interview/feedback")
+    if status_code != 200:
+        return render_template(
+            "interview_dashboard.html",
+            candidates=[], rec_class=_interview_rec_class, total_submissions=0, deleted=deleted,
+        )
+    return render_template(
+        "interview_dashboard.html",
+        candidates=data["candidates"],
+        rec_class=_interview_rec_class,
+        total_submissions=data["total_submissions"],
+        deleted=deleted,
+    )
+
+
+# ------------------------------------------------------------------
+# Interview scorecard fields
+# Keep the actual round1_*/round2_* fields all the way to the
+# FastAPI service. Do NOT collapse them into the old canonical fields.
+# ------------------------------------------------------------------
+INTERVIEW_ROUND1_FIELDS = [
+    "round1_communication_soft_skills",
+    "round1_basic_technical_skill_assessment",
+    "round1_project_explanation",
+    "round1_logical_ability",
+    "round1_resume",
+]
+
+INTERVIEW_ROUND2_FIELDS = [
+    "round2_introduction",
+    "round2_general_programming",
+    "round2_python_basics",
+    "round2_python_advanced",
+    "round2_oops",
+    "round2_projects",
+    "round2_pending_resume",
+    "round2_other_technologies",
+    "round2_good_attitude",
+    "round2_confidence",
+]
+
+
+def _interview_score_payload(form):
+    """Send the actual scorecard fields submitted for the selected round."""
+    is_round1 = "round1_communication_soft_skills" in form
+    fields = INTERVIEW_ROUND1_FIELDS if is_round1 else INTERVIEW_ROUND2_FIELDS
+    payload = {}
+    for field in fields:
+        if field not in form:
+            raise KeyError(f"Missing submitted score field: {field}")
+        payload[field] = int(form[field])
+    return payload
+
+
+@app.route("/interview/submit", methods=["GET"])
+def interview_submit_form():
+    return render_template(
+        "interview_submit.html",
+        rounds=INTERVIEW_ROUNDS, recommendations=INTERVIEW_RECOMMENDATIONS,
+        today=date.today().isoformat(), edit_mode=False, entry=None, form_action="/interview/submit",
+    )
+
+
+@app.route("/interview/submit", methods=["POST"])
+def interview_submit_feedback():
+    form = request.form
+    payload = {
+        "candidate_name": form["candidate_name"].strip(),
+        "position": form["position"].strip(),
+        "interview_round": form["interview_round"],
+        "interviewer_name": form["interviewer_name"].strip(),
+        "interview_date": form["interview_date"],
+        **_interview_score_payload(form),
+        "recommendation": form["recommendation"],
+        "comments": form.get("comments", "").strip(),
+    }
+    status_code, data = _interview_service_request("POST", "/api/interview/feedback", json_body=payload)
+    if status_code not in (200, 201):
+        flash(data.get("message", "Could not submit feedback."))
+        return redirect(url_for("interview_submit_form"))
+    return redirect(url_for("interview_candidate_detail", candidate_name=payload["candidate_name"], submitted=1))
+
+
+@app.route("/interview/candidate/<candidate_name>")
+def interview_candidate_detail(candidate_name):
+    submitted = request.args.get("submitted", 0, type=int)
+    updated = request.args.get("updated", 0, type=int)
+    status_code, data = _interview_service_request("GET", f"/api/interview/candidate/{candidate_name}")
+    if status_code != 200:
+        return redirect(url_for("interview_dashboard"))
+    return render_template(
+        "interview_candidate.html",
+        candidate=data["candidate"], rounds=data["rounds"], rec_class=_interview_rec_class,
+        submitted=submitted, updated=updated,
+    )
+
+
+@app.route("/interview/candidate/<candidate_name>/delete", methods=["POST"])
+def interview_delete_candidate(candidate_name):
+    _interview_service_request("DELETE", f"/api/interview/candidate/{candidate_name}")
+    return redirect(url_for("interview_dashboard", deleted=1))
+
+
+@app.route("/interview/feedback/<int:feedback_id>/edit", methods=["GET"])
+def interview_edit_feedback_form(feedback_id):
+    status_code, entry = _interview_service_request("GET", f"/api/interview/feedback/{feedback_id}")
+    if status_code != 200:
+        return redirect(url_for("interview_dashboard"))
+    return render_template(
+        "interview_submit.html",
+        rounds=INTERVIEW_ROUNDS, recommendations=INTERVIEW_RECOMMENDATIONS, today=date.today().isoformat(),
+        edit_mode=True, entry=entry, form_action=url_for("interview_edit_feedback", feedback_id=feedback_id),
+    )
+
+
+@app.route("/interview/feedback/<int:feedback_id>/edit", methods=["POST"])
+def interview_edit_feedback(feedback_id):
+    form = request.form
+    payload = {
+        "candidate_name": form["candidate_name"].strip(),
+        "position": form["position"].strip(),
+        "interview_round": form["interview_round"],
+        "interviewer_name": form["interviewer_name"].strip(),
+        "interview_date": form["interview_date"],
+        **_interview_score_payload(form),
+        "recommendation": form["recommendation"],
+        "comments": form.get("comments", "").strip(),
+    }
+    status_code, data = _interview_service_request(
+        "PUT", f"/api/interview/feedback/{feedback_id}", json_body=payload
+    )
+    if status_code != 200:
+        flash(data.get("message", "Could not update feedback."))
+        return redirect(url_for("interview_edit_feedback_form", feedback_id=feedback_id))
+    return redirect(url_for("interview_candidate_detail", candidate_name=payload["candidate_name"], updated=1))
+
+
+@app.route("/interview/feedback/<int:feedback_id>/delete", methods=["POST"])
+def interview_delete_feedback_entry(feedback_id):
+    status_code, entry = _interview_service_request("GET", f"/api/interview/feedback/{feedback_id}")
+    if status_code != 200:
+        return redirect(url_for("interview_dashboard"))
+    candidate_name = entry["candidate_name"]
+
+    del_status, del_data = _interview_service_request("DELETE", f"/api/interview/feedback/{feedback_id}")
+    if del_status == 200 and del_data.get("candidate_has_remaining_rounds"):
+        return redirect(url_for("interview_candidate_detail", candidate_name=candidate_name, updated=1))
+    return redirect(url_for("interview_dashboard", deleted=1))
 
 if __name__ == "__main__":
     print("🚀 Starting Dev Server → http://127.0.0.1:8080")
