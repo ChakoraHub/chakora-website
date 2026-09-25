@@ -713,6 +713,26 @@
             box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
         }
 
+        .btn-read-more:disabled,
+        .btn-read-more.is-loading {
+            cursor: wait;
+            opacity: 0.8;
+            transform: none;
+        }
+
+        .article-loading {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.45);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: article-spinner 0.7s linear infinite;
+        }
+
+        @keyframes article-spinner {
+            to { transform: rotate(360deg); }
+        }
+
         .btn-login-required {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25);
@@ -944,6 +964,7 @@
     </style>
 </head>
 <body>
+{% include 'maintenance_notice.html' %}
     <!-- Hero Header -->
     <div class="hero-header" style="position:relative;">
         <div style="position:absolute;top:20px;left:24px;z-index:10;">
@@ -1381,12 +1402,19 @@ async function loadPosts() {
 
             const contentEl = document.getElementById(`content-${postId}`);
             const btnText = document.getElementById(`btn-text-${postId}`);
+            const button = btnText?.closest('.btn-read-more');
             
             if (contentEl.classList.contains('show')) {
                 contentEl.classList.remove('show');
                 btnText.textContent = 'Read Full Article';
             } else {
                 if (!post.contentLoaded) {
+                    if (button) {
+                        button.disabled = true;
+                        button.classList.add('is-loading');
+                        button.setAttribute('aria-busy', 'true');
+                    }
+                    btnText.innerHTML = '<span class="article-loading" aria-hidden="true"></span> Loading article...';
                     contentEl.innerHTML = '<p>Loading article...</p>';
 
                     try {
@@ -1394,7 +1422,14 @@ async function loadPosts() {
                     } catch (error) {
                         console.error('Post load error:', error);
                         contentEl.innerHTML = '<p>Could not load article. Please try again.</p>';
+                        btnText.textContent = 'Read Full Article';
                         return;
+                    } finally {
+                        if (button) {
+                            button.disabled = false;
+                            button.classList.remove('is-loading');
+                            button.removeAttribute('aria-busy');
+                        }
                     }
                 }
 
