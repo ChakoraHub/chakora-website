@@ -1325,8 +1325,18 @@ def enforce_canonical_host_redirect():
     forwarded_host = (request.headers.get("X-Forwarded-Host") or "").split(",")[0].strip()
     host_header = (forwarded_host or request.headers.get("Host") or request.host or "").split(":")[0].lower()
 
-    internship_host_paths = {"/internships", "/api/internship/apply"}
-    api_host_allowed_paths = {"/internships", "/api/internship/apply", "/health"}
+    internship_host_paths = {
+    "/internships",
+    "/api/internship/apply",
+    "/internship/maintenance/status"
+    }
+
+    api_host_allowed_paths = {
+        "/internships",
+        "/api/internship/apply",
+        "/internship/maintenance/status",
+        "/health"
+    }
 
     if INTERNSHIP_PUBLIC_HOST and host_header == INTERNSHIP_PUBLIC_HOST and request.path not in api_host_allowed_paths:
         return redirect(f"https://{CANONICAL_HOST}/", code=308)
@@ -13349,19 +13359,71 @@ def _internship_service_base_urls():
         "http://127.0.0.1:5050",
         "http://localhost:5050",
     ]
+
     normalized = []
     for raw in candidates:
         value = (raw or "").strip().rstrip("/")
-        # Avoid recursively proxying back to this same Flask host.
         if value.lower() == current_host:
             continue
         if value and value not in normalized:
             normalized.append(value)
+
     return normalized
+
+
+# ============================================================
+# INTERNSHIP MAINTENANCE STATUS PROXY
+# ============================================================
+
+@app.route("/internship/maintenance/status", methods=["GET"])
+def internship_maintenance_status():
+    try:
+        os.environ["NO_PROXY"] = INTERNAL_NO_PROXY
+        os.environ["no_proxy"] = INTERNAL_NO_PROXY
+
+        with requests.Session() as s:
+            s.trust_env = False
+            s.proxies = {"http": None, "https": None}
+
+            service_bases = _internship_service_base_urls()
+            last_error = None
+
+            for base_url in service_bases:
+                try:
+                    response = s.get(
+                        f"{base_url}/internship/maintenance/status",
+                        timeout=5
+                    )
+
+                    if response.status_code == 200:
+                        return jsonify(response.json()), 200
+
+                    last_error = (
+                        f"Internship service returned "
+                        f"HTTP {response.status_code}"
+                    )
+
+                except Exception as exc:
+                    last_error = str(exc)
+
+            return jsonify({
+                "success": False,
+                "maintenance_mode": False,
+                "message": last_error or "Internship service unavailable"
+            }), 502
+
+    except Exception as exc:
+        return jsonify({
+            "success": False,
+            "maintenance_mode": False,
+            "message": str(exc)
+        }), 500
+
 
 @app.route("/api/internship/apply", methods=["POST"])
 @app.route("/internship-apply-proxy", methods=["POST"])
 def proxy_internship_apply():
+
     try:
         print("🔥 Internship API HIT")
 
