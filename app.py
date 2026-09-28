@@ -70,25 +70,25 @@ INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com"
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
 
-HOME_SERVICE_URL = "http://127.0.0.1:5001"
-STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
-MEETING_SERVICE_URL = "http://127.0.0.1:9000"
-CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
-ASSET_SERVICE_URL = "http://127.0.0.1:8090"
-INTERNSHIP_SERVICE_URL = "http://127.0.0.1:5050"
-MS365_SERVICE_URL = "http://127.0.0.1:7700"
-EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
-BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
-REDIS_SERVICE_URL = "http://127.0.0.1:6390"
-BRS_SERVICE_URL = "http://127.0.0.1:8020"
-BILLING_SERVICE_URL = "http://127.0.0.1:8010"
-RAG_SERVICE_URL = "http://127.0.0.1:7900"
+HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL", "http://127.0.0.1:5001")
+STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL", "http://127.0.0.1:8001")
+MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL", "http://127.0.0.1:9000")
+CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL", "http://127.0.0.1:7600")
+ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL", "http://127.0.0.1:8090")
+INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", "http://127.0.0.1:5050")
+MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL", "http://127.0.0.1:7700")
+EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL", "http://127.0.0.1:8002")
+BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL", "http://127.0.0.1:7500")
+REDIS_SERVICE_URL = os.getenv("REDIS_SERVICE_URL", "http://127.0.0.1:6390")
+BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL", "http://127.0.0.1:8020")
+BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL", "http://127.0.0.1:8010")
+RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL", "http://127.0.0.1:7900")
 ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
-OPE_SERVICE_URL = "http://127.0.0.1:8500"
-WABA_SERVICE_URL = "http://127.0.0.1:2500"
+OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL", "http://127.0.0.1:8500")
+WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500")
 FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
 REDIS_HOST = "127.0.0.1"
-APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
+APPLICATION_SERVICE_URL = os.getenv("APPLICATION_SERVICE_URL", "http://127.0.0.1:8020")
 LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
 WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
 STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
@@ -126,6 +126,23 @@ for _candidate in _ENV_PATH_CANDIDATES:
 
 print(f"[startup] dotenv selected: {_loaded_env_path if _loaded_env_path else 'NONE'}")
 print(f"[startup] env candidates checked: {[str(p) for p in _ENV_PATH_CANDIDATES]}")
+
+# Resolve service URLs after dotenv loading so process/.env configuration wins.
+HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL", HOME_SERVICE_URL).rstrip("/")
+STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL", STUDENT_SERVICE_URL).rstrip("/")
+MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL", MEETING_SERVICE_URL).rstrip("/")
+CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL", CHATBOT_SERVICE_URL).rstrip("/")
+ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL", ASSET_SERVICE_URL).rstrip("/")
+INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", INTERNSHIP_SERVICE_URL).rstrip("/")
+MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL", MS365_SERVICE_URL).rstrip("/")
+EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL", EMPLOYEE_SERVICE_URL).rstrip("/")
+BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL", BLOGGER_SERVICE_URL).rstrip("/")
+BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL", BRS_SERVICE_URL).rstrip("/")
+BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL", BILLING_SERVICE_URL).rstrip("/")
+RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL", RAG_SERVICE_URL).rstrip("/")
+OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL", OPE_SERVICE_URL).rstrip("/")
+WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", WABA_SERVICE_URL).rstrip("/")
+APPLICATION_SERVICE_URL = os.getenv("APPLICATION_SERVICE_URL", APPLICATION_SERVICE_URL).rstrip("/")
 
 MS_TENANT_ID=os.getenv("MS_TENANT_ID")
 MS_CLIENT_ID=os.getenv("MS_CLIENT_ID")
@@ -1428,6 +1445,177 @@ def disable_cache_for_dynamic_pages(response):
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
     return response
+
+
+# ============================================================
+# STUDENT REGISTRATION MAINTENANCE PROXY
+# Flask is the public gateway; the Student FastAPI service
+# owns the actual maintenance state.
+# ============================================================
+
+@app.route("/admin/student-registration-maintenance/on", methods=["POST"])
+def student_registration_maintenance_on():
+    authorization = request.headers.get("Authorization", "").strip()
+    if not authorization:
+        return jsonify({
+            "success": False,
+            "message": "Missing Authorization header"
+        }), 401
+
+    try:
+        response = requests.post(
+            f"{STUDENT_SERVICE_URL}/admin/maintenance/on",
+            headers={"Authorization": authorization},
+            timeout=10,
+        )
+
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = {
+                "success": False,
+                "message": response.text[:500]
+            }
+
+        return jsonify(payload), response.status_code
+
+    except requests.RequestException as exc:
+        return jsonify({
+            "success": False,
+            "message": f"Student service unavailable: {exc}",
+        }), 503
+
+
+@app.route("/admin/student-registration-maintenance/off", methods=["POST"])
+def student_registration_maintenance_off():
+    authorization = request.headers.get("Authorization", "").strip()
+    if not authorization:
+        return jsonify({
+            "success": False,
+            "message": "Missing Authorization header"
+        }), 401
+
+    try:
+        response = requests.post(
+            f"{STUDENT_SERVICE_URL}/admin/maintenance/off",
+            headers={"Authorization": authorization},
+            timeout=10,
+        )
+
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = {
+                "success": False,
+                "message": response.text[:500]
+            }
+
+        return jsonify(payload), response.status_code
+
+    except requests.RequestException as exc:
+        return jsonify({
+            "success": False,
+            "message": f"Student service unavailable: {exc}",
+        }), 503
+
+
+@app.route("/api/student-registration-maintenance/status", methods=["GET"])
+def student_registration_maintenance_status():
+    try:
+        response = requests.get(
+            f"{STUDENT_SERVICE_URL}/api/student/maintenance/status",
+            timeout=5,
+        )
+
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = {
+                "success": False,
+                "message": response.text[:500]
+            }
+
+        return jsonify(payload), response.status_code
+
+    except requests.RequestException as exc:
+        # Do not block the registration page if Student Service is down.
+        return jsonify({
+            "success": False,
+            "maintenance_mode": False,
+        }), 503
+
+
+# ============================================================
+# COLLABORATION MAINTENANCE PROXY
+# Flask is the public gateway; the Collaboration FastAPI service
+# owns the actual maintenance state.
+# ============================================================
+
+@app.route("/admin/collaboration-maintenance/on", methods=["POST"])
+def collaboration_maintenance_on():
+    authorization = request.headers.get("Authorization", "").strip()
+    if not authorization:
+        return jsonify({"success": False, "message": "Missing Authorization header"}), 401
+
+    try:
+        response = requests.post(
+            f"{BRS_SERVICE_URL}/admin/maintenance/on",
+            headers={"Authorization": authorization},
+            timeout=10,
+        )
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = {"success": False, "message": response.text[:500]}
+        return jsonify(payload), response.status_code
+    except requests.RequestException as exc:
+        return jsonify({
+            "success": False,
+            "message": f"Collaboration service unavailable: {exc}",
+        }), 503
+
+
+@app.route("/admin/collaboration-maintenance/off", methods=["POST"])
+def collaboration_maintenance_off():
+    authorization = request.headers.get("Authorization", "").strip()
+    if not authorization:
+        return jsonify({"success": False, "message": "Missing Authorization header"}), 401
+
+    try:
+        response = requests.post(
+            f"{BRS_SERVICE_URL}/admin/maintenance/off",
+            headers={"Authorization": authorization},
+            timeout=10,
+        )
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = {"success": False, "message": response.text[:500]}
+        return jsonify(payload), response.status_code
+    except requests.RequestException as exc:
+        return jsonify({
+            "success": False,
+            "message": f"Collaboration service unavailable: {exc}",
+        }), 503
+
+
+@app.route("/api/collaboration-maintenance/status", methods=["GET"])
+def collaboration_maintenance_status():
+    try:
+        response = requests.get(
+            f"{BRS_SERVICE_URL}/api/collaboration/maintenance/status",
+            timeout=5,
+        )
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = {"success": False, "message": response.text[:500]}
+        return jsonify(payload), response.status_code
+    except requests.RequestException:
+        # Do not block normal page rendering if the backend is temporarily down.
+        return jsonify({"success": False, "maintenance_mode": False}), 503
+
+
 
 @app.route('/api/chatbot/message', methods=['POST'])
 def chatbot_message():
