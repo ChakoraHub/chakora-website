@@ -12,12 +12,18 @@
   const notice = document.getElementById('student-registration-maintenance-notice');
   if (!notice) return;
 
-  fetch('/static/student-registration-maintenance.flag', {
+  fetch('/api/student/maintenance/status', {
     method: 'GET',
     cache: 'no-store'
   })
     .then(function (response) {
-      if (response.ok) {
+      if (!response.ok) {
+        throw new Error('Maintenance status check failed');
+      }
+      return response.json();
+    })
+    .then(function (data) {
+      if (data.maintenance_mode === true) {
         notice.style.display = 'block';
       }
     })
