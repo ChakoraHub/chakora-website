@@ -2379,8 +2379,51 @@ def asset_tracker():
         flash("Admin access required", "error")
         return redirect(url_for("home"))
 
-    # AJAX pattern: render shell only; data is fetched client-side via /api/asset/tracker.
-    return render_template("asset_tracker.html")
+    maintenance_mode = False
+
+    try:
+        status_response = requests.get(
+            f"{ASSET_SERVICE_URL}/asset/maintenance/status",
+            timeout=3,
+        )
+
+        if status_response.ok:
+            maintenance_mode = bool(
+                status_response.json().get(
+                    "maintenance_mode",
+                    False
+                )
+            )
+
+    except (requests.RequestException, ValueError) as exc:
+        app.logger.warning(
+            "Unable to read Asset maintenance status: %s",
+            exc
+        )
+
+    # Existing Asset Tracker data loading continues here.
+    status_code, response_data = _asset_service_request(
+        "GET",
+        "/api/assets/tracker"
+    )
+
+    if status_code != 200:
+        flash(
+            response_data.get("message")
+            or "Unable to load asset tracker.",
+            "error"
+        )
+        response_data = {}
+
+    return render_template(
+        "asset_tracker.html",
+        asset_types=response_data.get("asset_types", []),
+        assets=response_data.get("assets", []),
+        audit_log=response_data.get("audit_log", []),
+        stats=response_data.get("stats", {}),
+        today=date.today(),
+        maintenance_mode=maintenance_mode,
+    )
 
 
 @app.route("/api/asset/tracker", methods=["GET"])
