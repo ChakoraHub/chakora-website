@@ -1453,7 +1453,7 @@ def disable_cache_for_dynamic_pages(response):
 # owns the actual maintenance state.
 # ============================================================
 
-@app.route("/admin/student-registration-maintenance/on", methods=["POST"])
+@app.route("/api/student/maintenance/on", methods=["POST"])
 def student_registration_maintenance_on():
     authorization = request.headers.get("Authorization", "").strip()
     if not authorization:
@@ -1464,7 +1464,7 @@ def student_registration_maintenance_on():
 
     try:
         response = requests.post(
-            f"{STUDENT_SERVICE_URL}/admin/maintenance/on",
+            f"{STUDENT_SERVICE_URL}/api/student/maintenance/on",
             headers={"Authorization": authorization},
             timeout=10,
         )
@@ -1486,7 +1486,7 @@ def student_registration_maintenance_on():
         }), 503
 
 
-@app.route("/admin/student-registration-maintenance/off", methods=["POST"])
+@app.route("/api/student/maintenance/off", methods=["POST"])
 def student_registration_maintenance_off():
     authorization = request.headers.get("Authorization", "").strip()
     if not authorization:
@@ -1497,7 +1497,7 @@ def student_registration_maintenance_off():
 
     try:
         response = requests.post(
-            f"{STUDENT_SERVICE_URL}/admin/maintenance/off",
+            f"{STUDENT_SERVICE_URL}/api/student/maintenance/off",
             headers={"Authorization": authorization},
             timeout=10,
         )
@@ -1519,7 +1519,7 @@ def student_registration_maintenance_off():
         }), 503
 
 
-@app.route("/api/student-registration-maintenance/status", methods=["GET"])
+@app.route("/api/student/maintenance/status", methods=["GET"])
 def student_registration_maintenance_status():
     try:
         response = requests.get(
