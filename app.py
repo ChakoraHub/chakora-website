@@ -2371,7 +2371,63 @@ def proxy_assets_by_employee(employee_id):
 def proxy_assets_stats():
     status_code, response_data = _employee_asset_service_request("GET", "/assets/stats")
     return jsonify(response_data), status_code
+@app.route("/asset/maintenance/status", methods=["GET"])
+def asset_maintenance_status():
+    status_code, response_data = _asset_service_request(
+        "GET",
+        "/asset/maintenance/status"
+    )
+    return jsonify(response_data), status_code
 
+
+@app.route("/asset/maintenance/on", methods=["POST"])
+def asset_maintenance_on():
+    authorization = request.headers.get("Authorization")
+
+    headers = {}
+    if authorization:
+        headers["Authorization"] = authorization
+
+    response = requests.post(
+        f"{ASSET_SERVICE_URL}/asset/maintenance/on",
+        headers=headers,
+        timeout=10,
+    )
+
+    try:
+        response_data = response.json()
+    except ValueError:
+        response_data = {
+            "success": False,
+            "message": response.text
+        }
+
+    return jsonify(response_data), response.status_code
+
+
+@app.route("/asset/maintenance/off", methods=["POST"])
+def asset_maintenance_off():
+    authorization = request.headers.get("Authorization")
+
+    headers = {}
+    if authorization:
+        headers["Authorization"] = authorization
+
+    response = requests.post(
+        f"{ASSET_SERVICE_URL}/asset/maintenance/off",
+        headers=headers,
+        timeout=10,
+    )
+
+    try:
+        response_data = response.json()
+    except ValueError:
+        response_data = {
+            "success": False,
+            "message": response.text
+        }
+
+    return jsonify(response_data), response.status_code
 
 @app.route("/asset/tracker")
 def asset_tracker():
@@ -14778,4 +14834,4 @@ if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
 #if __name__ == "__main__":
     #print("🚀 Starting Production Server on 0.0.0.0:8080...")
-    #serve(app, host='0.0.0.0', port=8080, threads=50, url_scheme='http')
+    #serve(app, host='0.0.0.0', port=8080, threads=50, url_scheme='http')
