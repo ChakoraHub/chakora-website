@@ -1326,7 +1326,7 @@ def enforce_canonical_host_redirect():
     host_header = (forwarded_host or request.headers.get("Host") or request.host or "").split(":")[0].lower()
 
     internship_host_paths = {"/internships", "/api/internship/apply"}
-    api_host_allowed_paths = {"/internships", "/api/internship/apply", "/health"}
+    api_host_allowed_paths = {"/internships", "/api/internship/apply", "/health", "/internship/maintenance/status"}
 
     if INTERNSHIP_PUBLIC_HOST and host_header == INTERNSHIP_PUBLIC_HOST and request.path not in api_host_allowed_paths:
         return redirect(f"https://{CANONICAL_HOST}/", code=308)
@@ -13358,6 +13358,78 @@ def _internship_service_base_urls():
         if value and value not in normalized:
             normalized.append(value)
     return normalized
+
+# ============================================================
+# INTERNSHIP MAINTENANCE PROXY
+# ============================================================
+
+def _proxy_internship_maintenance(method, path):
+    try:
+        os.environ["NO_PROXY"] = INTERNAL_NO_PROXY
+        os.environ["no_proxy"] = INTERNAL_NO_PROXY
+
+        with requests.Session() as s:
+            s.trust_env = False
+            s.proxies = {"http": None, "https": None}
+
+            service_bases = _internship_service_base_urls()
+            last_error = None
+
+            for base_url in service_bases:
+                try:
+                    response = s.request(
+                        method,
+                        f"{base_url}{path}",
+                        timeout=5
+                    )
+
+                    if response.status_code == 200:
+                        return jsonify(response.json()), 200
+
+                    last_error = (
+                        f"Internship service returned "
+                        f"HTTP {response.status_code}"
+                    )
+
+                except Exception as exc:
+                    last_error = str(exc)
+
+            return jsonify({
+                "success": False,
+                "maintenance_mode": False,
+                "message": last_error or "Internship service unavailable"
+            }), 502
+
+    except Exception as exc:
+        return jsonify({
+            "success": False,
+            "maintenance_mode": False,
+            "message": str(exc)
+        }), 500
+
+
+@app.route("/internship/maintenance/status", methods=["GET"])
+def internship_maintenance_status():
+    return _proxy_internship_maintenance(
+        "GET",
+        "/internship/maintenance/status"
+    )
+
+
+@app.route("/admin/internship/maintenance/on", methods=["POST"])
+def internship_maintenance_on():
+    return _proxy_internship_maintenance(
+        "POST",
+        "/admin/internship/maintenance/on"
+    )
+
+
+@app.route("/admin/internship/maintenance/off", methods=["POST"])
+def internship_maintenance_off():
+    return _proxy_internship_maintenance(
+        "POST",
+        "/admin/internship/maintenance/off"
+    )
 
 @app.route("/api/internship/apply", methods=["POST"])
 @app.route("/internship-apply-proxy", methods=["POST"])
