@@ -13645,7 +13645,53 @@ def _internship_service_base_urls():
         if value and value not in normalized:
             normalized.append(value)
     return normalized
+# ============================================================
+# INTERNSHIP MAINTENANCE STATUS PROXY
+# ============================================================
 
+@app.route("/internship/maintenance/status", methods=["GET"])
+def internship_maintenance_status():
+    try:
+        os.environ["NO_PROXY"] = INTERNAL_NO_PROXY
+        os.environ["no_proxy"] = INTERNAL_NO_PROXY
+
+        with requests.Session() as s:
+            s.trust_env = False
+            s.proxies = {"http": None, "https": None}
+
+            service_bases = _internship_service_base_urls()
+            last_error = None
+
+            for base_url in service_bases:
+                try:
+                    response = s.get(
+                        f"{base_url}/internship/maintenance/status",
+                        timeout=5
+                    )
+
+                    if response.status_code == 200:
+                        return jsonify(response.json()), 200
+
+                    last_error = (
+                        f"Internship service returned "
+                        f"HTTP {response.status_code}"
+                    )
+
+                except Exception as exc:
+                    last_error = str(exc)
+
+            return jsonify({
+                "success": False,
+                "maintenance_mode": False,
+                "message": last_error or "Internship service unavailable"
+            }), 502
+
+    except Exception as exc:
+        return jsonify({
+            "success": False,
+            "maintenance_mode": False,
+            "message": str(exc)
+        }), 500
 @app.route("/api/internship/apply", methods=["POST"])
 @app.route("/internship-apply-proxy", methods=["POST"])
 def proxy_internship_apply():
