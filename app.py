@@ -70,25 +70,25 @@ INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com"
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
 
-HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL", "http://127.0.0.1:5001")
-STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL", "http://127.0.0.1:8001")
-MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL", "http://127.0.0.1:9000")
-CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL", "http://127.0.0.1:7600")
-ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL", "http://127.0.0.1:8090")
-INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", "http://127.0.0.1:5050")
-MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL", "http://127.0.0.1:7700")
-EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL", "http://127.0.0.1:8002")
-BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL", "http://127.0.0.1:7500")
-REDIS_SERVICE_URL = os.getenv("REDIS_SERVICE_URL", "http://127.0.0.1:6390")
-BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL", "http://127.0.0.1:8020")
-BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL", "http://127.0.0.1:8010")
-RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL", "http://127.0.0.1:7900")
+HOME_SERVICE_URL = "http://127.0.0.1:5001"
+STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
+MEETING_SERVICE_URL = "http://127.0.0.1:9000"
+CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
+ASSET_SERVICE_URL = "http://127.0.0.1:8090"
+INTERNSHIP_SERVICE_URL = "http://127.0.0.1:5050"
+MS365_SERVICE_URL = "http://127.0.0.1:7700"
+EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
+BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
+REDIS_SERVICE_URL = "http://127.0.0.1:6390"
+BRS_SERVICE_URL = "http://127.0.0.1:8020"
+BILLING_SERVICE_URL = "http://127.0.0.1:8010"
+RAG_SERVICE_URL = "http://127.0.0.1:7900"
 ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
-OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL", "http://127.0.0.1:8500")
-WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500")
+OPE_SERVICE_URL = "http://127.0.0.1:8500"
+WABA_SERVICE_URL = "http://127.0.0.1:2500"
 FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
 REDIS_HOST = "127.0.0.1"
-APPLICATION_SERVICE_URL = os.getenv("APPLICATION_SERVICE_URL", "http://127.0.0.1:8020")
+APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
 LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
 WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
 STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
@@ -126,23 +126,6 @@ for _candidate in _ENV_PATH_CANDIDATES:
 
 print(f"[startup] dotenv selected: {_loaded_env_path if _loaded_env_path else 'NONE'}")
 print(f"[startup] env candidates checked: {[str(p) for p in _ENV_PATH_CANDIDATES]}")
-
-# Resolve service URLs after dotenv loading so process/.env configuration wins.
-HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL", HOME_SERVICE_URL).rstrip("/")
-STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL", STUDENT_SERVICE_URL).rstrip("/")
-MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL", MEETING_SERVICE_URL).rstrip("/")
-CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL", CHATBOT_SERVICE_URL).rstrip("/")
-ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL", ASSET_SERVICE_URL).rstrip("/")
-INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", INTERNSHIP_SERVICE_URL).rstrip("/")
-MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL", MS365_SERVICE_URL).rstrip("/")
-EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL", EMPLOYEE_SERVICE_URL).rstrip("/")
-BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL", BLOGGER_SERVICE_URL).rstrip("/")
-BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL", BRS_SERVICE_URL).rstrip("/")
-BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL", BILLING_SERVICE_URL).rstrip("/")
-RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL", RAG_SERVICE_URL).rstrip("/")
-OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL", OPE_SERVICE_URL).rstrip("/")
-WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", WABA_SERVICE_URL).rstrip("/")
-APPLICATION_SERVICE_URL = os.getenv("APPLICATION_SERVICE_URL", APPLICATION_SERVICE_URL).rstrip("/")
 
 MS_TENANT_ID=os.getenv("MS_TENANT_ID")
 MS_CLIENT_ID=os.getenv("MS_CLIENT_ID")
@@ -1343,7 +1326,7 @@ def enforce_canonical_host_redirect():
     host_header = (forwarded_host or request.headers.get("Host") or request.host or "").split(":")[0].lower()
 
     internship_host_paths = {"/internships", "/api/internship/apply"}
-    api_host_allowed_paths = {"/internships", "/api/internship/apply", "/health"}
+    api_host_allowed_paths = {"/internships", "/api/internship/apply", "/health", "/internship/maintenance/status"}
 
     if INTERNSHIP_PUBLIC_HOST and host_header == INTERNSHIP_PUBLIC_HOST and request.path not in api_host_allowed_paths:
         return redirect(f"https://{CANONICAL_HOST}/", code=308)
@@ -1445,177 +1428,6 @@ def disable_cache_for_dynamic_pages(response):
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
     return response
-
-
-# ============================================================
-# STUDENT REGISTRATION MAINTENANCE PROXY
-# Flask is the public gateway; the Student FastAPI service
-# owns the actual maintenance state.
-# ============================================================
-
-@app.route("/api/student/maintenance/on", methods=["POST"])
-def student_registration_maintenance_on():
-    authorization = request.headers.get("Authorization", "").strip()
-    if not authorization:
-        return jsonify({
-            "success": False,
-            "message": "Missing Authorization header"
-        }), 401
-
-    try:
-        response = requests.post(
-            f"{STUDENT_SERVICE_URL}/api/student/maintenance/on",
-            headers={"Authorization": authorization},
-            timeout=10,
-        )
-
-        try:
-            payload = response.json()
-        except ValueError:
-            payload = {
-                "success": False,
-                "message": response.text[:500]
-            }
-
-        return jsonify(payload), response.status_code
-
-    except requests.RequestException as exc:
-        return jsonify({
-            "success": False,
-            "message": f"Student service unavailable: {exc}",
-        }), 503
-
-
-@app.route("/api/student/maintenance/off", methods=["POST"])
-def student_registration_maintenance_off():
-    authorization = request.headers.get("Authorization", "").strip()
-    if not authorization:
-        return jsonify({
-            "success": False,
-            "message": "Missing Authorization header"
-        }), 401
-
-    try:
-        response = requests.post(
-            f"{STUDENT_SERVICE_URL}/api/student/maintenance/off",
-            headers={"Authorization": authorization},
-            timeout=10,
-        )
-
-        try:
-            payload = response.json()
-        except ValueError:
-            payload = {
-                "success": False,
-                "message": response.text[:500]
-            }
-
-        return jsonify(payload), response.status_code
-
-    except requests.RequestException as exc:
-        return jsonify({
-            "success": False,
-            "message": f"Student service unavailable: {exc}",
-        }), 503
-
-
-@app.route("/api/student/maintenance/status", methods=["GET"])
-def student_registration_maintenance_status():
-    try:
-        response = requests.get(
-            f"{STUDENT_SERVICE_URL}/api/student/maintenance/status",
-            timeout=5,
-        )
-
-        try:
-            payload = response.json()
-        except ValueError:
-            payload = {
-                "success": False,
-                "message": response.text[:500]
-            }
-
-        return jsonify(payload), response.status_code
-
-    except requests.RequestException as exc:
-        # Do not block the registration page if Student Service is down.
-        return jsonify({
-            "success": False,
-            "maintenance_mode": False,
-        }), 503
-
-
-# ============================================================
-# COLLABORATION MAINTENANCE PROXY
-# Flask is the public gateway; the Collaboration FastAPI service
-# owns the actual maintenance state.
-# ============================================================
-
-@app.route("/admin/collaboration-maintenance/on", methods=["POST"])
-def collaboration_maintenance_on():
-    authorization = request.headers.get("Authorization", "").strip()
-    if not authorization:
-        return jsonify({"success": False, "message": "Missing Authorization header"}), 401
-
-    try:
-        response = requests.post(
-            f"{BRS_SERVICE_URL}/admin/maintenance/on",
-            headers={"Authorization": authorization},
-            timeout=10,
-        )
-        try:
-            payload = response.json()
-        except ValueError:
-            payload = {"success": False, "message": response.text[:500]}
-        return jsonify(payload), response.status_code
-    except requests.RequestException as exc:
-        return jsonify({
-            "success": False,
-            "message": f"Collaboration service unavailable: {exc}",
-        }), 503
-
-
-@app.route("/admin/collaboration-maintenance/off", methods=["POST"])
-def collaboration_maintenance_off():
-    authorization = request.headers.get("Authorization", "").strip()
-    if not authorization:
-        return jsonify({"success": False, "message": "Missing Authorization header"}), 401
-
-    try:
-        response = requests.post(
-            f"{BRS_SERVICE_URL}/admin/maintenance/off",
-            headers={"Authorization": authorization},
-            timeout=10,
-        )
-        try:
-            payload = response.json()
-        except ValueError:
-            payload = {"success": False, "message": response.text[:500]}
-        return jsonify(payload), response.status_code
-    except requests.RequestException as exc:
-        return jsonify({
-            "success": False,
-            "message": f"Collaboration service unavailable: {exc}",
-        }), 503
-
-
-@app.route("/api/collaboration-maintenance/status", methods=["GET"])
-def collaboration_maintenance_status():
-    try:
-        response = requests.get(
-            f"{BRS_SERVICE_URL}/api/collaboration/maintenance/status",
-            timeout=5,
-        )
-        try:
-            payload = response.json()
-        except ValueError:
-            payload = {"success": False, "message": response.text[:500]}
-        return jsonify(payload), response.status_code
-    except requests.RequestException:
-        # Do not block normal page rendering if the backend is temporarily down.
-        return jsonify({"success": False, "maintenance_mode": False}), 503
-
-
 
 @app.route('/api/chatbot/message', methods=['POST'])
 def chatbot_message():
@@ -2371,63 +2183,7 @@ def proxy_assets_by_employee(employee_id):
 def proxy_assets_stats():
     status_code, response_data = _employee_asset_service_request("GET", "/assets/stats")
     return jsonify(response_data), status_code
-@app.route("/asset/maintenance/status", methods=["GET"])
-def asset_maintenance_status():
-    status_code, response_data = _asset_service_request(
-        "GET",
-        "/asset/maintenance/status"
-    )
-    return jsonify(response_data), status_code
 
-
-@app.route("/asset/maintenance/on", methods=["POST"])
-def asset_maintenance_on():
-    authorization = request.headers.get("Authorization")
-
-    headers = {}
-    if authorization:
-        headers["Authorization"] = authorization
-
-    response = requests.post(
-        f"{ASSET_SERVICE_URL}/asset/maintenance/on",
-        headers=headers,
-        timeout=10,
-    )
-
-    try:
-        response_data = response.json()
-    except ValueError:
-        response_data = {
-            "success": False,
-            "message": response.text
-        }
-
-    return jsonify(response_data), response.status_code
-
-
-@app.route("/asset/maintenance/off", methods=["POST"])
-def asset_maintenance_off():
-    authorization = request.headers.get("Authorization")
-
-    headers = {}
-    if authorization:
-        headers["Authorization"] = authorization
-
-    response = requests.post(
-        f"{ASSET_SERVICE_URL}/asset/maintenance/off",
-        headers=headers,
-        timeout=10,
-    )
-
-    try:
-        response_data = response.json()
-    except ValueError:
-        response_data = {
-            "success": False,
-            "message": response.text
-        }
-
-    return jsonify(response_data), response.status_code
 
 @app.route("/asset/tracker")
 def asset_tracker():
@@ -2435,51 +2191,8 @@ def asset_tracker():
         flash("Admin access required", "error")
         return redirect(url_for("home"))
 
-    maintenance_mode = False
-
-    try:
-        status_response = requests.get(
-            f"{ASSET_SERVICE_URL}/asset/maintenance/status",
-            timeout=3,
-        )
-
-        if status_response.ok:
-            maintenance_mode = bool(
-                status_response.json().get(
-                    "maintenance_mode",
-                    False
-                )
-            )
-
-    except (requests.RequestException, ValueError) as exc:
-        app.logger.warning(
-            "Unable to read Asset maintenance status: %s",
-            exc
-        )
-
-    # Existing Asset Tracker data loading continues here.
-    status_code, response_data = _asset_service_request(
-        "GET",
-        "/api/assets/tracker"
-    )
-
-    if status_code != 200:
-        flash(
-            response_data.get("message")
-            or "Unable to load asset tracker.",
-            "error"
-        )
-        response_data = {}
-
-    return render_template(
-        "asset_tracker.html",
-        asset_types=response_data.get("asset_types", []),
-        assets=response_data.get("assets", []),
-        audit_log=response_data.get("audit_log", []),
-        stats=response_data.get("stats", {}),
-        today=date.today(),
-        maintenance_mode=maintenance_mode,
-    )
+    # AJAX pattern: render shell only; data is fetched client-side via /api/asset/tracker.
+    return render_template("asset_tracker.html")
 
 
 @app.route("/api/asset/tracker", methods=["GET"])
@@ -13645,12 +13358,12 @@ def _internship_service_base_urls():
         if value and value not in normalized:
             normalized.append(value)
     return normalized
+    
 # ============================================================
-# INTERNSHIP MAINTENANCE STATUS PROXY
+# INTERNSHIP MAINTENANCE PROXY
 # ============================================================
 
-@app.route("/internship/maintenance/status", methods=["GET"])
-def internship_maintenance_status():
+def _proxy_internship_maintenance(method, path):
     try:
         os.environ["NO_PROXY"] = INTERNAL_NO_PROXY
         os.environ["no_proxy"] = INTERNAL_NO_PROXY
@@ -13664,8 +13377,9 @@ def internship_maintenance_status():
 
             for base_url in service_bases:
                 try:
-                    response = s.get(
-                        f"{base_url}/internship/maintenance/status",
+                    response = s.request(
+                        method,
+                        f"{base_url}{path}",
                         timeout=5
                     )
 
@@ -13692,6 +13406,31 @@ def internship_maintenance_status():
             "maintenance_mode": False,
             "message": str(exc)
         }), 500
+
+
+@app.route("/internship/maintenance/status", methods=["GET"])
+def internship_maintenance_status():
+    return _proxy_internship_maintenance(
+        "GET",
+        "/internship/maintenance/status"
+    )
+
+
+@app.route("/admin/internship/maintenance/on", methods=["POST"])
+def internship_maintenance_on():
+    return _proxy_internship_maintenance(
+        "POST",
+        "/admin/internship/maintenance/on"
+    )
+
+
+@app.route("/admin/internship/maintenance/off", methods=["POST"])
+def internship_maintenance_off():
+    return _proxy_internship_maintenance(
+        "POST",
+        "/admin/internship/maintenance/off"
+    )
+
 @app.route("/api/internship/apply", methods=["POST"])
 @app.route("/internship-apply-proxy", methods=["POST"])
 def proxy_internship_apply():
