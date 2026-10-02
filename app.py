@@ -69,7 +69,7 @@ CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower(
 INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
-
+'''
 HOME_SERVICE_URL = "http://127.0.0.1:5001"
 STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
 MEETING_SERVICE_URL = "http://127.0.0.1:9000"
@@ -103,7 +103,7 @@ sf_client = None
 # STM_INTERNAL_API_KEY = os.environ.get("STM_INTERNAL_API_KEY")  # optional shared secret
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
-
+'''
 # ================= Global Configurations =================
 
 # Load env from robust candidate list (supports common Windows " .env.txt " case).
