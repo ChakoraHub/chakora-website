@@ -75,7 +75,7 @@ STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
 MEETING_SERVICE_URL = "http://127.0.0.1:9000"
 CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
 ASSET_SERVICE_URL = "http://127.0.0.1:8090"
-INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", "http://172.31.26.176:5050")
+INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", "https://api.chakorahub.com")
 MS365_SERVICE_URL = "http://127.0.0.1:7700"
 EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
 BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
@@ -13345,9 +13345,6 @@ def _internship_service_base_urls():
     candidates = [
         *gateway_candidates,
         INTERNSHIP_SERVICE_URL,
-        INTERNSHIP_SERVICE_URL,
-        "http://127.0.0.1:5050",
-        "http://localhost:5050",
     ]
     normalized = []
     for raw in candidates:
