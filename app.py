@@ -1326,7 +1326,14 @@ def enforce_canonical_host_redirect():
     host_header = (forwarded_host or request.headers.get("Host") or request.host or "").split(":")[0].lower()
 
     internship_host_paths = {"/internships", "/api/internship/apply"}
-    api_host_allowed_paths = {"/internships", "/api/internship/apply", "/health", "/internship/maintenance/status"}
+    api_host_allowed_paths = {
+        "/internships",
+        "/api/internship/apply",
+        "/health",
+        "/internship/maintenance/status",
+        "/admin/internship/maintenance/on",
+        "/admin/internship/maintenance/off"
+    }
 
     if INTERNSHIP_PUBLIC_HOST and host_header == INTERNSHIP_PUBLIC_HOST and request.path not in api_host_allowed_paths:
         return redirect(f"https://{CANONICAL_HOST}/", code=308)
@@ -13365,6 +13372,11 @@ def _proxy_internship_maintenance(method, path):
         os.environ["NO_PROXY"] = INTERNAL_NO_PROXY
         os.environ["no_proxy"] = INTERNAL_NO_PROXY
 
+        headers = {}
+        auth_header = request.headers.get("Authorization")
+        if auth_header:
+            headers["Authorization"] = auth_header
+
         with requests.Session() as s:
             s.trust_env = False
             s.proxies = {"http": None, "https": None}
@@ -13377,6 +13389,7 @@ def _proxy_internship_maintenance(method, path):
                     response = s.request(
                         method,
                         f"{base_url}{path}",
+                        headers=headers,
                         timeout=5
                     )
 
