@@ -67,35 +67,40 @@ STUDENT_INTERNAL_NO_PROXY = "172.31.26.176"
 INTERNAL_NO_PROXY="172.31.26.176"
 CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
 INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://172.31.26.176:8025")
+SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
 
-HOME_SERVICE_URL = "http://127.0.0.1:5001"
-STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
-MEETING_SERVICE_URL = "http://127.0.0.1:9000"
-CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
-ASSET_SERVICE_URL = "http://127.0.0.1:8090"
-INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", "https://api.chakorahub.com")
-MS365_SERVICE_URL = "http://127.0.0.1:7700"
-EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
-BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
-REDIS_SERVICE_URL = "http://127.0.0.1:6390"
-BRS_SERVICE_URL = "http://127.0.0.1:8020"
-BILLING_SERVICE_URL = "http://127.0.0.1:8010"
-RAG_SERVICE_URL = "http://127.0.0.1:7900"
-ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
-OPE_SERVICE_URL = "http://127.0.0.1:8500"
-WABA_SERVICE_URL = "http://127.0.0.1:2500"
-FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
-REDIS_HOST = "127.0.0.1"
-APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
-LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
-WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
-STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
-STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
-INTERNAL_NO_PROXY="127.0.0.1"
-CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
-INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+# ================= LOCAL URL OVERRIDES (COMMENTED OUT FOR EC2) =================
+# HOME_SERVICE_URL = "http://127.0.0.1:5001"
+# STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
+# MEETING_SERVICE_URL = "http://127.0.0.1:9000"
+# CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
+# ASSET_SERVICE_URL = "http://127.0.0.1:8090"
+# INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", "https://api.chakorahub.com")
+# MS365_SERVICE_URL = "http://127.0.0.1:7700"
+# EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
+# BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
+# REDIS_SERVICE_URL = "http://127.0.0.1:6390"
+# BRS_SERVICE_URL = "http://127.0.0.1:8020"
+# BILLING_SERVICE_URL = "http://127.0.0.1:8010"
+# RAG_SERVICE_URL = "http://127.0.0.1:7900"
+# ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
+# OPE_SERVICE_URL = "http://127.0.0.1:8500"
+# WABA_SERVICE_URL = "http://127.0.0.1:2500"
+# FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
+# REDIS_HOST = "127.0.0.1"
+# APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
+# LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
+# WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
+# STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
+# STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
+# INTERNAL_NO_PROXY="127.0.0.1"
+# CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
+# INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+# TICKET_SERVICE_URL = "http://127.0.0.1:8025"
+# SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
 STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
 sf_client = None
 
@@ -1671,6 +1676,250 @@ def gallery():
         print("GALLERY ERROR:", e)
 
     return render_template("gallery.html", gallery_items=gallery_items)
+
+def _resolve_student_session():
+    """Resolves and returns (user_name, user_email) for the logged-in student, ensuring real name is used (not email)."""
+    user_email = (session.get("email") or "").strip()
+    user_name = (session.get("username") or session.get("name") or "").strip()
+    user_id = session.get("user_id")
+
+    try:
+        conn = get_db_connection()
+        if conn:
+            cursor = conn.cursor(DICT_CURSOR)
+            # 1. Resolve email if missing
+            if not user_email and (user_id or session.get("user")):
+                if user_id:
+                    cursor.execute("SELECT EMAIL, USERNAME FROM NRM_USERS WHERE ID = %s", (user_id,))
+                else:
+                    cursor.execute("SELECT EMAIL, USERNAME FROM NRM_USERS WHERE USERNAME = %s OR EMAIL = %s", (session.get("user"), session.get("user")))
+                row = cursor.fetchone()
+                if row:
+                    user_email = (row.get("EMAIL") or row.get("email") or "").strip()
+                    if not user_name:
+                        user_name = (row.get("USERNAME") or row.get("username") or "").strip()
+
+            # 2. Resolve real student name from NRM_STUDENTS or EMPLOYEE_REGISTRATIONS
+            resolved_real_name = None
+            if user_email:
+                # Check NRM_STUDENTS
+                try:
+                    cursor.execute("""
+                        SELECT S.FIRST_NAME, S.LAST_NAME 
+                        FROM NRM_STUDENTS S 
+                        JOIN NRM_USERS U ON S.USER_ID = U.ID 
+                        WHERE LOWER(U.EMAIL) = %s AND ROWNUM = 1
+                    """, (user_email.lower(),))
+                    s_row = cursor.fetchone()
+                    if s_row:
+                        fn = (s_row.get("FIRST_NAME") or "").strip()
+                        ln = (s_row.get("LAST_NAME") or "").strip()
+                        resolved_real_name = f"{fn} {ln}".strip()
+                except Exception:
+                    pass
+
+                # Check EMPLOYEE_REGISTRATIONS if needed
+                if not resolved_real_name or "@" in resolved_real_name:
+                    try:
+                        cursor.execute("SELECT FULL_NAME FROM EMPLOYEE_REGISTRATIONS WHERE LOWER(EMAIL) = %s AND ROWNUM = 1", (user_email.lower(),))
+                        e_row = cursor.fetchone()
+                        if e_row and e_row.get("FULL_NAME") and "@" not in e_row.get("FULL_NAME"):
+                            resolved_real_name = e_row.get("FULL_NAME").strip()
+                    except Exception:
+                        pass
+
+            cursor.close()
+            conn.close()
+
+            if resolved_real_name and "@" not in resolved_real_name:
+                user_name = resolved_real_name
+    except Exception as e:
+        print(f"Error resolving student real name for ticketing: {e}")
+
+    # Fallback formatting: if user_name is email or empty, format prefix
+    if not user_name or "@" in user_name:
+        target = user_name if "@" in user_name else user_email
+        if "@" in target:
+            prefix = target.split("@")[0]
+            user_name = re.sub(r'[\._0-9\-]+', ' ', prefix).strip().title() or "Student"
+        else:
+            user_name = "Student"
+
+    session["email"] = user_email
+    session["username"] = user_name
+    return user_name, user_email
+
+
+
+@app.route('/home')
+def home_redirect():
+    """Universal safe /home redirect ensuring zero 404s for any logged-in user."""
+    login_type = str(session.get("login_type") or "").lower()
+    if login_type == "employee" or session.get("employee_id"):
+        return redirect(url_for("employee_resources"))
+    elif login_type in ["admin", "administrator", "support"]:
+        return redirect(url_for("ticket_admin"))
+    elif login_type == "user" or session.get("user_id"):
+        return redirect(url_for("resources"))
+    return redirect("/")
+
+@app.route('/tickets/student')
+def ticket_student():
+    """Student portal for raising tickets, checking status, and tracking tokens."""
+    user_name, user_email = _resolve_student_session()
+    return render_template(
+        "ticket_student.html",
+        current_role="client",
+        current_user_name=user_name,
+        current_user_email=user_email,
+        api_base=""
+    )
+
+
+@app.route('/tickets/employee')
+@app.route('/tickets/staff')
+def ticket_employee():
+    """Employee / Staff portal for handling assigned tickets and SLA resolution."""
+    is_admin = bool(session.get("admin") or session.get("is_admin")) or \
+               str(session.get("login_type") or "").lower() in ["admin", "administrator", "support"] or \
+               str(session.get("role") or "").lower() in ["admin", "administrator", "support"] or \
+               bool(session.get("employee_admin_access")) or \
+               str(session.get("employee_id") or "").upper() == "CH25006"
+    if is_admin and request.args.get("view") != "employee":
+        return redirect(url_for('ticket_admin'))
+
+    user_name = session.get("employee_name") or session.get("username") or "Staff Member"
+    user_email = session.get("email") or session.get("employee_email") or ""
+    return render_template(
+        "ticket_employee.html",
+        current_role="employee",
+        current_user_name=user_name,
+        current_user_email=user_email,
+        api_base=""
+    )
+
+
+@app.route('/tickets/admin')
+@app.route('/ticket/admin')
+@app.route('/support/admin')
+@app.route('/tickets/desk')
+@app.route('/support/desk')
+def ticket_admin():
+    """Operations Desk / Admin Console for master queue, reassignment, and SLA oversight."""
+    user_name = session.get("admin_name") or session.get("username") or "Operations Admin"
+    user_email = session.get("email") or "support@chakorahub.com"
+    return render_template(
+        "ticket_admin.html",
+        current_role="support",
+        current_user_name=user_name,
+        current_user_email=user_email,
+        api_base=""
+    )
+
+
+@app.route('/tickets')
+@app.route('/ticket')
+@app.route('/support')
+@app.route('/help')
+@app.route('/tickets/module')
+@app.route('/support/module')
+def ticket_portal():
+    """
+    Renders the dedicated role template based on user session or ?role= parameter:
+    - Admin / Support -> ticket_admin.html
+    - Employee / Staff -> ticket_employee.html
+    - Student / Client -> ticket_student.html
+    """
+    param_role = (request.args.get("role") or "").lower().strip()
+    
+    is_admin = bool(session.get("admin") or session.get("is_admin")) or \
+               str(session.get("login_type") or "").lower() in ["admin", "administrator", "support"] or \
+               str(session.get("role") or "").lower() in ["admin", "administrator", "support"] or \
+               bool(session.get("employee_admin_access")) or \
+               str(session.get("employee_id") or "").upper() == "CH25006"
+    is_employee = (str(session.get("login_type") or "").lower() == "employee") or \
+                  bool(session.get("employee_id")) or \
+                  str(session.get("role") or "").lower() in ["employee", "staff"]
+
+    if param_role in ["admin", "support", "superadmin", "desk"] or (not param_role and is_admin):
+        user_name = session.get("admin_name") or session.get("username") or "Operations Admin"
+        user_email = session.get("email") or "support@chakorahub.com"
+        return render_template(
+            "ticket_admin.html",
+            current_role="support",
+            current_user_name=user_name,
+            current_user_email=user_email,
+            api_base=""
+        )
+    elif param_role in ["employee", "staff", "agent"] or (not param_role and is_employee):
+        user_name = session.get("employee_name") or session.get("username") or "Staff Member"
+        user_email = session.get("email") or session.get("employee_email") or ""
+        return render_template(
+            "ticket_employee.html",
+            current_role="employee",
+            current_user_name=user_name,
+            current_user_email=user_email,
+            api_base=""
+        )
+    else:
+        user_name, user_email = _resolve_student_session()
+        return render_template(
+            "ticket_student.html",
+            current_role="client",
+            current_user_name=user_name,
+            current_user_email=user_email,
+            api_base=""
+        )
+
+
+@app.route('/api/ticket/<path:subpath>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
+@app.route('/api/support/<path:subpath>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
+def proxy_ticket_service(subpath):
+    """
+    Transparent Reverse Proxy forwarding all ticket and support API requests
+    directly to the Ticket Microservice on Port 8025.
+    """
+    target_url = f"{TICKET_SERVICE_URL}/api/ticket/{subpath}"
+    method = request.method
+    params = request.args
+    headers = {k: v for k, v in request.headers if k.lower() not in ('host', 'content-length')}
+
+    try:
+        data = request.get_data()
+        content_type = request.content_type
+
+        req_headers = dict(headers)
+        if content_type:
+            req_headers['Content-Type'] = content_type
+
+        with requests.Session() as s:
+            s.trust_env = False
+            s.proxies = {"http": None, "https": None}
+            upstream_resp = s.request(
+                method=method,
+                url=target_url,
+                params=params,
+                data=data,
+                headers=req_headers,
+                timeout=30,
+                allow_redirects=False
+            )
+
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        resp_headers = [
+            (name, value) for (name, value) in upstream_resp.raw.headers.items()
+            if name.lower() not in excluded_headers
+        ]
+
+        return (upstream_resp.content, upstream_resp.status_code, resp_headers)
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Ticket Service reverse proxy error: {e}")
+        return jsonify({
+            "status": "error",
+            "detail": f"Ticket Service unavailable ({str(e)})"
+        }), 503
+
 
 @app.route("/home/enquiry", methods=["POST"])
 def proxy_enquiry():
