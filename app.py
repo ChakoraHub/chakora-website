@@ -1330,6 +1330,9 @@ def enforce_canonical_host_redirect():
     forwarded_host = (request.headers.get("X-Forwarded-Host") or "").split(",")[0].strip()
     host_header = (forwarded_host or request.headers.get("Host") or request.host or "").split(":")[0].lower()
 
+    if host_header in {"localhost", "127.0.0.1", "0.0.0.0"} or host_header.startswith("127."):
+        return
+
     internship_host_paths = {"/internships", "/api/internship/apply"}
     api_host_allowed_paths = {
         "/internships",
@@ -6319,16 +6322,6 @@ app.permanent_session_lifetime = timedelta(days=7)
 def aboutus():
     return render_template("aboutus.html")
 
-@app.route('/internships', methods=['GET'])
-def internships():
-    current_host = (request.headers.get("X-Forwarded-Host") or request.host or "").split(":")[0].strip().lower()
-    if INTERNSHIP_PUBLIC_HOST and current_host != INTERNSHIP_PUBLIC_HOST:
-        target_url = f"https://{INTERNSHIP_PUBLIC_HOST}{request.path}"
-        if request.query_string:
-            target_url = f"{target_url}?{request.query_string.decode('utf-8', errors='ignore')}"
-        return redirect(target_url, code=308)
-
-    return render_template('Internships.html')
 
 
 # -------------------------------------------------------
@@ -13601,7 +13594,16 @@ def _internship_service_base_urls():
     candidates = [
         *gateway_candidates,
         INTERNSHIP_SERVICE_URL,
+        "http://127.0.0.1:5050",
+        "http://localhost:5050",
     ]
+    if os.name == "nt":
+        candidates = [
+            "http://127.0.0.1:5050",
+            "http://localhost:5050",
+            *gateway_candidates,
+            INTERNSHIP_SERVICE_URL,
+        ]
     normalized = []
     for raw in candidates:
         value = (raw or "").strip().rstrip("/")
@@ -13668,6 +13670,8 @@ def _proxy_internship_maintenance(method, path):
 
 
 @app.route("/internship/maintenance/status", methods=["GET"])
+@app.route("/api/internship/maintenance/status", methods=["GET"])
+@app.route("/api/admin/internship/maintenance/status", methods=["GET"])
 def internship_maintenance_status():
     return _proxy_internship_maintenance(
         "GET",
@@ -13676,6 +13680,8 @@ def internship_maintenance_status():
 
 
 @app.route("/admin/internship/maintenance/on", methods=["POST"])
+@app.route("/api/admin/internship/maintenance/on", methods=["POST"])
+@app.route("/api/internship/maintenance/on", methods=["POST"])
 def internship_maintenance_on():
     return _proxy_internship_maintenance(
         "POST",
@@ -13684,11 +13690,36 @@ def internship_maintenance_on():
 
 
 @app.route("/admin/internship/maintenance/off", methods=["POST"])
+@app.route("/api/admin/internship/maintenance/off", methods=["POST"])
+@app.route("/api/internship/maintenance/off", methods=["POST"])
 def internship_maintenance_off():
     return _proxy_internship_maintenance(
         "POST",
         "/admin/internship/maintenance/off"
     )
+
+
+@app.route("/internships", methods=["GET"])
+@app.route("/internship", methods=["GET"])
+def internship_page():
+    maint = False
+    try:
+        with requests.Session() as s:
+            s.trust_env = False
+            s.proxies = {"http": None, "https": None}
+            service_bases = _internship_service_base_urls()
+            for base_url in service_bases:
+                try:
+                    resp = s.get(f"{base_url}/internship/maintenance/status", timeout=2)
+                    if resp.status_code == 200:
+                        maint = bool(resp.json().get("maintenance_mode", False))
+                        break
+                except Exception:
+                    continue
+    except Exception:
+        pass
+    return render_template("Internships.html", maintenance_mode=maint)
+
 
 @app.route("/api/internship/apply", methods=["POST"])
 @app.route("/internship-apply-proxy", methods=["POST"])

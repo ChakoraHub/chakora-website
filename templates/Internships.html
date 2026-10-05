@@ -563,6 +563,11 @@
         </div>
     </div>
 
+    <!-- Maintenance Notice Banner -->
+    <div id="internshipMaintenanceContainer">
+        {% include 'internship_maintenance_notice.html' ignore missing %}
+    </div>
+
     <!-- Form Container -->
     <div class="form-container">
 
@@ -1243,6 +1248,63 @@ checkInternshipMaintenance();
             submitStatus.classList.remove('show');
         }
     });
+    // ==================== INTERNSHIP MAINTENANCE MODE ====================
+    let isInternshipMaintenanceActive = false;
+
+    async function checkInternshipMaintenance() {
+        try {
+            const response = await fetch('/internship/maintenance/status', { cache: 'no-store' });
+            if (!response.ok) {
+                console.warn(`Maintenance status check HTTP ${response.status}`);
+                return;
+            }
+            const data = await response.json();
+            isInternshipMaintenanceActive = Boolean(data.maintenance_mode);
+
+            const container = document.getElementById('internshipMaintenanceContainer');
+            if (isInternshipMaintenanceActive) {
+                if (container) {
+                    container.innerHTML = `
+                        <div class="internship-maintenance-banner" id="internship-maintenance-notice" role="alert" style="background: linear-gradient(135deg, rgba(254, 243, 199, 0.95), rgba(253, 230, 138, 0.95)); border: 1.5px solid #f59e0b; border-left: 6px solid #d97706; border-radius: 12px; padding: 18px 24px; margin-bottom: 25px; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.18); backdrop-filter: blur(8px); animation: fadeInDown 0.4s ease-out;">
+                          <div style="display: flex; align-items: flex-start; gap: 16px;">
+                            <div style="background: #f59e0b; color: white; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 3px 10px rgba(245, 158, 11, 0.35);">
+                              <i class="fas fa-tools fa-lg"></i>
+                            </div>
+                            <div style="flex: 1;">
+                              <h5 style="color: #92400e; font-weight: 700; margin: 0 0 5px 0; font-size: 1.05rem; letter-spacing: -0.2px;">
+                                Scheduled Maintenance in Progress
+                              </h5>
+                              <p style="color: #78350f; margin: 0; font-size: 0.92rem; line-height: 1.5;">
+                                The Internship Portal is currently undergoing scheduled platform updates and improvements. Application submissions are temporarily paused. Please check back shortly.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                    `;
+                }
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<i class="fas fa-tools"></i> Maintenance in Progress';
+                    submitButton.title = 'Submissions paused during maintenance';
+                }
+            } else {
+                if (container) {
+                    container.innerHTML = '';
+                }
+                if (submitButton && !submitStatus.classList.contains('show')) {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+                    submitButton.title = '';
+                }
+            }
+        } catch (err) {
+            console.warn('Could not check internship maintenance status:', err);
+        }
+    }
+
+    // Check maintenance on load and every 15 seconds
+    checkInternshipMaintenance();
+    setInterval(checkInternshipMaintenance, 15000);
 </script>
 
 </body>
