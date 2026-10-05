@@ -67,35 +67,40 @@ STUDENT_INTERNAL_NO_PROXY = "172.31.26.176"
 INTERNAL_NO_PROXY="172.31.26.176"
 CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
 INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://172.31.26.176:8025")
+SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
 
-HOME_SERVICE_URL = "http://127.0.0.1:5001"
-STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
-MEETING_SERVICE_URL = "http://127.0.0.1:9000"
-CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
-ASSET_SERVICE_URL = "http://127.0.0.1:8090"
-INTERNSHIP_SERVICE_URL = "http://127.0.0.1:5050"
-MS365_SERVICE_URL = "http://127.0.0.1:7700"
-EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
-BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
-REDIS_SERVICE_URL = "http://127.0.0.1:6390"
-BRS_SERVICE_URL = "http://127.0.0.1:8020"
-BILLING_SERVICE_URL = "http://127.0.0.1:8010"
-RAG_SERVICE_URL = "http://127.0.0.1:7900"
-ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
-OPE_SERVICE_URL = "http://127.0.0.1:8500"
-WABA_SERVICE_URL = "http://127.0.0.1:2500"
-FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
-REDIS_HOST = "127.0.0.1"
-APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
-LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
-WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
-STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
-STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
-INTERNAL_NO_PROXY="127.0.0.1"
-CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
-INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+# ================= LOCAL URL OVERRIDES (COMMENTED OUT FOR EC2) =================
+# HOME_SERVICE_URL = "http://127.0.0.1:5001"
+# STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
+# MEETING_SERVICE_URL = "http://127.0.0.1:9000"
+# CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
+# ASSET_SERVICE_URL = "http://127.0.0.1:8090"
+# INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", "https://api.chakorahub.com")
+# MS365_SERVICE_URL = "http://127.0.0.1:7700"
+# EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
+# BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
+# REDIS_SERVICE_URL = "http://127.0.0.1:6390"
+# BRS_SERVICE_URL = "http://127.0.0.1:8020"
+# BILLING_SERVICE_URL = "http://127.0.0.1:8010"
+# RAG_SERVICE_URL = "http://127.0.0.1:7900"
+# ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
+# OPE_SERVICE_URL = "http://127.0.0.1:8500"
+# WABA_SERVICE_URL = "http://127.0.0.1:2500"
+# FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
+# REDIS_HOST = "127.0.0.1"
+# APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
+# LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
+# WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
+# STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
+# STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
+# INTERNAL_NO_PROXY="127.0.0.1"
+# CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
+# INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+# TICKET_SERVICE_URL = "http://127.0.0.1:8025"
+# SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
 STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
 sf_client = None
 
@@ -1325,8 +1330,18 @@ def enforce_canonical_host_redirect():
     forwarded_host = (request.headers.get("X-Forwarded-Host") or "").split(",")[0].strip()
     host_header = (forwarded_host or request.headers.get("Host") or request.host or "").split(":")[0].lower()
 
+    if host_header in {"localhost", "127.0.0.1", "0.0.0.0"} or host_header.startswith("127."):
+        return
+
     internship_host_paths = {"/internships", "/api/internship/apply"}
-    api_host_allowed_paths = {"/internships", "/api/internship/apply", "/health"}
+    api_host_allowed_paths = {
+        "/internships",
+        "/api/internship/apply",
+        "/health",
+        "/internship/maintenance/status",
+        "/admin/internship/maintenance/on",
+        "/admin/internship/maintenance/off"
+    }
 
     if INTERNSHIP_PUBLIC_HOST and host_header == INTERNSHIP_PUBLIC_HOST and request.path not in api_host_allowed_paths:
         return redirect(f"https://{CANONICAL_HOST}/", code=308)
@@ -1664,6 +1679,250 @@ def gallery():
         print("GALLERY ERROR:", e)
 
     return render_template("gallery.html", gallery_items=gallery_items)
+
+def _resolve_student_session():
+    """Resolves and returns (user_name, user_email) for the logged-in student, ensuring real name is used (not email)."""
+    user_email = (session.get("email") or "").strip()
+    user_name = (session.get("username") or session.get("name") or "").strip()
+    user_id = session.get("user_id")
+
+    try:
+        conn = get_db_connection()
+        if conn:
+            cursor = conn.cursor(DICT_CURSOR)
+            # 1. Resolve email if missing
+            if not user_email and (user_id or session.get("user")):
+                if user_id:
+                    cursor.execute("SELECT EMAIL, USERNAME FROM NRM_USERS WHERE ID = %s", (user_id,))
+                else:
+                    cursor.execute("SELECT EMAIL, USERNAME FROM NRM_USERS WHERE USERNAME = %s OR EMAIL = %s", (session.get("user"), session.get("user")))
+                row = cursor.fetchone()
+                if row:
+                    user_email = (row.get("EMAIL") or row.get("email") or "").strip()
+                    if not user_name:
+                        user_name = (row.get("USERNAME") or row.get("username") or "").strip()
+
+            # 2. Resolve real student name from NRM_STUDENTS or EMPLOYEE_REGISTRATIONS
+            resolved_real_name = None
+            if user_email:
+                # Check NRM_STUDENTS
+                try:
+                    cursor.execute("""
+                        SELECT S.FIRST_NAME, S.LAST_NAME 
+                        FROM NRM_STUDENTS S 
+                        JOIN NRM_USERS U ON S.USER_ID = U.ID 
+                        WHERE LOWER(U.EMAIL) = %s AND ROWNUM = 1
+                    """, (user_email.lower(),))
+                    s_row = cursor.fetchone()
+                    if s_row:
+                        fn = (s_row.get("FIRST_NAME") or "").strip()
+                        ln = (s_row.get("LAST_NAME") or "").strip()
+                        resolved_real_name = f"{fn} {ln}".strip()
+                except Exception:
+                    pass
+
+                # Check EMPLOYEE_REGISTRATIONS if needed
+                if not resolved_real_name or "@" in resolved_real_name:
+                    try:
+                        cursor.execute("SELECT FULL_NAME FROM EMPLOYEE_REGISTRATIONS WHERE LOWER(EMAIL) = %s AND ROWNUM = 1", (user_email.lower(),))
+                        e_row = cursor.fetchone()
+                        if e_row and e_row.get("FULL_NAME") and "@" not in e_row.get("FULL_NAME"):
+                            resolved_real_name = e_row.get("FULL_NAME").strip()
+                    except Exception:
+                        pass
+
+            cursor.close()
+            conn.close()
+
+            if resolved_real_name and "@" not in resolved_real_name:
+                user_name = resolved_real_name
+    except Exception as e:
+        print(f"Error resolving student real name for ticketing: {e}")
+
+    # Fallback formatting: if user_name is email or empty, format prefix
+    if not user_name or "@" in user_name:
+        target = user_name if "@" in user_name else user_email
+        if "@" in target:
+            prefix = target.split("@")[0]
+            user_name = re.sub(r'[\._0-9\-]+', ' ', prefix).strip().title() or "Student"
+        else:
+            user_name = "Student"
+
+    session["email"] = user_email
+    session["username"] = user_name
+    return user_name, user_email
+
+
+
+@app.route('/home')
+def home_redirect():
+    """Universal safe /home redirect ensuring zero 404s for any logged-in user."""
+    login_type = str(session.get("login_type") or "").lower()
+    if login_type == "employee" or session.get("employee_id"):
+        return redirect(url_for("employee_resources"))
+    elif login_type in ["admin", "administrator", "support"]:
+        return redirect(url_for("ticket_admin"))
+    elif login_type == "user" or session.get("user_id"):
+        return redirect(url_for("resources"))
+    return redirect("/")
+
+@app.route('/tickets/student')
+def ticket_student():
+    """Student portal for raising tickets, checking status, and tracking tokens."""
+    user_name, user_email = _resolve_student_session()
+    return render_template(
+        "ticket_student.html",
+        current_role="client",
+        current_user_name=user_name,
+        current_user_email=user_email,
+        api_base=""
+    )
+
+
+@app.route('/tickets/employee')
+@app.route('/tickets/staff')
+def ticket_employee():
+    """Employee / Staff portal for handling assigned tickets and SLA resolution."""
+    is_admin = bool(session.get("admin") or session.get("is_admin")) or \
+               str(session.get("login_type") or "").lower() in ["admin", "administrator", "support"] or \
+               str(session.get("role") or "").lower() in ["admin", "administrator", "support"] or \
+               bool(session.get("employee_admin_access")) or \
+               str(session.get("employee_id") or "").upper() == "CH25006"
+    if is_admin and request.args.get("view") != "employee":
+        return redirect(url_for('ticket_admin'))
+
+    user_name = session.get("employee_name") or session.get("username") or "Staff Member"
+    user_email = session.get("email") or session.get("employee_email") or ""
+    return render_template(
+        "ticket_employee.html",
+        current_role="employee",
+        current_user_name=user_name,
+        current_user_email=user_email,
+        api_base=""
+    )
+
+
+@app.route('/tickets/admin')
+@app.route('/ticket/admin')
+@app.route('/support/admin')
+@app.route('/tickets/desk')
+@app.route('/support/desk')
+def ticket_admin():
+    """Operations Desk / Admin Console for master queue, reassignment, and SLA oversight."""
+    user_name = session.get("admin_name") or session.get("username") or "Operations Admin"
+    user_email = session.get("email") or "support@chakorahub.com"
+    return render_template(
+        "ticket_admin.html",
+        current_role="support",
+        current_user_name=user_name,
+        current_user_email=user_email,
+        api_base=""
+    )
+
+
+@app.route('/tickets')
+@app.route('/ticket')
+@app.route('/support')
+@app.route('/help')
+@app.route('/tickets/module')
+@app.route('/support/module')
+def ticket_portal():
+    """
+    Renders the dedicated role template based on user session or ?role= parameter:
+    - Admin / Support -> ticket_admin.html
+    - Employee / Staff -> ticket_employee.html
+    - Student / Client -> ticket_student.html
+    """
+    param_role = (request.args.get("role") or "").lower().strip()
+    
+    is_admin = bool(session.get("admin") or session.get("is_admin")) or \
+               str(session.get("login_type") or "").lower() in ["admin", "administrator", "support"] or \
+               str(session.get("role") or "").lower() in ["admin", "administrator", "support"] or \
+               bool(session.get("employee_admin_access")) or \
+               str(session.get("employee_id") or "").upper() == "CH25006"
+    is_employee = (str(session.get("login_type") or "").lower() == "employee") or \
+                  bool(session.get("employee_id")) or \
+                  str(session.get("role") or "").lower() in ["employee", "staff"]
+
+    if param_role in ["admin", "support", "superadmin", "desk"] or (not param_role and is_admin):
+        user_name = session.get("admin_name") or session.get("username") or "Operations Admin"
+        user_email = session.get("email") or "support@chakorahub.com"
+        return render_template(
+            "ticket_admin.html",
+            current_role="support",
+            current_user_name=user_name,
+            current_user_email=user_email,
+            api_base=""
+        )
+    elif param_role in ["employee", "staff", "agent"] or (not param_role and is_employee):
+        user_name = session.get("employee_name") or session.get("username") or "Staff Member"
+        user_email = session.get("email") or session.get("employee_email") or ""
+        return render_template(
+            "ticket_employee.html",
+            current_role="employee",
+            current_user_name=user_name,
+            current_user_email=user_email,
+            api_base=""
+        )
+    else:
+        user_name, user_email = _resolve_student_session()
+        return render_template(
+            "ticket_student.html",
+            current_role="client",
+            current_user_name=user_name,
+            current_user_email=user_email,
+            api_base=""
+        )
+
+
+@app.route('/api/ticket/<path:subpath>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
+@app.route('/api/support/<path:subpath>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
+def proxy_ticket_service(subpath):
+    """
+    Transparent Reverse Proxy forwarding all ticket and support API requests
+    directly to the Ticket Microservice on Port 8025.
+    """
+    target_url = f"{TICKET_SERVICE_URL}/api/ticket/{subpath}"
+    method = request.method
+    params = request.args
+    headers = {k: v for k, v in request.headers if k.lower() not in ('host', 'content-length')}
+
+    try:
+        data = request.get_data()
+        content_type = request.content_type
+
+        req_headers = dict(headers)
+        if content_type:
+            req_headers['Content-Type'] = content_type
+
+        with requests.Session() as s:
+            s.trust_env = False
+            s.proxies = {"http": None, "https": None}
+            upstream_resp = s.request(
+                method=method,
+                url=target_url,
+                params=params,
+                data=data,
+                headers=req_headers,
+                timeout=30,
+                allow_redirects=False
+            )
+
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        resp_headers = [
+            (name, value) for (name, value) in upstream_resp.raw.headers.items()
+            if name.lower() not in excluded_headers
+        ]
+
+        return (upstream_resp.content, upstream_resp.status_code, resp_headers)
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Ticket Service reverse proxy error: {e}")
+        return jsonify({
+            "status": "error",
+            "detail": f"Ticket Service unavailable ({str(e)})"
+        }), 503
+
 
 @app.route("/home/enquiry", methods=["POST"])
 def proxy_enquiry():
@@ -6063,16 +6322,6 @@ app.permanent_session_lifetime = timedelta(days=7)
 def aboutus():
     return render_template("aboutus.html")
 
-@app.route('/internships', methods=['GET'])
-def internships():
-    current_host = (request.headers.get("X-Forwarded-Host") or request.host or "").split(":")[0].strip().lower()
-    if INTERNSHIP_PUBLIC_HOST and current_host != INTERNSHIP_PUBLIC_HOST:
-        target_url = f"https://{INTERNSHIP_PUBLIC_HOST}{request.path}"
-        if request.query_string:
-            target_url = f"{target_url}?{request.query_string.decode('utf-8', errors='ignore')}"
-        return redirect(target_url, code=308)
-
-    return render_template('Internships.html')
 
 
 # -------------------------------------------------------
@@ -13345,10 +13594,16 @@ def _internship_service_base_urls():
     candidates = [
         *gateway_candidates,
         INTERNSHIP_SERVICE_URL,
-        INTERNSHIP_SERVICE_URL,
         "http://127.0.0.1:5050",
         "http://localhost:5050",
     ]
+    if os.name == "nt":
+        candidates = [
+            "http://127.0.0.1:5050",
+            "http://localhost:5050",
+            *gateway_candidates,
+            INTERNSHIP_SERVICE_URL,
+        ]
     normalized = []
     for raw in candidates:
         value = (raw or "").strip().rstrip("/")
@@ -13358,6 +13613,113 @@ def _internship_service_base_urls():
         if value and value not in normalized:
             normalized.append(value)
     return normalized
+    
+# ============================================================
+# INTERNSHIP MAINTENANCE PROXY
+# ============================================================
+
+def _proxy_internship_maintenance(method, path):
+    try:
+        os.environ["NO_PROXY"] = INTERNAL_NO_PROXY
+        os.environ["no_proxy"] = INTERNAL_NO_PROXY
+
+        headers = {}
+        auth_header = request.headers.get("Authorization")
+        if auth_header:
+            headers["Authorization"] = auth_header
+
+        with requests.Session() as s:
+            s.trust_env = False
+            s.proxies = {"http": None, "https": None}
+
+            service_bases = _internship_service_base_urls()
+            last_error = None
+
+            for base_url in service_bases:
+                try:
+                    response = s.request(
+                        method,
+                        f"{base_url}{path}",
+                        headers=headers,
+                        timeout=5
+                    )
+
+                    if response.status_code == 200:
+                        return jsonify(response.json()), 200
+
+                    last_error = (
+                        f"Internship service returned "
+                        f"HTTP {response.status_code}"
+                    )
+
+                except Exception as exc:
+                    last_error = str(exc)
+
+            return jsonify({
+                "success": False,
+                "maintenance_mode": False,
+                "message": last_error or "Internship service unavailable"
+            }), 502
+
+    except Exception as exc:
+        return jsonify({
+            "success": False,
+            "maintenance_mode": False,
+            "message": str(exc)
+        }), 500
+
+
+@app.route("/internship/maintenance/status", methods=["GET"])
+@app.route("/api/internship/maintenance/status", methods=["GET"])
+@app.route("/api/admin/internship/maintenance/status", methods=["GET"])
+def internship_maintenance_status():
+    return _proxy_internship_maintenance(
+        "GET",
+        "/internship/maintenance/status"
+    )
+
+
+@app.route("/admin/internship/maintenance/on", methods=["POST"])
+@app.route("/api/admin/internship/maintenance/on", methods=["POST"])
+@app.route("/api/internship/maintenance/on", methods=["POST"])
+def internship_maintenance_on():
+    return _proxy_internship_maintenance(
+        "POST",
+        "/admin/internship/maintenance/on"
+    )
+
+
+@app.route("/admin/internship/maintenance/off", methods=["POST"])
+@app.route("/api/admin/internship/maintenance/off", methods=["POST"])
+@app.route("/api/internship/maintenance/off", methods=["POST"])
+def internship_maintenance_off():
+    return _proxy_internship_maintenance(
+        "POST",
+        "/admin/internship/maintenance/off"
+    )
+
+
+@app.route("/internships", methods=["GET"])
+@app.route("/internship", methods=["GET"])
+def internship_page():
+    maint = False
+    try:
+        with requests.Session() as s:
+            s.trust_env = False
+            s.proxies = {"http": None, "https": None}
+            service_bases = _internship_service_base_urls()
+            for base_url in service_bases:
+                try:
+                    resp = s.get(f"{base_url}/internship/maintenance/status", timeout=2)
+                    if resp.status_code == 200:
+                        maint = bool(resp.json().get("maintenance_mode", False))
+                        break
+                except Exception:
+                    continue
+    except Exception:
+        pass
+    return render_template("Internships.html", maintenance_mode=maint)
+
 
 @app.route("/api/internship/apply", methods=["POST"])
 @app.route("/internship-apply-proxy", methods=["POST"])
