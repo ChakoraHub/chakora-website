@@ -943,6 +943,59 @@
     let currentStep = 1;
     const totalSteps = 4;
     const DRAFT_KEY_PREFIX = 'internship_';
+// ==================== INTERNSHIP MAINTENANCE MODE ====================
+
+async function checkInternshipMaintenance() {
+    try {
+        const response = await fetch('/internship/maintenance/status', {
+            method: 'GET',
+            cache: 'no-store'
+        });
+
+        if (!response.ok) {
+            throw new Error(
+                `Maintenance status request failed: ${response.status}`
+            );
+        }
+
+        const data = await response.json();
+
+        if (data.maintenance_mode === true) {
+            const notice = document.createElement('div');
+
+            notice.id = 'internship-maintenance-notice';
+            notice.className = 'container mt-3';
+
+            notice.innerHTML = `
+                <div class="alert alert-info" role="alert">
+                    <strong>Scheduled maintenance notice</strong><br>
+                    The Internship service will undergo a brief update.
+                    You may experience a short interruption while the
+                    service restarts.
+                    <br><br>
+                    We apologize for the inconvenience. Please refresh
+                    the page if it does not load temporarily.
+                </div>
+            `;
+
+            const containerMain = document.querySelector('.container-main');
+
+            if (containerMain) {
+                containerMain.insertBefore(
+                    notice,
+                    containerMain.firstChild
+                );
+            }
+        }
+    } catch (error) {
+        console.error(
+            'Unable to check internship maintenance status:',
+            error
+        );
+    }
+}
+
+checkInternshipMaintenance();
 
     function clearInternshipDraftStorage() {
         Object.keys(localStorage).forEach(key => {
