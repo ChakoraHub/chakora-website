@@ -1,0 +1,34 @@
+<div id="admin-upload-maintenance-notice" class="container mt-3" style="display:none;">
+  <div class="alert alert-info" role="alert">
+    <strong>Scheduled maintenance notice</strong><br>
+    The Upload Center service will undergo a brief update.
+    You may experience a short interruption while the service restarts.
+    Please refresh the page if it does not load temporarily.
+  </div>
+</div>
+
+<script>
+(function () {
+  const notice = document.getElementById('admin-upload-maintenance-notice');
+  if (!notice) return;
+
+  fetch('/api/student/maintenance/status', {
+    method: 'GET',
+    cache: 'no-store'
+  })
+    .then(function (response) {
+      if (!response.ok) {
+        throw new Error('Maintenance status check failed');
+      }
+      return response.json();
+    })
+    .then(function (data) {
+      if (data.maintenance_mode === true) {
+        notice.style.display = 'block';
+      }
+    })
+    .catch(function () {
+      // Keep the page unchanged when maintenance is disabled.
+    });
+})();
+</script>
