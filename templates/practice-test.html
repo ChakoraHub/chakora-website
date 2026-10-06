@@ -157,6 +157,23 @@
       text-align: center;
     }
 
+    /* Maintenance notice (page has no Bootstrap, so style the alert here) */
+    #practice-test-maintenance-notice {
+      max-width: 800px;
+      margin: 16px auto 0;
+      padding: 0 16px;
+    }
+
+    #practice-test-maintenance-notice .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      background-color: #cff4fc;
+      border: 1px solid #b6effb;
+      color: #055160;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
     /* Logout Popup */
     .popup-overlay {
       position: fixed;
@@ -220,7 +237,7 @@
   </style>
 </head>
 <body>
-
+{% include 'practice_test_maintenance_notice.html' %}
   <div class="header">
     <div class="logo">
       <a href="/"><img src="{{ url_for('static', filename='logo.png') }}" alt="ChakoraHub Logo"></a>
