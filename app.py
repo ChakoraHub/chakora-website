@@ -70,33 +70,33 @@ INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com"
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
 
-HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL", "http://127.0.0.1:5001")
-STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL", "http://127.0.0.1:8001")
-MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL", "http://127.0.0.1:9000")
-CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL", "http://127.0.0.1:7600")
-ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL", "http://127.0.0.1:8090")
-INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", "http://127.0.0.1:5050")
-MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL", "http://127.0.0.1:7700")
-EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL", "http://127.0.0.1:8002")
-BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL", "http://127.0.0.1:7500")
-REDIS_SERVICE_URL = os.getenv("REDIS_SERVICE_URL", "http://127.0.0.1:6390")
-BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL", "http://127.0.0.1:8020")
-BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL", "http://127.0.0.1:8010")
-RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL", "http://127.0.0.1:7900")
-ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
-OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL", "http://127.0.0.1:8500")
-WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500")
-FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
-REDIS_HOST = "127.0.0.1"
-APPLICATION_SERVICE_URL = os.getenv("APPLICATION_SERVICE_URL", "http://127.0.0.1:8020")
-LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
-WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
-STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
-STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
-INTERNAL_NO_PROXY="127.0.0.1"
-CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
-INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
-STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
+#HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL", "http://127.0.0.1:5001")
+#STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL", "http://127.0.0.1:8001")
+#MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL", "http://127.0.0.1:9000")
+#CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL", "http://127.0.0.1:7600")
+#ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL", "http://127.0.0.1:8090")
+#INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", "http://127.0.0.1:5050")
+#MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL", "http://127.0.0.1:7700")
+#EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL", "http://127.0.0.1:8002")
+#BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL", "http://127.0.0.1:7500")
+#REDIS_SERVICE_URL = os.getenv("REDIS_SERVICE_URL", "http://127.0.0.1:6390")
+#BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL", "http://127.0.0.1:8020")
+#BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL", "http://127.0.0.1:8010")
+#RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL", "http://127.0.0.1:7900")
+#ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
+#OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL", "http://127.0.0.1:8500")
+#WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500")
+#FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
+#REDIS_HOST = "127.0.0.1"
+#APPLICATION_SERVICE_URL = os.getenv("APPLICATION_SERVICE_URL", "http://127.0.0.1:8020")
+#LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
+#WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
+#STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
+#STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
+#INTERNAL_NO_PROXY="127.0.0.1"
+#CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
+#INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+#STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
 sf_client = None
 
 # STM_SERVICE_URL = os.environ.get("STM_SERVICE_URL", "http://127.0.0.1:7010")
@@ -1551,7 +1551,7 @@ def student_registration_maintenance_status():
 # owns the actual maintenance state.
 # ============================================================
 
-@app.route("/admin/collaboration-maintenance/on", methods=["POST"])
+@app.route("/api/collaboration/maintenance/on", methods=["POST"])
 def collaboration_maintenance_on():
     authorization = request.headers.get("Authorization", "").strip()
     if not authorization:
@@ -1559,7 +1559,7 @@ def collaboration_maintenance_on():
 
     try:
         response = requests.post(
-            f"{BRS_SERVICE_URL}/admin/maintenance/on",
+            f"{BRS_SERVICE_URL}/api/collaboration/maintenance/on",
             headers={"Authorization": authorization},
             timeout=10,
         )
@@ -1575,7 +1575,7 @@ def collaboration_maintenance_on():
         }), 503
 
 
-@app.route("/admin/collaboration-maintenance/off", methods=["POST"])
+@app.route("/api/collaboration/maintenance/off", methods=["POST"])
 def collaboration_maintenance_off():
     authorization = request.headers.get("Authorization", "").strip()
     if not authorization:
@@ -1583,7 +1583,7 @@ def collaboration_maintenance_off():
 
     try:
         response = requests.post(
-            f"{BRS_SERVICE_URL}/admin/maintenance/off",
+            f"{BRS_SERVICE_URL}/api/collaboration/maintenance/off",
             headers={"Authorization": authorization},
             timeout=10,
         )
