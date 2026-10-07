@@ -8592,16 +8592,89 @@ def upload_practice_test():
 
     return redirect(url_for('upload_page'))
 
+# ---------- Practice test files: local disk + S3 ----------
+# The student service saves practice tests to ITS disk and mirrors them to S3
+# (Practice_Tests/<subject>/<file>). This web app may run on a different
+# machine, so list/serve from both places.
+def _practice_test_bucket():
+    return (
+        os.getenv("STUDENT_CONTENT_S3_BUCKET")
+        or os.getenv("STUDENT_S3_BUCKET")
+        or "chakorahub-student-s3"
+    ).strip()
+
+
+def _practice_test_s3_client():
+    region = (os.getenv("AWS_REGION") or os.getenv("AWS_DEFAULT_REGION") or "eu-north-1").strip()
+    if AWS_ACCESS_KEY and AWS_SECRET_KEY:
+        return boto3.client(
+            "s3",
+            region_name=region,
+            aws_access_key_id=AWS_ACCESS_KEY,
+            aws_secret_access_key=AWS_SECRET_KEY,
+        )
+    return boto3.client("s3", region_name=region)
+
+
+def _practice_subject_is_safe(subject):
+    """Reject subjects that could escape the Practice_Tests/ prefix."""
+    if not subject or subject.startswith("/") or "\\" in subject:
+        return False
+    return ".." not in subject.split("/")
+
+
+def _list_practice_tests_s3(subject):
+    """File names stored in S3 for this subject. Returns [] on any problem."""
+    if not _practice_subject_is_safe(subject):
+        return []
+    try:
+        s3 = _practice_test_s3_client()
+        prefix = f"Practice_Tests/{subject}/"
+        names = []
+        paginator = s3.get_paginator("list_objects_v2")
+        for page in paginator.paginate(Bucket=_practice_test_bucket(), Prefix=prefix):
+            for obj in page.get("Contents", []):
+                name = obj["Key"][len(prefix):]
+                if name and "/" not in name:
+                    names.append(name)
+        return names
+    except Exception as e:
+        print(f"⚠️ practice test S3 listing failed for '{subject}': {e}")
+        return []
+
+
+def _practice_test_s3_url(subject, filename):
+    """Short-lived download URL if the object exists in S3, else None."""
+    if not _practice_subject_is_safe(subject) or secure_filename(filename) != filename:
+        return None
+    try:
+        s3 = _practice_test_s3_client()
+        bucket = _practice_test_bucket()
+        key = f"Practice_Tests/{subject}/{filename}"
+        s3.head_object(Bucket=bucket, Key=key)
+        return s3.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": bucket, "Key": key},
+            ExpiresIn=300,
+        )
+    except Exception as e:
+        print(f"⚠️ practice test S3 lookup failed for '{subject}/{filename}': {e}")
+        return None
+
+
 @app.route('/practice-test/<path:subject>')
 def practice_test(subject):
     root = app.config['UPLOAD_FOLDERS']['practice_tests']
     subject_folder = safe_join(root, subject)
     if subject_folder is None:
         abort(404)
-    files = sorted(
+    local_files = [
         f for f in os.listdir(subject_folder)
         if os.path.isfile(os.path.join(subject_folder, f))
-    ) if os.path.isdir(subject_folder) else []
+    ] if os.path.isdir(subject_folder) else []
+
+    # Merge local files with what the student service mirrored to S3.
+    files = sorted(set(local_files) | set(_list_practice_tests_s3(subject)))
 
     file_urls = [
         {
@@ -8621,9 +8694,16 @@ def practice_test(subject):
 @app.route('/uploads/practice-tests/<path:subject>/<filename>')
 def serve_practice_test(subject, filename):
     directory = safe_join(app.config['UPLOAD_FOLDERS']['practice_tests'], subject)
-    if directory is None or not os.path.isdir(directory):
-        abort(404)
-    return send_from_directory(directory, filename)
+    if directory is not None and os.path.isdir(directory):
+        local_path = safe_join(directory, filename)
+        if local_path and os.path.isfile(local_path):
+            return send_from_directory(directory, filename)
+
+    # Not on this machine: fall back to the copy in S3.
+    s3_url = _practice_test_s3_url(subject, filename)
+    if s3_url:
+        return redirect(s3_url)
+    abort(404)
 
 #certificate
 print("\n" + "="*50)
