@@ -74,14 +74,14 @@ SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
 #_get_runtime_env_value
 
 # ================= LOCAL URL OVERRIDES (COMMENTED OUT FOR EC2) =================
-# HOME_SERVICE_URL = "http://127.0.0.1:5001"
-# STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
+#HOME_SERVICE_URL = "http://127.0.0.1:5001"
+#STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
 # MEETING_SERVICE_URL = "http://127.0.0.1:9000"
 # CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
 # ASSET_SERVICE_URL = "http://127.0.0.1:8090"
 # INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", "https://api.chakorahub.com")
 # MS365_SERVICE_URL = "http://127.0.0.1:7700"
-# EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
+#EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
 # BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
 # REDIS_SERVICE_URL = "http://127.0.0.1:6390"
 # BRS_SERVICE_URL = "http://127.0.0.1:8020"
@@ -3044,7 +3044,67 @@ def home_feedback():
     return jsonify({"feedbacks": feedbacks})
 
 
+# ==========================================
+# EMPLOYEE RESOURCES MAINTENANCE MODE
+# ==========================================
 
+EMPLOYEE_RESOURCES_MAINTENANCE_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "employee_resources_maintenance_mode.txt"
+)
+
+def get_employee_resources_maintenance_mode():
+    try:
+        return os.path.exists(EMPLOYEE_RESOURCES_MAINTENANCE_FILE)
+    except Exception:
+        return False
+
+# ==========================================
+# EMPLOYEE RESOURCES MAINTENANCE CONTROL
+# ==========================================
+
+@app.route("/employee-resources/maintenance/on", methods=["POST"])
+def employee_resources_maintenance_on():
+    try:
+        with open(EMPLOYEE_RESOURCES_MAINTENANCE_FILE, "w") as f:
+            f.write("maintenance")
+
+        return jsonify({
+            "status": "success",
+            "maintenance_mode": True
+        })
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+
+
+@app.route("/employee-resources/maintenance/off", methods=["POST"])
+def employee_resources_maintenance_off():
+    try:
+        if os.path.exists(EMPLOYEE_RESOURCES_MAINTENANCE_FILE):
+            os.remove(EMPLOYEE_RESOURCES_MAINTENANCE_FILE)
+
+        return jsonify({
+            "status": "success",
+            "maintenance_mode": False
+        })
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+
+
+@app.route("/employee-resources/maintenance/status", methods=["GET"])
+def employee_resources_maintenance_status():
+    return jsonify({
+        "status": "success",
+        "maintenance_mode": get_employee_resources_maintenance_mode()
+    })
 # ==========================================
 # EMPLOYEE ROUTES - DIRECT DATABASE ACCESS
 # ==========================================
@@ -3507,6 +3567,7 @@ def employee_resources():
             "appraisal_data": appraisal_data,
             "appraisal_history": appraisal_history,
             "profile_data": profile_data,
+            "maintenance_mode": get_employee_resources_maintenance_mode(),
         }
 
         return render_template("employee-resources.html", **view_data)
@@ -3553,7 +3614,8 @@ def employee_resources():
             appraisal_data={},
             appraisal_history=[],
             profile_data={},
-            error="Database connection failed, using minimal data"
+            maintenance_mode=get_employee_resources_maintenance_mode(),
+            error="Database connection failed, using minimal data",
         )
 
 # ==========================================
