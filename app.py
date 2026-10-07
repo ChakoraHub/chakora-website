@@ -2732,6 +2732,28 @@ def student_maintenance_status_proxy():
         # If student-service is unreachable, show no banner
         return jsonify({"maintenance_mode": False}), 200
 
+@app.route('/api/student/maintenance/on', methods=['POST'])
+def student_maintenance_on_proxy():
+    return _student_maintenance_toggle("on")
+
+@app.route('/api/student/maintenance/off', methods=['POST'])
+def student_maintenance_off_proxy():
+    return _student_maintenance_toggle("off")
+
+def _student_maintenance_toggle(action):
+    import requests
+    try:
+        resp = requests.post(
+            f"{STUDENT_SERVICE_URL}/api/student/maintenance/{action}",
+            headers={"Authorization": request.headers.get("Authorization", "")},
+            timeout=15,
+        )
+        return (resp.text, resp.status_code,
+                {"Content-Type": resp.headers.get("Content-Type", "application/json")})
+    except requests.RequestException as e:
+        return jsonify({"success": False, "error": str(e)}), 502
+
+
 @app.route('/api/student/dashboard-data', methods=['GET'])
 def student_dashboard_data():
     """Debug/proxy endpoint to trigger student_service stored-proc backed dashboard."""
@@ -14939,4 +14961,4 @@ if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
 #if __name__ == "__main__":
     #print("🚀 Starting Production Server on 0.0.0.0:8080...")
-    #serve(app, host='0.0.0.0', port=8080, threads=50, url_scheme='http')
+    #serve(app, host='0.0.0.0', port=8080, threads=50, url_scheme='http')
