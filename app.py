@@ -13726,6 +13726,7 @@ def internship_maintenance_off():
 
 
 @app.route("/internships", methods=["GET"], endpoint="internships")
+@app.route("/internships", methods=["GET"], endpoint="internship_page")
 @app.route("/internship", methods=["GET"], endpoint="internship")
 def internships():
     maint = False
