@@ -13725,9 +13725,10 @@ def internship_maintenance_off():
     )
 
 
-@app.route("/internships", methods=["GET"])
-@app.route("/internship", methods=["GET"])
-def internship_page():
+@app.route("/internships", methods=["GET"], endpoint="internships")
+@app.route("/internships", methods=["GET"], endpoint="internship_page")
+@app.route("/internship", methods=["GET"], endpoint="internship")
+def internships():
     maint = False
     try:
         with requests.Session() as s:
@@ -13745,6 +13746,9 @@ def internship_page():
     except Exception:
         pass
     return render_template("Internships.html", maintenance_mode=maint)
+
+
+internship_page = internships
 
 
 @app.route("/api/internship/apply", methods=["POST"])
