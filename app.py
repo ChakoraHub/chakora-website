@@ -23,9 +23,10 @@ from kafka import KafkaProducer, KafkaConsumer
 from logging.handlers import RotatingFileHandler
 from datetime import datetime, timedelta, date
 from threading import Lock, Thread
-from flask import Flask, render_template, render_template_string, request, redirect, url_for, session, flash, send_from_directory, make_response, jsonify, send_file, current_app
+from flask import Flask, render_template, render_template_string, request, redirect, url_for, session, flash, send_from_directory, make_response, jsonify, send_file, current_app, abort
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
+from werkzeug.utils import safe_join   # NEW
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from requests.auth import HTTPBasicAuth
@@ -2717,6 +2718,19 @@ def logout():
     flash("Logged out successfully", "success")
     return redirect(url_for("home"))
 
+
+@app.route('/api/student/maintenance/status', methods=['GET'])
+def student_maintenance_status_proxy():
+    """Forward the maintenance banner check to student-service."""
+    try:
+        r = requests.get(
+            f"{STUDENT_SERVICE_URL}/api/student/maintenance/status",
+            timeout=5,
+        )
+        return jsonify(r.json()), r.status_code
+    except Exception:
+        # If student-service is unreachable, show no banner
+        return jsonify({"maintenance_mode": False}), 200
 
 @app.route('/api/student/dashboard-data', methods=['GET'])
 def student_dashboard_data():
@@ -7501,6 +7515,7 @@ ORG_ALLOWED_EXTENSIONS = {
 
 def _upload_org_doc_impl(doc_type='general'):
     """Proxy org doc upload to student-service → s3://org-complaince-docs"""
+    doc_type = {"hr_policy": "hr"}.get(doc_type, doc_type)
     try:
         # ── Auth check ────────────────────────────────────────────────
         if not _is_admin_user():
@@ -8555,10 +8570,16 @@ def upload_practice_test():
 
     return redirect(url_for('upload_page'))
 
-@app.route('/practice-test/<subject>')
+@app.route('/practice-test/<path:subject>')
 def practice_test(subject):
-    subject_folder = os.path.join(app.config['UPLOAD_FOLDERS']['practice_tests'], subject)
-    files = os.listdir(subject_folder) if os.path.exists(subject_folder) else []
+    root = app.config['UPLOAD_FOLDERS']['practice_tests']
+    subject_folder = safe_join(root, subject)
+    if subject_folder is None:
+        abort(404)
+    files = sorted(
+        f for f in os.listdir(subject_folder)
+        if os.path.isfile(os.path.join(subject_folder, f))
+    ) if os.path.isdir(subject_folder) else []
 
     file_urls = [
         {
@@ -8568,14 +8589,19 @@ def practice_test(subject):
     ]
 
     role = session.get('usertype', 'user')
-    return render_template('practice-test.html', subject=subject, file_urls=file_urls, usertype=role)
-
-@app.route('/uploads/practice-tests/<subject>/<filename>')
-def serve_practice_test(subject, filename):
-    return send_from_directory(
-        os.path.join(app.config['UPLOAD_FOLDERS']['practice_tests'], subject),
-        filename
+    return render_template(
+        'practice-test.html',
+        subject=subject,
+        file_urls=file_urls,
+        usertype=role
     )
+
+@app.route('/uploads/practice-tests/<path:subject>/<filename>')
+def serve_practice_test(subject, filename):
+    directory = safe_join(app.config['UPLOAD_FOLDERS']['practice_tests'], subject)
+    if directory is None or not os.path.isdir(directory):
+        abort(404)
+    return send_from_directory(directory, filename)
 
 #certificate
 print("\n" + "="*50)
