@@ -23,9 +23,10 @@ from kafka import KafkaProducer, KafkaConsumer
 from logging.handlers import RotatingFileHandler
 from datetime import datetime, timedelta, date
 from threading import Lock, Thread
-from flask import Flask, render_template, render_template_string, request, redirect, url_for, session, flash, send_from_directory, make_response, jsonify, send_file, current_app
+from flask import Flask, render_template, render_template_string, request, redirect, url_for, session, flash, send_from_directory, make_response, jsonify, send_file, current_app, abort
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
+from werkzeug.utils import safe_join   # NEW
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from requests.auth import HTTPBasicAuth
@@ -67,36 +68,41 @@ STUDENT_INTERNAL_NO_PROXY = "172.31.26.176"
 INTERNAL_NO_PROXY="172.31.26.176"
 CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
 INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://172.31.26.176:8025")
+SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
 
-#HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL", "http://127.0.0.1:5001")
-#STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL", "http://127.0.0.1:8001")
-#MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL", "http://127.0.0.1:9000")
-#CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL", "http://127.0.0.1:7600")
-#ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL", "http://127.0.0.1:8090")
-#INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", "http://127.0.0.1:5050")
-#MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL", "http://127.0.0.1:7700")
-#EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL", "http://127.0.0.1:8002")
-#BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL", "http://127.0.0.1:7500")
-#REDIS_SERVICE_URL = os.getenv("REDIS_SERVICE_URL", "http://127.0.0.1:6390")
-#BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL", "http://127.0.0.1:8020")
-#BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL", "http://127.0.0.1:8010")
-#RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL", "http://127.0.0.1:7900")
-#ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
-#OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL", "http://127.0.0.1:8500")
-#WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500")
-#FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
-#REDIS_HOST = "127.0.0.1"
-#APPLICATION_SERVICE_URL = os.getenv("APPLICATION_SERVICE_URL", "http://127.0.0.1:8020")
-#LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
-#WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
-#STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
-#STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
-#INTERNAL_NO_PROXY="127.0.0.1"
-#CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
-#INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
-#STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
+# ================= LOCAL URL OVERRIDES (COMMENTED OUT FOR EC2) =================
+# HOME_SERVICE_URL = "http://127.0.0.1:5001"
+# STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
+# MEETING_SERVICE_URL = "http://127.0.0.1:9000"
+# CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
+# ASSET_SERVICE_URL = "http://127.0.0.1:8090"
+# INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", "https://api.chakorahub.com")
+# MS365_SERVICE_URL = "http://127.0.0.1:7700"
+# EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
+# BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
+# REDIS_SERVICE_URL = "http://127.0.0.1:6390"
+# BRS_SERVICE_URL = "http://127.0.0.1:8020"
+# BILLING_SERVICE_URL = "http://127.0.0.1:8010"
+# RAG_SERVICE_URL = "http://127.0.0.1:7900"
+# ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
+# OPE_SERVICE_URL = "http://127.0.0.1:8500"
+# WABA_SERVICE_URL = "http://127.0.0.1:2500"
+# FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
+# REDIS_HOST = "127.0.0.1"
+# APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
+# LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
+# WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
+# STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
+# STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
+# INTERNAL_NO_PROXY="127.0.0.1"
+# CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
+# INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+# TICKET_SERVICE_URL = "http://127.0.0.1:8025"
+# SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
+STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
 sf_client = None
 
 # STM_SERVICE_URL = os.environ.get("STM_SERVICE_URL", "http://127.0.0.1:7010")
@@ -126,23 +132,6 @@ for _candidate in _ENV_PATH_CANDIDATES:
 
 print(f"[startup] dotenv selected: {_loaded_env_path if _loaded_env_path else 'NONE'}")
 print(f"[startup] env candidates checked: {[str(p) for p in _ENV_PATH_CANDIDATES]}")
-
-# Resolve service URLs after dotenv loading so process/.env configuration wins.
-HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL", HOME_SERVICE_URL).rstrip("/")
-STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL", STUDENT_SERVICE_URL).rstrip("/")
-MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL", MEETING_SERVICE_URL).rstrip("/")
-CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL", CHATBOT_SERVICE_URL).rstrip("/")
-ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL", ASSET_SERVICE_URL).rstrip("/")
-INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", INTERNSHIP_SERVICE_URL).rstrip("/")
-MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL", MS365_SERVICE_URL).rstrip("/")
-EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL", EMPLOYEE_SERVICE_URL).rstrip("/")
-BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL", BLOGGER_SERVICE_URL).rstrip("/")
-BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL", BRS_SERVICE_URL).rstrip("/")
-BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL", BILLING_SERVICE_URL).rstrip("/")
-RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL", RAG_SERVICE_URL).rstrip("/")
-OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL", OPE_SERVICE_URL).rstrip("/")
-WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", WABA_SERVICE_URL).rstrip("/")
-APPLICATION_SERVICE_URL = os.getenv("APPLICATION_SERVICE_URL", APPLICATION_SERVICE_URL).rstrip("/")
 
 MS_TENANT_ID=os.getenv("MS_TENANT_ID")
 MS_CLIENT_ID=os.getenv("MS_CLIENT_ID")
@@ -1342,8 +1331,18 @@ def enforce_canonical_host_redirect():
     forwarded_host = (request.headers.get("X-Forwarded-Host") or "").split(",")[0].strip()
     host_header = (forwarded_host or request.headers.get("Host") or request.host or "").split(":")[0].lower()
 
+    if host_header in {"localhost", "127.0.0.1", "0.0.0.0"} or host_header.startswith("127."):
+        return
+
     internship_host_paths = {"/internships", "/api/internship/apply"}
-    api_host_allowed_paths = {"/internships", "/api/internship/apply", "/health"}
+    api_host_allowed_paths = {
+        "/internships",
+        "/api/internship/apply",
+        "/health",
+        "/internship/maintenance/status",
+        "/admin/internship/maintenance/on",
+        "/admin/internship/maintenance/off"
+    }
 
     if INTERNSHIP_PUBLIC_HOST and host_header == INTERNSHIP_PUBLIC_HOST and request.path not in api_host_allowed_paths:
         return redirect(f"https://{CANONICAL_HOST}/", code=308)
@@ -1445,177 +1444,6 @@ def disable_cache_for_dynamic_pages(response):
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
     return response
-
-
-# ============================================================
-# STUDENT REGISTRATION MAINTENANCE PROXY
-# Flask is the public gateway; the Student FastAPI service
-# owns the actual maintenance state.
-# ============================================================
-
-@app.route("/api/student/maintenance/on", methods=["POST"])
-def student_registration_maintenance_on():
-    authorization = request.headers.get("Authorization", "").strip()
-    if not authorization:
-        return jsonify({
-            "success": False,
-            "message": "Missing Authorization header"
-        }), 401
-
-    try:
-        response = requests.post(
-            f"{STUDENT_SERVICE_URL}/api/student/maintenance/on",
-            headers={"Authorization": authorization},
-            timeout=10,
-        )
-
-        try:
-            payload = response.json()
-        except ValueError:
-            payload = {
-                "success": False,
-                "message": response.text[:500]
-            }
-
-        return jsonify(payload), response.status_code
-
-    except requests.RequestException as exc:
-        return jsonify({
-            "success": False,
-            "message": f"Student service unavailable: {exc}",
-        }), 503
-
-
-@app.route("/api/student/maintenance/off", methods=["POST"])
-def student_registration_maintenance_off():
-    authorization = request.headers.get("Authorization", "").strip()
-    if not authorization:
-        return jsonify({
-            "success": False,
-            "message": "Missing Authorization header"
-        }), 401
-
-    try:
-        response = requests.post(
-            f"{STUDENT_SERVICE_URL}/api/student/maintenance/off",
-            headers={"Authorization": authorization},
-            timeout=10,
-        )
-
-        try:
-            payload = response.json()
-        except ValueError:
-            payload = {
-                "success": False,
-                "message": response.text[:500]
-            }
-
-        return jsonify(payload), response.status_code
-
-    except requests.RequestException as exc:
-        return jsonify({
-            "success": False,
-            "message": f"Student service unavailable: {exc}",
-        }), 503
-
-
-@app.route("/api/student/maintenance/status", methods=["GET"])
-def student_registration_maintenance_status():
-    try:
-        response = requests.get(
-            f"{STUDENT_SERVICE_URL}/api/student/maintenance/status",
-            timeout=5,
-        )
-
-        try:
-            payload = response.json()
-        except ValueError:
-            payload = {
-                "success": False,
-                "message": response.text[:500]
-            }
-
-        return jsonify(payload), response.status_code
-
-    except requests.RequestException as exc:
-        # Do not block the registration page if Student Service is down.
-        return jsonify({
-            "success": False,
-            "maintenance_mode": False,
-        }), 503
-
-
-# ============================================================
-# COLLABORATION MAINTENANCE PROXY
-# Flask is the public gateway; the Collaboration FastAPI service
-# owns the actual maintenance state.
-# ============================================================
-
-@app.route("/api/collaboration/maintenance/on", methods=["POST"])
-def collaboration_maintenance_on():
-    authorization = request.headers.get("Authorization", "").strip()
-    if not authorization:
-        return jsonify({"success": False, "message": "Missing Authorization header"}), 401
-
-    try:
-        response = requests.post(
-            f"{BRS_SERVICE_URL}/api/collaboration/maintenance/on",
-            headers={"Authorization": authorization},
-            timeout=10,
-        )
-        try:
-            payload = response.json()
-        except ValueError:
-            payload = {"success": False, "message": response.text[:500]}
-        return jsonify(payload), response.status_code
-    except requests.RequestException as exc:
-        return jsonify({
-            "success": False,
-            "message": f"Collaboration service unavailable: {exc}",
-        }), 503
-
-
-@app.route("/api/collaboration/maintenance/off", methods=["POST"])
-def collaboration_maintenance_off():
-    authorization = request.headers.get("Authorization", "").strip()
-    if not authorization:
-        return jsonify({"success": False, "message": "Missing Authorization header"}), 401
-
-    try:
-        response = requests.post(
-            f"{BRS_SERVICE_URL}/api/collaboration/maintenance/off",
-            headers={"Authorization": authorization},
-            timeout=10,
-        )
-        try:
-            payload = response.json()
-        except ValueError:
-            payload = {"success": False, "message": response.text[:500]}
-        return jsonify(payload), response.status_code
-    except requests.RequestException as exc:
-        return jsonify({
-            "success": False,
-            "message": f"Collaboration service unavailable: {exc}",
-        }), 503
-
-
-@app.route("/api/collaboration-maintenance/status", methods=["GET"])
-def collaboration_maintenance_status():
-    try:
-        response = requests.get(
-            f"{BRS_SERVICE_URL}/api/collaboration/maintenance/status",
-            timeout=5,
-        )
-        try:
-            payload = response.json()
-        except ValueError:
-            payload = {"success": False, "message": response.text[:500]}
-        return jsonify(payload), response.status_code
-    except requests.RequestException:
-        # Do not block normal page rendering if the backend is temporarily down.
-        return jsonify({"success": False, "maintenance_mode": False}), 503
-
-
 
 @app.route('/api/chatbot/message', methods=['POST'])
 def chatbot_message():
@@ -1852,6 +1680,250 @@ def gallery():
         print("GALLERY ERROR:", e)
 
     return render_template("gallery.html", gallery_items=gallery_items)
+
+def _resolve_student_session():
+    """Resolves and returns (user_name, user_email) for the logged-in student, ensuring real name is used (not email)."""
+    user_email = (session.get("email") or "").strip()
+    user_name = (session.get("username") or session.get("name") or "").strip()
+    user_id = session.get("user_id")
+
+    try:
+        conn = get_db_connection()
+        if conn:
+            cursor = conn.cursor(DICT_CURSOR)
+            # 1. Resolve email if missing
+            if not user_email and (user_id or session.get("user")):
+                if user_id:
+                    cursor.execute("SELECT EMAIL, USERNAME FROM NRM_USERS WHERE ID = %s", (user_id,))
+                else:
+                    cursor.execute("SELECT EMAIL, USERNAME FROM NRM_USERS WHERE USERNAME = %s OR EMAIL = %s", (session.get("user"), session.get("user")))
+                row = cursor.fetchone()
+                if row:
+                    user_email = (row.get("EMAIL") or row.get("email") or "").strip()
+                    if not user_name:
+                        user_name = (row.get("USERNAME") or row.get("username") or "").strip()
+
+            # 2. Resolve real student name from NRM_STUDENTS or EMPLOYEE_REGISTRATIONS
+            resolved_real_name = None
+            if user_email:
+                # Check NRM_STUDENTS
+                try:
+                    cursor.execute("""
+                        SELECT S.FIRST_NAME, S.LAST_NAME 
+                        FROM NRM_STUDENTS S 
+                        JOIN NRM_USERS U ON S.USER_ID = U.ID 
+                        WHERE LOWER(U.EMAIL) = %s AND ROWNUM = 1
+                    """, (user_email.lower(),))
+                    s_row = cursor.fetchone()
+                    if s_row:
+                        fn = (s_row.get("FIRST_NAME") or "").strip()
+                        ln = (s_row.get("LAST_NAME") or "").strip()
+                        resolved_real_name = f"{fn} {ln}".strip()
+                except Exception:
+                    pass
+
+                # Check EMPLOYEE_REGISTRATIONS if needed
+                if not resolved_real_name or "@" in resolved_real_name:
+                    try:
+                        cursor.execute("SELECT FULL_NAME FROM EMPLOYEE_REGISTRATIONS WHERE LOWER(EMAIL) = %s AND ROWNUM = 1", (user_email.lower(),))
+                        e_row = cursor.fetchone()
+                        if e_row and e_row.get("FULL_NAME") and "@" not in e_row.get("FULL_NAME"):
+                            resolved_real_name = e_row.get("FULL_NAME").strip()
+                    except Exception:
+                        pass
+
+            cursor.close()
+            conn.close()
+
+            if resolved_real_name and "@" not in resolved_real_name:
+                user_name = resolved_real_name
+    except Exception as e:
+        print(f"Error resolving student real name for ticketing: {e}")
+
+    # Fallback formatting: if user_name is email or empty, format prefix
+    if not user_name or "@" in user_name:
+        target = user_name if "@" in user_name else user_email
+        if "@" in target:
+            prefix = target.split("@")[0]
+            user_name = re.sub(r'[\._0-9\-]+', ' ', prefix).strip().title() or "Student"
+        else:
+            user_name = "Student"
+
+    session["email"] = user_email
+    session["username"] = user_name
+    return user_name, user_email
+
+
+
+@app.route('/home')
+def home_redirect():
+    """Universal safe /home redirect ensuring zero 404s for any logged-in user."""
+    login_type = str(session.get("login_type") or "").lower()
+    if login_type == "employee" or session.get("employee_id"):
+        return redirect(url_for("employee_resources"))
+    elif login_type in ["admin", "administrator", "support"]:
+        return redirect(url_for("ticket_admin"))
+    elif login_type == "user" or session.get("user_id"):
+        return redirect(url_for("resources"))
+    return redirect("/")
+
+@app.route('/tickets/student')
+def ticket_student():
+    """Student portal for raising tickets, checking status, and tracking tokens."""
+    user_name, user_email = _resolve_student_session()
+    return render_template(
+        "ticket_student.html",
+        current_role="client",
+        current_user_name=user_name,
+        current_user_email=user_email,
+        api_base=""
+    )
+
+
+@app.route('/tickets/employee')
+@app.route('/tickets/staff')
+def ticket_employee():
+    """Employee / Staff portal for handling assigned tickets and SLA resolution."""
+    is_admin = bool(session.get("admin") or session.get("is_admin")) or \
+               str(session.get("login_type") or "").lower() in ["admin", "administrator", "support"] or \
+               str(session.get("role") or "").lower() in ["admin", "administrator", "support"] or \
+               bool(session.get("employee_admin_access")) or \
+               str(session.get("employee_id") or "").upper() == "CH25006"
+    if is_admin and request.args.get("view") != "employee":
+        return redirect(url_for('ticket_admin'))
+
+    user_name = session.get("employee_name") or session.get("username") or "Staff Member"
+    user_email = session.get("email") or session.get("employee_email") or ""
+    return render_template(
+        "ticket_employee.html",
+        current_role="employee",
+        current_user_name=user_name,
+        current_user_email=user_email,
+        api_base=""
+    )
+
+
+@app.route('/tickets/admin')
+@app.route('/ticket/admin')
+@app.route('/support/admin')
+@app.route('/tickets/desk')
+@app.route('/support/desk')
+def ticket_admin():
+    """Operations Desk / Admin Console for master queue, reassignment, and SLA oversight."""
+    user_name = session.get("admin_name") or session.get("username") or "Operations Admin"
+    user_email = session.get("email") or "support@chakorahub.com"
+    return render_template(
+        "ticket_admin.html",
+        current_role="support",
+        current_user_name=user_name,
+        current_user_email=user_email,
+        api_base=""
+    )
+
+
+@app.route('/tickets')
+@app.route('/ticket')
+@app.route('/support')
+@app.route('/help')
+@app.route('/tickets/module')
+@app.route('/support/module')
+def ticket_portal():
+    """
+    Renders the dedicated role template based on user session or ?role= parameter:
+    - Admin / Support -> ticket_admin.html
+    - Employee / Staff -> ticket_employee.html
+    - Student / Client -> ticket_student.html
+    """
+    param_role = (request.args.get("role") or "").lower().strip()
+    
+    is_admin = bool(session.get("admin") or session.get("is_admin")) or \
+               str(session.get("login_type") or "").lower() in ["admin", "administrator", "support"] or \
+               str(session.get("role") or "").lower() in ["admin", "administrator", "support"] or \
+               bool(session.get("employee_admin_access")) or \
+               str(session.get("employee_id") or "").upper() == "CH25006"
+    is_employee = (str(session.get("login_type") or "").lower() == "employee") or \
+                  bool(session.get("employee_id")) or \
+                  str(session.get("role") or "").lower() in ["employee", "staff"]
+
+    if param_role in ["admin", "support", "superadmin", "desk"] or (not param_role and is_admin):
+        user_name = session.get("admin_name") or session.get("username") or "Operations Admin"
+        user_email = session.get("email") or "support@chakorahub.com"
+        return render_template(
+            "ticket_admin.html",
+            current_role="support",
+            current_user_name=user_name,
+            current_user_email=user_email,
+            api_base=""
+        )
+    elif param_role in ["employee", "staff", "agent"] or (not param_role and is_employee):
+        user_name = session.get("employee_name") or session.get("username") or "Staff Member"
+        user_email = session.get("email") or session.get("employee_email") or ""
+        return render_template(
+            "ticket_employee.html",
+            current_role="employee",
+            current_user_name=user_name,
+            current_user_email=user_email,
+            api_base=""
+        )
+    else:
+        user_name, user_email = _resolve_student_session()
+        return render_template(
+            "ticket_student.html",
+            current_role="client",
+            current_user_name=user_name,
+            current_user_email=user_email,
+            api_base=""
+        )
+
+
+@app.route('/api/ticket/<path:subpath>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
+@app.route('/api/support/<path:subpath>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
+def proxy_ticket_service(subpath):
+    """
+    Transparent Reverse Proxy forwarding all ticket and support API requests
+    directly to the Ticket Microservice on Port 8025.
+    """
+    target_url = f"{TICKET_SERVICE_URL}/api/ticket/{subpath}"
+    method = request.method
+    params = request.args
+    headers = {k: v for k, v in request.headers if k.lower() not in ('host', 'content-length')}
+
+    try:
+        data = request.get_data()
+        content_type = request.content_type
+
+        req_headers = dict(headers)
+        if content_type:
+            req_headers['Content-Type'] = content_type
+
+        with requests.Session() as s:
+            s.trust_env = False
+            s.proxies = {"http": None, "https": None}
+            upstream_resp = s.request(
+                method=method,
+                url=target_url,
+                params=params,
+                data=data,
+                headers=req_headers,
+                timeout=30,
+                allow_redirects=False
+            )
+
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        resp_headers = [
+            (name, value) for (name, value) in upstream_resp.raw.headers.items()
+            if name.lower() not in excluded_headers
+        ]
+
+        return (upstream_resp.content, upstream_resp.status_code, resp_headers)
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Ticket Service reverse proxy error: {e}")
+        return jsonify({
+            "status": "error",
+            "detail": f"Ticket Service unavailable ({str(e)})"
+        }), 503
+
 
 @app.route("/home/enquiry", methods=["POST"])
 def proxy_enquiry():
@@ -2645,6 +2717,41 @@ def logout():
     session.clear()
     flash("Logged out successfully", "success")
     return redirect(url_for("home"))
+
+
+@app.route('/api/student/maintenance/status', methods=['GET'])
+def student_maintenance_status_proxy():
+    """Forward the maintenance banner check to student-service."""
+    try:
+        r = requests.get(
+            f"{STUDENT_SERVICE_URL}/api/student/maintenance/status",
+            timeout=5,
+        )
+        return jsonify(r.json()), r.status_code
+    except Exception:
+        # If student-service is unreachable, show no banner
+        return jsonify({"maintenance_mode": False}), 200
+
+@app.route('/api/student/maintenance/on', methods=['POST'])
+def student_maintenance_on_proxy():
+    return _student_maintenance_toggle("on")
+
+@app.route('/api/student/maintenance/off', methods=['POST'])
+def student_maintenance_off_proxy():
+    return _student_maintenance_toggle("off")
+
+def _student_maintenance_toggle(action):
+    import requests
+    try:
+        resp = requests.post(
+            f"{STUDENT_SERVICE_URL}/api/student/maintenance/{action}",
+            headers={"Authorization": request.headers.get("Authorization", "")},
+            timeout=15,
+        )
+        return (resp.text, resp.status_code,
+                {"Content-Type": resp.headers.get("Content-Type", "application/json")})
+    except requests.RequestException as e:
+        return jsonify({"success": False, "error": str(e)}), 502
 
 
 @app.route('/api/student/dashboard-data', methods=['GET'])
@@ -6251,16 +6358,6 @@ app.permanent_session_lifetime = timedelta(days=7)
 def aboutus():
     return render_template("aboutus.html")
 
-@app.route('/internships', methods=['GET'])
-def internships():
-    current_host = (request.headers.get("X-Forwarded-Host") or request.host or "").split(":")[0].strip().lower()
-    if INTERNSHIP_PUBLIC_HOST and current_host != INTERNSHIP_PUBLIC_HOST:
-        target_url = f"https://{INTERNSHIP_PUBLIC_HOST}{request.path}"
-        if request.query_string:
-            target_url = f"{target_url}?{request.query_string.decode('utf-8', errors='ignore')}"
-        return redirect(target_url, code=308)
-
-    return render_template('Internships.html')
 
 
 # -------------------------------------------------------
@@ -7440,6 +7537,7 @@ ORG_ALLOWED_EXTENSIONS = {
 
 def _upload_org_doc_impl(doc_type='general'):
     """Proxy org doc upload to student-service → s3://org-complaince-docs"""
+    doc_type = {"hr_policy": "hr"}.get(doc_type, doc_type)
     try:
         # ── Auth check ────────────────────────────────────────────────
         if not _is_admin_user():
@@ -8494,10 +8592,89 @@ def upload_practice_test():
 
     return redirect(url_for('upload_page'))
 
-@app.route('/practice-test/<subject>')
+# ---------- Practice test files: local disk + S3 ----------
+# The student service saves practice tests to ITS disk and mirrors them to S3
+# (Practice_Tests/<subject>/<file>). This web app may run on a different
+# machine, so list/serve from both places.
+def _practice_test_bucket():
+    return (
+        os.getenv("STUDENT_CONTENT_S3_BUCKET")
+        or os.getenv("STUDENT_S3_BUCKET")
+        or "chakorahub-student-s3"
+    ).strip()
+
+
+def _practice_test_s3_client():
+    region = (os.getenv("AWS_REGION") or os.getenv("AWS_DEFAULT_REGION") or "eu-north-1").strip()
+    if AWS_ACCESS_KEY and AWS_SECRET_KEY:
+        return boto3.client(
+            "s3",
+            region_name=region,
+            aws_access_key_id=AWS_ACCESS_KEY,
+            aws_secret_access_key=AWS_SECRET_KEY,
+        )
+    return boto3.client("s3", region_name=region)
+
+
+def _practice_subject_is_safe(subject):
+    """Reject subjects that could escape the Practice_Tests/ prefix."""
+    if not subject or subject.startswith("/") or "\\" in subject:
+        return False
+    return ".." not in subject.split("/")
+
+
+def _list_practice_tests_s3(subject):
+    """File names stored in S3 for this subject. Returns [] on any problem."""
+    if not _practice_subject_is_safe(subject):
+        return []
+    try:
+        s3 = _practice_test_s3_client()
+        prefix = f"Practice_Tests/{subject}/"
+        names = []
+        paginator = s3.get_paginator("list_objects_v2")
+        for page in paginator.paginate(Bucket=_practice_test_bucket(), Prefix=prefix):
+            for obj in page.get("Contents", []):
+                name = obj["Key"][len(prefix):]
+                if name and "/" not in name:
+                    names.append(name)
+        return names
+    except Exception as e:
+        print(f"⚠️ practice test S3 listing failed for '{subject}': {e}")
+        return []
+
+
+def _practice_test_s3_url(subject, filename):
+    """Short-lived download URL if the object exists in S3, else None."""
+    if not _practice_subject_is_safe(subject) or secure_filename(filename) != filename:
+        return None
+    try:
+        s3 = _practice_test_s3_client()
+        bucket = _practice_test_bucket()
+        key = f"Practice_Tests/{subject}/{filename}"
+        s3.head_object(Bucket=bucket, Key=key)
+        return s3.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": bucket, "Key": key},
+            ExpiresIn=300,
+        )
+    except Exception as e:
+        print(f"⚠️ practice test S3 lookup failed for '{subject}/{filename}': {e}")
+        return None
+
+
+@app.route('/practice-test/<path:subject>')
 def practice_test(subject):
-    subject_folder = os.path.join(app.config['UPLOAD_FOLDERS']['practice_tests'], subject)
-    files = os.listdir(subject_folder) if os.path.exists(subject_folder) else []
+    root = app.config['UPLOAD_FOLDERS']['practice_tests']
+    subject_folder = safe_join(root, subject)
+    if subject_folder is None:
+        abort(404)
+    local_files = [
+        f for f in os.listdir(subject_folder)
+        if os.path.isfile(os.path.join(subject_folder, f))
+    ] if os.path.isdir(subject_folder) else []
+
+    # Merge local files with what the student service mirrored to S3.
+    files = sorted(set(local_files) | set(_list_practice_tests_s3(subject)))
 
     file_urls = [
         {
@@ -8507,14 +8684,26 @@ def practice_test(subject):
     ]
 
     role = session.get('usertype', 'user')
-    return render_template('practice-test.html', subject=subject, file_urls=file_urls, usertype=role)
-
-@app.route('/uploads/practice-tests/<subject>/<filename>')
-def serve_practice_test(subject, filename):
-    return send_from_directory(
-        os.path.join(app.config['UPLOAD_FOLDERS']['practice_tests'], subject),
-        filename
+    return render_template(
+        'practice-test.html',
+        subject=subject,
+        file_urls=file_urls,
+        usertype=role
     )
+
+@app.route('/uploads/practice-tests/<path:subject>/<filename>')
+def serve_practice_test(subject, filename):
+    directory = safe_join(app.config['UPLOAD_FOLDERS']['practice_tests'], subject)
+    if directory is not None and os.path.isdir(directory):
+        local_path = safe_join(directory, filename)
+        if local_path and os.path.isfile(local_path):
+            return send_from_directory(directory, filename)
+
+    # Not on this machine: fall back to the copy in S3.
+    s3_url = _practice_test_s3_url(subject, filename)
+    if s3_url:
+        return redirect(s3_url)
+    abort(404)
 
 #certificate
 print("\n" + "="*50)
@@ -10497,7 +10686,75 @@ def industry_brs():
         flash("❌ Internal server error. Please try again.", "error")
         return redirect(url_for("industry_brs"))
  
- 
+ # ============================================================
+# COLLABORATION MAINTENANCE PROXY
+# Flask is the public gateway; the Collaboration FastAPI service
+# owns the actual maintenance state.
+# ============================================================
+
+@app.route("/api/collaboration/maintenance/on", methods=["POST"])
+def collaboration_maintenance_on():
+    authorization = request.headers.get("Authorization", "").strip()
+    if not authorization:
+        return jsonify({"success": False, "message": "Missing Authorization header"}), 401
+
+    try:
+        response = requests.post(
+            f"{BRS_SERVICE_URL}/api/collaboration/maintenance/on",
+            headers={"Authorization": authorization},
+            timeout=10,
+        )
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = {"success": False, "message": response.text[:500]}
+        return jsonify(payload), response.status_code
+    except requests.RequestException as exc:
+        return jsonify({
+            "success": False,
+            "message": f"Collaboration service unavailable: {exc}",
+        }), 503
+
+
+@app.route("/api/collaboration/maintenance/off", methods=["POST"])
+def collaboration_maintenance_off():
+    authorization = request.headers.get("Authorization", "").strip()
+    if not authorization:
+        return jsonify({"success": False, "message": "Missing Authorization header"}), 401
+
+    try:
+        response = requests.post(
+            f"{BRS_SERVICE_URL}/api/collaboration/maintenance/off",
+            headers={"Authorization": authorization},
+            timeout=10,
+        )
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = {"success": False, "message": response.text[:500]}
+        return jsonify(payload), response.status_code
+    except requests.RequestException as exc:
+        return jsonify({
+            "success": False,
+            "message": f"Collaboration service unavailable: {exc}",
+        }), 503
+
+
+@app.route("/api/collaboration-maintenance/status", methods=["GET"])
+def collaboration_maintenance_status():
+    try:
+        response = requests.get(
+            f"{BRS_SERVICE_URL}/api/collaboration/maintenance/status",
+            timeout=5,
+        )
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = {"success": False, "message": response.text[:500]}
+        return jsonify(payload), response.status_code
+    except requests.RequestException:
+        # Do not block normal page rendering if the backend is temporarily down.
+        return jsonify({"success": False, "maintenance_mode": False}), 503
 # ==================================================
 # STEP 1.5: CLIENT BILLING  (mirrors the student /registration
 # Razorpay flow — reuses /create_razorpay_order for order creation
@@ -13533,10 +13790,16 @@ def _internship_service_base_urls():
     candidates = [
         *gateway_candidates,
         INTERNSHIP_SERVICE_URL,
-        INTERNSHIP_SERVICE_URL,
         "http://127.0.0.1:5050",
         "http://localhost:5050",
     ]
+    if os.name == "nt":
+        candidates = [
+            "http://127.0.0.1:5050",
+            "http://localhost:5050",
+            *gateway_candidates,
+            INTERNSHIP_SERVICE_URL,
+        ]
     normalized = []
     for raw in candidates:
         value = (raw or "").strip().rstrip("/")
@@ -13546,6 +13809,117 @@ def _internship_service_base_urls():
         if value and value not in normalized:
             normalized.append(value)
     return normalized
+    
+# ============================================================
+# INTERNSHIP MAINTENANCE PROXY
+# ============================================================
+
+def _proxy_internship_maintenance(method, path):
+    try:
+        os.environ["NO_PROXY"] = INTERNAL_NO_PROXY
+        os.environ["no_proxy"] = INTERNAL_NO_PROXY
+
+        headers = {}
+        auth_header = request.headers.get("Authorization")
+        if auth_header:
+            headers["Authorization"] = auth_header
+
+        with requests.Session() as s:
+            s.trust_env = False
+            s.proxies = {"http": None, "https": None}
+
+            service_bases = _internship_service_base_urls()
+            last_error = None
+
+            for base_url in service_bases:
+                try:
+                    response = s.request(
+                        method,
+                        f"{base_url}{path}",
+                        headers=headers,
+                        timeout=5
+                    )
+
+                    if response.status_code == 200:
+                        return jsonify(response.json()), 200
+
+                    last_error = (
+                        f"Internship service returned "
+                        f"HTTP {response.status_code}"
+                    )
+
+                except Exception as exc:
+                    last_error = str(exc)
+
+            return jsonify({
+                "success": False,
+                "maintenance_mode": False,
+                "message": last_error or "Internship service unavailable"
+            }), 502
+
+    except Exception as exc:
+        return jsonify({
+            "success": False,
+            "maintenance_mode": False,
+            "message": str(exc)
+        }), 500
+
+
+@app.route("/internship/maintenance/status", methods=["GET"])
+@app.route("/api/internship/maintenance/status", methods=["GET"])
+@app.route("/api/admin/internship/maintenance/status", methods=["GET"])
+def internship_maintenance_status():
+    return _proxy_internship_maintenance(
+        "GET",
+        "/internship/maintenance/status"
+    )
+
+
+@app.route("/admin/internship/maintenance/on", methods=["POST"])
+@app.route("/api/admin/internship/maintenance/on", methods=["POST"])
+@app.route("/api/internship/maintenance/on", methods=["POST"])
+def internship_maintenance_on():
+    return _proxy_internship_maintenance(
+        "POST",
+        "/admin/internship/maintenance/on"
+    )
+
+
+@app.route("/admin/internship/maintenance/off", methods=["POST"])
+@app.route("/api/admin/internship/maintenance/off", methods=["POST"])
+@app.route("/api/internship/maintenance/off", methods=["POST"])
+def internship_maintenance_off():
+    return _proxy_internship_maintenance(
+        "POST",
+        "/admin/internship/maintenance/off"
+    )
+
+
+@app.route("/internships", methods=["GET"], endpoint="internships")
+@app.route("/internships", methods=["GET"], endpoint="internship_page")
+@app.route("/internship", methods=["GET"], endpoint="internship")
+def internships():
+    maint = False
+    try:
+        with requests.Session() as s:
+            s.trust_env = False
+            s.proxies = {"http": None, "https": None}
+            service_bases = _internship_service_base_urls()
+            for base_url in service_bases:
+                try:
+                    resp = s.get(f"{base_url}/internship/maintenance/status", timeout=2)
+                    if resp.status_code == 200:
+                        maint = bool(resp.json().get("maintenance_mode", False))
+                        break
+                except Exception:
+                    continue
+    except Exception:
+        pass
+    return render_template("Internships.html", maintenance_mode=maint)
+
+
+internship_page = internships
+
 
 @app.route("/api/internship/apply", methods=["POST"])
 @app.route("/internship-apply-proxy", methods=["POST"])
