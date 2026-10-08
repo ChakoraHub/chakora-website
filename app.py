@@ -10686,7 +10686,75 @@ def industry_brs():
         flash("❌ Internal server error. Please try again.", "error")
         return redirect(url_for("industry_brs"))
  
- 
+ # ============================================================
+# COLLABORATION MAINTENANCE PROXY
+# Flask is the public gateway; the Collaboration FastAPI service
+# owns the actual maintenance state.
+# ============================================================
+
+@app.route("/api/collaboration/maintenance/on", methods=["POST"])
+def collaboration_maintenance_on():
+    authorization = request.headers.get("Authorization", "").strip()
+    if not authorization:
+        return jsonify({"success": False, "message": "Missing Authorization header"}), 401
+
+    try:
+        response = requests.post(
+            f"{BRS_SERVICE_URL}/api/collaboration/maintenance/on",
+            headers={"Authorization": authorization},
+            timeout=10,
+        )
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = {"success": False, "message": response.text[:500]}
+        return jsonify(payload), response.status_code
+    except requests.RequestException as exc:
+        return jsonify({
+            "success": False,
+            "message": f"Collaboration service unavailable: {exc}",
+        }), 503
+
+
+@app.route("/api/collaboration/maintenance/off", methods=["POST"])
+def collaboration_maintenance_off():
+    authorization = request.headers.get("Authorization", "").strip()
+    if not authorization:
+        return jsonify({"success": False, "message": "Missing Authorization header"}), 401
+
+    try:
+        response = requests.post(
+            f"{BRS_SERVICE_URL}/api/collaboration/maintenance/off",
+            headers={"Authorization": authorization},
+            timeout=10,
+        )
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = {"success": False, "message": response.text[:500]}
+        return jsonify(payload), response.status_code
+    except requests.RequestException as exc:
+        return jsonify({
+            "success": False,
+            "message": f"Collaboration service unavailable: {exc}",
+        }), 503
+
+
+@app.route("/api/collaboration-maintenance/status", methods=["GET"])
+def collaboration_maintenance_status():
+    try:
+        response = requests.get(
+            f"{BRS_SERVICE_URL}/api/collaboration/maintenance/status",
+            timeout=5,
+        )
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = {"success": False, "message": response.text[:500]}
+        return jsonify(payload), response.status_code
+    except requests.RequestException:
+        # Do not block normal page rendering if the backend is temporarily down.
+        return jsonify({"success": False, "maintenance_mode": False}), 503
 # ==================================================
 # STEP 1.5: CLIENT BILLING  (mirrors the student /registration
 # Razorpay flow — reuses /create_razorpay_order for order creation
