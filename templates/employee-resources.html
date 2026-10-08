@@ -620,7 +620,7 @@
 
   <main class="main-content">
     <div class="content-inner">
-
+      {% include 'employee_resources_maintenance.html' %}
       <!-- WELCOME -->
       <div id="welcome" class="content-section active">
         {% if festival_today %}
@@ -1273,7 +1273,6 @@
 
       <!-- TIMESHEET -->
       <div id="timesheet" class="content-section">
-        {% include 'employee_resources_maintenance.html' %}
         <div class="section-header">
           <h1>Timesheet</h1>
           <p>Log your daily work hours - only today is editable.</p>
