@@ -1,18 +1,12 @@
 {% if maintenance_mode %}
-<div class="container mt-3">
-  <div class="alert alert-info"
-       role="alert"
-       id="employee-resources-maintenance-notice">
-
-    <strong>Scheduled maintenance notice</strong><br>
-
-    The Employee Resources service is currently undergoing
-    a brief update. You may experience a short interruption
-    while the service restarts.
-
-    We apologize for the inconvenience. Please refresh
-    the page after the update is completed.
-
-  </div>
+<div id="employee-resources-maintenance-notice"
+     role="alert"
+     style="display:block;margin:0 0 18px;padding:14px 18px;background:#eff6ff;
+            border:1px solid #bfdbfe;border-radius:14px;color:#1e3a8a;
+            font-size:13.5px;line-height:1.5;">
+  <strong>Scheduled maintenance notice</strong><br>
+  The Employee Resources service is currently undergoing a brief update.
+  You may experience a short interruption while the service restarts.
+  We apologize for the inconvenience. Please refresh the page after the update is completed.
 </div>
 {% endif %}
