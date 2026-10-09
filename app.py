@@ -9883,10 +9883,20 @@ def personal_360():
 # Apply Open Positions
 # ==========================================================
 
+def get_ope_maintenance_mode():
+    try:
+        resp = requests.get(f"{OPE_SERVICE_URL}/ope/maintenance/status", timeout=2)
+        if resp.status_code == 200:
+            return bool(resp.json().get("maintenance_mode", False))
+    except Exception:
+        pass
+    return False
+
 @app.route("/apply")
 def resume_upload_page():
     """Serves the main application submission form at /apply."""
-    return render_template('resume-upload.html')
+    maint = get_ope_maintenance_mode()
+    return render_template('resume-upload.html', maintenance_mode=maint)
 
 
 # 2. New Route for the Applicant's Application Status Tracker
@@ -9894,7 +9904,8 @@ def resume_upload_page():
 def track_application():
     """Serves the application status tracking page."""
     # The application ID is handled by JavaScript in the HTML from the query string (e.g., ?id=APP_XXXX)
-    return render_template('track-application.html')
+    maint = get_ope_maintenance_mode()
+    return render_template('track-application.html', maintenance_mode=maint)
 
 
 # 3. New Route for the Admin Dashboard
@@ -9906,6 +9917,40 @@ def admin_dashboard_page():
         return redirect(url_for("home"), code=303)
 
     return render_template('admin-dashboard.html')
+
+# ==========================================================
+# Open Positions / OPE Maintenance Proxy Routes
+# ==========================================================
+
+@app.route('/ope/maintenance/status', methods=['GET'])
+def ope_maintenance_status_proxy():
+    try:
+        resp = requests.get(f"{OPE_SERVICE_URL}/ope/maintenance/status", timeout=2)
+        if resp.status_code == 200:
+            return jsonify(resp.json()), 200
+    except Exception:
+        pass
+    return jsonify({"maintenance_mode": False}), 200
+
+@app.route('/api/ope/maintenance/on', methods=['POST'])
+def ope_maintenance_on_proxy():
+    return _ope_maintenance_toggle("on")
+
+@app.route('/api/ope/maintenance/off', methods=['POST'])
+def ope_maintenance_off_proxy():
+    return _ope_maintenance_toggle("off")
+
+def _ope_maintenance_toggle(action):
+    try:
+        resp = requests.post(
+            f"{OPE_SERVICE_URL}/admin/maintenance/{action}",
+            headers={"Authorization": request.headers.get("Authorization", "")},
+            timeout=15,
+        )
+        return (resp.text, resp.status_code,
+                {"Content-Type": resp.headers.get("Content-Type", "application/json")})
+    except requests.RequestException as e:
+        return jsonify({"success": False, "error": str(e)}), 502
 
 # ==========================================================
 # Finance360 EMPLOYEE PORTAL PAGE
