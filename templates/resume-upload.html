@@ -215,6 +215,8 @@
         <div class="spacer"></div>
     </div>
 
+    {% include 'ope_maintenance_notice.html' ignore missing %}
+
     <div class="page-content">
     <div class="container">
         <h1>Upload Your Resume</h1>
@@ -397,6 +399,41 @@ function showMessage(text, type) {
     message.className = `message ${type}`;
     message.style.display = 'block';
 }
+
+// Client-side maintenance check
+async function checkOpeMaintenance() {
+    try {
+        const resp = await fetch('/ope/maintenance/status', { cache: 'no-store' });
+        if (!resp.ok) return;
+        const data = await resp.json();
+        let notice = document.getElementById('open-positions-maintenance-notice');
+        if (data && data.maintenance_mode === true) {
+            if (!notice) {
+                const header = document.querySelector('.top-header');
+                const banner = document.createElement('div');
+                banner.className = 'container mt-3';
+                banner.id = 'openPositionsMaintenanceContainer';
+                banner.innerHTML = `
+                  <div class="alert alert-warning" role="alert" id="open-positions-maintenance-notice"
+                       style="background: linear-gradient(135deg, rgba(254, 243, 199, 0.95), rgba(253, 230, 138, 0.95)); border: 1.5px solid #f59e0b; border-left: 6px solid #d97706; border-radius: 12px; padding: 18px 24px; margin: 15px auto; max-width: 500px; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.18);">
+                    <h5 style="color: #92400e; font-weight: 700; margin: 0 0 5px 0;">Scheduled Maintenance in Progress</h5>
+                    <p style="color: #78350f; margin: 0; font-size: 0.92rem;">
+                      <strong>Scheduled maintenance notice</strong><br>
+                      The Open Positions portal is currently undergoing scheduled platform updates.
+                    </p>
+                  </div>`;
+                if (header && header.nextSibling) {
+                    header.parentNode.insertBefore(banner, header.nextSibling);
+                }
+            }
+        } else if (notice) {
+            notice.remove();
+        }
+    } catch (e) {
+        console.warn('OPE maintenance check failed:', e);
+    }
+}
+checkOpeMaintenance();
 </script>
 
 </body>
