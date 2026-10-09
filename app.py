@@ -7330,7 +7330,29 @@ def syllabus_page():
         if user:
             user_image = user.get('PROFILE_PIC') or user.get('profile_pic') or user_image
 
-    return render_template('syllabus.html', courses=courses, user_image=user_image)
+        # Check Syllabus maintenance mode
+    maintenance_mode = False
+
+    try:
+        status_code, maintenance_data = _get_student_service_json(
+            "/syllabus/maintenance/status",
+            timeout=3
+        )
+
+        if status_code == 200:
+            maintenance_mode = bool(
+                maintenance_data.get("maintenance_mode", False)
+            )
+
+    except Exception as e:
+        print(f"⚠️ Syllabus maintenance status check failed: {e}")
+
+    return render_template(
+        'syllabus.html',
+        courses=courses,
+        user_image=user_image,
+        maintenance_mode=maintenance_mode
+    )
 
 # ========================= FETCH A SPECIFIC SYLLABUS =========================
 @app.route('/syllabus/<int:course_id>')
