@@ -1,0 +1,16 @@
+<div id="collaboration-maintenance-notice" style="display:none;background:#fff3cd;border:1px solid #ffe69c;color:#664d03;padding:12px 16px;text-align:center;font-family:sans-serif;">
+  <strong>Scheduled maintenance notice</strong><br>
+  Collaboration service is under scheduled maintenance. Please try again later.
+</div>
+<script>
+  (function () {
+    fetch('/api/collaboration-maintenance/status')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.maintenance_mode) {
+          document.getElementById('collaboration-maintenance-notice').style.display = 'block';
+        }
+      })
+      .catch(function () {});
+  })();
+</script>
