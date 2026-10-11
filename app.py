@@ -59,6 +59,7 @@ RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL","http://172.31.26.176:7900")
 ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://172.31.26.176:8100")
 OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL","http://172.31.26.176:8500")
 WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL","http://172.31.26.176:2500").rstrip("/")
+IVR_SERVICE_URL = os.getenv("IVR_SERVICE_URL", "http://172.31.26.176:8030").rstrip("/")
 FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
 sf_client = None
 APPLICATION_SERVICE_URL = os.getenv("https://mobqdeus63.execute-api.eu-north-1.amazonaws.com/Prod", "http://172.31.26.176:8020")
@@ -6695,6 +6696,89 @@ def send_registration_whatsapp_message(recipient_number, name, registration_id, 
     except Exception as exc:
         print(f"⚠️ WhatsApp notification error: {exc}")
         return False
+
+
+# ==========================================================
+# EXOTEL IVR + WABA PROXY ROUTES
+# ==========================================================
+
+@app.route('/exotel/<path:subpath>', methods=['GET', 'POST'])
+def exotel_generic_proxy(subpath):
+    """
+    Reverse proxy for Exotel IVR Passthrough Applet endpoints.
+    Routes to IVR service (Port 8030), with intelligent fallbacks to
+    WABA service (Port 2500) or Ticket service (Port 8025).
+    """
+    method = request.method
+    params = request.args
+    headers = {k: v for k, v in request.headers if k.lower() != 'host'}
+
+    # Determine primary and fallback targets based on path
+    target_url = f"{IVR_SERVICE_URL}/exotel/{subpath}"
+    fallback_url = None
+
+    if subpath.startswith("waba"):
+        fallback_url = f"{WABA_SERVICE_URL}/api/ivr/waba"
+    elif subpath.startswith("ticket"):
+        fallback_url = f"{TICKET_SERVICE_URL}/exotel/{subpath}"
+
+    try:
+        if method == "POST":
+            if request.is_json:
+                data = request.get_json(silent=True)
+                resp = requests.post(target_url, json=data, params=params, headers=headers, timeout=10)
+            else:
+                data = request.form.to_dict()
+                resp = requests.post(target_url, data=data, params=params, headers=headers, timeout=10)
+        else:
+            resp = requests.get(target_url, params=params, headers=headers, timeout=10)
+
+        return (resp.content, resp.status_code, resp.headers.items())
+    except requests.RequestException as e:
+        # If IVR service is down or unconfigured, attempt fallback to specialized microservice
+        if fallback_url:
+            try:
+                if method == "POST":
+                    if request.is_json:
+                        data = request.get_json(silent=True)
+                        resp = requests.post(fallback_url, json=data, params=params, headers=headers, timeout=10)
+                    else:
+                        data = request.form.to_dict()
+                        resp = requests.post(fallback_url, data=data, params=params, headers=headers, timeout=10)
+                else:
+                    resp = requests.get(fallback_url, params=params, headers=headers, timeout=10)
+                return (resp.content, resp.status_code, resp.headers.items())
+            except Exception as fb_err:
+                print(f"[Exotel Proxy Fallback Error] {fallback_url}: {fb_err}")
+
+        print(f"[Exotel Proxy Error] Failed forwarding /exotel/{subpath}: {e}")
+        return jsonify({"status": "error", "message": f"IVR endpoint unavailable: {str(e)}"}), 502
+
+
+@app.route('/api/ivr/waba', methods=['GET', 'POST'])
+@app.route('/ivr/whatsapp', methods=['GET', 'POST'])
+def exotel_ivr_waba_proxy():
+    """Direct proxy to WABA service (Port 2500) for Exotel IVR WABA webhooks."""
+    target_url = f"{WABA_SERVICE_URL}/api/ivr/waba"
+    method = request.method
+    params = request.args
+    headers = {k: v for k, v in request.headers if k.lower() != 'host'}
+    try:
+        if method == "POST":
+            if request.is_json:
+                data = request.get_json(silent=True)
+                resp = requests.post(target_url, json=data, params=params, headers=headers, timeout=10)
+            else:
+                data = request.form.to_dict()
+                resp = requests.post(target_url, data=data, params=params, headers=headers, timeout=10)
+        else:
+            resp = requests.get(target_url, params=params, headers=headers, timeout=10)
+        return (resp.content, resp.status_code, resp.headers.items())
+    except requests.RequestException as e:
+        print(f"[IVR-WABA Proxy Error] Failed forwarding to {target_url}: {e}")
+        return jsonify({"status": "error", "message": f"WABA microservice unavailable: {str(e)}"}), 502
+
+
 
 
 @app.route("/registration", methods=["GET", "POST"])
