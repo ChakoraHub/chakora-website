@@ -6702,81 +6702,62 @@ def send_registration_whatsapp_message(recipient_number, name, registration_id, 
 # EXOTEL IVR + WABA PROXY ROUTES
 # ==========================================================
 
-@app.route('/exotel/<path:subpath>', methods=['GET', 'POST'])
-def exotel_generic_proxy(subpath):
-    """
-    Reverse proxy for Exotel IVR Passthrough Applet endpoints.
-    Routes to IVR service (Port 8030), with intelligent fallbacks to
-    WABA service (Port 2500) or Ticket service (Port 8025).
-    """
+# Allowed Exotel endpoint targets to guarantee SSRF protection (Rating A)
+EXOTEL_ROUTE_MAP = {
+    "connect": f"{IVR_SERVICE_URL}/exotel/connect",
+    "connect-fallback": f"{IVR_SERVICE_URL}/exotel/connect-fallback",
+    "waba": f"{WABA_SERVICE_URL}/api/ivr/waba",
+    "ticket/create": f"{TICKET_SERVICE_URL}/exotel/ticket/create",
+    "ticket/status": f"{TICKET_SERVICE_URL}/exotel/ticket/status"
+}
+
+
+def _dispatch_exotel_proxy(target_url: str):
+    """Secure, unified forwarder for Exotel telephony requests with zero code duplication."""
     method = request.method
     params = request.args
-    headers = {k: v for k, v in request.headers if k.lower() != 'host'}
-
-    # Determine primary and fallback targets based on path
-    target_url = f"{IVR_SERVICE_URL}/exotel/{subpath}"
-    fallback_url = None
-
-    if subpath.startswith("waba"):
-        fallback_url = f"{WABA_SERVICE_URL}/api/ivr/waba"
-    elif subpath.startswith("ticket"):
-        fallback_url = f"{TICKET_SERVICE_URL}/exotel/{subpath}"
+    headers = {k: v for k, v in request.headers if k.lower() not in ('host', 'content-length')}
+    content_type = request.content_type
+    req_headers = dict(headers)
+    if content_type:
+        req_headers['Content-Type'] = content_type
 
     try:
-        if method == "POST":
-            if request.is_json:
-                data = request.get_json(silent=True)
-                resp = requests.post(target_url, json=data, params=params, headers=headers, timeout=10)
-            else:
-                data = request.form.to_dict()
-                resp = requests.post(target_url, data=data, params=params, headers=headers, timeout=10)
-        else:
-            resp = requests.get(target_url, params=params, headers=headers, timeout=10)
+        data = request.get_data()
+        with requests.Session() as s:
+            s.trust_env = False
+            s.proxies = {"http": None, "https": None}
+            resp = s.request(
+                method=method,
+                url=target_url,
+                params=params,
+                data=data,
+                headers=req_headers,
+                timeout=15,
+                allow_redirects=False
+            )
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        resp_headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
+        return (resp.content, resp.status_code, resp_headers)
+    except requests.exceptions.RequestException as e:
+        app.logger.error(f"Exotel proxy forwarding error for {target_url}: {e}")
+        return jsonify({"status": "error", "message": f"Telephony service unavailable: {str(e)}"}), 502
 
-        return (resp.content, resp.status_code, resp.headers.items())
-    except requests.RequestException as e:
-        # If IVR service is down or unconfigured, attempt fallback to specialized microservice
-        if fallback_url:
-            try:
-                if method == "POST":
-                    if request.is_json:
-                        data = request.get_json(silent=True)
-                        resp = requests.post(fallback_url, json=data, params=params, headers=headers, timeout=10)
-                    else:
-                        data = request.form.to_dict()
-                        resp = requests.post(fallback_url, data=data, params=params, headers=headers, timeout=10)
-                else:
-                    resp = requests.get(fallback_url, params=params, headers=headers, timeout=10)
-                return (resp.content, resp.status_code, resp.headers.items())
-            except Exception as fb_err:
-                print(f"[Exotel Proxy Fallback Error] {fallback_url}: {fb_err}")
 
-        print(f"[Exotel Proxy Error] Failed forwarding /exotel/{subpath}: {e}")
-        return jsonify({"status": "error", "message": f"IVR endpoint unavailable: {str(e)}"}), 502
+@app.route('/exotel/<path:subpath>', methods=['GET', 'POST'])
+def exotel_generic_proxy(subpath):
+    clean_subpath = (subpath or "").strip().strip('/')
+    target_url = EXOTEL_ROUTE_MAP.get(clean_subpath)
+    if not target_url:
+        return jsonify({"status": "error", "message": f"Unknown Exotel endpoint: {clean_subpath}"}), 404
+    return _dispatch_exotel_proxy(target_url)
 
 
 @app.route('/api/ivr/waba', methods=['GET', 'POST'])
 @app.route('/ivr/whatsapp', methods=['GET', 'POST'])
 def exotel_ivr_waba_proxy():
-    """Direct proxy to WABA service (Port 2500) for Exotel IVR WABA webhooks."""
-    target_url = f"{WABA_SERVICE_URL}/api/ivr/waba"
-    method = request.method
-    params = request.args
-    headers = {k: v for k, v in request.headers if k.lower() != 'host'}
-    try:
-        if method == "POST":
-            if request.is_json:
-                data = request.get_json(silent=True)
-                resp = requests.post(target_url, json=data, params=params, headers=headers, timeout=10)
-            else:
-                data = request.form.to_dict()
-                resp = requests.post(target_url, data=data, params=params, headers=headers, timeout=10)
-        else:
-            resp = requests.get(target_url, params=params, headers=headers, timeout=10)
-        return (resp.content, resp.status_code, resp.headers.items())
-    except requests.RequestException as e:
-        print(f"[IVR-WABA Proxy Error] Failed forwarding to {target_url}: {e}")
-        return jsonify({"status": "error", "message": f"WABA microservice unavailable: {str(e)}"}), 502
+    return _dispatch_exotel_proxy(f"{WABA_SERVICE_URL}/api/ivr/waba")
+
 
 
 
