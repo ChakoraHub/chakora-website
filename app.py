@@ -59,7 +59,7 @@ RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL","http://172.31.26.176:7900")
 ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://172.31.26.176:8100")
 OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL","http://172.31.26.176:8500")
 WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL","http://172.31.26.176:2500").rstrip("/")
-IVR_SERVICE_URL = os.getenv("IVR_SERVICE_URL", "http://172.31.26.176:8030").rstrip("/")
+IVR_SERVICE_URL = os.getenv("IVR_SERVICE_URL", WABA_SERVICE_URL.replace(":2500", ":8030")).rstrip("/")
 FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
 sf_client = None
 APPLICATION_SERVICE_URL = os.getenv("https://mobqdeus63.execute-api.eu-north-1.amazonaws.com/Prod", "http://172.31.26.176:8020")
@@ -6702,21 +6702,12 @@ def send_registration_whatsapp_message(recipient_number, name, registration_id, 
 # EXOTEL IVR + WABA PROXY ROUTES
 # ==========================================================
 
-# Allowed Exotel endpoint targets to guarantee SSRF protection (Rating A)
-EXOTEL_ROUTE_MAP = {
-    "connect": f"{IVR_SERVICE_URL}/exotel/connect",
-    "connect-fallback": f"{IVR_SERVICE_URL}/exotel/connect-fallback",
-    "waba": f"{WABA_SERVICE_URL}/api/ivr/waba",
-    "ticket/create": f"{TICKET_SERVICE_URL}/exotel/ticket/create",
-    "ticket/status": f"{TICKET_SERVICE_URL}/exotel/ticket/status"
-}
-
 
 def _dispatch_exotel_proxy(target_url: str):
-    """Secure, unified forwarder for Exotel telephony requests with zero code duplication."""
+    """Secure forwarder for Exotel telephony requests with zero code duplication."""
     method = request.method
     params = request.args
-    headers = {k: v for k, v in request.headers if k.lower() not in ('host', 'content-length')}
+    headers = {k: v for k, v in request.headers.items() if k.lower() not in ('host', 'content-length')}
     content_type = request.content_type
     req_headers = dict(headers)
     if content_type:
@@ -6738,25 +6729,37 @@ def _dispatch_exotel_proxy(target_url: str):
             )
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
         resp_headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
-        return (resp.content, resp.status_code, resp_headers)
+        return make_response(resp.content, resp.status_code, resp_headers)
     except requests.exceptions.RequestException as e:
-        app.logger.error(f"Exotel proxy forwarding error for {target_url}: {e}")
-        return jsonify({"status": "error", "message": f"Telephony service unavailable: {str(e)}"}), 502
+        app.logger.exception("Exotel proxy forwarding error for %s: %s", target_url, e)
+        return make_response(jsonify({"status": "error", "message": f"Telephony service unavailable: {str(e)}"}), 502)
 
 
-@app.route('/exotel/<path:subpath>', methods=['GET', 'POST'])
-def exotel_generic_proxy(subpath):
-    clean_subpath = (subpath or "").strip().strip('/')
-    target_url = EXOTEL_ROUTE_MAP.get(clean_subpath)
-    if not target_url:
-        return jsonify({"status": "error", "message": f"Unknown Exotel endpoint: {clean_subpath}"}), 404
-    return _dispatch_exotel_proxy(target_url)
+@app.route('/exotel/connect', methods=['GET', 'POST'])
+def exotel_connect_proxy():
+    return _dispatch_exotel_proxy(f"{IVR_SERVICE_URL}/exotel/connect")
 
 
+@app.route('/exotel/connect-fallback', methods=['GET', 'POST'])
+def exotel_connect_fallback_proxy():
+    return _dispatch_exotel_proxy(f"{IVR_SERVICE_URL}/exotel/connect-fallback")
+
+
+@app.route('/exotel/waba', methods=['GET', 'POST'])
 @app.route('/api/ivr/waba', methods=['GET', 'POST'])
 @app.route('/ivr/whatsapp', methods=['GET', 'POST'])
 def exotel_ivr_waba_proxy():
     return _dispatch_exotel_proxy(f"{WABA_SERVICE_URL}/api/ivr/waba")
+
+
+@app.route('/exotel/ticket/create', methods=['GET', 'POST'])
+def exotel_ticket_create_proxy():
+    return _dispatch_exotel_proxy(f"{TICKET_SERVICE_URL}/exotel/ticket/create")
+
+
+@app.route('/exotel/ticket/status', methods=['GET', 'POST'])
+def exotel_ticket_status_proxy():
+    return _dispatch_exotel_proxy(f"{TICKET_SERVICE_URL}/exotel/ticket/status")
 
 
 
