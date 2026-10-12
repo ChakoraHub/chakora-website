@@ -574,6 +574,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Timesheet
         <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
+
+      <a class="nav-item" href="{{ url_for('ticket_employee') }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>Support Tickets
+        <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
     </nav>
     <div class="nav-divider"></div>
     <div class="sidebar-section-label">More</div>
@@ -657,6 +662,10 @@
             <div class="quick-card-icon" style="background:#fffbeb"><svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
             <h3>Salary Info</h3><p>Net {{ salary_data.net_salary }}/month</p>
           </button>
+          <a class="quick-card" href="{{ url_for('ticket_employee') }}">
+            <div class="quick-card-icon" style="background:#ede9fe"><svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg></div>
+            <h3>Support Tickets</h3><p>Manage assigned support tickets</p>
+          </a>
           {% if employee_data.employee_id == 'CH25006' %}
           <a class="quick-card" href="{{ url_for('create_link_page') }}">
             <div class="quick-card-icon" style="background:#eff6ff"><svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M10 13a5 5 0 0 1 7 0l1 1a5 5 0 0 1-7 7l-1-1"/><path d="M14 11a5 5 0 0 1-7 0l-1-1a5 5 0 0 1 7-7l1 1"/></svg></div>

@@ -144,6 +144,102 @@ tr:hover{background:#f8fafc}
 .stage-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-l)}
 .stage-btn.resolve{border-color:var(--ok);color:var(--ok)}
 .stage-btn.resolve:hover{background:var(--ok);color:#fff}
+
+/* Custom In-Website Modal */
+.custom-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    padding: 20px;
+}
+.custom-modal-overlay.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+.custom-modal-card {
+    background: #ffffff;
+    border-radius: 16px;
+    max-width: 440px;
+    width: 100%;
+    padding: 28px 24px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
+    text-align: center;
+    transform: scale(0.92) translateY(10px);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.custom-modal-overlay.active .custom-modal-card {
+    transform: scale(1) translateY(0);
+}
+.modal-icon-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #fee2e2;
+    color: #ef4444;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 16px;
+    border: 2px solid #fecaca;
+}
+.custom-modal-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 10px;
+}
+.custom-modal-desc {
+    font-size: 13.5px;
+    color: #475569;
+    line-height: 1.55;
+    margin-bottom: 24px;
+}
+.custom-modal-desc .highlight-badge {
+    font-family: monospace;
+    font-weight: 700;
+    color: #1e40af;
+    background: #dbeafe;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.custom-modal-desc strong {
+    color: #0f172a;
+}
+.custom-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+.btn-modal-confirm {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #0f172a, #334155);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
+    transition: all 0.2s ease;
+}
+.btn-modal-confirm:hover {
+    background: #1e293b;
+    transform: translateY(-1px);
+}
 </style>
 </head>
 <body>
@@ -360,8 +456,13 @@ tr:hover{background:#f8fafc}
 </div>
 
 <script>
-const CURRENT_NAME  = "{{ current_user_name }}" || "Employee";
-const CURRENT_EMAIL = "{{ current_user_email }}" || "";
+const _params = new URLSearchParams(window.location.search);
+let _jName = "{{ current_user_name or '' }}";
+let _jEmail = "{{ current_user_email or '' }}";
+if (_jName.indexOf('{') !== -1) _jName = '';
+if (_jEmail.indexOf('{') !== -1) _jEmail = '';
+const CURRENT_NAME  = _params.get('name') || _jName || "Employee";
+const CURRENT_EMAIL = _params.get('email') || _jEmail || "";
 
 let myTickets = [];
 
@@ -484,19 +585,36 @@ function renderTable() {
     }).join('');
 }
 
+function showAccessDeniedModal(ticketId, assignedTo) {
+    const overlay = document.getElementById('access-denied-overlay');
+    const msgEl = document.getElementById('access-denied-message');
+    msgEl.innerHTML = `Ticket <span class="highlight-badge">#${esc(ticketId)}</span> is assigned to <strong>${esc(assignedTo || 'another staff member')}</strong>.<br><br>Only the assigned employee has access to open and work on this support ticket.`;
+    overlay.classList.add('active');
+}
+function closeAccessDeniedModal() {
+    const overlay = document.getElementById('access-denied-overlay');
+    if (overlay) overlay.classList.remove('active');
+}
+
 // ── DRAWER ──
 async function openDrawer(id) {
-    activeId = id;
-    document.getElementById('drawer-bg').classList.add('open');
-    document.getElementById('d-num').textContent  = '#'+id;
-    document.getElementById('d-subj').textContent = 'Loading...';
-    document.getElementById('d-chat').innerHTML   = '';
     try {
         const r = await fetch('/api/ticket/ticket/'+id);
         const d = await r.json();
         if (d.status!=='success') return;
         const t = d.ticket;
+
+        // Restriction: Only the assigned person can open and work on this ticket
+        if (!isMine(t.assigned_to)) {
+            showAccessDeniedModal(id, t.assigned_to);
+            return;
+        }
+
+        activeId = id;
+        document.getElementById('drawer-bg').classList.add('open');
+        document.getElementById('d-num').textContent  = '#'+id;
         document.getElementById('d-subj').textContent = t.subject||'No Subject';
+        document.getElementById('d-chat').innerHTML   = '';
         document.getElementById('d-name').textContent = cleanDisplayName(t.caller_name, t.caller_email);
         document.getElementById('d-email').textContent= t.caller_email||t.user_id||'-';
         document.getElementById('d-cat').textContent  = t.category||'-';
@@ -625,5 +743,21 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(loadTickets, 30000);
 });
 </script>
+
+<!-- Custom In-Website Alert Modal -->
+<div id="access-denied-overlay" class="custom-modal-overlay">
+  <div class="custom-modal-card">
+    <div class="modal-icon-circle">
+      <i class="fa-solid fa-lock"></i>
+    </div>
+    <h3 class="custom-modal-title">Access Restricted</h3>
+    <p id="access-denied-message" class="custom-modal-desc">
+      Only the assigned employee can open and manage this ticket.
+    </p>
+    <div class="custom-modal-actions">
+      <button type="button" class="btn-modal-confirm" onclick="closeAccessDeniedModal()">Understood</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

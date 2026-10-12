@@ -105,6 +105,127 @@
         .assign-select { padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 12px; font-weight: 600; background: #fff; cursor: pointer; color: var(--secondary); }
         .assign-select:focus { outline: none; border-color: var(--primary); }
         .user-meta-sub { font-size: 11px; color: var(--text-muted); font-family: monospace; }
+
+        /* Custom In-Website Popup Dialog Styles (Operations Desk / Admin) */
+        .custom-popup-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .custom-popup-overlay.active {
+            display: flex !important;
+            animation: popupFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .custom-popup-card {
+            background: #ffffff;
+            border-radius: 20px;
+            max-width: 460px;
+            width: 100%;
+            padding: 28px 24px 22px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.06);
+            animation: popupScaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .popup-icon-circle {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin-bottom: 16px;
+        }
+        .popup-icon-circle.popup-success {
+            background: #ecfdf5;
+            color: #10b981;
+            border: 2px solid #a7f3d0;
+        }
+        .popup-icon-circle.popup-error {
+            background: #fef2f2;
+            color: #ef4444;
+            border: 2px solid #fecaca;
+        }
+        .popup-icon-circle.popup-info {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 2px solid #bfdbfe;
+        }
+        .popup-icon-circle.popup-warning {
+            background: #fffbeb;
+            color: #f59e0b;
+            border: 2px solid #fde68a;
+        }
+        .custom-popup-title {
+            font-size: 19px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 10px;
+            letter-spacing: -0.3px;
+        }
+        .custom-popup-desc {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.55;
+            margin-bottom: 22px;
+        }
+        .custom-popup-desc .highlight-badge {
+            font-family: monospace;
+            font-weight: 700;
+            color: #1e40af;
+            background: #dbeafe;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+        .custom-popup-desc strong {
+            color: #0f172a;
+        }
+        .custom-popup-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .btn-popup-confirm {
+            flex: 1;
+            padding: 11px 20px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
+            transition: all 0.18s ease;
+        }
+        .btn-popup-confirm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+        }
+        .btn-popup-cancel {
+            padding: 11px 18px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+        .btn-popup-cancel:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        @keyframes popupFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes popupScaleIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 
@@ -116,7 +237,7 @@
         </div>
         <div class="header-actions">
             <span class="portal-badge badge-admin"><i class="fa-solid fa-lock"></i> Operations Admin</span>
-            <a href="/" class="btn btn-secondary"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="/home" class="btn btn-secondary"><i class="fa-solid fa-house"></i> Home</a>
         </div>
     </div>
 
@@ -206,12 +327,13 @@
                     <div id="drawer-caller" style="font-size: 15px; font-weight: 800; color: var(--secondary); margin-top: 4px;">Student Name</div>
                     <div id="drawer-email" style="font-size: 12px; color: var(--primary); font-family: monospace; margin-top: 2px;">student@example.com</div>
                 </div>
-
-                
+            </div>
+        </div>
     </div>
 
     <script>
         let allTickets = [];
+        let oracleStaffList = {{ staff_list | tojson if staff_list is defined else '[]' }};
 
         function cleanDisplayName(name, email) {
             if (!name || name.trim() === '' || name.toLowerCase() === 'user' || name.toLowerCase() === 'student' || name.includes('@')) {
@@ -226,9 +348,24 @@
 
         let activeTicketId = null;
 
-        document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", async () => {
+            await loadOracleStaff();
             loadAllTickets();
         });
+
+        async function loadOracleStaff() {
+            if (!oracleStaffList || oracleStaffList.length === 0) {
+                try {
+                    const res = await fetch('/api/ticket/staff-list');
+                    const data = await res.json();
+                    if (data.status === 'success' && data.employees) {
+                        oracleStaffList = data.employees;
+                    }
+                } catch (e) {
+                    console.warn("Could not fetch staff list dynamically:", e);
+                }
+            }
+        }
 
         async function loadAllTickets() {
             try {
@@ -249,6 +386,34 @@
             document.getElementById('kpi-critical').textContent = allTickets.filter(t => t.priority === 'CRITICAL' && t.status !== 'RESOLVED' && t.status !== 'CLOSED').length;
             document.getElementById('kpi-unassigned').textContent = allTickets.filter(t => !t.assigned_to || t.assigned_to === 'Unassigned').length;
             document.getElementById('kpi-resolved').textContent = allTickets.filter(t => t.status === 'RESOLVED' || t.status === 'CLOSED').length;
+        }
+
+        function isStaffMatch(currentAssigned, empName) {
+            if (!currentAssigned || currentAssigned === 'Unassigned') return false;
+            const a = currentAssigned.toLowerCase().trim();
+            const b = empName.toLowerCase().trim();
+            if (a === b) return true;
+            if (a.includes(b) || b.includes(a)) return true;
+            const firstA = a.split(' ')[0];
+            const firstB = b.split(' ')[0];
+            if (firstA.length > 2 && firstA === firstB) return true;
+            return false;
+        }
+
+        function renderStaffOptions(assigned) {
+            let html = `<option value="Unassigned" ${!assigned || assigned === 'Unassigned' ? 'selected' : ''}>Unassigned</option>`;
+            let matched = false;
+            if (oracleStaffList && oracleStaffList.length > 0) {
+                oracleStaffList.forEach(emp => {
+                    const isSel = isStaffMatch(assigned, emp.name);
+                    if (isSel) matched = true;
+                    html += `<option value="${escapeHtml(emp.name)}" ${isSel ? 'selected' : ''}>${escapeHtml(emp.name)}</option>`;
+                });
+            }
+            if (assigned && assigned !== 'Unassigned' && !matched) {
+                html += `<option value="${escapeHtml(assigned)}" selected>${escapeHtml(assigned)}</option>`;
+            }
+            return html;
         }
 
         function renderTable() {
@@ -290,18 +455,8 @@
                     <td><span class="badge" style="background:#f1f5f9; color:#475569;">${escapeHtml(t.category)}</span></td>
                     <td><span class="badge badge-${priority.toLowerCase()}">${priority}</span></td>
                     <td>
-                        <select class="assign-select" onchange="assignStaff('${t.ticket_number}', this.value)">
-                            <option value="Unassigned" ${!assigned || assigned === 'Unassigned' ? 'selected' : ''}>Unassigned</option>
-                            <option value="Ganesh" ${assigned === 'Ganesh' ? 'selected' : ''}>Ganesh</option>
-                            <option value="Saiteja" ${assigned === 'Saiteja' ? 'selected' : ''}>Saiteja</option>
-                            <option value="Lokesh" ${assigned === 'Lokesh' ? 'selected' : ''}>Lokesh</option>
-                            <option value="Gayatri" ${assigned === 'Gayatri' ? 'selected' : ''}>Gayatri</option>
-                            <option value="Poojitha" ${assigned === 'Poojitha' ? 'selected' : ''}>Poojitha</option>
-                            <option value="Sathwika" ${assigned === 'Sathwika' ? 'selected' : ''}>Sathwika</option>
-                            <option value="Mahesh" ${assigned === 'Mahesh' ? 'selected' : ''}>Mahesh</option>
-                            <option value="Rajesh K." ${assigned.includes('Rajesh') ? 'selected' : ''}>Rajesh K. (Tier 1 Support)</option>
-                            <option value="Priya M." ${assigned.includes('Priya') ? 'selected' : ''}>Priya M. (Operations Specialist)</option>
-                            <option value="Anand V." ${assigned.includes('Anand') ? 'selected' : ''}>Anand V. (Technical Lead)</option>
+                        <select class="assign-select" data-current="${escapeHtml(assigned)}" onchange="assignStaff('${t.ticket_number}', this.value, this)">
+                            ${renderStaffOptions(assigned)}
                         </select>
                     </td>
                     <td><span class="badge" style="background:#e0f2fe; color:#0369a1;">${status}</span></td>
@@ -315,7 +470,161 @@
             });
         }
 
-        async function assignStaff(ticketId, staffName) {
+        let adminPopupCallback = null;
+
+        function showAdminPopup(options) {
+            return new Promise((resolve) => {
+                const opts = Object.assign({
+                    title: 'Notification',
+                    message: '',
+                    type: 'info', // 'success', 'error', 'info', 'warning'
+                    icon: null,
+                    confirmText: 'OK',
+                    showCancel: false,
+                    cancelText: 'Cancel',
+                    showInput: false,
+                    inputPlaceholder: '',
+                    onConfirm: null,
+                    onCancel: null
+                }, options);
+
+                adminPopupCallback = (confirmed, val) => {
+                    if (opts.onConfirm && confirmed) opts.onConfirm(val);
+                    if (opts.onCancel && !confirmed) opts.onCancel();
+                    resolve(confirmed ? (val !== undefined && val !== '' ? val : true) : false);
+                };
+
+                const overlay = document.getElementById('website-popup-overlay');
+                const iconWrap = document.getElementById('popup-icon-wrap');
+                const icon = document.getElementById('popup-icon');
+                const titleEl = document.getElementById('popup-title');
+                const msgEl = document.getElementById('popup-message');
+                const confirmBtn = document.getElementById('popup-btn-confirm');
+                const cancelBtn = document.getElementById('popup-btn-cancel');
+                const inputWrap = document.getElementById('popup-input-wrap');
+                const input = document.getElementById('popup-input');
+
+                titleEl.textContent = opts.title;
+                msgEl.innerHTML = opts.message;
+
+                iconWrap.className = 'popup-icon-circle ' + (opts.type === 'success' ? 'popup-success' : opts.type === 'error' ? 'popup-error' : opts.type === 'warning' ? 'popup-warning' : 'popup-info');
+
+                let iconClass = 'fa-solid fa-bell';
+                if (opts.icon) {
+                    iconClass = opts.icon;
+                } else if (opts.type === 'success') {
+                    iconClass = 'fa-solid fa-circle-check';
+                } else if (opts.type === 'error') {
+                    iconClass = 'fa-solid fa-triangle-exclamation';
+                } else if (opts.type === 'warning') {
+                    iconClass = 'fa-solid fa-circle-question';
+                } else {
+                    iconClass = 'fa-solid fa-user-check';
+                }
+                icon.className = iconClass;
+
+                if (opts.type === 'success') {
+                    confirmBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    confirmBtn.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.28)';
+                } else if (opts.type === 'error') {
+                    confirmBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                    confirmBtn.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.28)';
+                } else if (opts.type === 'warning') {
+                    confirmBtn.style.background = 'linear-gradient(135deg, #ea580c, #c2410c)';
+                    confirmBtn.style.boxShadow = '0 4px 12px rgba(234, 88, 12, 0.28)';
+                } else {
+                    confirmBtn.style.background = 'linear-gradient(135deg, #2563eb, #1d4ed8)';
+                    confirmBtn.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.28)';
+                }
+
+                confirmBtn.textContent = opts.confirmText;
+                cancelBtn.style.display = opts.showCancel ? 'inline-block' : 'none';
+                cancelBtn.textContent = opts.cancelText;
+
+                if (opts.showInput) {
+                    inputWrap.style.display = 'block';
+                    input.value = '';
+                    input.placeholder = opts.inputPlaceholder;
+                    setTimeout(() => input.focus(), 60);
+                } else {
+                    inputWrap.style.display = 'none';
+                }
+
+                overlay.classList.add('active');
+            });
+        }
+
+        function closeAdminPopup(confirmed) {
+            const overlay = document.getElementById('website-popup-overlay');
+            const input = document.getElementById('popup-input');
+            const val = input ? input.value.trim() : '';
+            overlay.classList.remove('active');
+            if (adminPopupCallback) {
+                const cb = adminPopupCallback;
+                adminPopupCallback = null;
+                cb(confirmed, val);
+            }
+        }
+
+        function revertSelect(selectElem, currentAssigned) {
+            if (!selectElem) return;
+            for (let opt of selectElem.options) {
+                if (opt.value === currentAssigned || (currentAssigned && isStaffMatch(currentAssigned, opt.value))) {
+                    selectElem.value = opt.value;
+                    return;
+                }
+            }
+            selectElem.value = 'Unassigned';
+        }
+
+        async function assignStaff(ticketId, staffName, selectElem) {
+            const currentAssigned = selectElem ? (selectElem.getAttribute('data-current') || 'Unassigned') : 'Unassigned';
+            if (currentAssigned === staffName) {
+                return;
+            }
+
+            const isCurrentlyUnassigned = !currentAssigned || currentAssigned === 'Unassigned';
+            const isSettingUnassigned = !staffName || staffName === 'Unassigned';
+
+            let title = 'Confirm Staff Reassignment';
+            let message = '';
+            let confirmText = 'Confirm Reassignment';
+            let popupType = 'info';
+            let popupIcon = 'fa-solid fa-arrows-rotate';
+
+            if (isCurrentlyUnassigned && !isSettingUnassigned) {
+                title = 'Confirm Staff Assignment';
+                message = `Are you sure you want to assign Ticket <span class="highlight-badge">#${escapeHtml(ticketId)}</span> to <strong>${escapeHtml(staffName)}</strong>?`;
+                confirmText = 'Assign Staff';
+                popupIcon = 'fa-solid fa-user-check';
+            } else if (!isCurrentlyUnassigned && isSettingUnassigned) {
+                title = 'Confirm Ticket Unassignment';
+                message = `Are you sure you want to remove <strong>${escapeHtml(currentAssigned)}</strong> and set Ticket <span class="highlight-badge">#${escapeHtml(ticketId)}</span> to <strong>Unassigned</strong>?`;
+                confirmText = 'Unassign Ticket';
+                popupType = 'warning';
+                popupIcon = 'fa-solid fa-user-xmark';
+            } else {
+                title = 'Confirm Staff Reassignment';
+                message = `Ticket <span class="highlight-badge">#${escapeHtml(ticketId)}</span> is currently assigned to <strong>${escapeHtml(currentAssigned)}</strong>.<br><br>Are you sure you want to reassign it to <strong>${escapeHtml(staffName)}</strong>?`;
+                confirmText = 'Reassign Staff';
+                popupIcon = 'fa-solid fa-arrows-rotate';
+            }
+
+            const confirmed = await showAdminPopup({
+                title: title,
+                message: message,
+                type: popupType,
+                icon: popupIcon,
+                showCancel: true,
+                confirmText: confirmText,
+                cancelText: 'Cancel'
+            });
+
+            if (!confirmed) {
+                revertSelect(selectElem, currentAssigned);
+                return;
+            }
+
             try {
                 const res = await fetch(`/api/ticket/tickets/${ticketId}/assign`, {
                     method: 'POST',
@@ -323,12 +632,33 @@
                     body: JSON.stringify({ assigned_to: staffName, assigned_by: 'Operations Desk' })
                 });
                 if (res.ok) {
+                    if (selectElem) selectElem.setAttribute('data-current', staffName);
                     loadAllTickets();
+                    showAdminPopup({
+                        title: 'Assignment Updated',
+                        message: isSettingUnassigned 
+                            ? `Ticket <span class="highlight-badge">#${escapeHtml(ticketId)}</span> is now set to <strong>Unassigned</strong>.`
+                            : `Ticket <span class="highlight-badge">#${escapeHtml(ticketId)}</span> has been successfully assigned to <strong>${escapeHtml(staffName)}</strong>.`,
+                        type: 'success',
+                        confirmText: 'Done'
+                    });
                 } else {
-                    alert('Reassignment failed.');
+                    revertSelect(selectElem, currentAssigned);
+                    showAdminPopup({
+                        title: 'Assignment Failed',
+                        message: 'Could not update ticket assignment on the server. Please try again.',
+                        type: 'error',
+                        confirmText: 'OK'
+                    });
                 }
             } catch (err) {
-                alert('Network error: ' + err.message);
+                revertSelect(selectElem, currentAssigned);
+                showAdminPopup({
+                    title: 'Network Error',
+                    message: 'Error communicating with server: ' + escapeHtml(err.message),
+                    type: 'error',
+                    confirmText: 'OK'
+                });
             }
         }
 
@@ -375,45 +705,91 @@
 
         async function adminReopen() {
             if (!activeTicketId) return;
-            const reason = prompt("Enter reason for reopening this ticket:", "Reopened by Operations Desk for further verification");
-            if (!reason) return;
-            try {
-                const res = await fetch(`/api/ticket/ticket/${activeTicketId}/reopen`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ reopened_by: 'Operations Desk', reason: reason })
-                });
-                if (res.ok) {
-                    alert("Ticket successfully reopened to Stage 1 (OPEN).");
-                    openDrawer(activeTicketId);
-                    loadAllTickets();
-                } else {
-                    alert("Failed to reopen ticket.");
+            showAdminPopup({
+                title: 'Reopen Support Ticket',
+                message: 'Enter reason for reopening ticket <span class="highlight-badge">#' + escapeHtml(activeTicketId) + '</span> to Stage 1 (OPEN):',
+                type: 'info',
+                icon: 'fa-solid fa-rotate-left',
+                showCancel: true,
+                showInput: true,
+                inputPlaceholder: 'Reason for reopening...',
+                confirmText: 'Reopen Ticket',
+                cancelText: 'Cancel',
+                onConfirm: async (reason) => {
+                    if (!reason || reason === true) return;
+                    try {
+                        const res = await fetch(`/api/ticket/ticket/${activeTicketId}/reopen`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ reopened_by: 'Operations Desk', reason: reason })
+                        });
+                        if (res.ok) {
+                            showAdminPopup({
+                                title: 'Ticket Reopened',
+                                message: 'Ticket successfully reopened to Stage 1 (OPEN).',
+                                type: 'success'
+                            });
+                            openDrawer(activeTicketId);
+                            loadAllTickets();
+                        } else {
+                            showAdminPopup({
+                                title: 'Reopen Failed',
+                                message: 'Failed to reopen ticket on server.',
+                                type: 'error'
+                            });
+                        }
+                    } catch (err) {
+                        showAdminPopup({
+                            title: 'Error',
+                            message: 'Error: ' + escapeHtml(err.message),
+                            type: 'error'
+                        });
+                    }
                 }
-            } catch (err) {
-                alert("Error: " + err.message);
-            }
+            });
         }
 
         async function adminClose() {
             if (!activeTicketId) return;
-            if (!confirm(`Are you sure you want to finalize and CLOSE ticket #${activeTicketId}?`)) return;
-            try {
-                const res = await fetch(`/api/ticket/ticket/${activeTicketId}/close`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ closed_by: 'Operations Desk', feedback: 'Verified and permanently closed by Admin.' })
-                });
-                if (res.ok) {
-                    alert("Ticket marked as CLOSED.");
-                    openDrawer(activeTicketId);
-                    loadAllTickets();
-                } else {
-                    alert("Failed to close ticket.");
+            showAdminPopup({
+                title: 'Close Support Ticket',
+                message: 'Are you sure you want to finalize and CLOSE ticket <span class="highlight-badge">#' + escapeHtml(activeTicketId) + '</span>?',
+                type: 'warning',
+                icon: 'fa-solid fa-lock',
+                showCancel: true,
+                confirmText: 'Yes, Close Ticket',
+                cancelText: 'Cancel',
+                onConfirm: async () => {
+                    try {
+                        const res = await fetch(`/api/ticket/ticket/${activeTicketId}/close`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ closed_by: 'Operations Desk', feedback: 'Verified and permanently closed by Admin.' })
+                        });
+                        if (res.ok) {
+                            showAdminPopup({
+                                title: 'Ticket Closed',
+                                message: 'Ticket successfully marked as CLOSED.',
+                                type: 'success'
+                            });
+                            openDrawer(activeTicketId);
+                            loadAllTickets();
+                        } else {
+                            showAdminPopup({
+                                title: 'Close Failed',
+                                message: 'Failed to close ticket on server.',
+                                type: 'error'
+                            });
+                        }
+                    } catch (err) {
+                        showAdminPopup({
+                            title: 'Error',
+                            message: 'Error: ' + escapeHtml(err.message),
+                            type: 'error'
+                        });
+                    }
                 }
-            } catch (err) {
-                alert("Error: " + err.message);
-            }
+            });
         }
 
         function closeDrawer(e) {
@@ -436,7 +812,11 @@
                     loadAllTickets();
                 }
             } catch (err) {
-                alert("Stage update failed: " + err.message);
+                showAdminPopup({
+                    title: 'Stage Update Failed',
+                    message: 'Error updating stage: ' + escapeHtml(err.message),
+                    type: 'error'
+                });
             }
         }
 
@@ -461,7 +841,11 @@
                     loadAllTickets();
                 }
             } catch (err) {
-                alert("Failed to send update: " + err.message);
+                showAdminPopup({
+                    title: 'Update Failed',
+                    message: 'Failed to send update: ' + escapeHtml(err.message),
+                    type: 'error'
+                });
             }
         }
 
@@ -476,5 +860,23 @@
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
     </script>
+
+    <!-- Beautiful In-Website Modal / Popup Dialog for Admin -->
+    <div id="website-popup-overlay" class="custom-popup-overlay" onclick="closeAdminPopup(false)">
+        <div class="custom-popup-card" onclick="event.stopPropagation()">
+            <div class="popup-icon-circle popup-info" id="popup-icon-wrap">
+                <i class="fa-solid fa-bell" id="popup-icon"></i>
+            </div>
+            <h3 class="custom-popup-title" id="popup-title">Notification</h3>
+            <div class="custom-popup-desc" id="popup-message">Message text goes here.</div>
+            <div id="popup-input-wrap" style="display:none; margin-bottom: 20px; text-align: left;">
+                <input type="text" id="popup-input" class="form-control" style="width: 100%; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 10px 14px;" placeholder="">
+            </div>
+            <div class="custom-popup-actions">
+                <button type="button" class="btn-popup-cancel" id="popup-btn-cancel" onclick="closeAdminPopup(false)">Cancel</button>
+                <button type="button" class="btn-popup-confirm" id="popup-btn-confirm" onclick="closeAdminPopup(true)">Confirm</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
