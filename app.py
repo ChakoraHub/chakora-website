@@ -68,7 +68,13 @@ STUDENT_INTERNAL_NO_PROXY = "172.31.26.176"
 INTERNAL_NO_PROXY="172.31.26.176"
 CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
 INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
-TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://172.31.26.176:8025")
+if os.name == "nt":
+    HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL", "http://127.0.0.1:5001")
+    STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL", "http://127.0.0.1:8001")
+    EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL", "http://127.0.0.1:8002")
+    TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://127.0.0.1:8025")
+else:
+    TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://172.31.26.176:8025")
 SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
@@ -1768,8 +1774,24 @@ def home_redirect():
     return redirect("/")
 
 @app.route('/tickets/student')
+@app.route('/student/tickets')
+@app.route('/student-tickets')
 def ticket_student():
     """Student portal for raising tickets, checking status, and tracking tokens."""
+    is_admin = bool(session.get("admin") or session.get("is_admin")) or \
+               str(session.get("login_type") or "").lower() in ["admin", "administrator", "support"] or \
+               str(session.get("role") or "").lower() in ["admin", "administrator", "support"] or \
+               bool(session.get("employee_admin_access")) or \
+               str(session.get("employee_id") or "").upper() == "CH25006"
+    is_employee = (str(session.get("login_type") or "").lower() == "employee") or \
+                  bool(session.get("employee_id")) or \
+                  str(session.get("role") or "").lower() in ["employee", "staff"]
+
+    if is_admin and request.args.get("view") != "student":
+        return redirect(url_for('ticket_admin'))
+    if is_employee and request.args.get("view") != "student":
+        return redirect(url_for('ticket_employee'))
+
     user_name, user_email = _resolve_student_session()
     return render_template(
         "ticket_student.html",
@@ -1782,6 +1804,8 @@ def ticket_student():
 
 @app.route('/tickets/employee')
 @app.route('/tickets/staff')
+@app.route('/employee/tickets')
+@app.route('/employee-tickets')
 def ticket_employee():
     """Employee / Staff portal for handling assigned tickets and SLA resolution."""
     is_admin = bool(session.get("admin") or session.get("is_admin")) or \
@@ -1791,6 +1815,17 @@ def ticket_employee():
                str(session.get("employee_id") or "").upper() == "CH25006"
     if is_admin and request.args.get("view") != "employee":
         return redirect(url_for('ticket_admin'))
+
+    is_employee = (str(session.get("login_type") or "").lower() == "employee") or \
+                  bool(session.get("employee_id")) or \
+                  str(session.get("role") or "").lower() in ["employee", "staff"]
+
+    if not is_employee and not is_admin:
+        if session.get("login_type") == "user" or session.get("user_id"):
+            flash("Employee access only. Redirected to your student ticket portal.", "error")
+            return redirect(url_for("ticket_student"))
+        flash("Please log in as an employee to access employee tickets.", "error")
+        return redirect(url_for("home"))
 
     user_name = session.get("employee_name") or session.get("username") or "Staff Member"
     user_email = session.get("email") or session.get("employee_email") or ""
@@ -1803,21 +1838,81 @@ def ticket_employee():
     )
 
 
+def get_oracle_employees():
+    """Fetch active employees from Oracle EMP_NRM_EMPLOYEES for ticket assignment."""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(DICT_CURSOR)
+        cur.execute("""
+            SELECT EMPLOYEE_ID, EMPLOYEE_NAME, EMAIL, STATUS 
+            FROM EMP_NRM_EMPLOYEES 
+            WHERE STATUS = 'ACTIVE' OR STATUS IS NULL
+            ORDER BY EMPLOYEE_NAME ASC
+        """)
+        rows = cur.fetchall() or []
+        cur.close()
+        conn.close()
+        employees = []
+        for r in rows:
+            name = (r.get("EMPLOYEE_NAME") or "").strip()
+            emp_id = (r.get("EMPLOYEE_ID") or "").strip()
+            email = (r.get("EMAIL") or "").strip()
+            if name:
+                employees.append({
+                    "id": emp_id,
+                    "name": name,
+                    "email": email
+                })
+        return employees
+    except Exception as e:
+        print(f"[get_oracle_employees error] {e}")
+        return []
+
+
+@app.route('/api/ticket/staff-list')
+@app.route('/api/staff/list')
+def get_staff_list():
+    """Endpoint returning active Oracle employees for ticket assignment dropdowns."""
+    employees = get_oracle_employees()
+    return jsonify({"status": "success", "employees": employees})
+
+
 @app.route('/tickets/admin')
 @app.route('/ticket/admin')
 @app.route('/support/admin')
 @app.route('/tickets/desk')
 @app.route('/support/desk')
+@app.route('/admin/tickets')
+@app.route('/admin-tickets')
 def ticket_admin():
     """Operations Desk / Admin Console for master queue, reassignment, and SLA oversight."""
+    is_admin = bool(session.get("admin") or session.get("is_admin")) or \
+               str(session.get("login_type") or "").lower() in ["admin", "administrator", "support"] or \
+               str(session.get("role") or "").lower() in ["admin", "administrator", "support"] or \
+               bool(session.get("employee_admin_access")) or \
+               str(session.get("employee_id") or "").upper() == "CH25006"
+
+    if not is_admin:
+        is_employee = (str(session.get("login_type") or "").lower() == "employee") or \
+                      bool(session.get("employee_id")) or \
+                      str(session.get("role") or "").lower() in ["employee", "staff"]
+        if is_employee:
+            return redirect(url_for('ticket_employee'))
+        elif session.get("login_type") == "user" or session.get("user_id"):
+            return redirect(url_for('ticket_student'))
+        flash("Admin access required.", "error")
+        return redirect(url_for('home'))
+
     user_name = session.get("admin_name") or session.get("username") or "Operations Admin"
     user_email = session.get("email") or "support@chakorahub.com"
+    staff = get_oracle_employees()
     return render_template(
         "ticket_admin.html",
         current_role="support",
         current_user_name=user_name,
         current_user_email=user_email,
-        api_base=""
+        api_base="",
+        staff_list=staff
     )
 
 
@@ -1846,34 +1941,11 @@ def ticket_portal():
                   str(session.get("role") or "").lower() in ["employee", "staff"]
 
     if param_role in ["admin", "support", "superadmin", "desk"] or (not param_role and is_admin):
-        user_name = session.get("admin_name") or session.get("username") or "Operations Admin"
-        user_email = session.get("email") or "support@chakorahub.com"
-        return render_template(
-            "ticket_admin.html",
-            current_role="support",
-            current_user_name=user_name,
-            current_user_email=user_email,
-            api_base=""
-        )
+        return redirect(url_for('ticket_admin'))
     elif param_role in ["employee", "staff", "agent"] or (not param_role and is_employee):
-        user_name = session.get("employee_name") or session.get("username") or "Staff Member"
-        user_email = session.get("email") or session.get("employee_email") or ""
-        return render_template(
-            "ticket_employee.html",
-            current_role="employee",
-            current_user_name=user_name,
-            current_user_email=user_email,
-            api_base=""
-        )
+        return redirect(url_for('ticket_employee'))
     else:
-        user_name, user_email = _resolve_student_session()
-        return render_template(
-            "ticket_student.html",
-            current_role="client",
-            current_user_name=user_name,
-            current_user_email=user_email,
-            api_base=""
-        )
+        return redirect(url_for('ticket_student'))
 
 
 @app.route('/api/ticket/<path:subpath>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])

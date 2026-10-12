@@ -1,4 +1,3 @@
-<!-- Gayathri -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -851,6 +850,7 @@
             alt="Profile">
           <div class="dropdown-menu" id="dropdownMenu">
             <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+            <a href="/tickets/student"><i class="fas fa-headset"></i> Support Tickets</a>
             <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
             <a href="#" onclick="openModal('logout')"><i class="fas fa-sign-out-alt"></i> Logout</a>
           </div>
@@ -893,6 +893,7 @@
 
       <a href="{{ url_for('feedback_form') }}"><i class="fas fa-comments"></i> Feedback</a>
       <a href="{{ url_for('calendar_page') }}"><i class="fas fa-calendar"></i> Calendar</a>
+      <a href="/tickets/student"><i class="fas fa-headset"></i> Support Tickets</a>
 
       <!-- Resources Register link -->
       <a href="{{ url_for('register') }}"><i class="fas fa-user-plus"></i> Resources Register</a>
