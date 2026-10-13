@@ -38,6 +38,7 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
 from waitress import serve
 from dotenv import load_dotenv
+load_dotenv()
 from jinja2 import TemplateNotFound
 from functools import lru_cache
 
@@ -68,12 +69,6 @@ STUDENT_INTERNAL_NO_PROXY = "172.31.26.176"
 INTERNAL_NO_PROXY="172.31.26.176"
 CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
 INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
-'''if os.name == "nt":
-    HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL", "http://127.0.0.1:5001")
-    STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL", "http://127.0.0.1:8001")
-    EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL", "http://127.0.0.1:8002")
-    TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://127.0.0.1:8025")
-else:'''
 TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://172.31.26.176:8025")
 SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
