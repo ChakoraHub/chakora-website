@@ -22,6 +22,8 @@ import uuid
 from kafka import KafkaProducer, KafkaConsumer
 from logging.handlers import RotatingFileHandler
 from datetime import datetime, timedelta, date
+from zoneinfo import ZoneInfo
+import html
 from threading import Lock, Thread
 from flask import Flask, render_template, render_template_string, request, redirect, url_for, session, flash, send_from_directory, make_response, jsonify, send_file, current_app, abort
 from werkzeug.security import generate_password_hash
@@ -15304,6 +15306,262 @@ def proxy_stm_razorpay_webhook():
     response = make_response(resp.content, resp.status_code)
     response.headers["Content-Type"] = resp.headers.get("Content-Type", "application/json")
     return response
+
+# ==========================================
+# DAILY MISSING TIMESHEET EMAIL REMINDERS
+# ==========================================
+
+TIMESHEET_REMINDER_TIMEZONE = ZoneInfo("Asia/Kolkata")
+TIMESHEET_REMINDER_HOUR = 22
+TIMESHEET_REMINDER_MINUTE = 0
+
+
+def send_missing_timesheet_notifications(work_date=None, test_recipient=None):
+    """Email active employees missing a timesheet, or send one safe test email.
+
+    When test_recipient is provided, only the first detected missing-timesheet
+    reminder is sent to that address, the subject is marked TEST, and no admin or
+    employee addresses from the database receive email.
+
+    A timesheet counts as updated when a row exists for the work date and at least
+    one of login time, logout time, or notes is non-empty. Oracle remains read-only.
+    """
+    if work_date is None:
+        work_date = datetime.now(TIMESHEET_REMINDER_TIMEZONE).date()
+    work_date_text = work_date.isoformat() if hasattr(work_date, "isoformat") else str(work_date)
+
+    email_client = ses
+    if email_client is None:
+        # Support the standard boto3 credential chain (e.g. an authenticated AWS CLI
+        # role session locally or an instance/task role in a deployed environment).
+        try:
+            email_client = boto3.client("ses", region_name=AWS_REGION)
+        except Exception as client_error:
+            print(f"[Timesheet Reminder] Could not initialize AWS SES: {client_error}")
+            return {"checked": 0, "missing": 0, "emails_sent": 0, "errors": 1}
+
+    sender = (ADMIN_EMAIL or "").strip()
+    if not sender:
+        print("[Timesheet Reminder] ADMIN_EMAIL is empty; no reminder emails sent.")
+        return {"checked": 0, "missing": 0, "emails_sent": 0, "errors": 1}
+
+    conn = None
+    cur = None
+    checked = 0
+    missing = 0
+    emails_sent = 0
+    errors = 0
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(DICT_CURSOR)
+        cur.execute("""
+            SELECT EMPLOYEE_ID, EMPLOYEE_NAME, EMAIL
+            FROM EMP_NRM_EMPLOYEES
+            WHERE STATUS = 'ACTIVE' OR STATUS IS NULL
+            ORDER BY EMPLOYEE_NAME ASC
+        """)
+        employees = cur.fetchall() or []
+
+        for employee in employees:
+            employee_id = str(employee.get("EMPLOYEE_ID") or "").strip()
+            employee_name = str(employee.get("EMPLOYEE_NAME") or "Employee").strip()
+            employee_email = str(employee.get("EMAIL") or "").strip()
+            if not employee_id:
+                continue
+
+            checked += 1
+            try:
+                # Match the canonical ID used by the existing timesheet save route.
+                timesheet_employee_id = resolve_timesheet_employee_id(conn, employee_id) or employee_id
+                check_cur = conn.cursor(DICT_CURSOR)
+                try:
+                    check_cur.execute("""
+                        SELECT LOGIN_TIME, LOGOUT_TIME, NOTES
+                        FROM EMP_NRM_TIMESHEETS
+                        WHERE UPPER(TRIM(EMPLOYEE_ID)) = UPPER(TRIM(%s))
+                          AND TRUNC(WORK_DATE) = TO_DATE(%s, 'YYYY-MM-DD')
+                        FETCH FIRST 1 ROWS ONLY
+                    """, (timesheet_employee_id, work_date_text))
+                    row = check_cur.fetchone()
+                finally:
+                    check_cur.close()
+
+                has_timesheet_update = bool(row) and any(
+                    str(row.get(field) or "").strip()
+                    for field in ("LOGIN_TIME", "LOGOUT_TIME", "NOTES")
+                )
+                if has_timesheet_update:
+                    continue
+
+                missing += 1
+                test_mode = bool(test_recipient)
+                safe_name = html.escape("Test Recipient" if test_mode else employee_name)
+                safe_id = html.escape("TEST" if test_mode else employee_id)
+                safe_date = html.escape(work_date_text)
+
+                employee_subject = (
+                    f"[TEST] Reminder: Timesheet not updated for {work_date_text}"
+                    if test_mode else f"Reminder: Timesheet not updated for {work_date_text}"
+                )
+                employee_text = (
+                    (f"TEST EMAIL ONLY — no employee reminder was sent.\n\n" if test_mode else "")
+                    + f"Hi {'Test Recipient' if test_mode else employee_name},\n\n"
+                    + f"Our records show that you have not updated your timesheet for {work_date_text}.\n"
+                    + "Please log in to ChakoraHub and complete your timesheet.\n\n"
+                    + "Regards,\nChakoraHub Team"
+                )
+                employee_html = f"""<!doctype html><html><body style="font-family:Arial,sans-serif;color:#1a2744;line-height:1.6">
+                  <h2 style="color:#243258">Timesheet Reminder</h2>
+                  <p>Hi {safe_name},</p>
+                  <p>Our records show that you have <strong>not updated your timesheet</strong> for <strong>{safe_date}</strong>.</p>
+                  <p>Please log in to ChakoraHub and complete your timesheet.</p>
+                  <p>Regards,<br>ChakoraHub Team</p></body></html>"""
+
+                destination_email = (str(test_recipient).strip() if test_recipient else employee_email)
+                if destination_email:
+                    try:
+                        email_client.send_email(
+                            Source=sender,
+                            Destination={"ToAddresses": [destination_email]},
+                            Message={
+                                "Subject": {"Data": employee_subject, "Charset": "UTF-8"},
+                                "Body": {
+                                    "Text": {"Data": employee_text, "Charset": "UTF-8"},
+                                    "Html": {"Data": employee_html, "Charset": "UTF-8"},
+                                },
+                            },
+                        )
+                        emails_sent += 1
+                        if test_recipient:
+                            print(f"[Timesheet Reminder] TEST email sent to {destination_email}; no employee/admin recipient was contacted.")
+                        else:
+                            print(f"[Timesheet Reminder] Employee notification sent: {employee_id}")
+                    except Exception as mail_error:
+                        errors += 1
+                        print(f"[Timesheet Reminder] Employee email failed for {employee_id}: {mail_error}")
+                else:
+                    print(f"[Timesheet Reminder] Employee has no email address: {employee_id}")
+
+                # In test mode, stop after the first missing-timesheet result. Do not
+                # send admin notifications or continue to other employee records.
+                if test_recipient:
+                    print(
+                        f"[Timesheet Reminder] Test completed for {work_date_text}: "
+                        f"checked={checked}, missing={missing}, emails_sent={emails_sent}, errors={errors}"
+                    )
+                    return {"checked": checked, "missing": missing, "emails_sent": emails_sent, "errors": errors}
+
+                admin_subject = f"Missing timesheet: {employee_name} ({employee_id}) - {work_date_text}"
+                admin_text = (
+                    "Missing employee timesheet detected.\n\n"
+                    f"Employee: {employee_name}\nEmployee ID: {employee_id}\n"
+                    f"Employee email: {employee_email or 'Not available'}\nDate: {work_date_text}\n\n"
+                    "The employee has not updated their timesheet for this date."
+                )
+                admin_html = f"""<!doctype html><html><body style="font-family:Arial,sans-serif;color:#1a2744;line-height:1.6">
+                  <h2 style="color:#b91c1c">Missing Timesheet Alert</h2>
+                  <p>An employee has not updated their timesheet by the 10:00 PM IST check.</p>
+                  <table cellpadding="8" cellspacing="0" style="border-collapse:collapse;border:1px solid #dde3ef">
+                    <tr><td><strong>Employee</strong></td><td>{safe_name}</td></tr>
+                    <tr><td><strong>Employee ID</strong></td><td>{safe_id}</td></tr>
+                    <tr><td><strong>Employee email</strong></td><td>{html.escape(employee_email or 'Not available')}</td></tr>
+                    <tr><td><strong>Missing date</strong></td><td>{safe_date}</td></tr>
+                  </table>
+                  <p>Please follow up with the employee.</p></body></html>"""
+                try:
+                    email_client.send_email(
+                        Source=sender,
+                        Destination={"ToAddresses": [sender]},
+                        Message={
+                            "Subject": {"Data": admin_subject, "Charset": "UTF-8"},
+                            "Body": {
+                                "Text": {"Data": admin_text, "Charset": "UTF-8"},
+                                "Html": {"Data": admin_html, "Charset": "UTF-8"},
+                            },
+                        },
+                    )
+                    emails_sent += 1
+                    print(f"[Timesheet Reminder] Admin notification sent for: {employee_id}")
+                except Exception as mail_error:
+                    errors += 1
+                    print(f"[Timesheet Reminder] Admin email failed for {employee_id}: {mail_error}")
+            except Exception as employee_error:
+                errors += 1
+                print(f"[Timesheet Reminder] Failed for employee {employee_id}: {employee_error}")
+
+        print(
+            f"[Timesheet Reminder] Completed for {work_date_text}: "
+            f"checked={checked}, missing={missing}, emails_sent={emails_sent}, errors={errors}"
+        )
+        return {"checked": checked, "missing": missing, "emails_sent": emails_sent, "errors": errors}
+    except Exception as exc:
+        errors += 1
+        print(f"[Timesheet Reminder] Could not check Oracle timesheets; no complete run performed: {exc}")
+        return {"checked": checked, "missing": missing, "emails_sent": emails_sent, "errors": errors}
+    finally:
+        if cur is not None:
+            try:
+                cur.close()
+            except Exception:
+                pass
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
+def _next_timesheet_reminder_datetime(now):
+    """Return the next Monday-Friday 10:00 PM Asia/Kolkata datetime."""
+    target = now.replace(hour=TIMESHEET_REMINDER_HOUR, minute=TIMESHEET_REMINDER_MINUTE,
+                         second=0, microsecond=0)
+    if now >= target or now.weekday() >= 5:
+        target = target + timedelta(days=1)
+    while target.weekday() >= 5:
+        target += timedelta(days=1)
+    return target
+
+
+def start_timesheet_reminder_scheduler():
+    """Start a single-process scheduler thread for weekday 10 PM IST reminders."""
+    import threading
+
+    global _timesheet_reminder_scheduler_started
+    try:
+        if _timesheet_reminder_scheduler_started:
+            return
+    except NameError:
+        _timesheet_reminder_scheduler_started = False
+    if _timesheet_reminder_scheduler_started:
+        return
+    _timesheet_reminder_scheduler_started = True
+
+    def _scheduler_loop():
+        while True:
+            now = datetime.now(TIMESHEET_REMINDER_TIMEZONE)
+            next_run = _next_timesheet_reminder_datetime(now)
+            wait_seconds = max(1, (next_run - now).total_seconds())
+            print(f"[Timesheet Reminder] Next weekday run: {next_run.isoformat()}")
+            # Sleep in chunks so the scheduler can tolerate clock changes and shutdowns.
+            while wait_seconds > 0:
+                chunk = min(wait_seconds, 60)
+                time.sleep(chunk)
+                wait_seconds -= chunk
+            run_time = datetime.now(TIMESHEET_REMINDER_TIMEZONE)
+            if run_time.weekday() < 5 and run_time.hour == TIMESHEET_REMINDER_HOUR:
+                with app.app_context():
+                    send_missing_timesheet_notifications(run_time.date())
+
+    thread = Thread(target=_scheduler_loop, name="timesheet-reminder-scheduler", daemon=True)
+    thread.start()
+    print("[Timesheet Reminder] Scheduler started: Monday-Friday at 10:00 PM IST.")
+
+
+# Start the reminder scheduler when the Flask module is imported by a production
+# WSGI server as well as when this file is run directly. Deploy only one app process
+# with this in-process scheduler to avoid duplicate reminder emails.
+if os.getenv("DISABLE_TIMESHEET_REMINDER_SCHEDULER", "").strip().lower() not in {"1", "true", "yes"}:
+    start_timesheet_reminder_scheduler()
 
 if __name__ == "__main__":
     print("🚀 Starting Dev Server → http://127.0.0.1:8080")
