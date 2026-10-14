@@ -15491,6 +15491,50 @@ def _send_admin_notification(email_client, sender: str, emp: dict, work_date_tex
         return False, True
 
 
+def _query_missing_timesheet_batch(work_date_text: str):
+    """Safely open connection, query missing employees, and close connection."""
+    conn = None
+    try:
+        conn = get_db_connection()
+        return _find_missing_timesheet_employees(conn, work_date_text)
+    except Exception as exc:
+        print(f"[Timesheet Reminder] Could not check Oracle timesheets: {exc}")
+        return 0, None
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
+def _dispatch_timesheet_notifications(email_client, sender: str, missing_employees: list, work_date_text: str, test_recipient):
+    """Dispatch email notifications for all missing timesheet records."""
+    emails_sent = 0
+    errors = 0
+    test_mode = bool(test_recipient)
+
+    for emp in missing_employees:
+        sent, mail_err = _send_employee_notification(
+            email_client, sender, emp, work_date_text, test_mode, test_recipient
+        )
+        if sent:
+            emails_sent += 1
+            if test_mode:
+                return emails_sent, errors
+        if mail_err:
+            errors += 1
+
+        if not test_mode:
+            adm_sent, adm_err = _send_admin_notification(email_client, sender, emp, work_date_text)
+            if adm_sent:
+                emails_sent += 1
+            if adm_err:
+                errors += 1
+
+    return emails_sent, errors
+
+
 def send_missing_timesheet_notifications(work_date=None, test_recipient=None):
     """Email active employees missing a timesheet, or send one safe test email.
 
@@ -15514,43 +15558,15 @@ def send_missing_timesheet_notifications(work_date=None, test_recipient=None):
         print("[Timesheet Reminder] ADMIN_EMAIL is empty; no reminder emails sent.")
         return {"checked": 0, "missing": 0, "emails_sent": 0, "errors": 1}
 
-    conn = None
-    try:
-        conn = get_db_connection()
-        checked, missing_employees = _find_missing_timesheet_employees(conn, work_date_text)
-    except Exception as exc:
-        print(f"[Timesheet Reminder] Could not check Oracle timesheets: {exc}")
+    checked, missing_employees = _query_missing_timesheet_batch(work_date_text)
+    if missing_employees is None:
         return {"checked": 0, "missing": 0, "emails_sent": 0, "errors": 1}
-    finally:
-        if conn is not None:
-            try:
-                conn.close()
-            except Exception:
-                pass
+
+    emails_sent, errors = _dispatch_timesheet_notifications(
+        email_client, sender, missing_employees, work_date_text, test_recipient
+    )
 
     missing = len(missing_employees)
-    emails_sent = 0
-    errors = 0
-    test_mode = bool(test_recipient)
-
-    for emp in missing_employees:
-        sent, mail_err = _send_employee_notification(
-            email_client, sender, emp, work_date_text, test_mode, test_recipient
-        )
-        if sent:
-            emails_sent += 1
-            if test_mode:
-                return {"checked": checked, "missing": missing, "emails_sent": emails_sent, "errors": errors}
-        if mail_err:
-            errors += 1
-
-        if not test_mode:
-            adm_sent, adm_err = _send_admin_notification(email_client, sender, emp, work_date_text)
-            if adm_sent:
-                emails_sent += 1
-            if adm_err:
-                errors += 1
-
     print(
         f"[Timesheet Reminder] Completed for {work_date_text}: "
         f"checked={checked}, missing={missing}, emails_sent={emails_sent}, errors={errors}"
