@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -597,6 +596,192 @@
       background: linear-gradient(135deg, #0078D7 0%, #00c6ff 100%);
     }
 
+
+    /* ==========================================
+       EMPLOYEE LOCATIONS - INTERACTIVE SVG MAP
+       ========================================== */
+    .locations-section {
+      padding: 70px 0;
+      background: linear-gradient(135deg, #f5f8ff 0%, #ffffff 100%);
+    }
+
+    .locations-header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .locations-header h2 {
+      font-weight: 800;
+      color: #263238;
+      margin-bottom: 12px;
+    }
+
+    .locations-header p {
+      color: #6b7280;
+      font-size: 1.05rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .locations-map-card {
+      position: relative;
+      background: #fff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 12px 45px rgba(0,0,0,0.09);
+      overflow: hidden;
+    }
+
+    .locations-map-wrap {
+      min-height: 620px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .locations-map {
+      width: 100%;
+      max-width: 620px;
+      height: auto;
+      overflow: visible;
+    }
+
+    .india-outline {
+      fill: #d3d3d3;
+      stroke: #ffffff;
+      stroke-width: 1.2;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+
+    .island-dot {
+      fill: #d3d3d3;
+      stroke: #b5b5b5;
+      stroke-width: 0.8;
+    }
+
+    .location-marker {
+      cursor: pointer;
+      outline: none;
+      transform-box: fill-box;
+      transform-origin: 50% 100%;   /* grow from the pin tip */
+      transition: transform 0.2s ease;
+    }
+
+    .location-marker:hover,
+    .location-marker:focus {
+      transform: scale(1.15);
+    }
+
+    .marker-shadow {
+      fill: rgba(0, 0, 0, 0.28);
+      pointer-events: none;
+    }
+
+    .marker-pin,
+    .marker-pin.remote {
+      fill: url(#pinGrad);
+      stroke: #7a0a1c;
+      stroke-width: 0.8;
+      pointer-events: all;
+    }
+
+    .location-marker:hover .marker-pin,
+    .location-marker:focus .marker-pin {
+      stroke-width: 1.6;
+    }
+
+    .marker-hole {
+      fill: url(#pinSphere);
+      pointer-events: none;
+    }
+
+    .location-popup {
+      position: absolute;
+      z-index: 20;
+      display: none;
+      min-width: 210px;
+      max-width: 260px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.98);
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 14px 35px rgba(0,0,0,0.16);
+      pointer-events: auto;
+    }
+
+    .location-popup.show {
+      display: block;
+      animation: locationPopupIn 0.18s ease-out;
+    }
+
+    .location-popup h4 {
+      margin: 0 30px 5px 0;
+      color: #263238;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .location-popup p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 0.92rem;
+    }
+
+    .location-popup .popup-close {
+      position: absolute;
+      top: 7px;
+      right: 9px;
+      border: 0;
+      background: transparent;
+      color: #6b7280;
+      font-size: 1.25rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 3px 6px;
+    }
+
+    .location-popup .popup-close:hover {
+      color: #263238;
+    }
+
+    .map-note {
+      font-size: 11px;
+      fill: #8a94a3;
+      font-weight: 500;
+    }
+
+    @keyframes locationPulse {
+      0% { transform: scale(0.85); opacity: 0.8; }
+      70% { transform: scale(1.5); opacity: 0; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    @keyframes locationPopupIn {
+      from { opacity: 0; transform: translateY(5px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 768px) {
+      .locations-section {
+        padding: 50px 0;
+      }
+
+      .locations-map-card {
+        padding: 12px;
+      }
+
+      .locations-map-wrap {
+        min-height: 430px;
+      }
+
+      .location-popup {
+        min-width: 185px;
+      }
+    }
+
     /* ==========================================
        RESPONSIVE
        ========================================== */
@@ -632,6 +817,28 @@
         font-size: 1rem;
       }
     }
+    /* ===== Interactive map controls ===== */
+    .map-controls { display:flex; justify-content:flex-end; gap:8px; margin:0 0 12px; position:relative; z-index:5; }
+    .map-control-btn { width:40px; height:40px; border:1px solid #dbe3f0; border-radius:12px; background:#fff; color:#1769aa; box-shadow:0 3px 12px rgba(0,0,0,.07); transition:transform .2s ease, background .2s ease; }
+    .map-control-btn:hover, .map-control-btn:focus-visible { background:#eef6ff; transform:translateY(-2px); outline:2px solid #9acbff; }
+    .locations-map { transform-origin:center center; transition:transform .35s ease; }
+    .location-popup p { line-height:1.5; }
+
+    /* ===== Selected pin highlight ===== */
+    .location-marker.selected {
+      transform: scale(1.35);
+      filter: drop-shadow(0 0 6px rgba(0,120,215,.9));
+    }
+    .location-marker.selected .marker-pin {
+      fill: #0078D7;
+      stroke: #00386b;
+      stroke-width: 1.8;
+    }
+    .map-label.active rect {
+      fill: #0078D7;
+      stroke: #00386b;
+    }
+    .map-label.active text { fill: #ffffff; }
   </style>
 </head>
 
@@ -888,6 +1095,129 @@
   </div>
 </div>
 
+
+  <!-- ==========================================
+       EMPLOYEE LOCATIONS - INTERACTIVE SVG MAP
+       ========================================== -->
+  <section class="locations-section" id="locations">
+    <div class="container">
+      <div class="locations-header">
+        <h2><i class="fas fa-location-dot text-primary me-2"></i>Locations in Which We Are Operating</h2>
+        <p>Explore the locations from which ChakoraHub operates. Select a pin to learn more about the location and our head office.</p>
+      </div>
+
+      <div class="locations-map-card">
+        <div class="map-controls" role="group" aria-label="Map view controls">
+          <button type="button" class="map-control-btn" id="mapZoomIn" aria-label="Zoom in" title="Zoom in"><i class="fas fa-plus"></i></button>
+          <button type="button" class="map-control-btn" id="mapZoomOut" aria-label="Zoom out" title="Zoom out"><i class="fas fa-minus"></i></button>
+          <button type="button" class="map-control-btn" id="mapRotate" aria-label="Rotate map" title="Rotate map"><i class="fas fa-rotate-right"></i></button>
+          <button type="button" class="map-control-btn" id="mapReset" aria-label="Reset map view" title="Reset view"><i class="fas fa-expand"></i></button>
+        </div>
+        <div class="locations-map-wrap" id="locationsMapWrap">
+          <svg class="locations-map" viewBox="0 0 636 708" role="img" aria-labelledby="locationsMapTitle locationsMapDesc" preserveAspectRatio="xMidYMid meet">
+            <title id="locationsMapTitle">ChakoraHub operating locations across India</title>
+            <desc id="locationsMapDesc">An India map with clickable location pins for Hyderabad, Ongole and Guntur. Select a pin to view location details and identify the head office.</desc>
+
+            <defs>
+              <filter id="mapShadow" x="-10%" y="-10%" width="120%" height="120%">
+                <feDropShadow dx="0" dy="3" stdDeviation="3" flood-opacity="0.15"/>
+              </filter>
+              <linearGradient id="pinGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#ff5470"/>
+                <stop offset="0.5" stop-color="#d7193f"/>
+                <stop offset="1" stop-color="#8e0b20"/>
+              </linearGradient>
+              <radialGradient id="pinSphere" cx="0.4" cy="0.35" r="0.7">
+                <stop offset="0" stop-color="#ffffff"/>
+                <stop offset="0.6" stop-color="#d9d9d9"/>
+                <stop offset="1" stop-color="#8d8d8d"/>
+              </radialGradient>
+            </defs>
+
+            <!-- India outline (real boundary data, simplified) -->
+            <path class="india-outline" filter="url(#mapShadow)" d="M210.9,55.5 L214.3,56.2 L216.9,54.7 L218.9,56.0 L219.4,53.8 L223.9,54.0 L225.6,50.2 L237.0,47.0 L238.1,44.7 L241.6,46.0 L248.1,44.4 L250.1,44.8 L251.0,47.5 L252.7,46.4 L255.4,52.1 L258.3,53.5 L261.4,52.9 L260.8,54.0 L262.6,56.8 L265.7,53.5 L269.9,55.7 L267.3,58.4 L267.2,61.7 L265.4,63.6 L265.6,68.5 L263.0,72.6 L257.1,74.3 L257.3,77.6 L251.4,78.2 L253.5,82.9 L251.1,83.9 L249.3,88.1 L241.0,87.3 L238.8,88.8 L242.9,96.1 L239.2,96.5 L239.8,101.8 L243.3,105.8 L249.4,106.0 L247.8,110.1 L252.4,115.4 L252.3,117.3 L249.5,120.7 L246.7,119.9 L243.7,121.6 L243.1,124.0 L240.4,124.8 L236.6,121.6 L235.8,116.8 L228.7,120.5 L230.6,126.1 L236.6,132.3 L235.0,136.4 L237.9,140.7 L235.4,143.0 L236.9,144.4 L236.5,147.3 L239.0,147.8 L243.1,144.1 L249.8,153.6 L253.4,155.5 L256.4,154.0 L258.7,154.8 L260.1,156.8 L266.3,159.4 L265.9,163.4 L273.8,165.8 L282.5,170.7 L281.8,172.1 L280.0,171.2 L276.7,176.0 L268.9,181.7 L269.8,185.0 L266.4,188.4 L267.5,193.6 L264.4,195.9 L263.0,202.0 L272.0,208.0 L271.7,205.5 L273.1,205.0 L282.5,211.4 L286.2,212.2 L288.3,217.2 L291.0,216.6 L291.6,218.3 L299.9,223.3 L303.7,221.8 L311.4,227.2 L316.7,226.2 L317.3,231.1 L326.5,232.2 L329.1,234.9 L331.0,233.1 L330.6,231.6 L335.2,231.8 L340.3,234.5 L339.9,232.3 L343.5,232.6 L346.1,230.8 L349.0,233.7 L355.7,234.7 L357.1,237.3 L356.2,241.1 L362.7,243.0 L363.9,245.3 L367.3,245.0 L367.8,247.5 L370.3,247.8 L376.2,244.9 L378.3,246.4 L378.4,249.8 L380.8,251.7 L384.4,249.5 L388.3,251.2 L390.6,250.5 L398.8,254.8 L405.7,251.3 L406.1,254.2 L411.2,256.5 L413.8,254.5 L416.6,255.8 L422.4,253.4 L424.8,256.2 L426.5,254.8 L428.4,247.9 L427.4,242.5 L424.4,239.5 L426.0,234.8 L425.5,231.2 L428.7,224.7 L427.1,221.9 L433.1,220.6 L437.6,217.5 L441.7,219.8 L442.8,223.3 L440.2,229.7 L443.3,235.8 L439.9,239.0 L442.4,239.8 L442.5,243.4 L443.4,242.3 L447.8,246.4 L452.8,245.2 L458.3,247.1 L457.8,248.2 L462.6,248.7 L469.4,247.1 L472.7,244.3 L480.1,247.2 L499.9,246.4 L504.0,243.9 L507.4,245.5 L508.7,243.0 L506.9,240.4 L507.0,236.5 L508.8,235.8 L506.6,231.6 L499.1,231.5 L497.3,228.3 L499.0,225.4 L504.7,226.4 L511.2,222.6 L512.7,224.6 L515.5,224.7 L521.1,220.6 L520.1,216.8 L525.0,215.7 L535.3,205.6 L541.2,205.5 L552.4,199.7 L554.5,197.6 L553.0,194.8 L559.8,191.6 L561.3,191.2 L563.5,194.5 L567.9,195.3 L567.3,194.3 L572.8,196.6 L576.3,193.9 L577.7,195.4 L577.7,193.9 L579.8,193.0 L581.9,193.7 L584.0,190.5 L588.9,189.7 L594.0,193.9 L591.6,197.3 L594.6,195.7 L600.7,204.0 L596.1,209.0 L598.0,210.7 L597.9,208.2 L602.4,206.7 L606.7,212.4 L610.8,212.2 L615.6,215.6 L614.6,218.8 L616.3,219.9 L615.7,222.8 L613.3,222.3 L606.0,228.8 L606.3,232.2 L611.6,239.0 L611.1,240.1 L605.5,238.1 L605.9,236.4 L602.2,234.0 L598.5,235.8 L592.5,236.0 L576.2,248.7 L570.5,250.6 L568.7,254.3 L570.1,255.8 L569.8,261.9 L571.2,262.5 L567.7,266.4 L568.4,269.4 L565.4,273.7 L560.0,277.5 L558.8,281.4 L562.2,283.4 L561.6,287.6 L555.2,297.5 L550.2,311.5 L545.6,309.2 L543.1,309.8 L542.0,308.0 L536.9,309.4 L535.1,306.5 L533.3,306.4 L535.6,315.0 L533.9,322.4 L534.5,327.2 L532.6,330.0 L529.2,329.2 L528.8,340.6 L530.8,346.3 L529.7,348.3 L527.4,347.8 L526.7,352.4 L525.6,351.5 L524.7,353.4 L523.8,350.8 L520.5,348.7 L520.1,351.9 L518.5,352.6 L516.8,336.3 L513.8,331.5 L513.3,324.9 L514.5,324.8 L512.0,314.3 L510.6,315.8 L509.3,314.0 L507.2,315.9 L505.4,314.0 L505.6,319.6 L501.4,323.5 L502.9,328.1 L498.5,331.5 L494.2,323.9 L494.4,328.7 L492.9,327.9 L492.4,322.2 L489.1,316.7 L490.6,309.7 L492.0,308.2 L493.6,308.7 L493.5,305.8 L497.8,306.5 L499.4,303.0 L501.4,305.0 L501.0,302.7 L504.2,305.1 L504.6,300.7 L509.6,298.9 L509.4,296.6 L510.8,296.8 L512.3,291.9 L511.0,288.3 L516.4,288.9 L514.9,285.5 L507.5,282.0 L498.9,283.4 L498.3,282.3 L495.4,283.2 L491.3,281.6 L474.4,283.0 L462.1,279.7 L463.0,272.6 L461.7,268.2 L463.1,265.3 L461.9,265.3 L462.8,264.6 L458.9,258.9 L457.1,260.7 L458.3,262.8 L456.8,264.8 L453.7,263.1 L452.3,264.0 L448.2,261.1 L446.8,255.4 L444.2,254.0 L443.1,255.2 L446.1,258.8 L443.0,257.8 L441.8,259.1 L440.8,257.3 L438.2,258.4 L439.9,256.5 L432.8,250.4 L431.4,253.5 L434.5,254.0 L435.3,256.2 L434.0,255.9 L431.8,259.3 L428.3,260.9 L426.8,268.2 L430.1,268.4 L435.7,275.0 L438.9,275.8 L441.2,274.6 L441.8,278.1 L445.2,279.5 L445.2,280.3 L443.5,282.5 L433.7,281.5 L432.8,287.4 L431.4,289.0 L429.2,287.0 L427.5,287.5 L428.2,289.2 L424.8,293.5 L431.5,299.8 L439.6,302.0 L438.9,305.5 L440.3,308.5 L436.4,311.2 L436.0,315.9 L439.8,319.6 L441.0,319.2 L439.3,324.5 L445.0,325.4 L441.9,329.9 L444.4,333.6 L443.2,335.5 L443.8,339.8 L445.0,345.9 L447.0,348.7 L445.9,349.9 L446.3,353.5 L445.4,352.7 L444.8,354.4 L447.1,360.1 L443.4,360.3 L442.2,357.1 L442.0,360.6 L441.3,359.1 L439.4,359.2 L438.9,355.3 L440.5,351.8 L440.0,350.5 L438.6,350.7 L439.3,352.1 L437.7,350.5 L436.0,356.2 L435.2,353.3 L434.0,354.4 L433.8,360.7 L433.4,360.8 L433.6,360.4 L433.2,359.8 L433.5,358.7 L433.3,358.3 L432.7,361.1 L432.9,358.3 L430.3,358.0 L431.0,361.4 L429.7,361.8 L427.8,353.1 L428.9,348.9 L428.3,347.9 L425.0,347.2 L428.5,349.9 L420.7,358.8 L411.2,361.4 L411.9,362.0 L406.1,362.3 L402.5,366.7 L400.7,371.1 L403.7,378.1 L401.6,379.1 L404.2,379.2 L403.5,380.9 L405.7,380.3 L399.5,385.1 L398.8,384.4 L398.3,387.1 L399.9,387.9 L397.6,389.7 L400.1,388.5 L394.5,392.1 L392.5,396.1 L390.3,396.4 L391.4,397.2 L374.5,402.8 L375.5,402.7 L364.2,409.5 L365.1,409.9 L358.3,415.6 L359.2,415.6 L349.3,428.4 L350.4,428.0 L345.1,432.4 L345.7,433.3 L334.0,439.6 L327.0,449.2 L314.5,455.9 L308.5,461.3 L307.4,463.6 L307.4,464.9 L309.6,466.0 L309.1,462.4 L309.8,464.1 L309.6,466.2 L309.2,467.9 L307.7,468.6 L309.8,468.2 L308.6,471.0 L307.5,469.0 L308.5,471.8 L296.5,477.4 L296.7,476.4 L296.5,476.1 L296.3,477.4 L293.1,476.0 L287.3,477.7 L285.0,484.8 L280.6,490.5 L279.8,489.5 L280.3,490.4 L278.4,490.7 L277.9,487.6 L275.3,486.6 L266.9,491.4 L262.4,504.5 L265.2,515.0 L264.3,515.7 L265.5,515.4 L263.6,522.6 L264.0,526.7 L266.7,533.0 L268.5,543.9 L264.7,562.0 L258.9,571.3 L256.5,579.4 L258.0,586.2 L256.9,585.7 L256.6,585.8 L258.2,586.4 L258.5,589.8 L259.0,609.3 L257.2,610.1 L254.1,608.1 L247.1,610.4 L245.8,612.9 L246.5,615.3 L241.0,622.5 L239.0,627.4 L240.2,630.7 L244.9,632.0 L238.2,632.6 L226.1,637.8 L223.2,643.4 L224.8,642.9 L222.1,651.9 L211.5,658.5 L206.7,657.4 L200.5,652.4 L191.0,640.3 L193.5,638.3 L190.9,639.6 L190.0,634.5 L188.6,632.7 L189.2,635.0 L187.2,630.1 L185.4,615.4 L184.8,616.7 L184.1,611.8 L183.1,612.1 L181.2,604.2 L178.2,599.0 L179.0,598.5 L179.0,598.2 L178.1,598.9 L177.2,591.4 L174.9,586.2 L172.1,583.7 L170.5,578.5 L165.9,572.8 L163.6,572.1 L155.9,553.7 L153.3,542.6 L152.7,536.3 L153.8,536.1 L152.3,535.5 L147.8,522.0 L149.6,522.8 L147.7,521.9 L144.9,512.5 L141.5,511.2 L142.4,509.3 L141.4,509.6 L137.3,504.3 L138.2,503.2 L138.2,502.7 L137.0,498.9 L134.7,497.2 L136.7,496.7 L134.8,496.0 L135.5,495.1 L134.4,495.4 L133.6,493.2 L134.8,491.8 L133.6,492.6 L131.5,487.0 L128.0,483.0 L126.5,476.8 L127.4,476.0 L126.3,476.3 L126.2,475.8 L128.2,475.1 L126.2,475.5 L125.1,472.9 L125.5,471.8 L126.1,472.8 L125.9,472.9 L125.9,473.2 L126.1,473.6 L127.7,473.1 L125.2,471.0 L126.9,470.6 L125.5,470.5 L124.9,468.1 L125.7,465.9 L124.7,466.3 L124.4,463.2 L124.7,462.6 L124.9,463.1 L125.4,463.4 L125.4,462.9 L125.1,463.0 L125.1,462.7 L124.2,462.4 L123.9,461.1 L124.5,462.2 L125.3,461.3 L122.6,455.6 L124.0,456.5 L124.8,455.7 L122.2,453.4 L123.0,452.6 L121.5,449.9 L123.1,449.2 L121.5,448.7 L121.3,443.8 L119.3,441.3 L120.5,440.4 L119.1,440.3 L117.3,435.4 L118.0,434.0 L120.8,437.0 L120.4,433.1 L119.3,434.4 L117.1,432.5 L116.8,428.3 L118.8,429.9 L115.8,424.9 L116.0,422.5 L117.4,422.0 L118.6,423.0 L118.3,423.6 L118.7,424.2 L119.0,424.4 L118.5,421.1 L116.8,420.4 L120.0,417.7 L118.7,418.1 L118.4,414.0 L117.8,417.3 L114.7,420.5 L115.2,414.2 L114.2,414.8 L115.4,412.6 L114.3,413.9 L114.3,411.4 L116.9,411.8 L114.1,410.5 L113.5,408.0 L116.4,406.6 L113.2,406.5 L111.6,399.8 L111.9,397.6 L113.5,397.4 L113.7,389.8 L116.6,384.5 L115.5,379.8 L116.2,380.0 L117.3,379.4 L115.1,378.7 L114.2,375.9 L115.6,374.8 L113.7,375.7 L113.2,374.2 L113.1,373.0 L115.6,373.4 L115.2,372.1 L112.7,372.2 L114.4,370.2 L111.3,372.4 L111.3,369.6 L111.8,369.2 L112.5,369.9 L113.4,369.8 L110.5,367.6 L112.3,366.3 L112.5,364.0 L113.4,364.6 L113.8,364.3 L113.1,363.6 L111.5,364.3 L112.1,363.1 L115.3,359.5 L117.2,359.3 L109.2,359.6 L110.9,354.2 L111.6,353.3 L112.8,353.5 L113.4,353.2 L113.6,352.7 L111.5,352.9 L109.2,354.4 L108.6,352.7 L110.2,347.6 L113.8,348.3 L116.9,346.3 L113.5,347.1 L109.2,345.4 L107.1,347.6 L106.0,344.7 L104.9,345.4 L104.4,349.9 L102.0,351.7 L103.3,353.8 L103.0,353.4 L102.6,353.2 L101.6,353.0 L103.4,354.1 L103.4,356.3 L102.7,355.3 L101.7,356.3 L104.5,360.4 L100.1,367.2 L100.5,369.8 L88.4,375.1 L86.9,377.1 L74.3,380.9 L60.7,372.9 L35.8,345.4 L38.5,341.6 L37.8,343.6 L41.0,342.9 L40.3,345.3 L41.7,346.5 L46.9,344.8 L47.5,342.8 L48.8,345.1 L50.7,345.0 L51.9,341.7 L53.6,343.4 L57.2,340.2 L61.0,340.2 L66.6,330.8 L63.3,331.4 L62.0,328.9 L62.1,331.2 L60.2,330.2 L59.5,332.2 L55.1,332.1 L51.6,335.9 L46.3,335.1 L44.3,334.1 L44.7,333.3 L44.5,332.8 L44.2,334.2 L41.1,333.8 L38.6,331.2 L38.4,332.0 L37.4,330.5 L36.9,331.2 L36.7,330.3 L36.3,330.9 L32.1,328.4 L29.6,326.4 L31.3,327.4 L28.5,325.1 L30.5,323.5 L28.4,322.5 L27.1,319.3 L25.8,319.6 L26.3,318.0 L25.4,318.9 L27.9,314.4 L33.2,310.8 L27.2,313.7 L25.5,313.9 L25.9,313.0 L25.4,312.1 L23.8,317.3 L20.2,316.6 L23.8,314.1 L22.0,313.9 L21.7,315.4 L20.6,314.2 L20.9,311.8 L24.0,308.7 L32.0,308.8 L33.2,301.3 L34.4,303.5 L36.0,301.5 L37.2,303.2 L49.2,301.7 L52.0,304.4 L58.0,304.4 L59.7,301.7 L68.9,298.9 L69.1,302.6 L72.0,303.4 L80.3,299.3 L77.9,298.4 L77.6,295.0 L79.8,293.0 L75.6,282.9 L71.0,277.4 L70.9,270.7 L63.0,270.4 L59.5,265.5 L61.0,252.0 L53.9,251.2 L47.5,247.8 L49.1,238.1 L58.0,229.8 L60.2,224.4 L65.1,219.9 L69.5,219.9 L72.6,225.8 L75.3,226.6 L82.1,223.8 L96.2,221.0 L96.8,217.5 L102.5,211.5 L106.2,203.2 L117.6,197.5 L124.4,185.6 L126.8,177.3 L135.1,174.7 L138.5,171.8 L136.6,168.2 L138.5,166.4 L137.6,166.5 L137.7,165.4 L140.6,164.6 L147.6,155.5 L153.3,152.5 L153.1,151.3 L150.7,152.4 L149.5,151.2 L150.3,146.1 L152.4,144.8 L149.0,138.4 L151.5,134.6 L155.8,133.1 L157.0,131.0 L164.4,130.1 L167.1,127.2 L166.0,124.6 L161.5,121.6 L153.0,121.3 L152.1,118.6 L153.5,113.6 L152.1,115.6 L146.7,115.2 L137.6,109.4 L135.3,109.9 L131.6,108.1 L130.8,90.5 L128.9,87.8 L128.6,82.0 L126.8,79.8 L127.9,75.6 L132.1,75.8 L133.5,71.3 L140.0,68.6 L141.8,63.5 L134.0,61.3 L132.8,58.5 L134.7,54.6 L126.9,54.5 L125.4,51.6 L121.2,50.3 L122.8,48.8 L122.3,47.2 L109.9,47.4 L108.7,46.3 L109.5,39.0 L118.0,33.7 L120.2,30.7 L119.9,28.8 L126.3,27.5 L136.2,28.2 L132.3,23.9 L139.9,25.8 L147.7,22.0 L150.6,22.8 L153.1,20.0 L154.1,21.3 L156.2,20.7 L157.5,23.5 L162.4,21.4 L168.0,23.0 L168.9,28.1 L174.5,27.6 L178.7,30.8 L180.4,34.5 L194.5,40.6 L197.0,47.2 L202.1,49.9 L207.4,50.3 L209.8,51.8 Z"/>
+
+            <!-- Island groups (Andaman, Nicobar, Lakshadweep) -->
+            <g aria-label="Island groups">
+              <path class="island-dot" d="M524.8,552.1 L525.8,553.8 L525.4,555.1 L526.5,556.6 L525.6,558.6 L526.4,560.4 L526.2,561.4 L525.3,561.9 L526.0,561.8 L525.1,563.3 L524.8,562.1 L523.6,561.8 L524.7,562.9 L524.4,563.1 L522.8,562.1 L524.5,565.1 L521.5,565.6 L520.6,564.9 L520.8,559.0 L520.4,558.7 L521.7,557.5 L522.4,558.2 L522.5,556.7 L521.4,557.4 L521.1,554.1 L522.3,554.0 L522.6,552.6 L524.0,552.9 Z"/>
+              <path class="island-dot" d="M527.4,537.5 L527.5,540.7 L527.0,540.7 L528.1,541.1 L527.9,541.9 L528.6,542.9 L528.1,543.4 L527.7,542.4 L526.6,543.0 L526.1,542.2 L525.9,542.6 L526.6,543.8 L527.0,543.2 L527.1,544.1 L528.1,544.4 L527.5,548.9 L526.0,550.0 L525.6,548.0 L525.4,549.0 L524.5,548.2 L525.0,548.9 L524.3,549.2 L525.0,549.2 L524.9,550.2 L525.6,550.9 L524.9,551.4 L524.7,550.3 L523.9,551.5 L524.1,552.8 L522.8,552.4 L522.5,550.7 L523.3,549.9 L522.4,549.9 L522.5,548.2 L522.8,548.6 L523.0,548.6 L522.9,547.5 L523.7,547.2 L522.9,546.8 L523.4,546.5 L523.3,545.0 L523.8,545.0 L523.2,543.4 L523.5,542.0 L524.3,541.7 L523.6,541.3 L524.3,541.3 L524.2,539.9 L525.4,539.3 L525.2,538.4 L526.6,538.5 L526.6,537.7 L527.1,538.2 Z"/>
+              <path class="island-dot" d="M520.7,567.1 L520.7,568.6 L521.8,568.4 L521.5,570.9 L521.3,570.9 L521.1,571.1 L520.8,571.1 L521.2,571.2 L521.5,571.0 L521.5,570.8 L522.5,571.0 L521.4,571.5 L522.0,572.1 L521.2,572.7 L521.0,573.8 L521.3,574.5 L521.6,573.7 L522.4,573.6 L522.6,574.4 L521.8,578.8 L520.7,578.7 L520.9,579.5 L519.9,579.9 L520.6,580.6 L521.1,579.3 L521.8,579.7 L520.9,583.7 L519.6,582.8 L519.6,581.7 L519.0,581.9 L518.8,580.6 L519.4,580.7 L519.5,580.3 L518.7,580.2 L518.6,578.5 L517.9,578.9 L517.6,575.6 L517.1,576.1 L516.9,575.6 L517.9,573.5 L518.8,575.5 L519.1,569.9 L519.9,567.5 L520.1,568.3 Z"/>
+              <path class="island-dot" d="M543.9,676.8 L544.9,677.7 L544.9,680.2 L546.3,682.1 L545.6,682.2 L546.2,683.0 L545.2,684.2 L545.3,686.3 L544.4,686.2 L543.8,687.6 L543.0,684.7 L541.5,682.3 L540.3,681.8 L540.1,679.3 L540.7,678.0 L543.2,677.6 Z"/>
+              <path class="island-dot" d="M516.9,596.4 L518.2,597.4 L518.4,598.8 L517.8,598.6 L518.9,599.4 L518.9,601.4 L517.4,603.1 L518.0,603.6 L516.9,605.0 L515.2,604.2 L514.1,604.6 L514.7,602.3 L514.1,601.7 L514.1,598.7 L516.5,596.6 L516.7,597.1 Z"/>
+              <path class="island-dot" d="M428.1,356.9 L427.8,359.2 L427.3,359.2 L427.9,359.3 L427.7,360.2 L425.7,360.1 L425.7,358.4 L427.4,354.9 Z"/>
+              <path class="island-dot" d="M522.2,565.4 L524.5,565.9 L524.0,566.9 L524.4,567.9 L523.6,567.9 L523.9,568.5 L523.0,568.6 L523.0,569.8 L522.0,570.9 L521.5,570.1 L522.3,566.9 L521.5,566.7 Z"/>
+              <path class="island-dot" d="M534.3,659.7 L535.9,661.6 L536.0,663.0 L535.3,662.3 L533.6,662.6 L533.8,661.4 L533.1,661.8 L533.2,660.3 Z"/>
+              <path class="island-dot" d="M541.3,672.4 L542.4,674.1 L540.2,676.7 L539.9,674.0 L541.4,673.6 Z"/>
+              <path class="island-dot" d="M537.6,655.0 L537.8,656.2 L537.0,656.8 L538.0,658.2 L538.1,659.3 L537.3,659.5 L537.1,660.2 L536.8,659.2 L537.8,658.7 L537.4,658.3 L536.8,659.0 L536.1,656.5 Z"/>
+              <path class="island-dot" d="M522.2,632.7 L522.9,633.4 L523.2,635.0 L521.3,635.5 L520.9,633.5 Z"/>
+              <path class="island-dot" d="M519.3,582.9 L520.4,584.9 L519.6,585.2 L520.5,586.1 L518.7,586.7 L518.3,586.1 L519.1,585.3 L519.0,583.4 Z"/>
+              <path class="island-dot" d="M520.7,550.5 L521.2,552.6 L520.1,555.0 L519.7,553.3 L520.1,551.0 Z"/>
+              <path class="island-dot" d="M526.1,571.4 L527.0,571.7 L527.6,574.8 L526.7,573.6 L527.3,573.7 L526.9,572.7 L526.4,573.4 L525.2,572.3 Z"/>
+              <path class="island-dot" d="M529.3,652.3 L529.4,654.1 L530.9,655.4 L530.8,655.8 L528.6,654.3 L528.7,652.8 Z"/>
+              <path class="island-dot" d="M436.0,358.1 L436.9,359.1 L436.8,360.5 L435.4,359.7 L435.2,358.5 Z"/>
+              <path class="island-dot" d="M438.9,358.5 L440.3,359.7 L440.8,361.3 L439.1,361.1 Z"/>
+              <path class="island-dot" d="M436.8,355.3 L438.3,354.1 L437.6,356.9 Z"/>
+              <path class="island-dot" d="M528.3,567.6 L528.7,569.0 L528.3,570.3 L527.5,569.4 Z"/>
+              <path class="island-dot" d="M427.6,351.5 L425.6,354.0 L426.3,351.9 Z"/>
+              <path class="island-dot" d="M435.8,356.3 L436.3,358.0 L435.3,358.3 L434.9,357.2 Z"/>
+              <path class="island-dot" d="M538.2,659.6 L538.7,660.4 L538.7,661.8 L537.2,660.5 Z"/>
+              <path class="island-dot" d="M438.2,351.7 L439.2,352.1 L438.5,353.4 L437.5,353.0 Z"/>
+              <path class="island-dot" d="M510.5,581.3 L512.0,581.5 L511.8,582.8 L510.8,582.6 Z"/>
+              <path class="island-dot" d="M435.3,359.8 L436.7,360.9 L435.8,361.6 L435.1,360.8 Z"/>
+              <path class="island-dot" d="M430.9,358.6 L431.9,359.8 L431.1,360.8 L430.9,360.7 Z"/>
+              <path class="island-dot" d="M428.8,358.2 L429.4,360.0 L429.0,361.0 L428.3,359.0 Z"/>
+              <path class="island-dot" d="M112.8,589.0 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 Z"/>
+              <path class="island-dot" d="M100.3,597.2 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 Z"/>
+              <path class="island-dot" d="M117.9,654.0 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 Z"/>
+              <path class="island-dot" d="M130.7,598.3 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 Z"/>
+              <path class="island-dot" d="M108.8,603.8 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 Z"/>
+              <path class="island-dot" d="M130.0,614.6 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 Z"/>
+              <path class="island-dot" d="M111.3,591.4 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 Z"/>
+              <path class="island-dot" d="M100.4,581.0 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 Z"/>
+              <path class="island-dot" d="M117.0,583.5 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 Z"/>
+              <path class="island-dot" d="M110.7,579.0 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 Z"/>
+              <path class="island-dot" d="M102.2,615.3 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 Z"/>
+              <path class="island-dot" d="M107.2,599.0 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 Z"/>
+              <path class="island-dot" d="M130.4,613.0 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 Z"/>
+              <path class="island-dot" d="M102.4,595.5 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 Z"/>
+            </g>
+
+            <!-- Pins (tip of each pin = exact city position). Click or press Enter/Space to open details. -->
+            <g class="location-marker" data-location="Hyderabad" data-role="Head Office" aria-label="Hyderabad, company head office" tabindex="0">
+              <ellipse class="marker-shadow" cx="230.6" cy="453.7" rx="7" ry="2"/>
+              <circle cx="230.6" cy="453.7" r="6" fill="none" stroke="#d7193f" stroke-width="1.5" style="transform-box:fill-box;transform-origin:center;animation:locationPulse 1.8s infinite"/>
+              <path class="marker-pin" d="M 230.6 453.7 C 228.1 448.2, 222.1 442.7, 222.1 438.2 A 8.5 8.5 0 1 1 239.1 438.2 C 239.1 442.7, 233.1 448.2, 230.6 453.7 Z"/>
+              <circle class="marker-hole" cx="230.6" cy="438.2" r="4.2"/>
+            </g>
+
+            <g class="location-marker" data-location="Guntur, Andhra Pradesh" data-role="Operating location" aria-label="Guntur, Andhra Pradesh" tabindex="0">
+              <ellipse class="marker-shadow" cx="270.4" cy="477.4" rx="7" ry="2"/>
+              <circle cx="270.4" cy="477.4" r="6" fill="none" stroke="#d7193f" stroke-width="1.5" style="transform-box:fill-box;transform-origin:center;animation:locationPulse 1.8s infinite"/>
+              <path class="marker-pin remote" d="M 270.4 477.4 C 267.9 471.9, 261.9 466.4, 261.9 461.9 A 8.5 8.5 0 1 1 278.9 461.9 C 278.9 466.4, 272.9 471.9, 270.4 477.4 Z"/>
+              <circle class="marker-hole" cx="270.4" cy="461.9" r="4.2"/>
+            </g>
+
+            <g class="location-marker" data-location="Ongole, Andhra Pradesh" data-role="Operating location" aria-label="Ongole, Andhra Pradesh" tabindex="0">
+              <ellipse class="marker-shadow" cx="262.5" cy="495.0" rx="7" ry="2"/>
+              <circle cx="262.5" cy="495.0" r="6" fill="none" stroke="#d7193f" stroke-width="1.5" style="transform-box:fill-box;transform-origin:center;animation:locationPulse 1.8s infinite"/>
+              <path class="marker-pin remote" d="M 262.5 495.0 C 260.0 489.5, 254.0 484.0, 254.0 479.5 A 8.5 8.5 0 1 1 271.0 479.5 C 271.0 484.0, 265.0 489.5, 262.5 495.0 Z"/>
+              <circle class="marker-hole" cx="262.5" cy="479.5" r="4.2"/>
+            </g>
+            <text x="318" y="700" text-anchor="middle" class="map-note">Select a pin to explore our operating locations</text>
+          </svg>
+
+          <!-- Public-safe details appear only after clicking a pin -->
+          <div class="location-popup" id="locationPopup" role="dialog" aria-live="polite" aria-label="Location details">
+            <button type="button" class="popup-close" id="locationPopupClose" aria-label="Close location details">&times;</button>
+            <h4 id="locationPopupName"></h4>
+            <p id="locationPopupDescription"></p>
+            <p id="locationPopupRole" class="mt-1 fw-semibold"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ==========================================
        SERVICES & COLLABORATION SECTION
        ========================================== -->
@@ -957,7 +1287,7 @@
         <h2>🎓 Student Internships</h2>
         <p>Explore internship opportunities, build practical experience, and start your career journey.</p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
-          <a href="{{ url_for('internship_page') }}" class="btn btn-primary btn-lg">
+          <a href="{{ url_for('internships') }}" class="btn btn-primary btn-lg">
             <i class="fas fa-briefcase"></i> Explore Internships
           </a>
         </div>
@@ -1164,5 +1494,139 @@
   </script>
 
   {% include 'chatbot_widget.html' %}
+
+  <!-- Interactive Location Pin Details -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const mapWrap = document.getElementById('locationsMapWrap');
+      const popup = document.getElementById('locationPopup');
+      const popupName = document.getElementById('locationPopupName');
+      const popupDescription = document.getElementById('locationPopupDescription');
+      const popupRole = document.getElementById('locationPopupRole');
+      const popupClose = document.getElementById('locationPopupClose');
+      const markers = document.querySelectorAll('.location-marker');
+      const mapSvg = document.querySelector('.locations-map');
+      const zoomIn = document.getElementById('mapZoomIn');
+      const zoomOut = document.getElementById('mapZoomOut');
+      const rotateButton = document.getElementById('mapRotate');
+      const resetButton = document.getElementById('mapReset');
+      let mapScale = 1;
+      let mapRotation = 0;
+
+      if (!mapWrap || !popup || !markers.length || !mapSvg) return;
+
+      function updateMapTransform() {
+        mapSvg.style.transform = `scale(${mapScale}) rotate(${mapRotation}deg)`;
+      }
+      zoomIn.addEventListener('click', function () {
+        mapScale = Math.min(1.8, +(mapScale + 0.15).toFixed(2));
+        updateMapTransform();
+      });
+      zoomOut.addEventListener('click', function () {
+        mapScale = Math.max(0.7, +(mapScale - 0.15).toFixed(2));
+        updateMapTransform();
+      });
+      rotateButton.addEventListener('click', function () {
+        mapRotation = (mapRotation + 15) % 360;
+        updateMapTransform();
+      });
+      resetButton.addEventListener('click', function () {
+        mapScale = 1;
+        mapRotation = 0;
+        updateMapTransform();
+        closeLocationPopup();
+      });
+
+      function clearSelection() {
+        document.querySelectorAll('.location-marker.selected').forEach(function (m) { m.classList.remove('selected'); });
+        document.querySelectorAll('.map-label.active').forEach(function (l) { l.classList.remove('active'); });
+      }
+
+      function selectMarker(marker) {
+        clearSelection();
+        marker.classList.add('selected');
+        const city = (marker.dataset.location || '').split(',')[0].trim();
+        document.querySelectorAll('.map-label').forEach(function (l) {
+          if (l.textContent.trim().indexOf(city) === 0) l.classList.add('active');
+        });
+        // move selected pin to the top so it is never hidden behind another pin
+        marker.parentNode.appendChild(marker);
+      }
+
+      function closeLocationPopup() {
+        clearSelection();
+        popup.classList.remove('show');
+        popup.setAttribute('aria-hidden', 'true');
+      }
+
+      function showLocationPopup(marker) {
+        selectMarker(marker);
+        const name = marker.dataset.location || 'Location';
+        const role = marker.dataset.role || 'Operating location';
+        const isHeadOffice = name === 'Hyderabad';
+        popupName.textContent = name;
+        popupDescription.textContent = isHeadOffice
+          ? 'ChakoraHub’s head office is located here.'
+          : 'ChakoraHub operates from this location.';
+        popupRole.textContent = isHeadOffice ? 'Head Office' : 'Operating Location';
+        popup.setAttribute('aria-hidden', 'false');
+        popup.classList.add('show');
+
+        // Position the popup close to the clicked pin while keeping it inside the map card.
+        const pin = marker.querySelector('.marker-pin');
+        const wrapRect = mapWrap.getBoundingClientRect();
+        const pinRect = pin.getBoundingClientRect();
+        const popupWidth = popup.offsetWidth || 220;
+        const popupHeight = popup.offsetHeight || 100;
+
+        let left = pinRect.left - wrapRect.left + (pinRect.width / 2) - (popupWidth / 2);
+        let top = pinRect.top - wrapRect.top - popupHeight - 12;
+
+        left = Math.max(8, Math.min(left, mapWrap.clientWidth - popupWidth - 8));
+        if (top < 8) {
+          top = pinRect.bottom - wrapRect.top + 12;
+        }
+
+        popup.style.left = left + 'px';
+        popup.style.top = top + 'px';
+      }
+
+      markers.forEach(function (marker) {
+        marker.addEventListener('click', function (event) {
+          event.stopPropagation();
+          showLocationPopup(marker);
+        });
+
+        marker.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            showLocationPopup(marker);
+          }
+        });
+      });
+
+      popupClose.addEventListener('click', function (event) {
+        event.stopPropagation();
+        closeLocationPopup();
+      });
+
+      mapWrap.addEventListener('click', function (event) {
+        if (!popup.contains(event.target) && !event.target.closest('.location-marker')) {
+          closeLocationPopup();
+        }
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') closeLocationPopup();
+      });
+
+      window.addEventListener('resize', function () {
+        if (!popup.classList.contains('show')) return;
+        const activeMarker = document.querySelector('.location-marker:focus');
+        if (activeMarker) showLocationPopup(activeMarker);
+      });
+    });
+  </script>
+
 </body>
 </html>
