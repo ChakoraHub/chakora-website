@@ -68,13 +68,13 @@ STUDENT_INTERNAL_NO_PROXY = "172.31.26.176"
 INTERNAL_NO_PROXY="172.31.26.176"
 CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
 INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
-'''if os.name == "nt":
+if os.name == "nt":
     HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL", "http://127.0.0.1:5001")
     STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL", "http://127.0.0.1:8001")
     EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL", "http://127.0.0.1:8002")
-    TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://127.0.0.1:8025")
-else:'''
-TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://172.31.26.176:8025")
+    TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://172.31.26.176:8025")
+else:
+    TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://172.31.26.176:8025")
 SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
 # SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
@@ -1990,7 +1990,7 @@ def proxy_ticket_service(subpath):
         return (upstream_resp.content, upstream_resp.status_code, resp_headers)
 
     except requests.exceptions.RequestException as e:
-        logger.error(f"Ticket Service reverse proxy error: {e}")
+        print(f"❌ Ticket Service reverse proxy error: {e}")
         return jsonify({
             "status": "error",
             "detail": f"Ticket Service unavailable ({str(e)})"
