@@ -15457,6 +15457,40 @@ def _send_ses_email(email_client, sender: str, destination: str, subject: str, t
     )
 
 
+def _send_employee_notification(email_client, sender: str, emp: dict, work_date_text: str, test_mode: bool, test_recipient):
+    """Dispatch timesheet reminder to employee or test recipient."""
+    emp_id = emp["id"]
+    destination_email = str(test_recipient).strip() if test_mode else emp["email"]
+    if not destination_email:
+        print(f"[Timesheet Reminder] Employee has no email address: {emp_id}")
+        return False, False
+
+    try:
+        emp_subj, emp_text, emp_html = _build_employee_timesheet_email(emp, work_date_text, test_mode)
+        _send_ses_email(email_client, sender, destination_email, emp_subj, emp_text, emp_html)
+        if test_mode:
+            print(f"[Timesheet Reminder] TEST email sent to {destination_email}; no real recipient contacted.")
+        else:
+            print(f"[Timesheet Reminder] Employee notification sent: {emp_id}")
+        return True, False
+    except Exception as mail_error:
+        print(f"[Timesheet Reminder] Employee email failed for {emp_id}: {mail_error}")
+        return False, True
+
+
+def _send_admin_notification(email_client, sender: str, emp: dict, work_date_text: str):
+    """Dispatch missing timesheet alert to admin."""
+    emp_id = emp["id"]
+    try:
+        adm_subj, adm_text, adm_html = _build_admin_timesheet_email(emp, work_date_text)
+        _send_ses_email(email_client, sender, sender, adm_subj, adm_text, adm_html)
+        print(f"[Timesheet Reminder] Admin notification sent for: {emp_id}")
+        return True, False
+    except Exception as mail_error:
+        print(f"[Timesheet Reminder] Admin email failed for {emp_id}: {mail_error}")
+        return False, True
+
+
 def send_missing_timesheet_notifications(work_date=None, test_recipient=None):
     """Email active employees missing a timesheet, or send one safe test email.
 
@@ -15500,32 +15534,22 @@ def send_missing_timesheet_notifications(work_date=None, test_recipient=None):
     test_mode = bool(test_recipient)
 
     for emp in missing_employees:
-        emp_id = emp["id"]
-        destination_email = str(test_recipient).strip() if test_mode else emp["email"]
-        if destination_email:
-            try:
-                emp_subj, emp_text, emp_html = _build_employee_timesheet_email(emp, work_date_text, test_mode)
-                _send_ses_email(email_client, sender, destination_email, emp_subj, emp_text, emp_html)
-                emails_sent += 1
-                if test_mode:
-                    print(f"[Timesheet Reminder] TEST email sent to {destination_email}; no real recipient contacted.")
-                    return {"checked": checked, "missing": missing, "emails_sent": emails_sent, "errors": errors}
-                print(f"[Timesheet Reminder] Employee notification sent: {emp_id}")
-            except Exception as mail_error:
-                errors += 1
-                print(f"[Timesheet Reminder] Employee email failed for {emp_id}: {mail_error}")
-        else:
-            print(f"[Timesheet Reminder] Employee has no email address: {emp_id}")
+        sent, mail_err = _send_employee_notification(
+            email_client, sender, emp, work_date_text, test_mode, test_recipient
+        )
+        if sent:
+            emails_sent += 1
+            if test_mode:
+                return {"checked": checked, "missing": missing, "emails_sent": emails_sent, "errors": errors}
+        if mail_err:
+            errors += 1
 
         if not test_mode:
-            try:
-                adm_subj, adm_text, adm_html = _build_admin_timesheet_email(emp, work_date_text)
-                _send_ses_email(email_client, sender, sender, adm_subj, adm_text, adm_html)
+            adm_sent, adm_err = _send_admin_notification(email_client, sender, emp, work_date_text)
+            if adm_sent:
                 emails_sent += 1
-                print(f"[Timesheet Reminder] Admin notification sent for: {emp_id}")
-            except Exception as mail_error:
+            if adm_err:
                 errors += 1
-                print(f"[Timesheet Reminder] Admin email failed for {emp_id}: {mail_error}")
 
     print(
         f"[Timesheet Reminder] Completed for {work_date_text}: "
