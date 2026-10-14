@@ -15508,6 +15508,14 @@ def _query_missing_timesheet_batch(work_date_text: str):
                 pass
 
 
+def _dispatch_single_employee_alert(email_client, sender: str, emp: dict, work_date_text: str):
+    """Send admin alert for a missing timesheet employee."""
+    adm_sent, adm_err = _send_admin_notification(email_client, sender, emp, work_date_text)
+    sent_count = 1 if adm_sent else 0
+    err_count = 1 if adm_err else 0
+    return sent_count, err_count
+
+
 def _dispatch_timesheet_notifications(email_client, sender: str, missing_employees: list, work_date_text: str, test_recipient):
     """Dispatch email notifications for all missing timesheet records."""
     emails_sent = 0
@@ -15526,11 +15534,9 @@ def _dispatch_timesheet_notifications(email_client, sender: str, missing_employe
             errors += 1
 
         if not test_mode:
-            adm_sent, adm_err = _send_admin_notification(email_client, sender, emp, work_date_text)
-            if adm_sent:
-                emails_sent += 1
-            if adm_err:
-                errors += 1
+            adm_sent, adm_err = _dispatch_single_employee_alert(email_client, sender, emp, work_date_text)
+            emails_sent += adm_sent
+            errors += adm_err
 
     return emails_sent, errors
 
