@@ -479,39 +479,27 @@
       border: 1px solid #eef2f6;
     }
 
-    .ticket-feature-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .ticket-feature-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      padding: 14px 16px;
-      background: #f8fafc;
-      border-radius: 12px;
+    .ticket-callout-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
       border: 1px solid #e2e8f0;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border-radius: 16px;
+      padding: 28px 24px;
+      text-align: center;
+      margin-bottom: 24px;
     }
 
-    .ticket-feature-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    .ticket-feature-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
+    .ticket-callout-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
       background: linear-gradient(135deg, #2563eb, #1d4ed8);
       color: white;
-      display: flex;
+      font-size: 26px;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
-      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.25);
+      margin-bottom: 16px;
     }
 
     /* ==========================================
@@ -1054,61 +1042,140 @@
 
         <!-- RAISE A TICKET -->
         <div class="col-lg-6 d-flex">
-          <div class="enquiry-card ticket-card d-flex flex-column justify-content-between">
+          <div class="enquiry-card ticket-card d-flex flex-column justify-content-between p-4 p-md-5">
             <div>
               <h2>🎫 Raise a Ticket</h2>
               <p class="text-muted text-center mb-4" style="font-size: 14px;">
-                Need dedicated support or encountering an issue? Submit a ticket to our resolution desk and track progress in real time.
+                Have a technical issue or need assistance with courses, exams, billing, or accounts? Submit a support ticket directly to our resolution desk.
               </p>
 
-              <div class="ticket-feature-list mb-4">
-                <div class="ticket-feature-item">
-                  <div class="ticket-feature-icon">
-                    <i class="fas fa-bolt"></i>
-                  </div>
-                  <div>
-                    <h5 class="mb-1" style="font-size: 15px; font-weight: 700; color: #1e293b;">Transparent SLA Tracking</h5>
-                    <p class="text-muted mb-0" style="font-size: 13px;">Follow your issue through a 4-stage lifecycle from submission to resolution.</p>
-                  </div>
+              <div class="ticket-callout-card">
+                <div class="ticket-callout-icon">
+                  <i class="fas fa-headset"></i>
                 </div>
-
-                <div class="ticket-feature-item">
-                  <div class="ticket-feature-icon">
-                    <i class="fas fa-headset"></i>
-                  </div>
-                  <div>
-                    <h5 class="mb-1" style="font-size: 15px; font-weight: 700; color: #1e293b;">Operations & Technical Support</h5>
-                    <p class="text-muted mb-0" style="font-size: 13px;">Assistance for courses, exams, assignments, billing, and account access.</p>
-                  </div>
-                </div>
-
-                <div class="ticket-feature-item">
-                  <div class="ticket-feature-icon">
-                    <i class="fas fa-comments"></i>
-                  </div>
-                  <div>
-                    <h5 class="mb-1" style="font-size: 15px; font-weight: 700; color: #1e293b;">Direct Staff Communication</h5>
-                    <p class="text-muted mb-0" style="font-size: 13px;">Receive status alerts and reply directly to staff handling your request.</p>
-                  </div>
-                </div>
+                <h4 class="fw-bold mb-0" style="color: #1e293b; font-size: 18px;">Dedicated Support Helpdesk</h4>
               </div>
             </div>
 
-            <div>
-              <a href="{{ url_for('ticket_portal') }}" class="btn btn-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2" style="padding: 12px; font-weight: 600; border-radius: 10px;">
+            <div class="d-flex flex-column gap-3">
+              <button type="button" class="btn btn-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2 py-3" style="font-weight: 700; border-radius: 12px; font-size: 16px; box-shadow: 0 4px 14px rgba(37,99,235,0.25);" data-bs-toggle="modal" data-bs-target="#homeTicketModal">
                 <i class="fas fa-ticket-alt"></i> Raise a Support Ticket
-              </a>
-              <div class="mt-3 text-center">
-                <a href="{{ url_for('ticket_portal') }}" class="text-decoration-none small text-primary fw-semibold">
-                  Track Existing Tickets <i class="fas fa-arrow-right ms-1"></i>
-                </a>
-              </div>
+              </button>
+              <button type="button" class="btn btn-outline-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2 py-3" style="font-weight: 700; border-radius: 12px; font-size: 16px; border-width: 2px;" data-bs-toggle="modal" data-bs-target="#checkTicketStatusModal">
+                <i class="fas fa-search"></i> Check Ticket Status
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- ==========================================
+       MODAL: RAISE SUPPORT TICKET (HOMEPAGE)
+       ========================================== -->
+  <div class="modal fade" id="homeTicketModal" tabindex="-1" aria-labelledby="homeTicketModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.18);">
+        <div class="modal-header" style="border-bottom: 1px solid #f1f5f9; padding: 22px 28px 16px;">
+          <div>
+            <h4 class="modal-title fw-bold" id="homeTicketModalLabel" style="color: #1e293b; font-size: 20px;">
+              🎫 Raise Support Ticket
+            </h4>
+            <p class="text-muted small mb-0 mt-1">Fill in the details below. Our support team will follow up promptly.</p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" style="padding: 24px 28px;">
+          <div id="homeTicketAlert" style="display: none;"></div>
+          
+          <form id="homeTicketModalForm">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="ht_name" class="form-label fw-semibold" style="font-size: 13px;">Your Full Name <span class="text-danger">*</span></label>
+                <input type="text" id="ht_name" class="form-control" placeholder="Enter your full name" required value="{{ user.username if user else '' }}">
+              </div>
+              <div class="col-md-6">
+                <label for="ht_email" class="form-label fw-semibold" style="font-size: 13px;">Your Email Address <span class="text-danger">*</span></label>
+                <input type="email" id="ht_email" class="form-control" placeholder="Enter your email" required value="{{ user.email if user else '' }}">
+              </div>
+              <div class="col-md-6">
+                <label for="ht_phone" class="form-label fw-semibold" style="font-size: 13px;">Phone / WhatsApp Number <span class="text-danger">*</span></label>
+                <input type="tel" id="ht_phone" class="form-control" placeholder="+91 9876543210" required>
+              </div>
+              <div class="col-md-6">
+                <label for="ht_category" class="form-label fw-semibold" style="font-size: 13px;">Issue Category <span class="text-danger">*</span></label>
+                <select id="ht_category" class="form-select" required>
+                  <option value="Course Access">Course Access & Videos</option>
+                  <option value="Billing">Billing & Receipts</option>
+                  <option value="Exams/OPE">Exams & Certifications</option>
+                  <option value="MS Teams">MS Teams / Account Access</option>
+                  <option value="General" selected>General Inquiry / Other</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label for="ht_priority" class="form-label fw-semibold" style="font-size: 13px;">Severity / Urgency</label>
+                <select id="ht_priority" class="form-select">
+                  <option value="LOW">Low</option>
+                  <option value="MEDIUM" selected>Medium</option>
+                  <option value="HIGH">High</option>
+                  <option value="URGENT">Urgent</option>
+                  <option value="CRITICAL">Critical Emergency</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label for="ht_subject" class="form-label fw-semibold" style="font-size: 13px;">Subject / Issue Summary <span class="text-danger">*</span></label>
+                <input type="text" id="ht_subject" class="form-control" placeholder="Brief summary of the issue" required>
+              </div>
+              <div class="col-12">
+                <label for="ht_desc" class="form-label fw-semibold" style="font-size: 13px;">Detailed Description <span class="text-danger">*</span></label>
+                <textarea id="ht_desc" class="form-control" rows="4" placeholder="Please describe the issue in detail..." required></textarea>
+              </div>
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+              <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" id="btn_home_ticket_submit" class="btn btn-primary px-4 fw-bold">
+                <i class="fas fa-paper-plane me-1"></i> Submit Ticket
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: CHECK TICKET STATUS (HOMEPAGE)
+       ========================================== -->
+  <div class="modal fade" id="checkTicketStatusModal" tabindex="-1" aria-labelledby="checkTicketStatusModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.18);">
+        <div class="modal-header" style="border-bottom: 1px solid #f1f5f9; padding: 22px 28px 16px;">
+          <div>
+            <h4 class="modal-title fw-bold" id="checkTicketStatusModalLabel" style="color: #1e293b; font-size: 20px;">
+              🔍 Check Ticket Status
+            </h4>
+            <p class="text-muted small mb-0 mt-1">Enter your Ticket ID (e.g. #CHK-2026-0001) or registered email to view progress.</p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" style="padding: 24px 28px;">
+          <form id="checkTicketStatusForm" class="mb-3">
+            <div class="input-group">
+              <span class="input-group-text bg-white" style="border-radius: 12px 0 0 12px; border-right: none;"><i class="fas fa-ticket-alt text-primary"></i></span>
+              <input type="text" id="status_query_input" class="form-control form-control-lg" placeholder="Enter Ticket ID (e.g. CHK-2026-0001) or Email" required style="font-size: 15px; border-left: none;">
+              <button type="submit" id="btn_check_status_submit" class="btn btn-primary px-4 fw-bold" style="border-radius: 0 12px 12px 0;">
+                <i class="fas fa-search me-1"></i> Track Status
+              </button>
+            </div>
+          </form>
+
+          <div id="checkTicketStatusResult" style="display: none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ==========================================
        FOOTER
@@ -1226,6 +1293,225 @@
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
           });
+        });
+      }
+
+      // Raise Support Ticket Modal submission
+      const homeTicketModalForm = document.getElementById('homeTicketModalForm');
+      if (homeTicketModalForm) {
+        homeTicketModalForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const submitBtn = document.getElementById('btn_home_ticket_submit');
+          const originalText = submitBtn.innerHTML;
+          submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting...';
+          submitBtn.disabled = true;
+
+          const alertBox = document.getElementById('homeTicketAlert');
+          alertBox.style.display = 'none';
+
+          const payload = {
+            caller_name: document.getElementById('ht_name').value.trim(),
+            caller_email: document.getElementById('ht_email').value.trim(),
+            caller_phone: document.getElementById('ht_phone').value.trim(),
+            category: document.getElementById('ht_category').value,
+            priority: document.getElementById('ht_priority').value,
+            subject: document.getElementById('ht_subject').value.trim(),
+            description: document.getElementById('ht_desc').value.trim()
+          };
+
+          try {
+            const res = await fetch('/api/ticket/create', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.status === 'success') {
+              alertBox.className = 'alert alert-success alert-dismissible fade show';
+              alertBox.innerHTML = `
+                <h5 class="alert-heading fw-bold mb-1"><i class="fas fa-check-circle me-1"></i> Ticket Created Successfully!</h5>
+                <p class="mb-0">Your Support Ticket ID is <strong class="badge bg-success fs-6">${data.ticket_number}</strong>. A confirmation email has been dispatched to <strong>${payload.caller_email}</strong>.</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              `;
+              alertBox.style.display = 'block';
+              homeTicketModalForm.reset();
+            } else {
+              alertBox.className = 'alert alert-danger alert-dismissible fade show';
+              alertBox.innerHTML = `
+                <strong>Error:</strong> ${data.detail || 'Failed to submit ticket. Please try again.'}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              `;
+              alertBox.style.display = 'block';
+            }
+          } catch (err) {
+            alertBox.className = 'alert alert-danger alert-dismissible fade show';
+            alertBox.innerHTML = `
+              <strong>Server error:</strong> ${err.message || 'Could not connect to ticket service.'}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            alertBox.style.display = 'block';
+          } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+          }
+        });
+      }
+
+      // Check Ticket Status Modal lookup
+      const checkTicketStatusForm = document.getElementById('checkTicketStatusForm');
+      if (checkTicketStatusForm) {
+        function getTicketStatusBadge(status) {
+          const s = (status || '').toUpperCase();
+          if (s === 'OPEN') return '<span class="badge bg-primary px-3 py-2 fs-6">OPEN</span>';
+          if (s === 'IN_PROGRESS' || s === 'IN PROGRESS') return '<span class="badge bg-warning text-dark px-3 py-2 fs-6">IN PROGRESS</span>';
+          if (s === 'RESOLVED') return '<span class="badge bg-success px-3 py-2 fs-6">RESOLVED</span>';
+          if (s === 'CLOSED') return '<span class="badge bg-secondary px-3 py-2 fs-6">CLOSED</span>';
+          if (s === 'REOPENED') return '<span class="badge bg-danger px-3 py-2 fs-6">REOPENED</span>';
+          return `<span class="badge bg-info px-3 py-2 fs-6">${status || 'PENDING'}</span>`;
+        }
+
+        checkTicketStatusForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const queryInput = document.getElementById('status_query_input');
+          const submitBtn = document.getElementById('btn_check_status_submit');
+          const resultBox = document.getElementById('checkTicketStatusResult');
+          const rawQuery = queryInput.value.trim();
+          if (!rawQuery) return;
+
+          const originalText = submitBtn.innerHTML;
+          submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Checking...';
+          submitBtn.disabled = true;
+          resultBox.style.display = 'none';
+          resultBox.innerHTML = '';
+
+          const cleanQuery = rawQuery.replace(/^#/, '').trim();
+          const isEmail = cleanQuery.includes('@');
+          const url = isEmail
+            ? `/api/ticket/tickets/user/${encodeURIComponent(cleanQuery)}`
+            : `/api/ticket/ticket/${encodeURIComponent(cleanQuery)}`;
+
+          try {
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (!res.ok || data.status === 'error') {
+              resultBox.className = 'alert alert-danger';
+              resultBox.innerHTML = `
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fas fa-exclamation-circle fs-5"></i>
+                  <div><strong>Not Found:</strong> ${data.detail || `No ticket found for "${rawQuery}". Please check your Ticket ID and try again.`}</div>
+                </div>
+              `;
+              resultBox.style.display = 'block';
+              return;
+            }
+
+            if (isEmail) {
+              const tickets = data.tickets || [];
+              if (tickets.length === 0) {
+                resultBox.className = 'alert alert-info';
+                resultBox.innerHTML = `
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-info-circle fs-5"></i>
+                    <div>No tickets found associated with <strong>${cleanQuery}</strong>.</div>
+                  </div>
+                `;
+              } else {
+                resultBox.className = 'mt-3';
+                let listHtml = `
+                  <h6 class="fw-bold mb-3 text-secondary">Found ${tickets.length} ticket(s) for <strong>${cleanQuery}</strong>:</h6>
+                  <div class="list-group shadow-sm">
+                `;
+                tickets.forEach(t => {
+                  listHtml += `
+                    <div class="list-group-item list-group-item-action p-3">
+                      <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                        <strong class="text-primary font-monospace">${t.ticket_number}</strong>
+                        ${getTicketStatusBadge(t.status)}
+                      </div>
+                      <h6 class="mb-1 fw-bold">${t.title || t.subject || 'Support Request'}</h6>
+                      <div class="d-flex justify-content-between align-items-center text-muted small mt-2">
+                        <span><i class="fas fa-tag me-1"></i>${t.category || 'General'}</span>
+                        <span><i class="far fa-clock me-1"></i>${t.created_at || ''}</span>
+                      </div>
+                    </div>
+                  `;
+                });
+                listHtml += `</div>`;
+                resultBox.innerHTML = listHtml;
+              }
+              resultBox.style.display = 'block';
+            } else {
+              // Single ticket view
+              const t = data;
+              resultBox.className = 'card border-0 shadow-sm mt-3';
+              resultBox.innerHTML = `
+                <div class="card-body p-4" style="background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0;">
+                  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-3 border-bottom">
+                    <div>
+                      <span class="text-muted small">Ticket ID:</span>
+                      <h4 class="fw-bold text-primary mb-0 font-monospace">${t.ticket_number}</h4>
+                    </div>
+                    <div>
+                      ${getTicketStatusBadge(t.status)}
+                    </div>
+                  </div>
+                  
+                  <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                      <span class="text-muted small d-block">Subject:</span>
+                      <strong class="text-dark">${t.subject || 'Support Ticket'}</strong>
+                    </div>
+                    <div class="col-sm-6">
+                      <span class="text-muted small d-block">Category:</span>
+                      <span class="badge bg-light text-dark border">${t.category || 'General'}</span>
+                      ${t.priority ? `<span class="badge bg-light text-danger border ms-1">${t.priority}</span>` : ''}
+                    </div>
+                    <div class="col-sm-6">
+                      <span class="text-muted small d-block">Raised By:</span>
+                      <span>${t.caller_name || t.caller_email || 'Visitor'}</span>
+                    </div>
+                    <div class="col-sm-6">
+                      <span class="text-muted small d-block">Created On:</span>
+                      <span>${t.created_at || 'Recently'}</span>
+                    </div>
+                  </div>
+
+                  ${t.description ? `
+                    <div class="p-3 bg-white rounded-3 border mb-3">
+                      <span class="text-muted small d-block mb-1 fw-semibold">Description:</span>
+                      <p class="mb-0 text-secondary" style="font-size: 14px; white-space: pre-wrap;">${t.description}</p>
+                    </div>
+                  ` : ''}
+
+                  ${t.comments && t.comments.length > 1 ? `
+                    <div class="mt-3">
+                      <span class="text-muted small d-block mb-2 fw-semibold">Updates & Staff Replies:</span>
+                      <div class="d-flex flex-column gap-2">
+                        ${t.comments.slice(1).map(c => `
+                          <div class="p-2 px-3 bg-white rounded-2 border-start border-3 border-primary small">
+                            <strong>${c.author_name || c.author_type || 'Support Staff'}:</strong>
+                            <div class="text-secondary mt-1">${c.message}</div>
+                            <small class="text-muted" style="font-size: 11px;">${c.created_at || ''}</small>
+                          </div>
+                        `).join('')}
+                      </div>
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+              resultBox.style.display = 'block';
+            }
+          } catch (err) {
+            resultBox.className = 'alert alert-danger';
+            resultBox.innerHTML = `
+              <strong>Server error:</strong> ${err.message || 'Could not connect to ticket service.'}
+            `;
+            resultBox.style.display = 'block';
+          } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+          }
         });
       }
     });
