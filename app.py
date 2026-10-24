@@ -15322,8 +15322,9 @@ _timesheet_reminder_scheduler_started = False
 
 def _init_timesheet_email_client():
     """Resolve AWS SES client via existing app ses or boto3 default credential chain."""
-    if ses is not None:
-        return ses
+    if 'ses_client' in globals() and ses_client is not None:
+        return ses_client
+
     try:
         return boto3.client("ses", region_name=AWS_REGION)
     except Exception as client_error:
