@@ -320,6 +320,114 @@
         border-color: #667eea;
     }
 
+    /* Header Call Button */
+    #chakorabot-call-header {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    #chakorabot-call-header:hover {
+        background: rgba(255, 255, 255, 0.35);
+        transform: scale(1.1);
+        color: white;
+    }
+
+    /* Call Support Quick Action */
+    .chakorabot-quick-action.chakorabot-call-action {
+        background: #f0fdf4;
+        border-color: #86efac;
+        color: #15803d;
+        font-weight: 600;
+    }
+
+    .chakorabot-quick-action.chakorabot-call-action:hover {
+        background: #16a34a;
+        border-color: #16a34a;
+        color: white;
+    }
+
+    /* Call Card in Message */
+    .chakorabot-call-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        overflow: hidden;
+        margin-top: 4px;
+    }
+
+    .chakorabot-call-card-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 8px 12px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .chakorabot-call-badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #16a34a;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .chakorabot-call-card-body {
+        padding: 12px;
+        text-align: center;
+    }
+
+    .chakorabot-phone-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        color: #ffffff;
+        text-decoration: none;
+        padding: 10px 18px;
+        border-radius: 25px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        letter-spacing: 0.3px;
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        margin: 6px 0 10px 0;
+        width: 100%;
+        max-width: 240px;
+    }
+
+    a.chakorabot-phone-btn,
+    a.chakorabot-phone-btn:visited,
+    a.chakorabot-phone-btn:hover,
+    a.chakorabot-phone-btn:focus,
+    a.chakorabot-phone-btn:active {
+        color: #ffffff;
+    }
+
+    .chakorabot-phone-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(22, 163, 74, 0.4);
+        text-decoration: none;
+    }
+
+    .chakorabot-call-card-footer {
+        font-size: 0.75rem;
+        color: #6b7280;
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
     /* Scrollbar */
     #chakorabot-messages::-webkit-scrollbar {
         width: 6px;
@@ -341,13 +449,28 @@
             height: calc(100vh - 100px);
         }
     }
+
+    /* Accessibility: Respect Reduced Motion Preferences */
+    @media (prefers-reduced-motion: reduce) {
+        #chakorabot-window,
+        #chakorabot-badge,
+        .chakorabot-typing-dot {
+            animation: none;
+        }
+        #chakorabot-button,
+        .chakorabot-phone-btn,
+        .chakorabot-quick-action,
+        #chakorabot-send {
+            transition: none;
+        }
+    }
 </style>
 
 <!-- Chatbot HTML -->
 <div id="chakorabot-container">
     <!-- Floating Button -->
-    <button id="chakorabot-button" onclick="toggleChatbot()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <button id="chakorabot-button" onclick="toggleChatbot()" aria-label="Open support chat">
+        <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 3 .97 4.29L2 22l5.71-.97C9 21.64 10.46 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.38 0-2.68-.31-3.85-.86l-.27-.14-2.83.48.48-2.83-.14-.27C4.31 14.68 4 13.38 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/>
             <circle cx="9" cy="12" r="1"/>
             <circle cx="12" cy="12" r="1"/>
@@ -367,7 +490,14 @@
                     <div id="chakorabot-status">Online</div>
                 </div>
             </div>
-            <button id="chakorabot-close" onclick="toggleChatbot()">✕</button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <a href="tel:+917314624771" id="chakorabot-call-header" title="Call Support: +91 7314624771" aria-label="Call Support at +91 7314624771">
+                    <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                </a>
+                <button id="chakorabot-close" onclick="toggleChatbot()" aria-label="Close Chat">✕</button>
+            </div>
         </div>
 
         <!-- Messages Area -->
@@ -386,15 +516,18 @@
 
         <!-- Quick Actions -->
         <div id="chakorabot-quick-actions">
-            <div class="chakorabot-quick-action" onclick="sendQuickMessage('What courses do you offer?')">
+            <button type="button" class="chakorabot-quick-action" onclick="sendQuickMessage('What courses do you offer?')">
                 📚 Courses
-            </div>
-            <div class="chakorabot-quick-action" onclick="sendQuickMessage('How do I register?')">
+            </button>
+            <button type="button" class="chakorabot-quick-action" onclick="sendQuickMessage('How do I register?')">
                 ✍️ Register
-            </div>
-            <div class="chakorabot-quick-action" onclick="sendQuickMessage('Tell me about internships')">
+            </button>
+            <button type="button" class="chakorabot-quick-action" onclick="sendQuickMessage('Tell me about internships')">
                 💼 Internships
-            </div>
+            </button>
+            <button type="button" class="chakorabot-quick-action chakorabot-call-action" onclick="handleCallSupportAction()">
+                📞 Call Support
+            </button>
         </div>
 
         <!-- Typing Indicator -->
@@ -410,10 +543,11 @@
                 type="text" 
                 id="chakorabot-input" 
                 placeholder="Type your message..." 
+                aria-label="Type your message"
                 onkeypress="handleEnter(event)"
             />
-            <button id="chakorabot-send" onclick="sendMessage()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+            <button id="chakorabot-send" onclick="sendMessage()" aria-label="Send message">
+                <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
                     <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                 </svg>
             </button>
@@ -458,6 +592,44 @@
         }
     }
 
+    // ==================== IVR HELPLINE CONFIGURATION ====================
+    const IVR_PHONE_NUMBER = "7314624771";
+    const IVR_PHONE_DISPLAY = "+91 7314624771";
+    const IVR_PHONE_TEL = "tel:+917314624771";
+
+    function getCallSupportCardHtml() {
+        return `
+            <div class="chakorabot-call-card">
+                <div class="chakorabot-call-card-header">
+                    <span class="chakorabot-call-badge">📞 Official IVR Helpline</span>
+                </div>
+                <div class="chakorabot-call-card-body">
+                    <p style="margin: 0 0 10px 0; font-size: 0.9rem; color: #374151; line-height: 1.5; text-align: left;">
+                        You can connect directly with the ChakoraHub 24/7 automated IVR helpline for immediate assistance:
+                    </p>
+                    <a href="${IVR_PHONE_TEL}" class="chakorabot-phone-btn" title="Call ${IVR_PHONE_DISPLAY}">
+                        <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                        <span>${IVR_PHONE_DISPLAY}</span>
+                    </a>
+                    <div class="chakorabot-call-card-footer">
+                        <span>📱 Tap to call on mobile</span> • <span>💻 Dial from desktop</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function handleCallSupportAction() {
+        addMessage("📞 Call Support", "user", false);
+        showTyping();
+        setTimeout(() => {
+            hideTyping();
+            addMessage(getCallSupportCardHtml(), "bot", true);
+        }, 350);
+    }
+
     // Send message
     async function sendMessage() {
         const input = document.getElementById('chakorabot-input');
@@ -471,6 +643,20 @@
         // Clear input
         input.value = '';
         
+        // Check if message is a call/contact/phone query
+        const lowerMsg = message.toLowerCase();
+        const callKeywords = ['call', 'phone', 'ivr', 'contact number', 'helpline', 'customer care', 'mobile number', 'telephone', 'talk to agent', 'speak to agent', 'contact us', 'support number', 'call support'];
+        const isCallQuery = callKeywords.some(keyword => lowerMsg.includes(keyword));
+
+        if (isCallQuery) {
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                addMessage(getCallSupportCardHtml(), 'bot', true);
+            }, 350);
+            return;
+        }
+
         // Show typing indicator
         showTyping();
         
@@ -527,7 +713,7 @@
     }
 
     // Add message to chat
-    function addMessage(text, sender) {
+    function addMessage(text, sender, isHtml = false) {
         const messagesContainer = document.getElementById('chakorabot-messages');
         
         const messageDiv = document.createElement('div');
@@ -541,7 +727,11 @@
         
         const content = document.createElement('div');
         content.className = 'chakorabot-message-content';
-        content.textContent = text;
+        if (isHtml) {
+            content.innerHTML = text;
+        } else {
+            content.textContent = text;
+        }
         
         const time = document.createElement('div');
         time.className = 'chakorabot-message-time';

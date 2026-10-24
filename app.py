@@ -76,7 +76,7 @@ INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com"
     HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL", "http://127.0.0.1:5001")
     STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL", "http://127.0.0.1:8001")
     EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL", "http://127.0.0.1:8002")
-    TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://127.0.0.1:8025")
+    TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://172.31.26.176:8025")
 else:'''
 TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://172.31.26.176:8025")
 SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
@@ -1994,7 +1994,7 @@ def proxy_ticket_service(subpath):
         return (upstream_resp.content, upstream_resp.status_code, resp_headers)
 
     except requests.exceptions.RequestException as e:
-        logger.error(f"Ticket Service reverse proxy error: {e}")
+        print(f"❌ Ticket Service reverse proxy error: {e}")
         return jsonify({
             "status": "error",
             "detail": f"Ticket Service unavailable ({str(e)})"
@@ -15322,8 +15322,9 @@ _timesheet_reminder_scheduler_started = False
 
 def _init_timesheet_email_client():
     """Resolve AWS SES client via existing app ses or boto3 default credential chain."""
-    if ses is not None:
-        return ses
+    if 'ses_client' in globals() and ses_client is not None:
+        return ses_client
+
     try:
         return boto3.client("ses", region_name=AWS_REGION)
     except Exception as client_error:
