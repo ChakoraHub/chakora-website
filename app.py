@@ -11,6 +11,7 @@ import re
 import mimetypes
 import urllib.parse
 import calendar
+from fastapi import logger
 import requests
 #from scipy import msg
 import oracledb
@@ -47,25 +48,25 @@ DEFAULT_TIMEZONE_NAME = "Asia/Kolkata"
 
 # ================= SERVICE URLS =================
 
-HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL","http://172.31.26.176:5001")
-STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL","http://172.31.26.176:8001")
-MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL","http://172.31.26.176:9000")
-CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL","http://172.31.26.176:7600")
-ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL","http://172.31.26.176:8090")
-INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL","http://172.31.26.176:5050")
-MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL","http://172.31.26.176:7700")
-EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL","http://172.31.26.176:8002")
-BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL","http://172.31.26.176:7500")
-BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL","http://172.31.26.176:8020")
-BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL","http://172.31.26.176:8010")
-STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
-RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL","http://172.31.26.176:7900")
-ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://172.31.26.176:8100")
+#HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL","http://172.31.26.176:5001")
+#STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL","http://172.31.26.176:8001")
+#MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL","http://172.31.26.176:9000")
+#CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL","http://172.31.26.176:7600")
+#ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL","http://172.31.26.176:8090")
+#INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL","http://172.31.26.176:5050")
+#MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL","http://172.31.26.176:7700")
+#EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL","http://172.31.26.176:8002")
+#BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL","http://172.31.26.176:7500")
+#BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL","http://172.31.26.176:8020")
+#BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL","http://172.31.26.176:8010")
+#STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
+#RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL","http://172.31.26.176:7900")
+#ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://172.31.26.176:8100")
 OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL","http://172.31.26.176:8500")
-WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL","http://172.31.26.176:2500").rstrip("/")
+#WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL","http://172.31.26.176:2500").rstrip("/")
 FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
 sf_client = None
-APPLICATION_SERVICE_URL = os.getenv("https://mobqdeus63.execute-api.eu-north-1.amazonaws.com/Prod", "http://172.31.26.176:8020")
+#APPLICATION_SERVICE_URL = os.getenv("https://mobqdeus63.execute-api.eu-north-1.amazonaws.com/Prod", "http://172.31.26.176:8020")
 LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
 STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
 STUDENT_INTERNAL_NO_PROXY = "172.31.26.176"
@@ -80,44 +81,44 @@ INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com"
 else:'''
 TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://172.31.26.176:8025")
 SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
-# SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
+#SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
 
 # ================= LOCAL URL OVERRIDES (COMMENTED OUT FOR EC2) =================
-#HOME_SERVICE_URL = "http://127.0.0.1:5001"
-#STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
-# MEETING_SERVICE_URL = "http://127.0.0.1:9000"
-# CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
-# ASSET_SERVICE_URL = "http://127.0.0.1:8090"
-# INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", "https://api.chakorahub.com")
-# MS365_SERVICE_URL = "http://127.0.0.1:7700"
-#EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
-# BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
-# REDIS_SERVICE_URL = "http://127.0.0.1:6390"
-# BRS_SERVICE_URL = "http://127.0.0.1:8020"
-# BILLING_SERVICE_URL = "http://127.0.0.1:8010"
-# RAG_SERVICE_URL = "http://127.0.0.1:7900"
-# ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
-# OPE_SERVICE_URL = "http://127.0.0.1:8500"
-# WABA_SERVICE_URL = "http://127.0.0.1:2500"
-# FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
-# REDIS_HOST = "127.0.0.1"
-# APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
-# LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
-# WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
-# STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
-# STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
-# INTERNAL_NO_PROXY="127.0.0.1"
-# CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
-# INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
-# TICKET_SERVICE_URL = "http://127.0.0.1:8025"
-# SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
+HOME_SERVICE_URL = "http://127.0.0.1:5001"
+STUDENT_SERVICE_URL = "http://127.0.0.1:8001"
+MEETING_SERVICE_URL = "http://127.0.0.1:9000"
+CHATBOT_SERVICE_URL = "http://127.0.0.1:7600"
+ASSET_SERVICE_URL = "http://127.0.0.1:8090"
+INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL", "https://api.chakorahub.com")
+MS365_SERVICE_URL = "http://127.0.0.1:7700"
+EMPLOYEE_SERVICE_URL = "http://127.0.0.1:8002"
+BLOGGER_SERVICE_URL = "http://127.0.0.1:7500"
+REDIS_SERVICE_URL = "http://127.0.0.1:6390"
+BRS_SERVICE_URL = "http://127.0.0.1:8020"
+BILLING_SERVICE_URL = "http://127.0.0.1:8010"
+RAG_SERVICE_URL = "http://127.0.0.1:7900"
+ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://127.0.0.1:8100")
+OPE_SERVICE_URL = "http://127.0.0.1:8500"
+WABA_SERVICE_URL = "http://127.0.0.1:2500"
+FEEDBACK_SERVICE_URL = os.getenv("FEEDBACK_SERVICE_URL", "http://127.0.0.1:8003")
+REDIS_HOST = "127.0.0.1"
+APPLICATION_SERVICE_URL = "http://127.0.0.1:8020"
+LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
+WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip("/")
+STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
+STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
+INTERNAL_NO_PROXY="127.0.0.1"
+CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
+INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
+TICKET_SERVICE_URL = "http://127.0.0.1:8025"
+SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
 STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
 sf_client = None
 
-# STM_SERVICE_URL = os.environ.get("STM_SERVICE_URL", "http://127.0.0.1:7010")
-# STM_INTERNAL_API_KEY = os.environ.get("STM_INTERNAL_API_KEY")  # optional shared secret
-# SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
+STM_SERVICE_URL = os.environ.get("STM_SERVICE_URL", "http://127.0.0.1:7010")
+STM_INTERNAL_API_KEY = os.environ.get("STM_INTERNAL_API_KEY")  # optional shared secret
+#SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
 #_get_runtime_env_value
 
 # ================= Global Configurations =================
@@ -1392,7 +1393,7 @@ def enforce_idle_timeout_and_track_last_page():
         return
 
     # Do not enforce inactivity timeout while user is trying to authenticate/reset.
-    if request.path in {'/nrm_logins', '/forgot-password'} or request.path.startswith('/reset-password/'):
+    if request.path in {'/nrm_logins', '/verify_mfa', '/resend_mfa', '/cancel_mfa', '/forgot-password'} or request.path.startswith('/reset-password/'):
         return
 
     login_type = session.get("login_type")
@@ -1540,7 +1541,8 @@ def chatbot_history():
 
     except Exception as e:
         print(f"Chatbot history error: {e}")
-        return jsonify({"success": False, "messages": []}), 500
+        # chatbot service down: return empty history so the UI doesn't error
+        return jsonify({"success": True, "messages": []}), 200
 
 @app.route('/api/chatbot/clear', methods=['POST'])
 def chatbot_clear():
@@ -2677,52 +2679,19 @@ def nrm_logins():
             print(f"⏱️ [/nrm_logins] response parse took {time.perf_counter() - parse_start:.3f}s")
             print(f"   Parsed login response keys: {sorted(list(data.keys()))}")
             
-            if data.get("success"):
-                # ========== USER LOGIN SUCCESS ==========
-                if login_type == "user":
-                    user = data.get("user", {})
-                    print(f"✅ Login proxy user payload: user_keys={sorted(list(user.keys())) if isinstance(user, dict) else type(user).__name__}")
-                    session.clear()
-                    session["login_type"] = "user"
-                    session["user_id"] = user.get("id")
-                    session["user"] = user.get("username") or user.get("email") or user.get("phone")
-                    session["usertype"] = user.get("usertype", "student")
-                    
-                    pic = user.get("profile_pic")
-                    session["profile_pic"] = pic if pic and pic.startswith("http") else "https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg"
-                    session.permanent = True
-                    session.modified = True
+            if data.get("mfa_required") and data.get("challenge_id"):
+                # Password OK -> OTP emailed. Park the challenge in the session and show the OTP panel.
+                session.clear()
+                session["mfa_challenge_id"] = data["challenge_id"]
+                session["mfa_login_type"] = data.get("login_type") or login_type
+                session["mfa_email_hint"] = data.get("email_hint") or ""
+                session.modified = True
+                flash(data.get("message") or "OTP sent to your email.", "success")
+                print(f"🎯 [/nrm_logins] total route time {time.perf_counter() - route_start:.3f}s")
+                return redirect(url_for("home"))
 
-                    usertype = (session.get("usertype") or "").lower()
-                    paid_check_start = time.perf_counter()
-                    if usertype not in ["admin", "administrator"] and not user_has_paid_access(session.get("user_id")):
-                        print(f"⏱️ [/nrm_logins] paid access check took {time.perf_counter() - paid_check_start:.3f}s")
-                        flash("Please complete your registration payment before accessing resources.", "error")
-                        return redirect(url_for("register"), code=303)
-                    print(f"⏱️ [/nrm_logins] paid access check took {time.perf_counter() - paid_check_start:.3f}s")
-                    
-                    print(f"✅ User login SUCCESS: {session['user']}")
-                    print(f"🎯 Total login time: {time.time() - start_time:.2f}s")
-                    print(f"🎯 [/nrm_logins] total route time {time.perf_counter() - route_start:.3f}s")
-                    resp = redirect(url_for("resources"))
-                    return resp
-                # ========== EMPLOYEE LOGIN SUCCESS ==========
-                elif login_type == "employee":
-                    emp = data.get("employee", {})
-                    print(f"✅ Login proxy employee payload: emp_keys={sorted(list(emp.keys())) if isinstance(emp, dict) else type(emp).__name__}")
-                    session.clear()
-                    normalized_emp_id = str(emp.get("employee_id") or "").strip().upper()
-                    session["login_type"] = "employee"
-                    session["employee_id"] = normalized_emp_id
-                    session["employee_name"] = emp.get("employee_name")
-                    session["employee_email"] = emp.get("email")
-                    session["employee_admin_access"] = normalized_emp_id == "CH25006"
-                    session.permanent = True
-                    
-                    print(f"✅ Employee login SUCCESS: {session['employee_id']}")
-                    print(f"🎯 Total login time: {time.time() - start_time:.2f}s")
-                    print(f"🎯 [/nrm_logins] total route time {time.perf_counter() - route_start:.3f}s")
-                    return redirect(url_for("employee_resources"))
+            if data.get("success"):
+                return _complete_login(data, login_type, start_time, route_start)
             else:
                 # Login failed
                 message = data.get("message", "Login failed")
@@ -2782,6 +2751,121 @@ def nrm_logins():
         traceback.print_exc()
         flash("Login error. Please try again.", "error")
         return redirect(url_for("home"))
+
+def _complete_login(data, login_type, start_time=None, route_start=None):
+    """Create the Flask session after home_service confirms a successful login (post-OTP)."""
+    start_time = start_time or time.time()
+    route_start = route_start or time.perf_counter()
+    if login_type == "user":
+        user = data.get("user", {})
+        session.clear()
+        session["login_type"] = "user"
+        session["user_id"] = user.get("id")
+        session["user"] = user.get("username") or user.get("email") or user.get("phone")
+        session["usertype"] = user.get("usertype", "student")
+
+        pic = user.get("profile_pic")
+        session["profile_pic"] = pic if pic and pic.startswith("http") else "https://chakorahub-student-s3.s3.eu-north-1.amazonaws.com/defaultpicture.jpg"
+        session.permanent = True
+        session.modified = True
+
+        usertype = (session.get("usertype") or "").lower()
+        if usertype not in ["admin", "administrator"] and not user_has_paid_access(session.get("user_id")):
+            flash("Please complete your registration payment before accessing resources.", "error")
+            return redirect(url_for("register"), code=303)
+
+        print(f"✅ User login SUCCESS: {session['user']}")
+        print(f"🎯 Total login time: {time.time() - start_time:.2f}s")
+        return redirect(url_for("resources"))
+
+    if login_type == "employee":
+        emp = data.get("employee", {})
+        session.clear()
+        normalized_emp_id = str(emp.get("employee_id") or "").strip().upper()
+        session["login_type"] = "employee"
+        session["employee_id"] = normalized_emp_id
+        session["employee_name"] = emp.get("employee_name")
+        session["employee_email"] = emp.get("email")
+        session["employee_admin_access"] = normalized_emp_id == "CH25006"
+        session.permanent = True
+
+        print(f"✅ Employee login SUCCESS: {session['employee_id']}")
+        print(f"🎯 Total login time: {time.time() - start_time:.2f}s")
+        return redirect(url_for("employee_resources"))
+
+    flash("Invalid login type", "error")
+    return redirect(url_for("home"))
+
+
+def _clear_mfa_session():
+    for k in ("mfa_challenge_id", "mfa_login_type", "mfa_email_hint"):
+        session.pop(k, None)
+    session.modified = True
+
+
+def _home_service_post(path, payload):
+    with requests.Session() as internal_session:
+        internal_session.trust_env = False
+        internal_session.proxies = {"http": None, "https": None}
+        return internal_session.post(f"{HOME_SERVICE_URL}{path}", json=payload, timeout=45, allow_redirects=False)
+
+
+@app.route("/verify_mfa", methods=["POST"])
+def verify_mfa():
+    challenge_id = session.get("mfa_challenge_id")
+    login_type = session.get("mfa_login_type") or "user"
+    otp = (request.form.get("otp") or "").strip()
+    if not challenge_id:
+        flash("OTP session expired. Please log in again.", "error")
+        return redirect(url_for("home"))
+    try:
+        resp = _home_service_post("/home/verify-otp", {"challenge_id": challenge_id, "otp": otp})
+        try:
+            data = resp.json()
+        except ValueError:
+            data = {}
+        if resp.status_code == 200 and data.get("success"):
+            return _complete_login(data, login_type)
+        message = data.get("message") or "OTP verification failed."
+        # 401 = wrong code (can retry); anything else ends this challenge
+        if resp.status_code != 401:
+            _clear_mfa_session()
+        flash(message, "error")
+    except requests.exceptions.RequestException as exc:
+        print(f"❌ verify_mfa error: {exc}")
+        flash("Login service unavailable. Please try again.", "error")
+    return redirect(url_for("home"))
+
+
+@app.route("/resend_mfa", methods=["POST"])
+def resend_mfa():
+    challenge_id = session.get("mfa_challenge_id")
+    if not challenge_id:
+        flash("OTP session expired. Please log in again.", "error")
+        return redirect(url_for("home"))
+    try:
+        resp = _home_service_post("/home/resend-otp", {"challenge_id": challenge_id})
+        try:
+            data = resp.json()
+        except ValueError:
+            data = {}
+        if resp.status_code == 200 and data.get("success"):
+            flash(data.get("message") or "A new OTP has been sent.", "success")
+        else:
+            if resp.status_code in (400, 429):
+                _clear_mfa_session()
+            flash(data.get("message") or "Unable to resend OTP.", "error")
+    except requests.exceptions.RequestException as exc:
+        print(f"❌ resend_mfa error: {exc}")
+        flash("Login service unavailable. Please try again.", "error")
+    return redirect(url_for("home"))
+
+
+@app.route("/cancel_mfa", methods=["POST"])
+def cancel_mfa():
+    _clear_mfa_session()
+    return redirect(url_for("home"))
+
 
 @app.route("/logout")
 def logout():
@@ -3120,67 +3204,7 @@ def home_feedback():
     return jsonify({"feedbacks": feedbacks})
 
 
-# ==========================================
-# EMPLOYEE RESOURCES MAINTENANCE MODE
-# ==========================================
 
-EMPLOYEE_RESOURCES_MAINTENANCE_FILE = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "employee_resources_maintenance_mode.txt"
-)
-
-def get_employee_resources_maintenance_mode():
-    try:
-        return os.path.exists(EMPLOYEE_RESOURCES_MAINTENANCE_FILE)
-    except Exception:
-        return False
-
-# ==========================================
-# EMPLOYEE RESOURCES MAINTENANCE CONTROL
-# ==========================================
-
-@app.route("/employee-resources/maintenance/on", methods=["POST"])
-def employee_resources_maintenance_on():
-    try:
-        with open(EMPLOYEE_RESOURCES_MAINTENANCE_FILE, "w") as f:
-            f.write("maintenance")
-
-        return jsonify({
-            "status": "success",
-            "maintenance_mode": True
-        })
-
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
-
-
-@app.route("/employee-resources/maintenance/off", methods=["POST"])
-def employee_resources_maintenance_off():
-    try:
-        if os.path.exists(EMPLOYEE_RESOURCES_MAINTENANCE_FILE):
-            os.remove(EMPLOYEE_RESOURCES_MAINTENANCE_FILE)
-
-        return jsonify({
-            "status": "success",
-            "maintenance_mode": False
-        })
-
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
-
-
-@app.route("/employee-resources/maintenance/status", methods=["GET"])
-def employee_resources_maintenance_status():
-    return jsonify({
-        "status": "success",
-        "maintenance_mode": get_employee_resources_maintenance_mode()
-    })
 # ==========================================
 # EMPLOYEE ROUTES - DIRECT DATABASE ACCESS
 # ==========================================
@@ -3643,7 +3667,6 @@ def employee_resources():
             "appraisal_data": appraisal_data,
             "appraisal_history": appraisal_history,
             "profile_data": profile_data,
-            "maintenance_mode": get_employee_resources_maintenance_mode(),
         }
 
         return render_template("employee-resources.html", **view_data)
@@ -3690,8 +3713,7 @@ def employee_resources():
             appraisal_data={},
             appraisal_history=[],
             profile_data={},
-            maintenance_mode=get_employee_resources_maintenance_mode(),
-            error="Database connection failed, using minimal data",
+            error="Database connection failed, using minimal data"
         )
 
 # ==========================================

@@ -908,6 +908,7 @@
 
       <div class="login-card">
         <h2>🔐 Login to ChakoraHub</h2>
+        {% if not session.get('mfa_challenge_id') %}
         <form method="POST" action="{{ url_for('nrm_logins') }}">
           <div class="mb-3">
             <label for="login_type" class="form-label">Login As:</label>
@@ -944,6 +945,44 @@
             <span>New user? <a href="/registration">Register Here</a></span>
           </div>
         </form>
+        {% else %}
+        <div class="mfa-verification-panel">
+          <p class="text-muted mb-2">
+            Enter the 6-digit code sent to
+            <strong>{{ session.get('mfa_email_hint') or 'your registered email address' }}</strong>.
+          </p>
+          <form method="POST" action="{{ url_for('verify_mfa') }}">
+            <div class="mb-3">
+              <label for="mfa_otp" class="form-label">Email OTP</label>
+              <input
+                type="text"
+                id="mfa_otp"
+                name="otp"
+                class="form-control"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                pattern="[0-9]{6}"
+                minlength="6"
+                maxlength="6"
+                placeholder="Enter 6-digit OTP"
+                required
+                autofocus
+              >
+            </div>
+            <button type="submit" class="btn btn-login">Verify OTP</button>
+          </form>
+          <div class="login-links mt-3">
+            <form method="POST" action="{{ url_for('resend_mfa') }}" class="d-inline">
+              <button type="submit" class="btn btn-link p-0">Resend OTP</button>
+            </form>
+            <span class="mx-2">|</span>
+            <form method="POST" action="{{ url_for('cancel_mfa') }}" class="d-inline">
+              <button type="submit" class="btn btn-link p-0">Cancel</button>
+            </form>
+          </div>
+          <small class="text-muted d-block mt-2">The OTP expires after 5 minutes. Too many incorrect attempts will cancel the verification.</small>
+        </div>
+        {% endif %}
       </div>
     </div>
   </section>
@@ -1380,16 +1419,19 @@
 
   <script>
     // Login type toggle
-    document.getElementById("login_type").addEventListener("change", function () {
-      const type = this.value;
-      if (type === "employee") {
-        document.getElementById("employee_fields").style.display = "block";
-        document.getElementById("user_fields").style.display = "none";
-      } else {
-        document.getElementById("employee_fields").style.display = "none";
-        document.getElementById("user_fields").style.display = "block";
-      }
-    });
+    const loginTypeEl = document.getElementById("login_type");
+    if (loginTypeEl) {
+      loginTypeEl.addEventListener("change", function () {
+        const type = this.value;
+        if (type === "employee") {
+          document.getElementById("employee_fields").style.display = "block";
+          document.getElementById("user_fields").style.display = "none";
+        } else {
+          document.getElementById("employee_fields").style.display = "none";
+          document.getElementById("user_fields").style.display = "block";
+        }
+      });
+    }
 
     // Search functionality
     document.getElementById('searchInput').addEventListener('input', function() {
