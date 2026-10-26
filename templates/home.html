@@ -465,15 +465,186 @@
       border-radius: 20px;
       padding: 40px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-      max-width: 600px;
-      margin: 40px auto;
+      width: 100%;
     }
 
     .enquiry-card h2 {
       color: var(--primary-color);
       font-weight: 700;
-      margin-bottom: 30px;
+      margin-bottom: 24px;
       text-align: center;
+    }
+
+    .ticket-card {
+      border: 1px solid #eef2f6;
+    }
+
+    .ticket-callout-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 30px 24px;
+      text-align: center;
+      margin-bottom: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .ticket-callout-card:hover {
+      box-shadow: 0 8px 24px rgba(37,99,235,0.08);
+      border-color: #cbd5e1;
+    }
+
+    .ticket-callout-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      font-size: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.25);
+      margin-bottom: 14px;
+    }
+
+    /* Premium Modal Styles */
+    .premium-modal .modal-content {
+      border: none;
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 25px 70px rgba(15, 23, 42, 0.25);
+    }
+
+    .premium-modal-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+      color: white;
+      padding: 22px 28px;
+      border-bottom: none;
+    }
+
+    .modal-icon-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(8px);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .premium-form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .premium-input {
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      color: #1e293b;
+      transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      background-color: #f8fafc;
+    }
+
+    .premium-input:focus {
+      background-color: #ffffff;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.15);
+      outline: none;
+    }
+
+    /* Stepper for Ticket Status */
+    .stepper-wrapper {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .stepper-item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      text-align: center;
+    }
+
+    .stepper-item::before {
+      position: absolute;
+      content: "";
+      border-bottom: 2px solid #e2e8f0;
+      width: 100%;
+      top: 17px;
+      left: -50%;
+      z-index: 1;
+    }
+
+    .stepper-item:first-child::before {
+      content: none;
+    }
+
+    .stepper-item.completed::before,
+    .stepper-item.active::before {
+      border-bottom-color: #2563eb;
+    }
+
+    .stepper-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      color: #64748b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      border: 2px solid #e2e8f0;
+      position: relative;
+      z-index: 2;
+      margin-bottom: 6px;
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stepper-item.active .stepper-circle {
+      background: #2563eb;
+      color: white;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25);
+    }
+
+    .stepper-item.completed .stepper-circle {
+      background: #10b981;
+      color: white;
+      border-color: #10b981;
+    }
+
+    .stepper-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .stepper-item.active .stepper-title {
+      color: #2563eb;
+      font-weight: 700;
+    }
+
+    .stepper-item.completed .stepper-title {
+      color: #10b981;
+      font-weight: 700;
     }
 
     /* ==========================================
@@ -737,6 +908,7 @@
 
       <div class="login-card">
         <h2>🔐 Login to ChakoraHub</h2>
+        {% if not session.get('mfa_challenge_id') %}
         <form method="POST" action="{{ url_for('nrm_logins') }}">
           <div class="mb-3">
             <label for="login_type" class="form-label">Login As:</label>
@@ -773,6 +945,44 @@
             <span>New user? <a href="/registration">Register Here</a></span>
           </div>
         </form>
+        {% else %}
+        <div class="mfa-verification-panel">
+          <p class="text-muted mb-2">
+            Enter the 6-digit code sent to
+            <strong>{{ session.get('mfa_email_hint') or 'your registered email address' }}</strong>.
+          </p>
+          <form method="POST" action="{{ url_for('verify_mfa') }}">
+            <div class="mb-3">
+              <label for="mfa_otp" class="form-label">Email OTP</label>
+              <input
+                type="text"
+                id="mfa_otp"
+                name="otp"
+                class="form-control"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                pattern="[0-9]{6}"
+                minlength="6"
+                maxlength="6"
+                placeholder="Enter 6-digit OTP"
+                required
+                autofocus
+              >
+            </div>
+            <button type="submit" class="btn btn-login">Verify OTP</button>
+          </form>
+          <div class="login-links mt-3">
+            <form method="POST" action="{{ url_for('resend_mfa') }}" class="d-inline">
+              <button type="submit" class="btn btn-link p-0">Resend OTP</button>
+            </form>
+            <span class="mx-2">|</span>
+            <form method="POST" action="{{ url_for('cancel_mfa') }}" class="d-inline">
+              <button type="submit" class="btn btn-link p-0">Cancel</button>
+            </form>
+          </div>
+          <small class="text-muted d-block mt-2">The OTP expires after 5 minutes. Too many incorrect attempts will cancel the verification.</small>
+        </div>
+        {% endif %}
       </div>
     </div>
   </section>
@@ -970,43 +1180,218 @@
   <!-- ==========================================
        ENQUIRY SECTION
        ========================================== -->
-  <section class="my-5">
-    <div class="enquiry-card">
-      <h2>📧 Quick Enquiry</h2>
-      
-      <div id="enquiryFlashMessages"></div>
-      
-      <form id="homeEnquiryForm" method="POST" action="{{ url_for('submit_nrm_enquiries') }}">
-        <div class="mb-3">
-          <label for="home_name" class="form-label">Name:</label>
-          <input type="text" id="home_name" name="name" class="form-control" placeholder="Enter your name" required>
+  <section class="my-5" id="enquirySection">
+    <div class="container">
+      <div class="row g-4 align-items-stretch justify-content-center">
+        <!-- QUICK ENQUIRY -->
+        <div class="col-lg-6 d-flex">
+          <div class="enquiry-card d-flex flex-column justify-content-between">
+            <div>
+              <h2>📧 Quick Enquiry</h2>
+              
+              <div id="enquiryFlashMessages"></div>
+              
+              <form id="homeEnquiryForm" method="POST" action="{{ url_for('submit_nrm_enquiries') }}">
+                <div class="mb-3">
+                  <label for="home_name" class="form-label">Name:</label>
+                  <input type="text" id="home_name" name="name" class="form-control" placeholder="Enter your name" required>
+                </div>
+                <div class="mb-3">
+                  <label for="home_email" class="form-label">Email:</label>
+                  <input type="email" id="home_email" name="email" class="form-control" placeholder="Enter your email" required>
+                </div>
+                <div class="mb-3">
+                  <label for="home_phone" class="form-label">Phone:</label>
+                  <input type="tel" id="home_phone" name="phone" class="form-control" placeholder="Enter your phone number" required>
+                </div>
+                <div class="mb-3">
+                  <label for="home_enquiry" class="form-label">Enquiry:</label>
+                  <textarea id="home_enquiry" name="enquiry" class="form-control" rows="4" placeholder="Please enter your enquiry here..." required></textarea>
+                </div>
+                <div class="mb-3">
+                  <label for="home_internship_interest" class="form-label">Internship Interest (Optional):</label>
+                  <input type="text" id="home_internship_interest" name="internship_interest" class="form-control" placeholder="Interested in internship? Mention role/domain (e.g. Data Engineering, QA, Java)">
+                </div>
+                <button type="submit" id="homeSubmitBtn" class="btn btn-primary w-100">Submit Enquiry</button>
+              </form>
+            </div>
+            
+            {% if user %}
+            <div class="mt-3 text-center text-muted small">
+              You are logged in as {{ user.username }}
+            </div>
+            {% endif %}
+          </div>
         </div>
-        <div class="mb-3">
-          <label for="home_email" class="form-label">Email:</label>
-          <input type="email" id="home_email" name="email" class="form-control" placeholder="Enter your email" required>
+
+        <!-- RAISE A TICKET -->
+        <div class="col-lg-6 d-flex">
+          <div class="enquiry-card ticket-card d-flex flex-column justify-content-between p-4 p-md-5">
+            <div>
+              <h2>🎫 Raise a Ticket</h2>
+              <p class="text-muted text-center mb-4" style="font-size: 14px;">
+                Have a technical issue or need assistance with courses, exams, billing, or accounts? Submit a support ticket directly to our resolution desk.
+              </p>
+
+              <div class="ticket-callout-card">
+                <div class="ticket-callout-icon">
+                  <i class="fas fa-headset"></i>
+                </div>
+                <h4 class="fw-bold mb-0" style="color: #1e293b; font-size: 18px;">Dedicated Support Helpdesk</h4>
+              </div>
+            </div>
+
+            <div class="d-flex flex-column gap-3">
+              <button type="button" class="btn btn-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2 py-3" style="font-weight: 700; border-radius: 12px; font-size: 16px; box-shadow: 0 4px 14px rgba(37,99,235,0.25);" data-bs-toggle="modal" data-bs-target="#homeTicketModal">
+                <i class="fas fa-ticket-alt"></i> Raise a Support Ticket
+              </button>
+              <button type="button" class="btn btn-outline-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2 py-3" style="font-weight: 700; border-radius: 12px; font-size: 16px; border-width: 2px;" data-bs-toggle="modal" data-bs-target="#checkTicketStatusModal">
+                <i class="fas fa-search"></i> Check Ticket Status
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="mb-3">
-          <label for="home_phone" class="form-label">Phone:</label>
-          <input type="tel" id="home_phone" name="phone" class="form-control" placeholder="Enter your phone number" required>
-        </div>
-        <div class="mb-3">
-          <label for="home_enquiry" class="form-label">Enquiry:</label>
-          <textarea id="home_enquiry" name="enquiry" class="form-control" rows="4" placeholder="Please enter your enquiry here..." required></textarea>
-        </div>
-        <div class="mb-3">
-          <label for="home_internship_interest" class="form-label">Internship Interest (Optional):</label>
-          <input type="text" id="home_internship_interest" name="internship_interest" class="form-control" placeholder="Interested in internship? Mention role/domain (e.g. Data Engineering, QA, Java)">
-        </div>
-        <button type="submit" id="homeSubmitBtn" class="btn btn-primary w-100">Submit Enquiry</button>
-      </form>
-      
-      {% if user %}
-      <div class="mt-3 text-center text-muted small">
-        You are logged in as {{ user.username }}
       </div>
-      {% endif %}
     </div>
   </section>
+
+  <!-- ==========================================
+       MODAL: RAISE SUPPORT TICKET (HOMEPAGE)
+       ========================================== -->
+  <div class="modal fade premium-modal" id="homeTicketModal" tabindex="-1" aria-labelledby="homeTicketModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="premium-modal-header d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <div class="modal-icon-badge">
+              <i class="fas fa-ticket-alt"></i>
+            </div>
+            <div>
+              <h4 class="modal-title fw-bold mb-0 text-white" id="homeTicketModalLabel" style="font-size: 21px; letter-spacing: -0.3px;">
+                Raise Support Ticket
+              </h4>
+              <p class="text-white-50 small mb-0 mt-1" style="font-size: 13px;">Fill in your details below to receive a trackable resolution ticket.</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4 p-md-5" style="background: #ffffff;">
+          <div id="homeTicketAlert" style="display: none;"></div>
+          
+          <form id="homeTicketModalForm">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="ht_name" class="premium-form-label">
+                  <i class="fas fa-user text-primary" style="font-size: 12px;"></i> Full Name <span class="text-danger">*</span>
+                </label>
+                <input type="text" id="ht_name" class="form-control premium-input" placeholder="e.g. John Doe" required value="{{ user.username if user else '' }}">
+              </div>
+              <div class="col-md-6">
+                <label for="ht_email" class="premium-form-label">
+                  <i class="fas fa-envelope text-primary" style="font-size: 12px;"></i> Email Address <span class="text-danger">*</span>
+                </label>
+                <input type="email" id="ht_email" class="form-control premium-input" placeholder="name@example.com" required value="{{ user.email if user else '' }}">
+              </div>
+              <div class="col-md-6">
+                <label for="ht_phone" class="premium-form-label">
+                  <i class="fas fa-phone-alt text-primary" style="font-size: 12px;"></i> Phone / WhatsApp <span class="text-danger">*</span>
+                </label>
+                <input type="tel" id="ht_phone" class="form-control premium-input" placeholder="+91 9876543210" required>
+              </div>
+              <div class="col-md-6">
+                <label for="ht_category" class="premium-form-label">
+                  <i class="fas fa-layer-group text-primary" style="font-size: 12px;"></i> Issue Category <span class="text-danger">*</span>
+                </label>
+                <select id="ht_category" class="form-select premium-input" required>
+                  <option value="Course Access">Course Access & Videos</option>
+                  <option value="Billing">Billing & Receipts</option>
+                  <option value="Exams/OPE">Exams & Certifications</option>
+                  <option value="MS Teams">MS Teams / Account Access</option>
+                  <option value="General" selected>General Inquiry / Other</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label for="ht_priority" class="premium-form-label">
+                  <i class="fas fa-signal text-primary" style="font-size: 12px;"></i> Severity / Urgency
+                </label>
+                <select id="ht_priority" class="form-select premium-input">
+                  <option value="LOW">🟢 Low — General inquiry / minor query</option>
+                  <option value="MEDIUM" selected>🟡 Medium — Standard issue affecting study/work</option>
+                  <option value="HIGH">🟠 High — Important feature blocked</option>
+                  <option value="URGENT">🔴 Urgent — Time-sensitive blocker</option>
+                  <option value="CRITICAL">🔥 Critical Emergency — Exam / account lockout</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label for="ht_subject" class="premium-form-label">
+                  <i class="fas fa-heading text-primary" style="font-size: 12px;"></i> Subject / Issue Summary <span class="text-danger">*</span>
+                </label>
+                <input type="text" id="ht_subject" class="form-control premium-input" placeholder="Brief 1-line summary of what you need help with" required>
+              </div>
+              <div class="col-12">
+                <label for="ht_desc" class="premium-form-label">
+                  <i class="fas fa-align-left text-primary" style="font-size: 12px;"></i> Detailed Description <span class="text-danger">*</span>
+                </label>
+                <textarea id="ht_desc" class="form-control premium-input" rows="4" placeholder="Please provide specific details so our operations team can resolve this quickly..." required></textarea>
+              </div>
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <button type="button" class="btn btn-light px-4 py-2" style="border-radius: 10px; font-weight: 600; color: #64748b;" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" id="btn_home_ticket_submit" class="btn btn-primary px-4 py-2" style="border-radius: 10px; font-weight: 700; background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 14px rgba(37,99,235,0.3);">
+                <i class="fas fa-paper-plane me-1"></i> Submit Ticket
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: CHECK TICKET STATUS (HOMEPAGE)
+       ========================================== -->
+  <div class="modal fade premium-modal" id="checkTicketStatusModal" tabindex="-1" aria-labelledby="checkTicketStatusModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="premium-modal-header d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <div class="modal-icon-badge" style="background: rgba(255, 255, 255, 0.2);">
+              <i class="fas fa-search"></i>
+            </div>
+            <div>
+              <h4 class="modal-title fw-bold mb-0 text-white" id="checkTicketStatusModalLabel" style="font-size: 21px; letter-spacing: -0.3px;">
+                Check Ticket Status
+              </h4>
+              <p class="text-white-50 small mb-0 mt-1" style="font-size: 13px;">Track resolution progress and staff updates in real-time.</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4 p-md-5" style="background: #ffffff;">
+          <form id="checkTicketStatusForm" class="mb-4">
+            <div class="p-1 bg-light rounded-4 border d-flex flex-column flex-sm-row gap-2 shadow-sm" style="background-color: #f8fafc;">
+              <div class="d-flex align-items-center flex-grow-1 px-3">
+                <label for="status_query_input" class="visually-hidden">Ticket ID or Email Address</label>
+                <i class="fas fa-search text-primary me-2 fs-5" aria-hidden="true"></i>
+                <input type="text" id="status_query_input" class="form-control border-0 bg-transparent shadow-none" placeholder="Enter Ticket ID (e.g. CHK-2026-0027) or Email" required style="font-size: 15px; padding: 12px 6px;">
+              </div>
+              <button type="submit" id="btn_check_status_submit" class="btn btn-primary px-4 py-2 fw-bold text-nowrap" style="border-radius: 12px; background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 14px rgba(37,99,235,0.25);">
+                <i class="fas fa-arrow-right me-1" aria-hidden="true"></i> Track Ticket
+              </button>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2 px-1">
+              <small class="text-muted" style="font-size: 12px;">
+                <i class="fas fa-info-circle text-primary me-1" aria-hidden="true"></i> Search by Ticket Number (with or without #) or by your registered email.
+              </small>
+            </div>
+          </form>
+
+          <div id="checkTicketStatusResult" style="display: none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ==========================================
        FOOTER
@@ -1034,16 +1419,19 @@
 
   <script>
     // Login type toggle
-    document.getElementById("login_type").addEventListener("change", function () {
-      const type = this.value;
-      if (type === "employee") {
-        document.getElementById("employee_fields").style.display = "block";
-        document.getElementById("user_fields").style.display = "none";
-      } else {
-        document.getElementById("employee_fields").style.display = "none";
-        document.getElementById("user_fields").style.display = "block";
-      }
-    });
+    const loginTypeEl = document.getElementById("login_type");
+    if (loginTypeEl) {
+      loginTypeEl.addEventListener("change", function () {
+        const type = this.value;
+        if (type === "employee") {
+          document.getElementById("employee_fields").style.display = "block";
+          document.getElementById("user_fields").style.display = "none";
+        } else {
+          document.getElementById("employee_fields").style.display = "none";
+          document.getElementById("user_fields").style.display = "block";
+        }
+      });
+    }
 
     // Search functionality
     document.getElementById('searchInput').addEventListener('input', function() {
@@ -1126,7 +1514,445 @@
           });
         });
       }
+
+      // Raise Support Ticket Modal submission
+      const homeTicketModalForm = document.getElementById('homeTicketModalForm');
+      if (homeTicketModalForm) {
+        homeTicketModalForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const submitBtn = document.getElementById('btn_home_ticket_submit');
+          const originalText = submitBtn.innerHTML;
+          submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting...';
+          submitBtn.disabled = true;
+
+          const alertBox = document.getElementById('homeTicketAlert');
+          alertBox.style.display = 'none';
+
+          const payload = {
+            caller_name: document.getElementById('ht_name').value.trim(),
+            caller_email: document.getElementById('ht_email').value.trim(),
+            caller_phone: document.getElementById('ht_phone').value.trim(),
+            category: document.getElementById('ht_category').value,
+            priority: document.getElementById('ht_priority').value,
+            subject: document.getElementById('ht_subject').value.trim(),
+            description: document.getElementById('ht_desc').value.trim()
+          };
+
+          try {
+            const res = await fetch('/api/ticket/create', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.status === 'success') {
+              alertBox.className = 'alert alert-success border-0 shadow-sm p-4 rounded-4 mb-4';
+              alertBox.style.background = 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)';
+              alertBox.innerHTML = `
+                <div class="d-flex align-items-start gap-3">
+                  <div style="width: 44px; height: 44px; border-radius: 50%; background: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+                    <i class="fas fa-check"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <h5 class="fw-bold text-success mb-1">Ticket Raised Successfully!</h5>
+                    <p class="mb-2 text-secondary" style="font-size: 13.5px;">Your support request has been logged. Our operations team will follow up promptly.</p>
+                    <div class="p-3 bg-white rounded-3 border d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 shadow-xs">
+                      <div>
+                        <span class="text-muted small d-block" style="font-size: 12px;">Your Support Ticket ID:</span>
+                        <strong class="fs-5 text-primary font-monospace">${data.ticket_number}</strong>
+                      </div>
+                      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyTicketId('${data.ticket_number}', this)">
+                        <i class="fas fa-copy me-1"></i> Copy ID
+                      </button>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-primary px-3 py-2 fw-semibold" style="border-radius: 8px; background: linear-gradient(135deg, #2563eb, #1d4ed8);" onclick="trackTicketDirectly('${data.ticket_number}')">
+                      <i class="fas fa-search me-1"></i> Track Ticket Status Now
+                    </button>
+                  </div>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+              `;
+              alertBox.style.display = 'block';
+              homeTicketModalForm.reset();
+            } else {
+              alertBox.className = 'alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3';
+              alertBox.innerHTML = `
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fas fa-exclamation-triangle fs-5 text-danger"></i>
+                  <div><strong>Error:</strong> ${data.detail || 'Failed to submit ticket. Please try again.'}</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              `;
+              alertBox.style.display = 'block';
+            }
+          } catch (err) {
+            alertBox.className = 'alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3';
+            alertBox.innerHTML = `
+              <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-wifi text-danger fs-5"></i>
+                <div><strong>Server error:</strong> ${err.message || 'Could not connect to ticket service.'}</div>
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            alertBox.style.display = 'block';
+          } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+          }
+        });
+      }
     });
+
+  // Helper: Format ISO date string nicely
+  function formatTicketDate(isoStr) {
+    if (!isoStr) {
+      return 'Recently';
+    }
+    try {
+      const d = new Date(isoStr);
+      if (isNaN(d.getTime())) {
+        return isoStr;
+      }
+      return d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (err) {
+      // Fallback to original string if date parsing fails
+      return isoStr;
+    }
+  }
+
+  // Helper: Status badge
+  function getTicketStatusBadge(status) {
+    const s = (status || '').toUpperCase();
+    if (s === 'OPEN') {
+      return '<span class="badge bg-primary px-3 py-2 fs-6 rounded-pill"><i class="fas fa-circle-notch fa-spin me-1" style="font-size: 11px;"></i> OPEN</span>';
+    }
+    if (s === 'IN_PROGRESS' || s === 'IN PROGRESS') {
+      return '<span class="badge bg-warning text-dark px-3 py-2 fs-6 rounded-pill"><i class="fas fa-spinner fa-spin me-1" style="font-size: 11px;"></i> IN PROGRESS</span>';
+    }
+    if (s === 'RESOLVED') {
+      return '<span class="badge bg-success px-3 py-2 fs-6 rounded-pill"><i class="fas fa-check-circle me-1"></i> RESOLVED</span>';
+    }
+    if (s === 'CLOSED') {
+      return '<span class="badge bg-secondary px-3 py-2 fs-6 rounded-pill"><i class="fas fa-lock me-1"></i> CLOSED</span>';
+    }
+    if (s === 'REOPENED') {
+      return '<span class="badge bg-danger px-3 py-2 fs-6 rounded-pill"><i class="fas fa-redo me-1"></i> REOPENED</span>';
+    }
+    return `<span class="badge bg-info px-3 py-2 fs-6 rounded-pill">${status || 'PENDING'}</span>`;
+  }
+
+  // Helper: Render status stepper without nested ternaries
+  function renderStatusStepper(status) {
+    const s = (status || '').toUpperCase();
+    const isReview = ['OPEN', 'IN_PROGRESS', 'UNDER_REVIEW', 'RESOLVED', 'CLOSED'].includes(s);
+    const isInProgress = ['IN_PROGRESS', 'UNDER_REVIEW', 'RESOLVED', 'CLOSED'].includes(s);
+    const isResolved = ['RESOLVED', 'CLOSED'].includes(s);
+
+    let submittedClass = 'active';
+    if (isReview) {
+      submittedClass = 'completed';
+    }
+
+    let reviewClass = '';
+    if (isInProgress) {
+      reviewClass = 'completed';
+    } else if (isReview) {
+      reviewClass = 'active';
+    }
+
+    let inProgressClass = '';
+    if (isResolved) {
+      inProgressClass = 'completed';
+    } else if (isInProgress) {
+      inProgressClass = 'active';
+    }
+
+    const resolvedClass = isResolved ? 'completed' : '';
+
+    const reviewIcon = isInProgress ? 'fa-check' : 'fa-search';
+    const inProgressIcon = isResolved ? 'fa-check' : 'fa-tools';
+    const resolvedIcon = isResolved ? 'fa-check-circle' : 'fa-flag-checkered';
+
+    return `
+      <div class="stepper-wrapper mb-4 pt-1">
+        <div class="stepper-item ${submittedClass}">
+          <div class="stepper-circle"><i class="fas ${isReview ? 'fa-check' : 'fa-paper-plane'}"></i></div>
+          <div class="stepper-title">Submitted</div>
+        </div>
+        <div class="stepper-item ${reviewClass}">
+          <div class="stepper-circle"><i class="fas ${reviewIcon}"></i></div>
+          <div class="stepper-title">Under Review</div>
+        </div>
+        <div class="stepper-item ${inProgressClass}">
+          <div class="stepper-circle"><i class="fas ${inProgressIcon}"></i></div>
+          <div class="stepper-title">In Progress</div>
+        </div>
+        <div class="stepper-item ${resolvedClass}">
+          <div class="stepper-circle"><i class="fas ${resolvedIcon}"></i></div>
+          <div class="stepper-title">Resolved</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Helper: Render comments in single ticket view
+  function renderTicketCommentsHtml(comments) {
+    if (!comments || comments.length <= 1) {
+      return '';
+    }
+    const commentItems = comments.slice(1).map(c => `
+      <div class="p-3 bg-white rounded-3 border-start border-3 border-primary shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <strong class="text-dark" style="font-size: 13px;">${c.author_name || c.author_type || 'Support Operations Staff'}</strong>
+          <span class="text-muted" style="font-size: 11px;">${formatTicketDate(c.created_at)}</span>
+        </div>
+        <p class="mb-0 text-secondary" style="font-size: 13px; white-space: pre-wrap;">${c.message}</p>
+      </div>
+    `).join('');
+
+    return `
+      <div class="mt-3">
+        <span class="text-muted small d-block mb-2 fw-semibold"><i class="fas fa-comments text-primary me-1"></i> Staff Resolution Updates (${comments.length - 1}):</span>
+        <div class="d-flex flex-column gap-2">
+          ${commentItems}
+        </div>
+      </div>
+    `;
+  }
+
+  // Helper: Render error state
+  function renderTicketError(detail, rawQuery, resultBox) {
+    resultBox.className = 'alert alert-danger border-0 shadow-sm p-4 rounded-4 mt-3';
+    resultBox.innerHTML = `
+      <div class="d-flex align-items-center gap-3">
+        <div style="width: 40px; height: 40px; border-radius: 50%; background: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+          <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <div>
+          <h6 class="fw-bold mb-1 text-danger">Ticket Not Found</h6>
+          <p class="mb-0 text-secondary small">${detail || `We could not find any ticket matching "${rawQuery}". Please verify your Ticket ID (e.g. CHK-2026-0027) and try again.`}</p>
+        </div>
+      </div>
+    `;
+    resultBox.style.display = 'block';
+  }
+
+  // Helper: Render list of tickets for an email lookup
+  function renderEmailTicketList(tickets, cleanQuery, resultBox) {
+    if (!tickets || tickets.length === 0) {
+      resultBox.className = 'alert alert-info border-0 shadow-sm p-4 rounded-4 mt-3';
+      resultBox.innerHTML = `
+        <div class="d-flex align-items-center gap-3">
+          <div style="width: 40px; height: 40px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+            <i class="fas fa-info-circle"></i>
+          </div>
+          <div>
+            <h6 class="fw-bold mb-1 text-primary">No Tickets Found</h6>
+            <p class="mb-0 text-secondary small">No support requests found associated with <strong>${cleanQuery}</strong>.</p>
+          </div>
+        </div>
+      `;
+      resultBox.style.display = 'block';
+      return;
+    }
+
+    resultBox.className = 'mt-3';
+    const cardsHtml = tickets.map(t => `
+      <div class="p-3 bg-white rounded-3 border shadow-sm transition hover-shadow" style="cursor: pointer;" onclick="inspectTicket('${t.ticket_number}')">
+        <div class="d-flex flex-wrap w-100 justify-content-between align-items-center gap-2 mb-2">
+          <div class="d-flex align-items-center gap-2">
+            <strong class="text-primary font-monospace fs-6">${t.ticket_number}</strong>
+            <span class="badge bg-light text-secondary border">${t.category || 'General'}</span>
+          </div>
+          <div>
+            ${getTicketStatusBadge(t.status)}
+          </div>
+        </div>
+        <h6 class="mb-2 fw-bold text-dark" style="font-size: 15px;">${t.subject || t.title || 'Support Request'}</h6>
+        <div class="d-flex justify-content-between align-items-center text-muted small pt-2 border-top">
+          <span><i class="far fa-clock me-1 text-primary"></i> ${formatTicketDate(t.created_at)}</span>
+          <span class="text-primary fw-semibold"><i class="fas fa-eye me-1"></i> View Live Status &rarr;</span>
+        </div>
+      </div>
+    `).join('');
+
+    resultBox.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold text-dark mb-0">Found ${tickets.length} ticket(s) for <span class="text-primary">${cleanQuery}</span>:</h6>
+        <small class="text-muted">Click any ticket to view live resolution stepper</small>
+      </div>
+      <div class="d-flex flex-column gap-3">
+        ${cardsHtml}
+      </div>
+    `;
+    resultBox.style.display = 'block';
+  }
+
+  // Helper: Render single ticket detail view
+  function renderSingleTicket(t, resultBox) {
+    resultBox.className = 'card border-0 shadow-sm mt-3';
+    const priorityBadge = t.priority ? `<span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-1 px-2 py-1">${t.priority}</span>` : '';
+    const phoneInfo = t.caller_phone ? `<small class="text-muted d-block">${t.caller_phone}</small>` : '';
+    const updatedInfo = t.updated_at ? `<span class="text-muted d-block small">Updated: ${formatTicketDate(t.updated_at)}</span>` : '';
+    const descBlock = t.description ? `
+      <div class="p-3 bg-white rounded-3 border mb-3">
+        <span class="text-muted small d-block mb-1 fw-semibold"><i class="fas fa-align-left text-primary me-1"></i> Issue Description:</span>
+        <p class="mb-0 text-secondary" style="font-size: 14px; white-space: pre-wrap; line-height: 1.6;">${t.description}</p>
+      </div>
+    ` : '';
+    const commentsBlock = renderTicketCommentsHtml(t.comments);
+
+    resultBox.innerHTML = `
+      <div class="card-body p-4" style="background: #f8fafc; border-radius: 18px; border: 1px solid #e2e8f0;">
+        <!-- Live Stepper -->
+        ${renderStatusStepper(t.status)}
+
+        <!-- Ticket Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-3 border-bottom">
+          <div>
+            <span class="text-muted small d-block">Support Ticket ID</span>
+            <div class="d-flex align-items-center gap-2">
+              <h4 class="fw-bold text-primary mb-0 font-monospace">${t.ticket_number}</h4>
+              <button type="button" class="btn btn-sm btn-light border py-0 px-2" style="font-size: 12px;" onclick="copyTicketId('${t.ticket_number}', this)" title="Copy Ticket ID">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+          <div>
+            ${getTicketStatusBadge(t.status)}
+          </div>
+        </div>
+        
+        <!-- Meta Details Grid -->
+        <div class="row g-3 mb-3">
+          <div class="col-sm-6">
+            <div class="p-3 bg-white rounded-3 border h-100">
+              <span class="text-muted small d-block mb-1"><i class="fas fa-heading text-primary me-1"></i> Subject</span>
+              <strong class="text-dark d-block" style="font-size: 14px;">${t.subject || 'Support Ticket'}</strong>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 bg-white rounded-3 border h-100">
+              <span class="text-muted small d-block mb-1"><i class="fas fa-layer-group text-primary me-1"></i> Category & Urgency</span>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">${t.category || 'General'}</span>
+              ${priorityBadge}
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 bg-white rounded-3 border h-100">
+              <span class="text-muted small d-block mb-1"><i class="fas fa-user text-primary me-1"></i> Raised By</span>
+              <span class="text-dark fw-semibold" style="font-size: 14px;">${t.caller_name || t.caller_email || 'Visitor'}</span>
+              ${phoneInfo}
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="p-3 bg-white rounded-3 border h-100">
+              <span class="text-muted small d-block mb-1"><i class="far fa-clock text-primary me-1"></i> Timeline</span>
+              <span class="text-dark d-block small">Created: <strong>${formatTicketDate(t.created_at)}</strong></span>
+              ${updatedInfo}
+            </div>
+          </div>
+        </div>
+
+        <!-- Issue Description -->
+        ${descBlock}
+
+        <!-- Staff Comments & Resolution Updates -->
+        ${commentsBlock}
+      </div>
+    `;
+    resultBox.style.display = 'block';
+  }
+
+  // Submit Handler for Check Ticket Status Form
+  async function handleCheckTicketStatusSubmit(e) {
+    e.preventDefault();
+    const queryInput = document.getElementById('status_query_input');
+    const submitBtn = document.getElementById('btn_check_status_submit');
+    const resultBox = document.getElementById('checkTicketStatusResult');
+    const rawQuery = queryInput.value.trim();
+    if (!rawQuery) {
+      return;
+    }
+
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Checking...';
+    submitBtn.disabled = true;
+    resultBox.style.display = 'none';
+    resultBox.innerHTML = '';
+
+    const cleanQuery = rawQuery.replace(/^#/, '').trim();
+    const isEmail = cleanQuery.includes('@');
+    const endpoint = isEmail ? `tickets/user/${encodeURIComponent(cleanQuery)}` : `ticket/${encodeURIComponent(cleanQuery)}`;
+    const url = `/api/ticket/${endpoint}`;
+
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (!res.ok || data.status === 'error') {
+        renderTicketError(data.detail, rawQuery, resultBox);
+        return;
+      }
+
+      if (isEmail) {
+        renderEmailTicketList(data.tickets || [], cleanQuery, resultBox);
+      } else {
+        renderSingleTicket(data.ticket || data, resultBox);
+      }
+    } catch (err) {
+      resultBox.className = 'alert alert-danger border-0 shadow-sm p-3 rounded-3 mt-3';
+      resultBox.innerHTML = `<strong>Server error:</strong> ${err.message || 'Could not connect to ticket service.'}`;
+      resultBox.style.display = 'block';
+    } finally {
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+    }
+  }
+
+  // Global helper functions
+  window.copyTicketId = function(id, btn) {
+    if (!id) return;
+    navigator.clipboard.writeText(id).then(() => {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check text-success me-1"></i> Copied!';
+      setTimeout(() => { btn.innerHTML = orig; }, 2000);
+    });
+  };
+
+  window.trackTicketDirectly = function(ticketNumber) {
+    const homeModalEl = document.getElementById('homeTicketModal');
+    const homeModal = bootstrap.Modal.getInstance(homeModalEl);
+    if (homeModal) homeModal.hide();
+    setTimeout(() => {
+      const trackModalEl = document.getElementById('checkTicketStatusModal');
+      const trackModal = new bootstrap.Modal(trackModalEl);
+      trackModal.show();
+      const input = document.getElementById('status_query_input');
+      input.value = ticketNumber;
+      document.getElementById('btn_check_status_submit').click();
+    }, 300);
+  };
+
+  window.inspectTicket = function(ticketNumber) {
+    const input = document.getElementById('status_query_input');
+    input.value = ticketNumber;
+    document.getElementById('btn_check_status_submit').click();
+  };
+
+  // Check Ticket Status Modal lookup initialization
+  document.addEventListener('DOMContentLoaded', function() {
+    const checkTicketStatusForm = document.getElementById('checkTicketStatusForm');
+    if (checkTicketStatusForm) {
+      checkTicketStatusForm.addEventListener('submit', handleCheckTicketStatusSubmit);
+    }
+  });
   </script>
 
   <script>
