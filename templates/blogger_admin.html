@@ -221,7 +221,7 @@
         <div class="tab-content">
             <!-- CREATE POST TAB -->
             <div class="tab-pane fade show active" id="create" role="tabpanel">
-                <form id="blogPostForm" method="post" action="{{ blogger_service_url }}/blogger/admin/new_post" target="bloggerSubmitFrame" onsubmit="return submitPostDirect(event)">
+                <form id="blogPostForm" method="post" action="/blogger/admin/new_post" onsubmit="return submitPostDirect(event)">
                     
                     <!-- Basic Information -->
                     <div class="form-section">
@@ -339,13 +339,11 @@
         </div>
     </div>
 
-    <iframe name="bloggerSubmitFrame" id="bloggerSubmitFrame" style="display:none;"></iframe>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
         const canManagePosts = document.body.dataset.isAdmin === 'true';
-        const directPostsUrl = '{{ blogger_service_url }}/blogger/posts';
+        const directPostsUrl = '/blogger/posts';
         console.log('Blogger admin page access flag:', document.body.dataset.isAdmin);
 
         // ==================== INITIALIZATION ====================
@@ -409,10 +407,11 @@
 
         // ==================== FORM SUBMISSION ====================
         
-        function submitPostDirect(event) {
+        async function submitPostDirect(event) {
+            event.preventDefault();
+
             // Validate form
             if (tags.length === 0) {
-                event.preventDefault();
                 showAlert('Please add at least one tag', 'warning');
                 return false;
             }
@@ -421,29 +420,80 @@
             const content = tinymce.get('postContent').getContent();
             
             if (!content || content.trim().length < 50) {
-                event.preventDefault();
                 showAlert('Post content is too short. Please write more content.', 'warning');
                 return false;
             }
 
             const authorField = document.getElementById('postAuthor');
-            if (!authorField.value.trim()) {
-                authorField.value = 'Admin';
+            const author = authorField.value.trim() || 'Admin';
+            const title = document.getElementById('postTitle').value.trim();
+            const summary = document.getElementById('postSummary').value.trim();
+            const postDate = document.getElementById('postDate').value;
+            const isLocked = document.getElementById('postLocked').value === 'true';
+
+            if (!title) {
+                showAlert('Please enter a title for the blog post.', 'warning');
+                return false;
+            }
+            if (!summary) {
+                showAlert('Please enter a summary for the blog post.', 'warning');
+                return false;
             }
 
-            document.getElementById('postTitle').value = document.getElementById('postTitle').value.trim();
-            document.getElementById('postSummary').value = document.getElementById('postSummary').value.trim();
-            document.getElementById('postContentField').value = content;
-            document.getElementById('tagsField').value = tags.join(',');
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Publishing...';
+            }
 
-            showAlert('Submitting post... wait 3-5 seconds, then use Refresh in Manage Posts to confirm.', 'success');
+            showAlert('Submitting blog post...', 'info');
 
-            setTimeout(() => {
-                document.getElementById('manage-tab').click();
-                loadPosts();
-            }, 4000);
+            const payload = {
+                title: title,
+                summary: summary,
+                content: content,
+                author: author,
+                tags: tags.join(','),
+                is_locked: isLocked,
+                is_published: true,
+                publish_date: postDate ? new Date(postDate).toISOString() : new Date().toISOString()
+            };
 
-            return true;
+            try {
+                const response = await fetch('/blogger/admin/new_post', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json().catch(() => ({}));
+
+                if (response.ok && (result.success || result.id)) {
+                    showAlert('Blog post created successfully!', 'success');
+                    resetForm();
+                    setTimeout(() => {
+                        document.getElementById('manage-tab').click();
+                        loadPosts();
+                    }, 1000);
+                } else {
+                    const errMsg = result.message || ('Server returned error (' + response.status + ')');
+                    showAlert('Failed to create post: ' + errMsg, 'danger');
+                }
+            } catch (err) {
+                console.error('Submit post error:', err);
+                showAlert('Network error while publishing post: ' + err.message, 'danger');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
+            }
+
+            return false;
         }
 
         // ==================== PREVIEW ====================
