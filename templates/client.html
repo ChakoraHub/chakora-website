@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Client Partners | ChakoraHub</title>
+  <meta name="description" content="Explore ChakoraHub's client partners.">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <style>
+    :root {
+      --primary-color: #0078D7;
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --text-color: #333;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text-color);
+      background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+      min-height: 100vh;
+    }
+
+    .modern-header {
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+    }
+
+    .navbar .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      height: 60px;
+      transition: transform .3s ease;
+    }
+
+    .logo-img:hover {
+      transform: scale(1.05);
+    }
+
+    .navbar .navbar-nav .nav-link {
+      color: var(--text-color);
+      font-weight: 500;
+      padding: .5rem 1rem;
+      position: relative;
+    }
+
+    .navbar .navbar-nav .nav-link:hover {
+      color: var(--primary-color);
+    }
+
+    .navbar .navbar-nav .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: var(--primary-color);
+      transition: width .3s ease;
+      transform: translateX(-50%);
+    }
+
+    .navbar .navbar-nav .nav-link:hover::after {
+      width: 80%;
+    }
+
+    .search-btn {
+      background: var(--gradient-primary);
+      border: 0;
+      color: #fff;
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .page-hero {
+      background: var(--gradient-primary);
+      color: #fff;
+      padding: 58px 0;
+      text-align: center;
+    }
+
+    .page-hero h1 {
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .page-hero p {
+      max-width: 700px;
+      margin: 0 auto;
+      opacity: .93;
+    }
+
+    .client-section {
+      padding: 55px 0 70px;
+    }
+
+    .client-card {
+      background: #fff;
+      border: 1px solid #e9edf5;
+      border-radius: 20px;
+      padding: 34px;
+      height: 100%;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, .07);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .client-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, .12);
+    }
+
+    .client-logo-wrap {
+      min-height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      margin-bottom: 20px;
+      background: #f8faff;
+      border-radius: 14px;
+    }
+
+    .client-logo {
+      display: block;
+      max-width: 100%;
+      width: 250px;
+      max-height: 120px;
+      object-fit: contain;
+    }
+
+    .client-name {
+      color: #1f2937;
+      font-weight: 750;
+    }
+
+    .client-type {
+      color: var(--primary-color);
+      font-weight: 600;
+      font-size: .9rem;
+    }
+
+    .client-description {
+      color: #5b6472;
+      line-height: 1.7;
+    }
+
+    .modern-footer {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: #fff;
+      padding: 35px 0 18px;
+    }
+
+    .social-icons a {
+      color: #fff;
+      font-size: 1.6rem;
+      margin: 0 12px;
+      display: inline-block;
+    }
+
+    @media(max-width:768px) {
+      .page-hero {
+        padding: 42px 18px;
+      }
+
+      .client-card {
+        padding: 24px;
+      }
+
+      .navbar .navbar-nav {
+        align-items: stretch;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto;
+        animation-duration: 0.01ms;
+        animation-iteration-count: 1;
+        transition-duration: 0.01ms;
+      }
+
+      .logo-img:hover,
+      .client-card:hover {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg modern-header">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand" href="/"><img src="/static/images/logo.png" alt="ChakoraHub logo"
+          class="logo-img">ChakoraHub</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span
+          class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><button class="search-btn" type="button" data-bs-toggle="offcanvas"
+              data-bs-target="#searchOffcanvas" aria-label="Open search"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg></button></li>
+          <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+          <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#"
+              data-bs-toggle="dropdown">Solutions</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/solutions#automation">Automation</a></li>
+              <li><a class="dropdown-item" href="/solutions#aiml">AI/ML</a></li>
+              <li><a class="dropdown-item" href="/solutions#mdm">MDM</a></li>
+              <li><a class="dropdown-item" href="/solutions#cloud">Cloud</a></li>
+              <li><a class="dropdown-item" href="/solutions#api">API Solutions</a></li>
+            </ul>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="/client" aria-current="page">Client</a></li>
+          <li class="nav-item"><a class="nav-link" href="/gallery">Gallery</a></li>
+          <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">About
+              Us</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/aboutus#founder">Founder</a></li>
+              <li><a class="dropdown-item" href="/aboutus#company">Company</a></li>
+            </ul>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
+          <li class="nav-item"><a class="nav-link btn btn-primary text-white px-3 ms-2"
+              href="/registration">Register</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="searchOffcanvas" aria-labelledby="searchOffcanvasLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="searchOffcanvasLabel">Search ChakoraHub</h5><button type="button"
+        class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body"><label for="searchInput" class="form-label">Search this page</label><input type="search"
+        class="form-control" id="searchInput" placeholder="Search client partners">
+      <div id="searchResults" class="mt-3"></div>
+    </div>
+  </div>
+
+  <header class="page-hero">
+    <div class="container">
+      <p class="text-uppercase fw-semibold mb-2" style="letter-spacing:2px">Building trusted relationships</p>
+      <h1>Our Client Partners</h1>
+      <p>We value the organisations that trust us and work with us. Meet our client partner.</p>
+    </div>
+  </header>
+
+  <main class="client-section">
+    <div class="container">
+      <div class="row justify-content-center g-4">
+        <div class="col-12 col-md-8 col-lg-6">
+          <article class="client-card text-center" id="sgm">
+            <div class="client-logo-wrap">
+              <!-- Save the approved official SGM Exports logo as static/images/sgm-logo.png -->
+              <img class="client-logo" src="{{ url_for('static', filename='images/sgm-logo.png') }}"
+                alt="SGM Exports logo">
+            </div>
+            <div class="client-type mb-2">CLIENT PARTNER</div>
+            <h2 class="client-name h3 mb-3">SGM Exports</h2>
+            <p class="client-description">
+              SGM Exports, operating as Strategic Grain Management, is an agricultural commodities trading company
+              specializing in grains, legumes, dried nuts, organic food, animal feed, and oilseeds. The company supports
+              global trade through sourcing, storage, import-export operations, quality checks, and logistics solutions.
+            </p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="modern-footer mt-4">
+    <div class="container text-center">
+      <div class="social-icons mb-3"><a href="https://youtube.com/@chakorahub" target="_blank" rel="noopener noreferrer"
+          aria-label="ChakoraHub on YouTube"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.02.26-.01.104c-.048.519-.119 1.023-.22 1.402a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.565.334-6.18.335h-.165c-.615-.001-5.02-.023-6.18-.335a2.01 2.01 0 0 1-1.415-1.42c-.101-.379-.172-.883-.22-1.402l-.01-.104-.022-.26-.008-.104C.073 9.47.065 8.614.064 8.427v-.075c.001-.194.01-1.108.082-2.06l.008-.105.02-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c1.16-.312 5.565-.334 6.18-.335M6.4 5.209v5.992l5.3-2.996z"/></svg></a></div>
+      <p class="mb-0">&copy; {{ current_year if current_year is defined else 2026 }} ChakoraHub. All rights reserved.
+      </p>
+    </div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-s1swLUYcLBqAXHj7nWZcBD03oDfaVT4TaOQEaQGnSa65SsyckDHTlfGcB8+LOLkz"
+    crossorigin="anonymous"></script>
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    searchInput.addEventListener('input', function () {
+      const query = this.value.trim().toLowerCase();
+      if (!query) { searchResults.textContent = ''; return; }
+      const name = 'sgm exports';
+      searchResults.textContent = '';
+      if (name.includes(query)) {
+        const result = document.createElement('a');
+        result.className = 'text-decoration-none d-block p-2 border-bottom';
+        result.href = '#sgm';
+        result.textContent = 'SGM Exports';
+        searchResults.appendChild(result);
+      } else {
+        const message = document.createElement('p');
+        message.className = 'text-muted small mb-0';
+        message.textContent = 'No matching client partner found.';
+        searchResults.appendChild(message);
+      }
+    });
+  </script>
+</body>
+
+</html>
