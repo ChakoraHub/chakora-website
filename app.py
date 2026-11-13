@@ -26,7 +26,7 @@ from datetime import datetime, timedelta, date
 from zoneinfo import ZoneInfo
 import html
 from threading import Lock, Thread
-from flask import Flask, render_template, render_template_string, request, redirect, url_for, session, flash, send_from_directory, make_response, jsonify, send_file, current_app, abort
+from flask import Flask, render_template, render_template_string, request, redirect, url_for, session, flash, send_from_directory, make_response, jsonify, send_file, current_app, abort, Response
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from werkzeug.utils import safe_join   # NEW
@@ -5835,6 +5835,96 @@ def proxy_onboarding_health():
             "service": "onboarding-service",
             "error": str(e)
         }), 503
+
+
+# ==========================================
+# ATS RESUME ANALYZER & GENERATOR ROUTES
+# ==========================================
+RESUME_SERVICE_URL = os.getenv("RESUME_SERVICE_URL", "http://127.0.0.1:8200").rstrip("/")
+RESUME_ALLOWED_STATIC_ROUTES = {
+    "analyze": "/api/resume/analyze",
+    "scan-ats": "/api/resume/scan-ats",
+    "tailor": "/api/resume/tailor",
+    "templates": "/api/resume/templates",
+    "sample-mahesh": "/api/resume/sample-mahesh",
+    "sample-mahesh-pdf": "/api/resume/sample-mahesh-pdf",
+    "health": "/api/resume/health",
+    "rag-extract": "/api/resume/rag-extract",
+    "self-refine": "/api/resume/self-refine",
+}
+RESUME_DOWNLOAD_ID_PATTERN = re.compile(r"^[a-zA-Z0-9_\-]+$")
+
+
+def _resolve_safe_resume_endpoint(raw_subpath):
+    """Strictly validates and resolves an upstream resume API endpoint against SSRF and directory traversal."""
+    if not raw_subpath or not isinstance(raw_subpath, str):
+        return None
+    cleaned = raw_subpath.strip().strip("/")
+    if ".." in cleaned or "\\" in cleaned or "%" in cleaned or "\n" in cleaned or "\r" in cleaned:
+        return None
+
+    if cleaned in RESUME_ALLOWED_STATIC_ROUTES:
+        return RESUME_ALLOWED_STATIC_ROUTES[cleaned]
+
+    if cleaned.startswith("download/"):
+        job_id = cleaned[len("download/"):].strip()
+        if RESUME_DOWNLOAD_ID_PATTERN.fullmatch(job_id):
+            return f"/api/resume/download/{job_id}"
+
+    return None
+
+
+@app.route('/resume-analyzer', methods=['GET'])
+def resume_analyzer_page():
+    return render_template('resume_analyzer.html', active_page='analyzer')
+
+
+@app.route('/ats-scanner', methods=['GET'])
+def ats_scanner_page():
+    return render_template('ats_scanner.html', active_page='scanner')
+
+
+@app.route('/resume-builder', methods=['GET'])
+def resume_builder_page():
+    return render_template('resume_builder.html', active_page='builder')
+
+
+@app.route('/api/resume/<path:subpath>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def proxy_resume_service(subpath):
+    endpoint_path = _resolve_safe_resume_endpoint(subpath)
+    if not endpoint_path:
+        return jsonify({"success": False, "detail": "Invalid or unauthorized resume API endpoint."}), 400
+
+    target_url = f"{RESUME_SERVICE_URL}{endpoint_path}"
+    try:
+        req_headers = {k: v for k, v in request.headers.items() if k.lower() not in ('host', 'content-length')}
+        if request.method == 'GET':
+            resp = requests.get(target_url, params=request.args, headers=req_headers, timeout=30, stream=True)
+        elif request.files:
+            files = {name: (f.filename, f.read(), f.mimetype) for name, f in request.files.items()}
+            file_headers = {k: v for k, v in req_headers.items() if k.lower() != 'content-type'}
+            resp = requests.post(target_url, data=request.form, files=files, headers=file_headers, timeout=60)
+        else:
+            json_body = request.get_json(silent=True)
+            resp = requests.request(
+                request.method,
+                target_url,
+                json=json_body,
+                params=request.args,
+                headers=req_headers,
+                timeout=60,
+                stream=True
+            )
+
+        excluded_headers = {'content-encoding', 'content-length', 'transfer-encoding', 'connection'}
+        headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
+        return Response(resp.content, resp.status_code, headers)
+
+    except requests.exceptions.ConnectionError:
+        return jsonify({"success": False, "detail": "Resume microservice is unavailable. Ensure chakora-resume-service is running on port 8200."}), 503
+    except Exception as e:
+        return jsonify({"success": False, "detail": f"Resume proxy error: {str(e)}"}), 500
+
 
 # ────────────────────────────────────────────────────────
 #  ROUTE 1 — /register  (GET + POST combined)

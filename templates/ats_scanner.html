@@ -1,0 +1,592 @@
+{% extends "resume_base.html" %}
+
+{% block title %}Enterprise ATS Scanner — ChakoraHub AI ATS Suite{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ats-engine-card {
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 14px;
+        cursor: pointer;
+        text-align: center;
+        transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+        background: #f8fafc;
+        width: 100%;
+        display: block;
+        margin-bottom: 0;
+    }
+
+    .ats-engine-card:hover,
+    .ats-engine-card:focus {
+        border-color: var(--primary-color);
+        background: #eff6ff;
+        outline: none;
+    }
+
+    .btn-check:checked + .ats-engine-card,
+    .ats-engine-card.selected {
+        border-color: var(--primary-color);
+        background: #e0f2fe;
+        font-weight: 700;
+        color: #0369a1;
+        box-shadow: 0 0 0 3px rgba(0, 120, 215, 0.2);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .ats-engine-card {
+            transition: none;
+        }
+    }
+
+    .table-matrix td, .table-matrix th {
+        vertical-align: middle;
+        font-size: 0.88rem;
+    }
+
+    .comparison-hero {
+        background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
+        border: 2px solid #86efac;
+        border-radius: 12px;
+        padding: 24px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Intake Form Card -->
+<div class="glass-card" id="intakeCard">
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+        <div>
+            <span class="badge bg-primary text-white mb-1"><i class="bi bi-shield-check me-1"></i>MODULE STEP 1</span>
+            <h3 class="fw-bold text-dark mb-1">Enterprise ATS Corporate Resume Scanner</h3>
+            <p class="text-secondary mb-0">Simulate Fortune 500 ATS screening algorithms (Workday, Taleo, Greenhouse, Lever, iCIMS). Audit keyword frequency, experience tenure gate, and structural parseability.</p>
+        </div>
+        <button type="button" class="btn btn-outline-primary" id="btnLoadMaheshScanner">
+            <i class="bi bi-person-check me-1"></i>Load Mahesh Sample (GenAI JD)
+        </button>
+    </div>
+
+    <form id="atsScanForm">
+        <!-- Step 1: Select ATS Engine -->
+        <fieldset class="mb-4 border-0 p-0 m-0">
+            <legend class="form-label fw-bold small text-muted text-uppercase mb-2 d-block p-0">Step 1: Select Target ATS Engine</legend>
+            <div class="row g-2">
+                <div class="col-4 col-md-2">
+                    <input type="radio" class="btn-check" name="ats_engine" id="engineWorkday" value="Workday" checked>
+                    <label class="ats-engine-card" for="engineWorkday">
+                        <i class="bi bi-building fs-4 text-primary d-block mb-1"></i>
+                        <span class="small">Workday</span>
+                    </label>
+                </div>
+                <div class="col-4 col-md-2">
+                    <input type="radio" class="btn-check" name="ats_engine" id="engineTaleo" value="Oracle Taleo">
+                    <label class="ats-engine-card" for="engineTaleo">
+                        <i class="bi bi-layers-fill fs-4 text-danger d-block mb-1"></i>
+                        <span class="small">Oracle Taleo</span>
+                    </label>
+                </div>
+                <div class="col-4 col-md-2">
+                    <input type="radio" class="btn-check" name="ats_engine" id="engineGreenhouse" value="Greenhouse">
+                    <label class="ats-engine-card" for="engineGreenhouse">
+                        <i class="bi bi-tree-fill fs-4 text-success d-block mb-1"></i>
+                        <span class="small">Greenhouse</span>
+                    </label>
+                </div>
+                <div class="col-4 col-md-2">
+                    <input type="radio" class="btn-check" name="ats_engine" id="engineLever" value="Lever">
+                    <label class="ats-engine-card" for="engineLever">
+                        <i class="bi bi-sliders fs-4 text-info d-block mb-1"></i>
+                        <span class="small">Lever</span>
+                    </label>
+                </div>
+                <div class="col-4 col-md-2">
+                    <input type="radio" class="btn-check" name="ats_engine" id="engineIcims" value="iCIMS">
+                    <label class="ats-engine-card" for="engineIcims">
+                        <i class="bi bi-diagram-3-fill fs-4 text-warning d-block mb-1"></i>
+                        <span class="small">iCIMS</span>
+                    </label>
+                </div>
+                <div class="col-4 col-md-2">
+                    <input type="radio" class="btn-check" name="ats_engine" id="engineGeneral" value="General ATS">
+                    <label class="ats-engine-card" for="engineGeneral">
+                        <i class="bi bi-shield-lock-fill fs-4 text-secondary d-block mb-1"></i>
+                        <span class="small">General ATS</span>
+                    </label>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Step 2: Upload Resume & Job Description -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-5">
+                <label for="scannerFileInput" class="form-label fw-bold small text-muted text-uppercase">Step 2: Upload Candidate Resume</label>
+                <button type="button" class="drop-zone w-100 text-center" id="scannerDropZone" aria-label="Drop candidate resume file or click to browse">
+                    <i class="bi bi-file-earmark-arrow-up text-primary" style="font-size: 2.8rem;"></i>
+                    <span class="h6 fw-bold mt-2 mb-1 d-block">Upload Resume (PDF or DOCX)</span>
+                    <span class="text-secondary small mb-0 d-block" id="scannerFileName">Click to browse or drag and drop file here</span>
+                    <input type="file" id="scannerFileInput" name="resume" accept=".pdf,.docx,.doc" class="d-none" aria-label="Candidate Resume File">
+                </button>
+            </div>
+
+            <div class="col-md-7">
+                <label for="scannerJdInput" class="form-label fw-bold small text-muted text-uppercase">Step 3: Target Job Description</label>
+                <textarea class="form-control" name="job_description" id="scannerJdInput" rows="6" placeholder="Paste the full job description, required skills, and qualification requirements here..." aria-label="Target Job Description" required></textarea>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label for="scannerTargetRole" class="form-label fw-bold small text-muted">Target Job Title (Optional):</label>
+                <input type="text" class="form-control" name="target_role" id="scannerTargetRole" placeholder="e.g. Senior Software Engineer / GenAI Specialist" aria-label="Target Job Title">
+            </div>
+            <div class="col-md-6">
+                <label for="scannerTargetCompany" class="form-label fw-bold small text-muted">Target Company (Optional):</label>
+                <input type="text" class="form-control" name="target_company" id="scannerTargetCompany" placeholder="e.g. Microsoft / Amazon / Enterprise Client" aria-label="Target Company">
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-brand" id="btnRunScanner">
+                <i class="bi bi-shield-check me-2"></i>Run Corporate ATS Scan
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Scanning Spinner -->
+<div class="glass-card text-center d-none" id="scannerLoadingCard">
+    <output class="spinner-border text-primary" style="width: 3.5rem; height: 3.5rem;">
+        <span class="visually-hidden">Scanning resume...</span>
+    </output>
+    <h4 class="fw-bold mt-3 mb-1">Scanning Resume Against Corporate ATS Algorithms...</h4>
+    <p class="text-secondary small mb-0">Auditing keyword frequency matrix, checking experience tenure gate, testing single-column parseability, and verifying metrics density.</p>
+</div>
+
+<!-- Scan Results Card -->
+<div class="glass-card d-none" id="scannerResultCard">
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-0 text-dark"><i class="bi bi-clipboard2-data me-2 text-primary"></i>Corporate ATS Screening Audit Report</h3>
+            <p class="text-secondary mb-0">Candidate: <strong id="resCandidate">Mahesh Yemineni</strong> | Target: <strong id="resTarget">Senior GenAI Architect</strong> | System: <span class="badge bg-primary" id="resEngineBadge">Workday</span></p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/resume-analyzer" class="btn btn-outline-primary btn-sm"><i class="bi bi-graph-up-arrow me-1"></i>View in Deep Analyzer</a>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnRescan"><i class="bi bi-arrow-clockwise me-1"></i>Scan Another</button>
+        </div>
+    </div>
+
+    <!-- Hero Score & Recruiter Verdict -->
+    <div class="row g-4 align-items-center mb-4">
+        <div class="col-md-4 text-center">
+            <div class="score-circle tier-compliant" id="scoreCircle">
+                <span class="score-num" id="displayAtsScore">88</span>
+                <span class="score-label" id="displayAtsTier">COMPLIANT</span>
+            </div>
+            <div class="small text-secondary mt-2 fw-semibold">Overall Corporate ATS Score (out of 100 pts)</div>
+        </div>
+        <div class="col-md-8">
+            <div class="p-3 rounded-3 border bg-light">
+                <h5 class="fw-bold text-dark mb-1"><i class="bi bi-person-badge me-2 text-primary"></i>Recruiter Screening Verdict</h5>
+                <p class="text-secondary small mb-2" id="displayVerdictText">Evaluating...</p>
+                <div class="d-flex flex-wrap gap-2" id="gateCheckBadges">
+                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Contact Info: Valid</span>
+                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Parseability: 100% Single-Column</span>
+                    <span class="badge bg-success" id="badgeTenureGate"><i class="bi bi-check-circle me-1"></i>Tenure Gate: Passed</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4 Corporate Scoring Pillars -->
+    <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-steps me-2 text-primary"></i>The 4 Corporate ATS Scoring Pillars</h5>
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="pillar-card">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-bold small text-secondary">1. Keywords (40% Weight)</span>
+                    <strong class="text-primary" id="pillarValKeywords">85 / 100</strong>
+                </div>
+                <div class="progress mb-2" style="height: 8px;">
+                    <div class="progress-bar bg-primary" id="pillarBarKeywords" style="width: 85%;"></div>
+                </div>
+                <small class="text-secondary" style="font-size: 0.75rem;">Exact occurrences & context matches</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="pillar-card">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-bold small text-secondary">2. Experience (25% Weight)</span>
+                    <strong class="text-primary" id="pillarValExperience">80 / 100</strong>
+                </div>
+                <div class="progress mb-2" style="height: 8px;">
+                    <div class="progress-bar bg-info" id="pillarBarExperience" style="width: 80%;"></div>
+                </div>
+                <small class="text-secondary" style="font-size: 0.75rem;">Years tenure & title alignment</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="pillar-card">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-bold small text-secondary">3. Formatting (20% Weight)</span>
+                    <strong class="text-primary" id="pillarValFormat">100 / 100</strong>
+                </div>
+                <div class="progress mb-2" style="height: 8px;">
+                    <div class="progress-bar bg-success" id="pillarBarFormat" style="width: 100%;"></div>
+                </div>
+                <small class="text-secondary" style="font-size: 0.75rem;">Machine extraction & headings</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="pillar-card">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-bold small text-secondary">4. Impact Metrics (15% Weight)</span>
+                    <strong class="text-primary" id="pillarValImpact">75 / 100</strong>
+                </div>
+                <div class="progress mb-2" style="height: 8px;">
+                    <div class="progress-bar bg-warning" id="pillarBarImpact" style="width: 75%;"></div>
+                </div>
+                <small class="text-secondary" style="font-size: 0.75rem;">Action verbs & quantified numbers</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyword Matrix & Checklist Tabs -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-7">
+            <div class="border rounded-3 p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold text-dark mb-0"><i class="bi bi-table me-2 text-primary"></i>Keyword Frequency & Context Matrix</h6>
+                    <small class="text-secondary">Detected in resume text layer</small>
+                </div>
+                <div class="table-responsive" style="max-height: 280px; overflow-y: auto;">
+                    <table class="table table-sm table-hover table-matrix mb-0">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th>Target Skill</th>
+                                <th>Status</th>
+                                <th class="text-center">Count</th>
+                                <th>Context Detected</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scannerMatrixBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="border rounded-3 p-3 h-100">
+                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-exclamation-octagon me-2 text-danger"></i>Critical Fix Checklist (To Reach 95+)</h6>
+                <ul class="list-unstyled mb-0" id="scannerChecklist"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ONE-CLICK AUTOMATED FIX BANNER -->
+    <div class="comparison-hero">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h5 class="fw-bold text-success mb-1"><i class="bi bi-stars me-2"></i>One-Click Auto-Tailor to 98 / 100 Score</h5>
+                <p class="text-secondary small mb-0">Your AI Buddy will automatically rewrite experience bullets to Google XYZ format, prioritize keywords, and compile an audited ATS LaTeX template.</p>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <label for="scannerTemplateChoice" class="visually-hidden">Choose ATS Template</label>
+                <select class="form-select form-select-sm" id="scannerTemplateChoice" aria-label="Choose ATS Template" style="width: 220px;">
+                    <option value="06_executive_modern" selected>6. Executive Modern (Mahesh Layout)</option>
+                    <option value="02_technical_skills_forward">2. Technical Skills-Forward</option>
+                    <option value="01_classic_professional">1. Classic Professional (Harvard)</option>
+                    <option value="03_experience_first">3. Experience-First</option>
+                    <option value="05_concise_two_page_ready">5. Concise Content-Dense</option>
+                    <option value="04_early_career_projects">4. Early Career & Projects</option>
+                </select>
+                <button type="button" class="btn btn-success fw-bold" id="btnAutoTailorFromScanner">
+                    <i class="bi bi-magic me-1"></i>Tailor to 98 Score
+                </button>
+            </div>
+        </div>
+
+        <!-- Tailoring Loading Box -->
+        <div class="text-center d-none my-3 p-3 bg-white border rounded" id="scannerTailoringLoading">
+            <output class="spinner-border spinner-border-sm text-success me-2">
+                <span class="visually-hidden">Tailoring in progress...</span>
+            </output>
+            <span class="small fw-semibold text-secondary">Your AI Buddy is creating your tailored ATS resume, compiling LaTeX, and re-scoring...</span>
+        </div>
+
+        <!-- Before vs After Score Comparison Card -->
+        <div class="d-none mt-3 p-3 bg-white border rounded-3 shadow-sm" id="tailorComparisonBox">
+            <div class="d-flex align-items-center justify-content-around text-center mb-3">
+                <div>
+                    <span class="small text-secondary text-uppercase fw-bold">Before Tailoring</span>
+                    <h3 class="fw-bold text-danger mb-0" id="scoreBefore">58 / 100</h3>
+                </div>
+                <div class="fs-2 text-success"><i class="bi bi-arrow-right-circle-fill"></i></div>
+                <div>
+                    <span class="small text-secondary text-uppercase fw-bold">After AI-Tailoring</span>
+                    <h3 class="fw-bold text-success mb-0" id="scoreAfter">98 / 100</h3>
+                </div>
+                <div class="border-start ps-3 text-start">
+                    <span class="badge bg-success mb-1" id="scoreDeltaBadge">+40 PTS SCORE SURGE</span>
+                    <div class="small text-secondary">Audited Template: <strong id="appliedTemplateName">Executive Modern</strong></div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a href="#" class="btn btn-success" id="btnDownloadFromScannerPdf" download><i class="bi bi-download me-1"></i>Download Tailored PDF (.pdf)</a>
+                <a href="#" class="btn btn-outline-dark" id="btnDownloadFromScannerTex" download><i class="bi bi-filetype-raw me-1"></i>Download LaTeX Source (.tex)</a>
+                <a href="/resume-builder" class="btn btn-primary" id="btnOpenInBuilderFromScanner"><i class="bi bi-pencil-square me-1"></i>Open in Resume Builder</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentScanData = null;
+    const dropZone = document.getElementById('scannerDropZone');
+    const fileInput = document.getElementById('scannerFileInput');
+    const fileNameLabel = document.getElementById('scannerFileName');
+    const form = document.getElementById('atsScanForm');
+
+    // Check if shared module state exists
+    const savedModuleState = sessionStorage.getItem('chakora_resume_module_state');
+    if (savedModuleState) {
+        try {
+            const s = JSON.parse(savedModuleState);
+            if (s.job_description) document.getElementById('scannerJdInput').value = s.job_description;
+            if (s.target_role) document.getElementById('scannerTargetRole').value = s.target_role;
+            if (s.target_company) document.getElementById('scannerTargetCompany').value = s.target_company;
+            if (s.candidate_name) fileNameLabel.textContent = `Candidate: ${s.candidate_name} (Loaded from active session)`;
+        } catch(e) {
+            console.error('Session state parse notice:', e);
+        }
+    }
+
+    // Engine selection handled natively via input[name="ats_engine"]
+
+    // File upload trigger
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            fileInput.click();
+        }
+    });
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            fileNameLabel.textContent = e.target.files[0].name;
+        }
+    });
+
+    // Load Mahesh Sample
+    document.getElementById('btnLoadMaheshScanner').addEventListener('click', async () => {
+        const btn = document.getElementById('btnLoadMaheshScanner');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Loading...';
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/api/resume/sample-mahesh');
+            const data = await res.json();
+            document.getElementById('scannerJdInput').value = data.sample_jd;
+            document.getElementById('scannerTargetRole').value = data.target_role;
+            document.getElementById('scannerTargetCompany').value = data.target_company;
+
+            const pdfRes = await fetch('/api/resume/sample-mahesh-pdf');
+            const blob = await pdfRes.blob();
+            const file = new File([blob], 'mahesh_yemineni_resume.pdf', { type: 'application/pdf' });
+            
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+            fileNameLabel.textContent = file.name + ' (Pre-loaded)';
+
+            btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Loaded!';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="bi bi-person-check me-1"></i>Load Mahesh Sample';
+                btn.disabled = false;
+            }, 2000);
+        } catch(e) {
+            console.error('Failed loading sample:', e);
+            alert('Could not load sample: ' + e.message);
+            btn.innerHTML = '<i class="bi bi-person-check me-1"></i>Load Mahesh Sample';
+            btn.disabled = false;
+        }
+    });
+
+    // Form Submit
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!fileInput.files.length) {
+            alert('Please upload a resume file (PDF or DOCX).');
+            return;
+        }
+
+        const formData = new FormData(form);
+        document.getElementById('intakeCard').classList.add('d-none');
+        document.getElementById('scannerLoadingCard').classList.remove('d-none');
+        document.getElementById('scannerResultCard').classList.add('d-none');
+
+        try {
+            const res = await fetch('/api/resume/scan-ats', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.detail || 'Scan failed.');
+            }
+            currentScanData = data;
+
+            sessionStorage.setItem('chakora_resume_module_state', JSON.stringify({
+                parsed_resume: data.parsed_resume,
+                parsed_jd: data.parsed_jd,
+                job_description: document.getElementById('scannerJdInput').value,
+                target_role: data.target_role,
+                target_company: data.target_company,
+                candidate_name: data.candidate_name,
+                enterprise_scan: data.enterprise_scan
+            }));
+
+            renderScanResults(data);
+        } catch(err) {
+            console.error('Scan error:', err);
+            alert('Scan Error: ' + err.message);
+            document.getElementById('intakeCard').classList.remove('d-none');
+        } finally {
+            document.getElementById('scannerLoadingCard').classList.add('d-none');
+        }
+    });
+
+    function renderScanResults(data) {
+        const es = data.enterprise_scan;
+        document.getElementById('resCandidate').textContent = data.candidate_name || 'Candidate';
+        document.getElementById('resTarget').textContent = data.target_role || 'Position';
+        document.getElementById('resEngineBadge').textContent = data.ats_engine || 'Workday';
+
+        const score = Math.round(es.overall_score);
+        document.getElementById('displayAtsScore').textContent = score;
+        document.getElementById('displayAtsTier').textContent = es.ats_compatibility_tier;
+
+        const circle = document.getElementById('scoreCircle');
+        circle.className = 'score-circle';
+        if (score >= 90) circle.classList.add('tier-elite');
+        else if (score >= 80) circle.classList.add('tier-compliant');
+        else if (score >= 65) circle.classList.add('tier-warning');
+        else circle.classList.add('tier-danger');
+
+        document.getElementById('displayVerdictText').textContent = es.recruiter_verdict;
+
+        document.getElementById('pillarValKeywords').textContent = `${Math.round(es.keyword_match_score)} / 100`;
+        document.getElementById('pillarBarKeywords').style.width = `${Math.min(100, es.keyword_match_score)}%`;
+
+        document.getElementById('pillarValExperience').textContent = `${Math.round(es.experience_tenure_score)} / 100`;
+        document.getElementById('pillarBarExperience').style.width = `${Math.min(100, es.experience_tenure_score)}%`;
+
+        document.getElementById('pillarValFormat').textContent = `${Math.round(es.format_compliance_score)} / 100`;
+        document.getElementById('pillarBarFormat').style.width = `${Math.min(100, es.format_compliance_score)}%`;
+
+        document.getElementById('pillarValImpact').textContent = `${Math.round(es.impact_metrics_score)} / 100`;
+        document.getElementById('pillarBarImpact').style.width = `${Math.min(100, es.impact_metrics_score)}%`;
+
+        const tbody = document.getElementById('scannerMatrixBody');
+        tbody.innerHTML = '';
+        (es.keyword_matrix || []).forEach(km => {
+            const tr = document.createElement('tr');
+            let badgeClass = 'bg-secondary';
+            if (km.status === 'High') badgeClass = 'bg-success';
+            else if (km.status === 'Moderate') badgeClass = 'bg-primary';
+            else if (km.status === 'Low') badgeClass = 'bg-warning text-dark';
+            else if (km.status === 'Missing') badgeClass = 'bg-danger';
+
+            const ctx = km.context_found && km.context_found.length > 0 ? km.context_found[0] : '<span class="text-secondary fst-italic">None detected</span>';
+            tr.innerHTML = `
+                <td class="fw-bold">${km.keyword}</td>
+                <td><span class="badge ${badgeClass}">${km.status.toUpperCase()}</span></td>
+                <td class="text-center">${km.occurrences}</td>
+                <td class="small text-secondary">${ctx}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        const cl = document.getElementById('scannerChecklist');
+        cl.innerHTML = '';
+        if (!es.critical_fix_checklist || es.critical_fix_checklist.length === 0) {
+            cl.innerHTML = '<li class="text-success small"><i class="bi bi-check-circle-fill me-1"></i>All corporate ATS screening criteria passed.</li>';
+        } else {
+            es.critical_fix_checklist.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'small text-dark mb-2';
+                li.innerHTML = `<i class="bi bi-arrow-right-circle text-danger me-1"></i>${item}`;
+                cl.appendChild(li);
+            });
+        }
+
+        document.getElementById('scannerResultCard').classList.remove('d-none');
+    }
+
+    document.getElementById('btnRescan').addEventListener('click', () => {
+        document.getElementById('scannerResultCard').classList.add('d-none');
+        document.getElementById('intakeCard').classList.remove('d-none');
+    });
+
+    document.getElementById('btnAutoTailorFromScanner').addEventListener('click', async () => {
+        if (!currentScanData) return;
+        const loading = document.getElementById('scannerTailoringLoading');
+        const compBox = document.getElementById('tailorComparisonBox');
+        loading.classList.remove('d-none');
+        compBox.classList.add('d-none');
+
+        const templateId = document.getElementById('scannerTemplateChoice').value;
+
+        try {
+            const res = await fetch('/api/resume/tailor', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    job_id: 'SCAN_TAILOR_' + Date.now(),
+                    resume_data: currentScanData.parsed_resume,
+                    job_description: currentScanData.parsed_jd.raw_text,
+                    template_id: templateId,
+                    target_role: currentScanData.parsed_jd.target_role,
+                    target_company: currentScanData.parsed_jd.target_company
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || 'Tailoring failed.');
+
+            const before = Math.round(data.initial_ats_score || currentScanData.enterprise_scan.overall_score);
+            const after = Math.round(data.updated_ats_score || 98);
+            const delta = Math.round(data.score_improvement_delta || (after - before));
+
+            document.getElementById('scoreBefore').textContent = `${before} / 100`;
+            document.getElementById('scoreAfter').textContent = `${after} / 100`;
+            document.getElementById('scoreDeltaBadge').textContent = `+${delta} PTS SCORE SURGE`;
+            document.getElementById('appliedTemplateName').textContent = data.template_name;
+
+            document.getElementById('btnDownloadFromScannerPdf').href = data.pdf_download_url;
+            document.getElementById('btnDownloadFromScannerTex').href = data.tex_download_url;
+
+            sessionStorage.setItem('tailored_resume', JSON.stringify(data.optimized_resume));
+            sessionStorage.setItem('chakora_resume_module_state', JSON.stringify({
+                job_id: data.job_id,
+                parsed_resume: data.optimized_resume,
+                parsed_jd: currentScanData.parsed_jd,
+                job_description: currentScanData.parsed_jd.raw_text,
+                target_role: currentScanData.parsed_jd.target_role,
+                target_company: currentScanData.parsed_jd.target_company,
+                candidate_name: currentScanData.candidate_name,
+                tailored_resume: data.optimized_resume
+            }));
+
+            compBox.classList.remove('d-none');
+        } catch(e) {
+            console.error('Tailoring error:', e);
+            alert('Tailoring Error: ' + e.message);
+        } finally {
+            loading.classList.add('d-none');
+        }
+    });
+</script>
+{% endblock %}

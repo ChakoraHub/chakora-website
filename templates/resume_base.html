@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ChakoraHub AI ATS Resume Suite{% endblock %}</title>
+    <meta name="description" content="ChakoraHub Enterprise AI ATS Resume Optimization, Deep JD Gap Analysis & Audited LaTeX Generator">
+
+    <!-- Subresource Integrity (SRI) compliant external assets -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        integrity="sha384-/o6I2CkkWC//PSjvWC/eYN7l3xM3tJm8ZzVkCOfp//W05QcE3mlGskpoHB6XqI+B" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <style>
+        :root {
+            --primary-color: #0078D7;
+            --primary-dark: #005a9e;
+            --accent-green: #10b981;
+            --accent-purple: #7c3aed;
+            --text-dark: #0f172a;
+            --text-muted: #334155;
+            --bg-canvas: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #cbd5e1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #e8f0fe 0%, #f0f4f8 240px, #f8fafc 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar.modern-header {
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+
+        .navbar .navbar-brand {
+            font-weight: 700;
+            font-size: 1.45rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-img {
+            height: 46px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-img:hover {
+            transform: scale(1.04);
+        }
+
+        .navbar .navbar-nav .nav-link {
+            color: #1e293b;
+            font-weight: 500;
+            padding: 0.5rem 0.9rem;
+            transition: color 0.2s ease, background-color 0.2s ease;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .navbar .navbar-nav .nav-link:hover,
+        .navbar .navbar-nav .nav-link:focus {
+            color: var(--primary-color);
+        }
+
+        .suite-module-bar {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 120, 215, 0.05);
+            position: sticky;
+            top: 66px;
+            z-index: 1020;
+        }
+
+        .module-nav-pills {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .nav-pill-btn {
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-pill-btn:hover,
+        .nav-pill-btn:focus {
+            background: #eff6ff;
+            color: var(--primary-color);
+            border-color: #93c5fd;
+        }
+
+        .nav-pill-btn.active {
+            background: linear-gradient(135deg, #005a9e 0%, #004578 100%);
+            color: #ffffff;
+            border-color: #004578;
+            box-shadow: 0 4px 12px rgba(0, 69, 120, 0.25);
+        }
+
+        .page-container {
+            max-width: 1240px;
+            margin: 25px auto;
+            padding: 0 20px;
+            flex: 1;
+            width: 100%;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 120, 215, 0.07);
+            padding: 32px;
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .drop-zone {
+            border: 2px dashed #94a3b8;
+            border-radius: 12px;
+            padding: 28px;
+            text-align: center;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .drop-zone:hover,
+        .drop-zone:focus {
+            border-color: var(--primary-color);
+            background: #eff6ff;
+            outline: none;
+        }
+
+        .btn-brand {
+            background: linear-gradient(135deg, #005a9e 0%, #004578 100%);
+            color: #ffffff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.02rem;
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-brand:hover,
+        .btn-brand:focus {
+            transform: translateY(-2px);
+            color: #ffffff;
+            box-shadow: 0 8px 25px rgba(0, 69, 120, 0.35);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .btn-brand, .drop-zone, .nav-pill-btn {
+                transition: none;
+                transform: none;
+            }
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            color: #ffffff;
+            font-weight: 800;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .score-circle.tier-elite { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .score-circle.tier-compliant { background: linear-gradient(135deg, #0078D7 0%, #005a9e 100%); }
+        .score-circle.tier-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .score-circle.tier-danger { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+
+        .score-num { font-size: 3rem; line-height: 1; }
+        .score-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .pillar-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
+            background: #ffffff;
+            height: 100%;
+        }
+
+        .modern-footer {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #f1f5f9;
+            padding: 28px 0 20px;
+            margin-top: auto;
+        }
+
+        .footer-copy {
+            color: #e2e8f0;
+        }
+
+        .footer-sub {
+            color: #94a3b8;
+            font-size: 0.78rem;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto;
+                animation-duration: 0.01ms;
+                animation-iteration-count: 1;
+                transition-duration: 0.01ms;
+            }
+            .logo-img:hover,
+            .btn-brand:hover {
+                transform: none;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- ChakoraHub Top Modern Navbar -->
+    <nav class="navbar navbar-expand-lg modern-header" aria-label="Main site navigation">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="/" aria-label="ChakoraHub Home">
+                <img src="/static/images/logo.png" alt="ChakoraHub Logo" class="logo-img">
+                ChakoraHub
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+                aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item dropdown">
+                        <button type="button" class="nav-link dropdown-toggle btn btn-link text-decoration-none" id="navbarSolutionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">Solutions</button>
+                        <ul class="dropdown-menu" aria-labelledby="navbarSolutionsDropdown">
+                            <li><a class="dropdown-item" href="/solutions#automation">Automation</a></li>
+                            <li><a class="dropdown-item" href="/solutions#aiml">AI/ML</a></li>
+                            <li><a class="dropdown-item" href="/solutions#mdm">MDM</a></li>
+                            <li><a class="dropdown-item" href="/solutions#cloud">Cloud</a></li>
+                            <li><a class="dropdown-item" href="/solutions#api">API Solutions</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-primary fw-bold" href="/ats-scanner"><i class="bi bi-shield-check me-1"></i>AI ATS Resume Suite</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="/aboutus">About Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/resources"><i class="bi bi-person-workspace me-1"></i>Student Portal</a></li>
+                    <li class="nav-item"><a class="nav-link btn btn-primary text-white px-3 ms-2" href="/registration" style="border-radius: 8px;">Register</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- AI ATS Suite Module Sub-Nav -->
+    <header class="suite-module-bar" aria-label="AI ATS Suite Modules">
+        <div class="container-fluid px-4 d-flex flex-wrap justify-content-between align-items-center py-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge" style="background: linear-gradient(135deg, #0078D7 0%, #005a9e 100%); font-size: 0.82rem; padding: 6px 12px; letter-spacing: 0.5px;">
+                    <i class="bi bi-cpu-fill me-1"></i>AI ATS SUITE
+                </span>
+                <span class="text-secondary small fw-semibold d-none d-md-inline">Enterprise Resume Optimization & Corporate Screening Pipeline</span>
+            </div>
+            <nav class="module-nav-pills" aria-label="ATS Steps">
+                <a href="/ats-scanner" class="nav-pill-btn {% if active_page == 'scanner' %}active{% endif %}" {% if active_page == 'scanner' %}aria-current="page"{% endif %}><i class="bi bi-shield-check me-1"></i>1. ATS Scanner</a>
+                <a href="/resume-analyzer" class="nav-pill-btn {% if active_page == 'analyzer' %}active{% endif %}" {% if active_page == 'analyzer' %}aria-current="page"{% endif %}><i class="bi bi-search me-1"></i>2. Deep Analyzer</a>
+                <a href="/resume-builder" class="nav-pill-btn {% if active_page == 'builder' %}active{% endif %}" {% if active_page == 'builder' %}aria-current="page"{% endif %}><i class="bi bi-file-earmark-richtext me-1"></i>3. Resume Builder</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="page-container" id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ChakoraHub Standard Footer -->
+    <footer class="modern-footer text-center" aria-label="Footer">
+        <div class="container">
+            <p class="mb-1 footer-copy small">&copy; 2026 ChakoraHub. All rights reserved. | Enterprise AI ATS Suite</p>
+            <small class="footer-sub">Simulating Fortune 500 candidate indexing & scoring (Workday, Taleo, Greenhouse, iCIMS)</small>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5.3.2 JS Bundle with SRI -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-s1swLUYcLBqAXHj7nWZcBD03oDfaVT4TaOQEaQGnSa65SsyckDHTlfGcB8+LOLkz"
+        crossorigin="anonymous"></script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
