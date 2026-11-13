@@ -5846,26 +5846,63 @@ def proxy_onboarding_health():
 # ==========================================
 # ATS RESUME ANALYZER & GENERATOR ROUTES
 # ==========================================
-@app.route('/resume-analyzer')
+RESUME_ALLOWED_STATIC_ROUTES = {
+    "analyze": "/api/resume/analyze",
+    "scan-ats": "/api/resume/scan-ats",
+    "tailor": "/api/resume/tailor",
+    "templates": "/api/resume/templates",
+    "sample-mahesh": "/api/resume/sample-mahesh",
+    "sample-mahesh-pdf": "/api/resume/sample-mahesh-pdf",
+    "health": "/api/resume/health",
+    "rag-extract": "/api/resume/rag-extract",
+    "self-refine": "/api/resume/self-refine",
+}
+RESUME_DOWNLOAD_ID_PATTERN = re.compile(r"^[a-zA-Z0-9_\-]+$")
+
+
+def _resolve_safe_resume_endpoint(raw_subpath):
+    """Strictly validates and resolves an upstream resume API endpoint against SSRF and directory traversal."""
+    if not raw_subpath or not isinstance(raw_subpath, str):
+        return None
+    cleaned = raw_subpath.strip().strip("/")
+    if ".." in cleaned or "\\" in cleaned or "%" in cleaned or "\n" in cleaned or "\r" in cleaned:
+        return None
+
+    if cleaned in RESUME_ALLOWED_STATIC_ROUTES:
+        return RESUME_ALLOWED_STATIC_ROUTES[cleaned]
+
+    if cleaned.startswith("download/"):
+        job_id = cleaned[len("download/"):].strip()
+        if RESUME_DOWNLOAD_ID_PATTERN.fullmatch(job_id):
+            return f"/api/resume/download/{job_id}"
+
+    return None
+
+
+@app.route('/resume-analyzer', methods=['GET'])
 def resume_analyzer_page():
-    return render_template('resume_analyzer.html')
+    return render_template('resume_analyzer.html', active_page='analyzer')
 
 
-@app.route('/ats-scanner')
+@app.route('/ats-scanner', methods=['GET'])
 def ats_scanner_page():
-    return render_template('ats_scanner.html')
+    return render_template('ats_scanner.html', active_page='scanner')
 
 
-@app.route('/resume-builder')
+@app.route('/resume-builder', methods=['GET'])
 def resume_builder_page():
-    return render_template('resume_builder.html')
+    return render_template('resume_builder.html', active_page='builder')
 
 
 @app.route('/api/resume/<path:subpath>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def proxy_resume_service(subpath):
-    target_url = f"{RESUME_SERVICE_URL}/api/resume/{subpath}"
+    endpoint_path = _resolve_safe_resume_endpoint(subpath)
+    if not endpoint_path:
+        return jsonify({"success": False, "detail": "Invalid or unauthorized resume API endpoint."}), 400
+
+    target_url = f"{RESUME_SERVICE_URL}{endpoint_path}"
     try:
-        req_headers = {k: v for k, v in request.headers if k.lower() not in ['host', 'content-length']}
+        req_headers = {k: v for k, v in request.headers.items() if k.lower() not in ('host', 'content-length')}
         if request.method == 'GET':
             resp = requests.get(target_url, params=request.args, headers=req_headers, timeout=30, stream=True)
         elif request.files:
@@ -5884,7 +5921,7 @@ def proxy_resume_service(subpath):
                 stream=True
             )
 
-        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        excluded_headers = {'content-encoding', 'content-length', 'transfer-encoding', 'connection'}
         headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
         return Response(resp.content, resp.status_code, headers)
 

@@ -1,756 +1,547 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATS Resume Builder & Generator — ChakoraHub AI ATS Suite</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #0078D7;
-            --primary-dark: #005a9e;
-            --secondary-color: #6c5ce7;
-            --text-color: #1e293b;
-            --bg-canvas: #f0f4f8;
-            --card-bg: #ffffff;
-            --gradient-primary: linear-gradient(135deg, #0078D7 0%, #005a9e 100%);
-        }
+{% extends "resume_base.html" %}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(180deg, #e8f0fe 0%, #f0f4f8 240px, #f8fafc 100%);
-            min-height: 100vh;
-            color: #1e293b;
-            display: flex;
-            flex-direction: column;
-        }
+{% block title %}ATS Resume Builder & Generator — ChakoraHub AI ATS Suite{% endblock %}
 
-        /* ChakoraHub Modern Sticky Header */
-        .modern-header {
-            background: #ffffff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            position: sticky;
-            top: 0;
-            z-index: 1030;
-        }
+{% block extra_css %}
+<style>
+    .template-card {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        cursor: pointer;
+        transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+        background: #ffffff;
+        height: 100%;
+    }
 
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.45rem;
-            color: var(--primary-color) !important;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .template-card:hover,
+    .template-card:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 15px rgba(0, 120, 215, 0.15);
+        outline: none;
+    }
 
-        .logo-img {
-            height: 46px;
-            transition: transform 0.3s ease;
-        }
+    .template-card.selected {
+        border-color: var(--primary-color);
+        background: #f0f7ff;
+        box-shadow: 0 4px 15px rgba(0, 120, 215, 0.2);
+    }
 
-        .logo-img:hover {
-            transform: scale(1.04);
-        }
+    .role-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+</style>
+{% endblock %}
 
-        .navbar-nav .nav-link {
-            color: #333 !important;
-            font-weight: 500;
-            padding: 0.5rem 0.9rem !important;
-            transition: all 0.2s ease;
-            position: relative;
-            font-size: 0.95rem;
-        }
+{% block content %}
+<!-- Module Synchronisation Banner -->
+<div class="alert alert-info border-0 shadow-sm d-none mb-3 py-2 px-3 d-flex justify-content-between align-items-center" id="moduleSyncAlert">
+    <div class="small">
+        <i class="bi bi-link-45deg me-1 fs-5 align-middle"></i>
+        <span>Active candidate session synced: <strong id="moduleSyncName">Mahesh Yemineni</strong> (<span id="moduleSyncRole">Senior GenAI Architect</span>)</span>
+    </div>
+    <span class="badge bg-primary">Connected Suite Active</span>
+</div>
 
-        .navbar-nav .nav-link:hover {
-            color: var(--primary-color) !important;
-        }
+<!-- Builder Main Card -->
+<div class="glass-card">
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+        <div>
+            <span class="badge bg-primary text-white mb-1"><i class="bi bi-file-earmark-richtext me-1"></i>MODULE STEP 3</span>
+            <h3 class="fw-bold text-dark mb-1">ATS-Friendly Resume Generator</h3>
+            <p class="text-secondary mb-0">Select an audited single-column LaTeX template, edit tailored bullet points, and compile verified ATS PDFs.</p>
+        </div>
+        <button type="button" class="btn btn-outline-primary" id="btnLoadMaheshBuilder">
+            <i class="bi bi-person-check me-1"></i>Load Mahesh Sample (GenAI JD)
+        </button>
+    </div>
 
-        /* AI ATS Suite Module Sub-Nav */
-        .suite-module-bar {
-            background: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
-            box-shadow: 0 2px 8px rgba(0, 120, 215, 0.05);
-            position: sticky;
-            top: 66px;
-            z-index: 1020;
-        }
+    <!-- Step 1: Template Selection -->
+    <h5 class="fw-bold mb-3"><i class="bi bi-grid-1x2 me-2 text-primary"></i>Step 1: Choose Audited ATS Template</h5>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="template-card" data-template-id="01_classic_professional" role="button" tabindex="0" aria-pressed="false" aria-label="Template 1 Classic Professional">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h6 class="fw-bold text-dark mb-1">1. Classic Professional</h6>
+                    <span class="badge bg-secondary">HARVARD</span>
+                </div>
+                <p class="small text-secondary mb-2">Traditional serif layout with uppercase headers, horizontal dividing rules, and right-aligned dates.</p>
+                <small class="text-primary fw-semibold d-block">Finance, Consulting, Operations</small>
+                <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 98 / 100 (Harvard Standard)</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="template-card" data-template-id="02_technical_skills_forward" role="button" tabindex="0" aria-pressed="false" aria-label="Template 2 Technical Skills Forward">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h6 class="fw-bold text-dark mb-1">2. Technical Skills-Forward</h6>
+                    <span class="badge bg-primary">TECH</span>
+                </div>
+                <p class="small text-secondary mb-2">Clean sans-serif layout putting skills categories and projects first to maximize keyword hits.</p>
+                <small class="text-primary fw-semibold d-block">Developers, Data Scientists, DevOps</small>
+                <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 99 / 100 (Tech Navy Standard)</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="template-card" data-template-id="03_experience_first" role="button" tabindex="0" aria-pressed="false" aria-label="Template 3 Experience First">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h6 class="fw-bold text-dark mb-1">3. Experience-First</h6>
+                    <span class="badge bg-dark">EXECUTIVE</span>
+                </div>
+                <p class="small text-secondary mb-2">Prioritizes chronological work history and verified business impact metrics with compact margins.</p>
+                <small class="text-primary fw-semibold d-block">Senior Engineers, Leads, 5+ Years Exp</small>
+                <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 98 / 100 (Executive Obsidian)</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="template-card" data-template-id="04_early_career_projects" role="button" tabindex="0" aria-pressed="false" aria-label="Template 4 Early Career and Projects">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h6 class="fw-bold text-dark mb-1">4. Early Career & Projects</h6>
+                    <span class="badge bg-info text-dark">ACADEMIC</span>
+                </div>
+                <p class="small text-secondary mb-2">Highlights coursework, academic background, and personal project evidence first.</p>
+                <small class="text-primary fw-semibold d-block">Graduates, Interns, Career Changers</small>
+                <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 97 / 100 (Academic Standard)</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="template-card" data-template-id="05_concise_two_page_ready" role="button" tabindex="0" aria-pressed="false" aria-label="Template 5 Concise Content Dense">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h6 class="fw-bold text-dark mb-1">5. Concise Content-Dense</h6>
+                    <span class="badge bg-warning text-dark">DENSE</span>
+                </div>
+                <p class="small text-secondary mb-2">Compact 0.5" margins and refined leading cleanly presenting dense achievements.</p>
+                <small class="text-primary fw-semibold d-block">Multi-project & Two-Page Ready</small>
+                <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 98 / 100 (Silicon Valley Density)</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="template-card selected" data-template-id="06_executive_modern" role="button" tabindex="0" aria-pressed="true" aria-label="Template 6 Executive Modern">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h6 class="fw-bold text-dark mb-1">6. Executive Modern</h6>
+                    <span class="badge bg-success">RECOMMENDED</span>
+                </div>
+                <p class="small text-secondary mb-2">Centered clean header, bold section titles with full-width divider rules, and pipe-separated job entries.</p>
+                <small class="text-primary fw-semibold d-block">Technical Specialists, Trainers, Architects</small>
+                <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 98 / 100 (Mahesh Specialist Layout)</div>
+            </div>
+        </div>
+    </div>
 
-        .module-nav-pills {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
+    <!-- Step 2: Content Review & Edit -->
+    <h5 class="fw-bold mb-3"><i class="bi bi-pencil-square me-2 text-primary"></i>Step 2: Review & Edit Resume Content</h5>
+    <form id="editResumeForm">
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label for="editName" class="form-label fw-semibold">Full Name</label>
+                <input type="text" class="form-control" id="editName" placeholder="Candidate Full Name" aria-label="Candidate Full Name" required>
+            </div>
+            <div class="col-md-6">
+                <label for="editEmail" class="form-label fw-semibold">Email Address</label>
+                <input type="email" class="form-control" id="editEmail" placeholder="email@example.com" aria-label="Email Address" required>
+            </div>
+            <div class="col-md-6">
+                <label for="editPhone" class="form-label fw-semibold">Phone Number</label>
+                <input type="text" class="form-control" id="editPhone" placeholder="+1 (555) 000-0000" aria-label="Phone Number">
+            </div>
+            <div class="col-md-6">
+                <label for="editLocation" class="form-label fw-semibold">Location (City, Country)</label>
+                <input type="text" class="form-control" id="editLocation" placeholder="City, State / Country" aria-label="Location">
+            </div>
+        </div>
 
-        .nav-pill-btn {
-            padding: 7px 16px;
-            border-radius: 8px;
-            font-size: 0.86rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            border: 1px solid #cbd5e1;
-            background: #ffffff;
-            color: #475569;
-            display: flex;
-            align-items: center;
-        }
+        <div class="mb-3">
+            <label for="editSummary" class="form-label fw-semibold">Professional Summary</label>
+            <textarea class="form-control" id="editSummary" rows="3" placeholder="Executive career summary..." aria-label="Professional Summary"></textarea>
+        </div>
 
-        .nav-pill-btn:hover {
-            background: #eff6ff;
-            color: var(--primary-color);
-            border-color: #93c5fd;
-        }
+        <div class="mb-4">
+            <label for="editSkills" class="form-label fw-semibold">Technical Skills (Comma separated)</label>
+            <input type="text" class="form-control" id="editSkills" placeholder="Python, FastAPI, Docker, Kubernetes, LangChain, PostgreSQL..." aria-label="Technical Skills">
+        </div>
 
-        .nav-pill-btn.active {
-            background: linear-gradient(135deg, #0078D7 0%, #005a9e 100%);
-            color: #ffffff;
-            border-color: #0078D7;
-            box-shadow: 0 4px 12px rgba(0, 120, 215, 0.25);
-        }
+        <!-- Step 2b: Experience Bullets Review -->
+        <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="form-label fw-bold mb-0"><i class="bi bi-briefcase me-2 text-primary"></i>Work Experience & Tailored Bullet Points</span>
+                <small class="text-secondary">Each bullet formatted with active verbs & measurable impact</small>
+            </div>
+            <div id="experienceContainer">
+                <p class="text-secondary small fst-italic">No experience roles loaded. Load an analysis or sample resume to view and customize.</p>
+            </div>
+        </div>
 
-        /* Page Layout & Cards */
-        .page-container {
-            max-width: 1240px;
-            margin: 25px auto;
-            padding: 0 20px;
-            flex: 1;
-            width: 100%;
-        }
-
-        .glass-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 120, 215, 0.07);
-            padding: 32px;
-            margin-bottom: 25px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .template-card {
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            height: 100%;
-            background: #f8fafc;
-        }
-
-        .template-card:hover {
-            border-color: var(--primary-color);
-            background: #eff6ff;
-        }
-
-        .template-card.selected {
-            border-color: var(--primary-color);
-            background: #eff6ff;
-            box-shadow: 0 0 0 3px rgba(0, 120, 215, 0.2);
-        }
-
-        .btn-brand {
-            background: linear-gradient(135deg, #0078D7 0%, #005a9e 100%);
-            color: #ffffff;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1.02rem;
-            transition: all 0.2s ease;
-        }
-
-        .btn-brand:hover {
-            transform: translateY(-2px);
-            color: #ffffff;
-            box-shadow: 0 8px 25px rgba(0, 120, 215, 0.35);
-        }
-
-        .role-box {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .module-sync-badge {
-            background: #e0f2fe;
-            color: #0369a1;
-            border: 1px solid #bae6fd;
-            border-radius: 8px;
-            padding: 8px 14px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .modern-footer {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 28px 0 20px;
-            margin-top: auto;
-        }
-    </style>
-</head>
-<body>
-
-    <!-- ChakoraHub Top Modern Navbar -->
-    <nav class="navbar navbar-expand-lg modern-header">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand" href="/">
-                <img src="/static/images/logo.png" alt="ChakoraHub" class="logo-img" onerror="this.style.display='none'">
-                ChakoraHub
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
-                <span class="navbar-toggler-icon"></span>
+        <div class="text-center d-flex justify-content-center gap-3">
+            <button type="button" class="btn btn-brand" id="compileBtn">
+                <i class="bi bi-file-earmark-pdf me-2"></i>Compile & Validate ATS Resume
             </button>
-            <div class="collapse navbar-collapse" id="navbarMain">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Solutions</a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/solutions#automation">Automation</a></li>
-                            <li><a class="dropdown-item" href="/solutions#aiml">AI/ML</a></li>
-                            <li><a class="dropdown-item" href="/solutions#mdm">MDM</a></li>
-                            <li><a class="dropdown-item" href="/solutions#cloud">Cloud</a></li>
-                            <li><a class="dropdown-item" href="/solutions#api">API Solutions</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-primary fw-bold active" href="/ats-scanner"><i class="bi bi-shield-check me-1"></i>AI ATS Resume Suite</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item"><a class="nav-link" href="/aboutus">About Us</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
-                    <li class="nav-item"><a class="nav-link btn btn-primary text-white px-3 ms-2" href="/registration" style="border-radius: 8px;">Register</a></li>
-                </ul>
-            </div>
+            <button type="button" class="btn btn-outline-primary" id="aiTailorBuilderBtn">
+                <i class="bi bi-magic me-2"></i>AI-Tailor Content to Match JD (Score &rarr; 98 / 100)
+            </button>
         </div>
-    </nav>
+    </form>
 
-    <!-- AI ATS Suite Module Sub-Nav -->
-    <div class="suite-module-bar">
-        <div class="container-fluid px-4 d-flex flex-wrap justify-content-between align-items-center py-2">
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge" style="background: linear-gradient(135deg, #0078D7 0%, #005a9e 100%); font-size: 0.82rem; padding: 6px 12px; letter-spacing: 0.5px;">
-                    <i class="bi bi-cpu-fill me-1"></i>AI ATS SUITE
-                </span>
-                <span class="text-muted small fw-semibold d-none d-md-inline">Enterprise Resume Optimization & Corporate Screening Pipeline</span>
-            </div>
-            <div class="module-nav-pills">
-                <a href="/ats-scanner" class="nav-pill-btn"><i class="bi bi-shield-check me-1"></i>1. ATS Scanner</a>
-                <a href="/resume-analyzer" class="nav-pill-btn"><i class="bi bi-search me-1"></i>2. Deep Analyzer</a>
-                <a href="/resume-builder" class="nav-pill-btn active"><i class="bi bi-file-earmark-richtext me-1"></i>3. Resume Builder</a>
-            </div>
-        </div>
+    <!-- Loading Spinner -->
+    <div class="text-center d-none mt-4 p-4 border rounded bg-white shadow-sm" id="builderLoading">
+        <output class="spinner-border text-primary">
+            <span class="visually-hidden">Compiling resume...</span>
+        </output>
+        <p class="text-secondary mt-2 mb-0 fw-semibold" id="builderLoadingText">Compiling LaTeX template and independently validating PDF text extraction...</p>
     </div>
 
-    <div class="page-container">
-
-<!-- Module Sync Notification if active state loaded -->
-        <div id="moduleSyncAlert" class="module-sync-badge d-none">
-            <div>
-                <i class="bi bi-link-45deg me-2 fs-5"></i>
-                <span>Synchronized Candidate Data: <strong id="moduleSyncName">Candidate</strong> | <span id="moduleSyncRole">Target Role</span></span>
-            </div>
-            <span class="badge bg-primary">Connected Suite Active</span>
-        </div>
-
-        <div class="glass-card">
-            <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-4">
+    <!-- Step 3: Success & Download Panel -->
+    <div class="border rounded-3 p-4 bg-light d-none mt-4 shadow-sm" id="downloadPanel">
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-patch-check-fill text-success fs-1 me-3"></i>
                 <div>
-                    <span class="badge bg-primary text-white mb-1"><i class="bi bi-file-earmark-richtext me-1"></i>MODULE STEP 3</span>
-                    <h3 class="fw-bold text-dark mb-1">ATS-Friendly Resume Generator & Customizer</h3>
-                    <p class="text-muted mb-0">Review candidate information, select an audited ATS LaTeX template, review tailored bullet points, and compile verified PDF.</p>
-                </div>
-                <button type="button" class="btn btn-outline-primary" id="btnLoadMaheshBuilder">
-                    <i class="bi bi-person-check me-1"></i>Load Mahesh Sample Profile
-                </button>
-            </div>
-
-            <!-- Step 1: Template Selection -->
-            <h5 class="fw-bold mb-3"><i class="bi bi-layout-text-window me-2 text-primary"></i>Step 1: Select Approved ATS Template</h5>
-            <div class="row g-3 mb-4" id="templateGrid">
-                <div class="col-md-4">
-                    <div class="template-card" data-template-id="01_classic_professional">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <h6 class="fw-bold text-dark mb-1">1. Classic Professional</h6>
-                            <span class="badge bg-secondary">SERIF</span>
-                        </div>
-                        <p class="small text-muted mb-2">Traditional Times-Roman serif layout with classical thin rules; universal corporate ATS parsing.</p>
-                        <small class="text-primary fw-semibold d-block">General & Mid-level Engineers, Managers</small>
-                        <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 98 / 100 (Workday/Taleo Audited)</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="template-card" data-template-id="02_technical_skills_forward">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <h6 class="fw-bold text-dark mb-1">2. Technical Skills-Forward</h6>
-                            <span class="badge bg-primary">TECH</span>
-                        </div>
-                        <p class="small text-muted mb-2">Clean sans-serif layout putting skills categories and projects first to maximize keyword hits.</p>
-                        <small class="text-primary fw-semibold d-block">Developers, Data Scientists, DevOps</small>
-                        <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 99 / 100 (Tech Navy Standard)</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="template-card" data-template-id="03_experience_first">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <h6 class="fw-bold text-dark mb-1">3. Experience-First</h6>
-                            <span class="badge bg-dark">EXECUTIVE</span>
-                        </div>
-                        <p class="small text-muted mb-2">Prioritizes chronological work history and verified business impact metrics with compact margins.</p>
-                        <small class="text-primary fw-semibold d-block">Senior Engineers, Leads, 5+ Years Exp</small>
-                        <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 98 / 100 (Executive Obsidian)</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="template-card" data-template-id="04_early_career_projects">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <h6 class="fw-bold text-dark mb-1">4. Early Career & Projects</h6>
-                            <span class="badge bg-info text-dark">ACADEMIC</span>
-                        </div>
-                        <p class="small text-muted mb-2">Highlights coursework, academic background, and personal project evidence first.</p>
-                        <small class="text-primary fw-semibold d-block">Graduates, Interns, Career Changers</small>
-                        <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 97 / 100 (Academic Standard)</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="template-card" data-template-id="05_concise_two_page_ready">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <h6 class="fw-bold text-dark mb-1">5. Concise Content-Dense</h6>
-                            <span class="badge bg-warning text-dark">DENSE</span>
-                        </div>
-                        <p class="small text-muted mb-2">Compact 0.5" margins and refined leading cleanly presenting dense achievements.</p>
-                        <small class="text-primary fw-semibold d-block">Multi-project & Two-Page Ready</small>
-                        <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 98 / 100 (Silicon Valley Density)</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="template-card selected" data-template-id="06_executive_modern">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <h6 class="fw-bold text-dark mb-1">6. Executive Modern</h6>
-                            <span class="badge bg-success">RECOMMENDED</span>
-                        </div>
-                        <p class="small text-muted mb-2">Centered clean header, bold section titles with full-width divider rules, and pipe-separated job entries.</p>
-                        <small class="text-primary fw-semibold d-block">Technical Specialists, Trainers, Architects</small>
-                        <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 98 / 100 (Mahesh Specialist Layout)</div>
-                    </div>
+                    <h5 class="fw-bold mb-0 text-success" id="downloadTitle">ATS Resume Compiled & Validated Successfully</h5>
+                    <p class="text-secondary mb-0 small" id="downloadSubtitle">Structure, contact info, reading order, and source facts independently verified.</p>
                 </div>
             </div>
-
-            <!-- Step 2: Content Review & Edit -->
-            <h5 class="fw-bold mb-3"><i class="bi bi-pencil-square me-2 text-primary"></i>Step 2: Review & Edit Resume Content</h5>
-            <form id="editResumeForm">
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Full Name</label>
-                        <input type="text" class="form-control" id="editName" placeholder="Candidate Full Name" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Email Address</label>
-                        <input type="email" class="form-control" id="editEmail" placeholder="email@example.com" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Phone Number</label>
-                        <input type="text" class="form-control" id="editPhone" placeholder="+1 (555) 000-0000">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Location (City, Country)</label>
-                        <input type="text" class="form-control" id="editLocation" placeholder="City, State / Country">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Professional Summary</label>
-                    <textarea class="form-control" id="editSummary" rows="3" placeholder="Executive career summary..."></textarea>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">Technical Skills (Comma separated)</label>
-                    <input type="text" class="form-control" id="editSkills" placeholder="Python, FastAPI, Docker, Kubernetes, LangChain, PostgreSQL...">
-                </div>
-
-                <!-- Step 2b: Experience Bullets Review -->
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="form-label fw-bold mb-0"><i class="bi bi-briefcase me-2 text-primary"></i>Work Experience & Tailored Bullet Points</label>
-                        <small class="text-muted">Each bullet formatted with active verbs & measurable impact</small>
-                    </div>
-                    <div id="experienceContainer">
-                        <p class="text-muted small fst-italic">No experience roles loaded. Load an analysis or sample resume to view and customize.</p>
-                    </div>
-                </div>
-
-                <div class="text-center d-flex justify-content-center gap-3">
-                    <button type="button" class="btn btn-brand" id="compileBtn">
-                        <i class="bi bi-file-earmark-pdf me-2"></i>Compile & Validate ATS Resume
-                    </button>
-                    <button type="button" class="btn btn-outline-primary" id="aiTailorBuilderBtn">
-                        <i class="bi bi-magic me-2"></i>AI-Tailor Content to Match JD (Score &rarr; 98 / 100)
-                    </button>
-                </div>
-            </form>
-
-            <!-- Loading Spinner -->
-            <div class="text-center d-none mt-4 p-4 border rounded bg-white shadow-sm" id="builderLoading">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="text-muted mt-2 mb-0 fw-semibold" id="builderLoadingText">Compiling LaTeX template and independently validating PDF text extraction...</p>
+            <div class="text-end">
+                <span class="badge bg-success fs-6 px-3 py-2" id="builderScoreBadge">ATS Score: 98 / 100</span>
             </div>
-
-            <!-- Step 3: Success & Download Panel -->
-            <div class="border rounded-3 p-4 bg-light d-none mt-4 shadow-sm" id="downloadPanel">
-                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-patch-check-fill text-success fs-1 me-3"></i>
-                        <div>
-                            <h5 class="fw-bold mb-0 text-success" id="downloadTitle">ATS Resume Compiled & Validated Successfully</h5>
-                            <p class="text-muted mb-0 small" id="downloadSubtitle">Structure, contact info, reading order, and source facts independently verified.</p>
-                        </div>
-                    </div>
-                    <div class="text-end">
-                        <span class="badge bg-success fs-6 px-3 py-2" id="builderScoreBadge">ATS Score: 98 / 100</span>
-                    </div>
-                </div>
-
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                    <a href="#" class="btn btn-success" id="btnDownloadPdf" download>
-                        <i class="bi bi-download me-2"></i>Download ATS PDF (.pdf)
-                    </a>
-                    <a href="#" class="btn btn-outline-dark" id="btnDownloadTex" download>
-                        <i class="bi bi-filetype-raw me-2"></i>Download LaTeX Source (.tex)
-                    </a>
-                    <a href="/ats-scanner" class="btn btn-outline-primary">
-                        <i class="bi bi-shield-check me-2"></i>Step 1: Audit in ATS Scanner
-                    </a>
-                    <a href="/resume-analyzer" class="btn btn-outline-secondary">
-                        <i class="bi bi-search me-2"></i>Step 2: Deep Keyword Analyzer
-                    </a>
-                </div>
-            </div>
-
         </div>
 
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <a href="#" class="btn btn-success" id="btnDownloadPdf" download>
+                <i class="bi bi-download me-2"></i>Download ATS PDF (.pdf)
+            </a>
+            <a href="#" class="btn btn-outline-dark" id="btnDownloadTex" download>
+                <i class="bi bi-filetype-raw me-2"></i>Download LaTeX Source (.tex)
+            </a>
+            <a href="/ats-scanner" class="btn btn-outline-primary">
+                <i class="bi bi-shield-check me-2"></i>Step 1: Audit in ATS Scanner
+            </a>
+            <a href="/resume-analyzer" class="btn btn-outline-secondary">
+                <i class="bi bi-search me-2"></i>Step 2: Deep Keyword Analyzer
+            </a>
+        </div>
     </div>
+</div>
+{% endblock %}
 
-    <script>
-        let selectedTemplateId = '06_executive_modern';
-        let resumeData = null;
-        let jobId = 'JOB_LOCAL_DEMO';
+{% block scripts %}
+<script>
+    let selectedTemplateId = '06_executive_modern';
+    let resumeData = null;
+    let jobId = 'JOB_LOCAL_DEMO';
 
-        function renderExperienceRoles(expList) {
-            const container = document.getElementById('experienceContainer');
-            container.innerHTML = '';
+    function renderExperienceRoles(expList) {
+        const container = document.getElementById('experienceContainer');
+        container.innerHTML = '';
 
-            if (!expList || expList.length === 0) {
-                container.innerHTML = '<p class="text-muted small fst-italic">No experience roles available.</p>';
-                return;
+        if (!expList || expList.length === 0) {
+            container.innerHTML = '<p class="text-secondary small fst-italic">No experience roles available.</p>';
+            return;
+        }
+
+        expList.forEach((exp, idx) => {
+            const box = document.createElement('div');
+            box.className = 'role-box';
+            const dates = exp.start_date ? `${exp.start_date} – ${exp.end_date || 'Present'}` : '';
+            box.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <strong class="text-dark">${exp.title || 'Role'}</strong>
+                        <span class="text-secondary"> at ${exp.company || 'Company'}</span>
+                        ${exp.location ? `<small class="text-secondary"> (${exp.location})</small>` : ''}
+                    </div>
+                    <span class="badge bg-light text-dark border">${dates}</span>
+                </div>
+                <label for="expBullets_${idx}" class="form-label small text-secondary mb-1">Bullet Points (one per line):</label>
+                <textarea id="expBullets_${idx}" class="form-control font-monospace small exp-bullets-input" data-exp-index="${idx}" aria-label="Bullet Points for ${exp.title || 'Role'}" rows="${Math.max(2, (exp.bullets || []).length + 1)}">${(exp.bullets || []).join('\n')}</textarea>
+            `;
+            container.appendChild(box);
+        });
+    }
+
+    function populateForm(data) {
+        if (!data) return;
+        resumeData = data;
+        document.getElementById('editName').value = (resumeData.contact && resumeData.contact.full_name) || '';
+        document.getElementById('editEmail').value = (resumeData.contact && resumeData.contact.email) || '';
+        document.getElementById('editPhone').value = (resumeData.contact && resumeData.contact.phone) || '';
+        document.getElementById('editLocation').value = (resumeData.contact && resumeData.contact.location) || '';
+        document.getElementById('editSummary').value = resumeData.summary || '';
+        
+        const skillsObj = resumeData.skills || {};
+        const allSkills = [
+            ...(skillsObj.languages || []),
+            ...(skillsObj.frameworks || []),
+            ...(skillsObj.databases || []),
+            ...(skillsObj.cloud_devops || []),
+            ...(skillsObj.tools || [])
+        ];
+        document.getElementById('editSkills').value = Array.from(new Set(allSkills)).join(', ');
+        renderExperienceRoles(resumeData.experience);
+    }
+
+    const savedModuleState = sessionStorage.getItem('chakora_resume_module_state');
+    const tailoredStored = sessionStorage.getItem('tailored_resume');
+    const savedAnalysis = sessionStorage.getItem('current_resume_analysis');
+
+    if (savedModuleState) {
+        try {
+            const s = JSON.parse(savedModuleState);
+            if (s.candidate_name) {
+                document.getElementById('moduleSyncName').textContent = s.candidate_name;
+                document.getElementById('moduleSyncRole').textContent = s.target_role || 'Target Position';
+                document.getElementById('moduleSyncAlert').classList.remove('d-none');
+            }
+            jobId = s.job_id || jobId;
+            const targetResume = s.tailored_resume || s.parsed_resume;
+            if (targetResume) {
+                populateForm(targetResume);
+            }
+        } catch(e) {
+            console.error("Module state load error:", e);
+        }
+    } else if (tailoredStored) {
+        try {
+            populateForm(JSON.parse(tailoredStored));
+        } catch(e) {
+            console.error("Tailored state load error:", e);
+        }
+    } else if (savedAnalysis) {
+        try {
+            const parsed = JSON.parse(savedAnalysis);
+            jobId = parsed.job_id || jobId;
+            const targetResume = parsed.optimized_resume || parsed.parsed_resume;
+            populateForm(targetResume);
+        } catch(e) {
+            console.error("Saved analysis error:", e);
+        }
+    }
+
+    document.querySelectorAll('.template-card').forEach(card => {
+        const chooseTemplate = () => {
+            document.querySelectorAll('.template-card').forEach(c => {
+                c.classList.remove('selected');
+                c.setAttribute('aria-pressed', 'false');
+            });
+            card.classList.add('selected');
+            card.setAttribute('aria-pressed', 'true');
+            selectedTemplateId = card.dataset.templateId || '06_executive_modern';
+        };
+        card.addEventListener('click', chooseTemplate);
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                chooseTemplate();
+            }
+        });
+    });
+
+    function gatherFormData() {
+        if (!resumeData) {
+            resumeData = {
+                contact: {},
+                skills: { languages: [], frameworks: [], databases: [], cloud_devops: [], tools: [], other: [] },
+                experience: [],
+                projects: [],
+                education: [],
+                certifications: []
+            };
+        }
+
+        if (!resumeData.contact) resumeData.contact = {};
+        resumeData.contact.full_name = document.getElementById('editName').value;
+        resumeData.contact.email = document.getElementById('editEmail').value;
+        resumeData.contact.phone = document.getElementById('editPhone').value;
+        resumeData.contact.location = document.getElementById('editLocation').value;
+        resumeData.summary = document.getElementById('editSummary').value;
+
+        const skillsArr = document.getElementById('editSkills').value.split(',').map(s => s.trim()).filter(Boolean);
+        if (!resumeData.skills) resumeData.skills = {};
+        resumeData.skills.languages = skillsArr.slice(0, 4);
+        resumeData.skills.frameworks = skillsArr.slice(4, 8);
+        resumeData.skills.databases = skillsArr.slice(8, 12);
+        resumeData.skills.tools = skillsArr.slice(12);
+
+        document.querySelectorAll('.exp-bullets-input').forEach(textarea => {
+            const idx = parseInt(textarea.dataset.expIndex, 10);
+            if (resumeData.experience && resumeData.experience[idx]) {
+                const bullets = textarea.value.split('\n').map(b => b.trim()).filter(b => b.length > 5);
+                resumeData.experience[idx].bullets = bullets;
+            }
+        });
+
+        return resumeData;
+    }
+
+    document.getElementById('compileBtn').addEventListener('click', async () => {
+        const loading = document.getElementById('builderLoading');
+        const loadingText = document.getElementById('builderLoadingText');
+        const downloadPanel = document.getElementById('downloadPanel');
+        loadingText.textContent = `Compiling ${selectedTemplateId} and validating ATS PDF text extraction...`;
+        loading.classList.remove('d-none');
+        downloadPanel.classList.add('d-none');
+
+        const currentData = gatherFormData();
+
+        try {
+            const res = await fetch('/api/resume/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    job_id: jobId,
+                    template_id: selectedTemplateId,
+                    resume_data: currentData,
+                    user_id: 'anonymous'
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.detail || 'Compilation failed.');
             }
 
-            expList.forEach((exp, idx) => {
-                const box = document.createElement('div');
-                box.className = 'role-box';
-                const dates = exp.start_date ? `${exp.start_date} – ${exp.end_date || 'Present'}` : '';
-                box.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div>
-                            <strong class="text-dark">${exp.title || 'Role'}</strong>
-                            <span class="text-muted"> at ${exp.company || 'Company'}</span>
-                            ${exp.location ? `<small class="text-muted"> (${exp.location})</small>` : ''}
-                        </div>
-                        <span class="badge bg-light text-dark border">${dates}</span>
-                    </div>
-                    <label class="form-label small text-muted mb-1">Bullet Points (one per line):</label>
-                    <textarea class="form-control font-monospace small exp-bullets-input" data-exp-index="${idx}" rows="${Math.max(2, (exp.bullets || []).length + 1)}">${(exp.bullets || []).join('\n')}</textarea>
-                `;
-                container.appendChild(box);
-            });
-        }
+            document.getElementById('btnDownloadPdf').href = data.pdf_download_url;
+            document.getElementById('btnDownloadTex').href = data.tex_download_url;
+            document.getElementById('downloadTitle').textContent = `ATS Resume Compiled Successfully (${selectedTemplateId})`;
+            document.getElementById('downloadSubtitle').textContent = `Reading order, contact facts, and page constraints validated (Structural Score: ${data.structural_score || 98} / 100).`;
+            document.getElementById('builderScoreBadge').textContent = `ATS Score: 98 / 100`;
+            downloadPanel.classList.remove('d-none');
 
-        function populateForm(data) {
-            if (!data) return;
-            resumeData = data;
-            document.getElementById('editName').value = (resumeData.contact && resumeData.contact.full_name) || '';
-            document.getElementById('editEmail').value = (resumeData.contact && resumeData.contact.email) || '';
-            document.getElementById('editPhone').value = (resumeData.contact && resumeData.contact.phone) || '';
-            document.getElementById('editLocation').value = (resumeData.contact && resumeData.contact.location) || '';
-            document.getElementById('editSummary').value = resumeData.summary || '';
-            
-            const skillsObj = resumeData.skills || {};
-            const allSkills = [
-                ...(skillsObj.languages || []),
-                ...(skillsObj.frameworks || []),
-                ...(skillsObj.databases || []),
-                ...(skillsObj.cloud_devops || []),
-                ...(skillsObj.tools || [])
-            ];
-            document.getElementById('editSkills').value = Array.from(new Set(allSkills)).join(', ');
-            renderExperienceRoles(resumeData.experience);
+            sessionStorage.setItem('tailored_resume', JSON.stringify(currentData));
+        } catch (err) {
+            console.error('Compilation error:', err);
+            alert('Generation Error: ' + err.message);
+        } finally {
+            loading.classList.add('d-none');
         }
+    });
 
-        // Check shared module state across the suite
-        const savedModuleState = sessionStorage.getItem('chakora_resume_module_state');
-        const tailoredStored = sessionStorage.getItem('tailored_resume');
-        const savedAnalysis = sessionStorage.getItem('current_resume_analysis');
+    document.getElementById('aiTailorBuilderBtn').addEventListener('click', async () => {
+        const loading = document.getElementById('builderLoading');
+        const loadingText = document.getElementById('builderLoadingText');
+        const downloadPanel = document.getElementById('downloadPanel');
+        loadingText.textContent = "Your AI Buddy is creating your tailored resume and optimizing bullet points...";
+        loading.classList.remove('d-none');
+        downloadPanel.classList.add('d-none');
+
+        let jdText = '';
+        let targetRole = '';
+        let targetCompany = '';
 
         if (savedModuleState) {
             try {
-                const s = JSON.parse(savedModuleState);
-                if (s.candidate_name) {
-                    document.getElementById('moduleSyncName').textContent = s.candidate_name;
-                    document.getElementById('moduleSyncRole').textContent = s.target_role || 'Target Position';
-                    document.getElementById('moduleSyncAlert').classList.remove('d-none');
-                }
-                jobId = s.job_id || jobId;
-                const targetResume = s.tailored_resume || s.parsed_resume;
-                if (targetResume) {
-                    populateForm(targetResume);
-                }
-            } catch(e) {
-                console.error("Module state load error:", e);
-            }
-        } else if (tailoredStored) {
-            try {
-                populateForm(JSON.parse(tailoredStored));
-            } catch(e) {}
-        } else if (savedAnalysis) {
-            try {
-                const parsed = JSON.parse(savedAnalysis);
-                jobId = parsed.job_id || jobId;
-                const targetResume = parsed.optimized_resume || parsed.parsed_resume;
-                populateForm(targetResume);
+                const parsed = JSON.parse(savedModuleState);
+                jdText = parsed.job_description || (parsed.parsed_jd ? parsed.parsed_jd.raw_text : '');
+                targetRole = parsed.target_role || (parsed.parsed_jd ? parsed.parsed_jd.target_role : '');
+                targetCompany = parsed.target_company || (parsed.parsed_jd ? parsed.parsed_jd.target_company : '');
             } catch(e) {
                 console.error(e);
             }
         }
 
-        // Template card selection
-        document.querySelectorAll('.template-card').forEach(card => {
-            card.addEventListener('click', () => {
-                document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
-                card.classList.add('selected');
-                selectedTemplateId = card.getAttribute('data-template-id');
-            });
-        });
-
-        // Collect current form data into resumeData object
-        function gatherFormData() {
-            if (!resumeData) {
-                resumeData = {
-                    contact: {},
-                    skills: { languages: [], frameworks: [], databases: [], cloud_devops: [], tools: [], other: [] },
-                    experience: [],
-                    projects: [],
-                    education: [],
-                    certifications: []
-                };
+        if (!jdText && savedAnalysis) {
+            try {
+                const parsed = JSON.parse(savedAnalysis);
+                jdText = parsed.parsed_jd ? parsed.parsed_jd.raw_text : '';
+                targetRole = parsed.parsed_jd ? parsed.parsed_jd.target_role : '';
+            } catch(e) {
+                console.error(e);
             }
-
-            if (!resumeData.contact) resumeData.contact = {};
-            resumeData.contact.full_name = document.getElementById('editName').value;
-            resumeData.contact.email = document.getElementById('editEmail').value;
-            resumeData.contact.phone = document.getElementById('editPhone').value;
-            resumeData.contact.location = document.getElementById('editLocation').value;
-            resumeData.summary = document.getElementById('editSummary').value;
-
-            const skillsArr = document.getElementById('editSkills').value.split(',').map(s => s.trim()).filter(Boolean);
-            if (!resumeData.skills) resumeData.skills = {};
-            resumeData.skills.languages = skillsArr.slice(0, 4);
-            resumeData.skills.frameworks = skillsArr.slice(4, 8);
-            resumeData.skills.databases = skillsArr.slice(8, 12);
-            resumeData.skills.tools = skillsArr.slice(12);
-
-            // Read updated bullet points from the inputs
-            document.querySelectorAll('.exp-bullets-input').forEach(textarea => {
-                const idx = parseInt(textarea.getAttribute('data-exp-index'), 10);
-                if (resumeData.experience && resumeData.experience[idx]) {
-                    const bullets = textarea.value.split('\n').map(b => b.trim()).filter(b => b.length > 5);
-                    resumeData.experience[idx].bullets = bullets;
-                }
-            });
-
-            return resumeData;
         }
 
-        // Compile button handler
-        document.getElementById('compileBtn').addEventListener('click', async () => {
-            const loading = document.getElementById('builderLoading');
-            const loadingText = document.getElementById('builderLoadingText');
-            const downloadPanel = document.getElementById('downloadPanel');
-            loadingText.textContent = `Compiling ${selectedTemplateId} and validating ATS PDF text extraction...`;
-            loading.classList.remove('d-none');
-            downloadPanel.classList.add('d-none');
-
-            const currentData = gatherFormData();
-
-            try {
-                const res = await fetch('/api/resume/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        job_id: jobId,
-                        template_id: selectedTemplateId,
-                        resume_data: currentData,
-                        user_id: 'anonymous'
-                    })
-                });
-
-                const data = await res.json();
-                if (!res.ok) {
-                    throw new Error(data.detail || 'Compilation failed.');
-                }
-
-                document.getElementById('btnDownloadPdf').href = data.pdf_download_url;
-                document.getElementById('btnDownloadTex').href = data.tex_download_url;
-                document.getElementById('downloadTitle').textContent = `ATS Resume Compiled Successfully (${selectedTemplateId})`;
-                document.getElementById('downloadSubtitle').textContent = `Reading order, contact facts, and page constraints validated (Structural Score: ${data.structural_score || 98} / 100).`;
-                document.getElementById('builderScoreBadge').textContent = `ATS Score: 98 / 100`;
-                downloadPanel.classList.remove('d-none');
-
-                // Sync compiled state
-                sessionStorage.setItem('tailored_resume', JSON.stringify(currentData));
-            } catch (err) {
-                alert('Generation Error: ' + err.message);
-            } finally {
-                loading.classList.add('d-none');
-            }
-        });
-
-        // AI Tailor button handler in builder
-        document.getElementById('aiTailorBuilderBtn').addEventListener('click', async () => {
-            const loading = document.getElementById('builderLoading');
-            const loadingText = document.getElementById('builderLoadingText');
-            const downloadPanel = document.getElementById('downloadPanel');
-            loadingText.textContent = "Your AI Buddy is creating your tailored resume and optimizing bullet points...";
-            loading.classList.remove('d-none');
-            downloadPanel.classList.add('d-none');
-
-            let jdText = '';
-            let targetRole = '';
-            let targetCompany = '';
-
-            if (savedModuleState) {
-                try {
-                    const parsed = JSON.parse(savedModuleState);
-                    jdText = parsed.job_description || (parsed.parsed_jd ? parsed.parsed_jd.raw_text : '');
-                    targetRole = parsed.target_role || (parsed.parsed_jd ? parsed.parsed_jd.target_role : '');
-                    targetCompany = parsed.target_company || (parsed.parsed_jd ? parsed.parsed_jd.target_company : '');
-                } catch(e) {}
-            }
-
-            if (!jdText && savedAnalysis) {
-                try {
-                    const parsed = JSON.parse(savedAnalysis);
-                    jdText = parsed.parsed_jd ? parsed.parsed_jd.raw_text : '';
-                    targetRole = parsed.parsed_jd ? parsed.parsed_jd.target_role : '';
-                } catch(e) {}
-            }
-
+        if (!jdText) {
+            jdText = prompt('Paste target Job Description:');
             if (!jdText) {
-                jdText = prompt('Paste target Job Description:');
-                if (!jdText) {
-                    loading.classList.add('d-none');
-                    return;
-                }
-            }
-
-            const currentData = gatherFormData();
-
-            try {
-                const res = await fetch('/api/resume/tailor', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        job_id: jobId,
-                        resume_data: currentData,
-                        job_description: jdText,
-                        template_id: selectedTemplateId,
-                        target_role: targetRole,
-                        target_company: targetCompany,
-                        user_id: 'anonymous'
-                    })
-                });
-
-                const data = await res.json();
-                if (!res.ok) {
-                    throw new Error(data.detail || 'AI tailoring failed.');
-                }
-
-                if (data.optimized_resume) {
-                    populateForm(data.optimized_resume);
-                    sessionStorage.setItem('tailored_resume', JSON.stringify(data.optimized_resume));
-                    sessionStorage.setItem('chakora_resume_module_state', JSON.stringify({
-                        job_id: data.job_id,
-                        parsed_resume: data.optimized_resume,
-                        job_description: jdText,
-                        target_role: targetRole,
-                        target_company: targetCompany,
-                        candidate_name: data.optimized_resume.contact ? data.optimized_resume.contact.full_name : 'Candidate',
-                        tailored_resume: data.optimized_resume
-                    }));
-                }
-
-                document.getElementById('btnDownloadPdf').href = data.pdf_download_url;
-                document.getElementById('btnDownloadTex').href = data.tex_download_url;
-                document.getElementById('downloadTitle').textContent = `AI-Tailored Resume Compiled (${data.template_name || selectedTemplateId})`;
-                document.getElementById('downloadSubtitle').textContent = `Grounded in original resume facts; XYZ bullets and prioritized skills generated.`;
-                document.getElementById('builderScoreBadge').textContent = `ATS Score: 98 / 100`;
-                downloadPanel.classList.remove('d-none');
-                alert('Success! Your AI Buddy created your tailored resume (ATS Score: 98 / 100). Form updated with tailored bullet points.');
-            } catch (err) {
-                alert('AI Tailoring Error: ' + err.message);
-            } finally {
                 loading.classList.add('d-none');
+                return;
             }
-        });
+        }
 
-        // Load Mahesh Sample button handler
-        document.getElementById('btnLoadMaheshBuilder').addEventListener('click', async () => {
-            const btn = document.getElementById('btnLoadMaheshBuilder');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Loading...';
-            btn.disabled = true;
+        const currentData = gatherFormData();
 
-            try {
-                const res = await fetch('/api/resume/sample-mahesh');
-                const data = await res.json();
-                populateForm(data.sample_resume);
+        try {
+            const res = await fetch('/api/resume/tailor', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    job_id: jobId,
+                    resume_data: currentData,
+                    job_description: jdText,
+                    template_id: selectedTemplateId,
+                    target_role: targetRole,
+                    target_company: targetCompany,
+                    user_id: 'anonymous'
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.detail || 'AI tailoring failed.');
+            }
+
+            if (data.optimized_resume) {
+                populateForm(data.optimized_resume);
+                sessionStorage.setItem('tailored_resume', JSON.stringify(data.optimized_resume));
                 sessionStorage.setItem('chakora_resume_module_state', JSON.stringify({
-                    job_id: 'JOB_SAMPLE_MAHESH',
-                    parsed_resume: data.sample_resume,
-                    job_description: data.sample_jd,
-                    target_role: data.target_role,
-                    target_company: data.target_company,
-                    candidate_name: data.sample_resume.contact.full_name,
-                    tailored_resume: null
+                    job_id: data.job_id,
+                    parsed_resume: data.optimized_resume,
+                    job_description: jdText,
+                    target_role: targetRole,
+                    target_company: targetCompany,
+                    candidate_name: data.optimized_resume.contact ? data.optimized_resume.contact.full_name : 'Candidate',
+                    tailored_resume: data.optimized_resume
                 }));
-                document.getElementById('moduleSyncName').textContent = data.sample_resume.contact.full_name;
-                document.getElementById('moduleSyncRole').textContent = data.target_role;
-                document.getElementById('moduleSyncAlert').classList.remove('d-none');
-                btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Loaded!';
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }, 2000);
-            } catch(e) {
-                alert('Failed loading sample: ' + e.message);
+            }
+
+            document.getElementById('btnDownloadPdf').href = data.pdf_download_url;
+            document.getElementById('btnDownloadTex').href = data.tex_download_url;
+            document.getElementById('downloadTitle').textContent = `AI-Tailored Resume Compiled (${data.template_name || selectedTemplateId})`;
+            document.getElementById('downloadSubtitle').textContent = `Grounded in original resume facts; XYZ bullets and prioritized skills generated.`;
+            document.getElementById('builderScoreBadge').textContent = `ATS Score: 98 / 100`;
+            downloadPanel.classList.remove('d-none');
+            alert('Success! Your AI Buddy created your tailored resume (ATS Score: 98 / 100). Form updated with tailored bullet points.');
+        } catch (err) {
+            console.error('AI tailoring error:', err);
+            alert('AI Tailoring Error: ' + err.message);
+        } finally {
+            loading.classList.add('d-none');
+        }
+    });
+
+    document.getElementById('btnLoadMaheshBuilder').addEventListener('click', async () => {
+        const btn = document.getElementById('btnLoadMaheshBuilder');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Loading...';
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/api/resume/sample-mahesh');
+            const data = await res.json();
+            populateForm(data.sample_resume);
+            sessionStorage.setItem('chakora_resume_module_state', JSON.stringify({
+                job_id: 'JOB_SAMPLE_MAHESH',
+                parsed_resume: data.sample_resume,
+                job_description: data.sample_jd,
+                target_role: data.target_role,
+                target_company: data.target_company,
+                candidate_name: data.sample_resume.contact.full_name,
+                tailored_resume: null
+            }));
+            document.getElementById('moduleSyncName').textContent = data.sample_resume.contact.full_name;
+            document.getElementById('moduleSyncRole').textContent = data.target_role;
+            document.getElementById('moduleSyncAlert').classList.remove('d-none');
+            btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Loaded!';
+            setTimeout(() => {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-            }
-        });
-    </script>
-
-    <!-- ChakoraHub Standard Footer -->
-    <footer class="modern-footer text-center">
-        <div class="container">
-            <p class="mb-1 text-white-50 small">&copy; 2026 ChakoraHub. All rights reserved. | Enterprise AI ATS Suite</p>
-            <small class="text-white-50" style="font-size: 0.75rem;">Simulating Fortune 500 candidate indexing & scoring (Workday, Taleo, Greenhouse, iCIMS)</small>
-        </div>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-</html>
+            }, 2000);
+        } catch(e) {
+            console.error('Failed loading sample:', e);
+            alert('Failed loading sample: ' + e.message);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    });
+</script>
+{% endblock %}
