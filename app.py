@@ -47,42 +47,18 @@ from functools import lru_cache
 DEFAULT_TIMEZONE_NAME = "Asia/Kolkata"
 
 # ================= SERVICE URLS =================
-
-#HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL","http://172.31.26.176:5001")
-#STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL","http://172.31.26.176:8001")
-#MEETING_SERVICE_URL = os.getenv("MEETING_SERVICE_URL","http://172.31.26.176:9000")
-#CHATBOT_SERVICE_URL = os.getenv("CHATBOT_SERVICE_URL","http://172.31.26.176:7600")
-#ASSET_SERVICE_URL = os.getenv("ASSET_SERVICE_URL","http://172.31.26.176:8090")
-#INTERNSHIP_SERVICE_URL = os.getenv("INTERNSHIP_SERVICE_URL","http://172.31.26.176:5050")
-#MS365_SERVICE_URL = os.getenv("MS365_SERVICE_URL","http://172.31.26.176:7700")
-#EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL","http://172.31.26.176:8002")
-#BLOGGER_SERVICE_URL = os.getenv("BLOGGER_SERVICE_URL","http://172.31.26.176:7500")
-#BRS_SERVICE_URL = os.getenv("BRS_SERVICE_URL","http://172.31.26.176:8020")
-#BILLING_SERVICE_URL = os.getenv("BILLING_SERVICE_URL","http://172.31.26.176:8010")
-#STM_INTERNAL_API_KEY = os.getenv("STM_INTERNAL_API_KEY", "").strip()
-#RAG_SERVICE_URL = os.getenv("RAG_SERVICE_URL","http://172.31.26.176:7900")
-#ONBOARDING_SERVICE_URL = os.getenv("ONBOARDING_SERVICE_URL", "http://172.31.26.176:8100")
-OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL","http://172.31.26.176:8500")
-#WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL","http://172.31.26.176:2500").rstrip("/")
+DEFAULT_CHAKORA_DOMAIN = "www.chakorahub.com"
+OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL", "http://172.31.26.176:8500")
 FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
 sf_client = None
-#APPLICATION_SERVICE_URL = os.getenv("https://mobqdeus63.execute-api.eu-north-1.amazonaws.com/Prod", "http://172.31.26.176:8020")
 LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
 STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
 STUDENT_INTERNAL_NO_PROXY = "172.31.26.176"
-INTERNAL_NO_PROXY="172.31.26.176"
-CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
-INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
-'''if os.name == "nt":
-    HOME_SERVICE_URL = os.getenv("HOME_SERVICE_URL", "http://127.0.0.1:5001")
-    STUDENT_SERVICE_URL = os.getenv("STUDENT_SERVICE_URL", "http://127.0.0.1:8001")
-    EMPLOYEE_SERVICE_URL = os.getenv("EMPLOYEE_SERVICE_URL", "http://127.0.0.1:8002")
-    TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://172.31.26.176:8025")
-else:'''
+INTERNAL_NO_PROXY = "172.31.26.176"
+CANONICAL_HOST = os.getenv("CANONICAL_HOST", DEFAULT_CHAKORA_DOMAIN).strip().lower()
+INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST", "api.chakorahub.com").strip().lower()
 TICKET_SERVICE_URL = os.getenv("TICKET_SERVICE_URL", "http://172.31.26.176:8025")
 SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
-#SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
-#_get_runtime_env_value
 
 # ================= LOCAL URL OVERRIDES (COMMENTED OUT FOR EC2) =================
 HOME_SERVICE_URL = "http://127.0.0.1:5001"
@@ -109,7 +85,7 @@ WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL", "http://127.0.0.1:2500").rstrip
 STATIC_CDN = "https://d1pjjckqswt5z7.cloudfront.net"
 STUDENT_INTERNAL_NO_PROXY = "127.0.0.1"
 INTERNAL_NO_PROXY="127.0.0.1"
-CANONICAL_HOST = os.getenv("CANONICAL_HOST","www.chakorahub.com").strip().lower()
+CANONICAL_HOST = os.getenv("CANONICAL_HOST", DEFAULT_CHAKORA_DOMAIN).strip().lower()
 INTERNSHIP_PUBLIC_HOST = os.getenv("INTERNSHIP_PUBLIC_HOST","api.chakorahub.com").strip().lower()
 TICKET_SERVICE_URL = "http://127.0.0.1:8025"
 SUPPORT_SERVICE_URL = TICKET_SERVICE_URL
@@ -118,8 +94,7 @@ sf_client = None
 
 STM_SERVICE_URL = os.environ.get("STM_SERVICE_URL", "http://127.0.0.1:7010")
 STM_INTERNAL_API_KEY = os.environ.get("STM_INTERNAL_API_KEY")  # optional shared secret
-#SESSION_IDLE_TIMEOUT_MINUTES = _get_session_idle_timeout_minutes()
-#_get_runtime_env_value
+
 
 # ================= Global Configurations =================
 

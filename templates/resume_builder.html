@@ -415,30 +415,30 @@
         }
     });
 
-    function resolveTargetJdContext() {
-        if (savedModuleState) {
-            try {
-                const s = JSON.parse(savedModuleState);
-                return {
-                    jdText: s.job_description || (s.parsed_jd ? s.parsed_jd.raw_text : ''),
-                    targetRole: s.target_role || (s.parsed_jd ? s.parsed_jd.target_role : ''),
-                    targetCompany: s.target_company || (s.parsed_jd ? s.parsed_jd.target_company : '')
-                };
-            } catch (err) {
-                console.error("Module state load notice:", err);
-            }
+    function extractFromState(raw) {
+        if (!raw) {
+            return null;
         }
-        if (savedAnalysis) {
-            try {
-                const a = JSON.parse(savedAnalysis);
-                return {
-                    jdText: a.parsed_jd ? a.parsed_jd.raw_text : '',
-                    targetRole: a.parsed_jd ? a.parsed_jd.target_role : '',
-                    targetCompany: a.parsed_jd ? a.parsed_jd.target_company : ''
-                };
-            } catch (err) {
-                console.error("Analysis load notice:", err);
-            }
+        try {
+            const obj = JSON.parse(raw);
+            const jd = obj.parsed_jd || {};
+            const jdText = obj.job_description || jd.raw_text || '';
+            const targetRole = obj.target_role || jd.target_role || '';
+            const targetCompany = obj.target_company || jd.target_company || '';
+            return { jdText, targetRole, targetCompany };
+        } catch {
+            return null;
+        }
+    }
+
+    function resolveTargetJdContext() {
+        const fromModule = extractFromState(savedModuleState);
+        if (fromModule) {
+            return fromModule;
+        }
+        const fromAnalysis = extractFromState(savedAnalysis);
+        if (fromAnalysis) {
+            return fromAnalysis;
         }
         return { jdText: '', targetRole: '', targetCompany: '' };
     }
