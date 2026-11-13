@@ -362,7 +362,7 @@
         resumeData.skills.tools = skillsArr.slice(12);
 
         document.querySelectorAll('.exp-bullets-input').forEach(textarea => {
-            const idx = parseInt(textarea.dataset.expIndex, 10);
+            const idx = Number.parseInt(textarea.dataset.expIndex, 10);
             if (resumeData.experience && resumeData.experience[idx]) {
                 const bullets = textarea.value.split('\n').map(b => b.trim()).filter(b => b.length > 5);
                 resumeData.experience[idx].bullets = bullets;
@@ -415,6 +415,34 @@
         }
     });
 
+    function resolveTargetJdContext() {
+        if (savedModuleState) {
+            try {
+                const s = JSON.parse(savedModuleState);
+                return {
+                    jdText: s.job_description || (s.parsed_jd ? s.parsed_jd.raw_text : ''),
+                    targetRole: s.target_role || (s.parsed_jd ? s.parsed_jd.target_role : ''),
+                    targetCompany: s.target_company || (s.parsed_jd ? s.parsed_jd.target_company : '')
+                };
+            } catch (err) {
+                console.error("Module state load notice:", err);
+            }
+        }
+        if (savedAnalysis) {
+            try {
+                const a = JSON.parse(savedAnalysis);
+                return {
+                    jdText: a.parsed_jd ? a.parsed_jd.raw_text : '',
+                    targetRole: a.parsed_jd ? a.parsed_jd.target_role : '',
+                    targetCompany: a.parsed_jd ? a.parsed_jd.target_company : ''
+                };
+            } catch (err) {
+                console.error("Analysis load notice:", err);
+            }
+        }
+        return { jdText: '', targetRole: '', targetCompany: '' };
+    }
+
     document.getElementById('aiTailorBuilderBtn').addEventListener('click', async () => {
         const loading = document.getElementById('builderLoading');
         const loadingText = document.getElementById('builderLoadingText');
@@ -423,31 +451,8 @@
         loading.classList.remove('d-none');
         downloadPanel.classList.add('d-none');
 
-        let jdText = '';
-        let targetRole = '';
-        let targetCompany = '';
-
-        if (savedModuleState) {
-            try {
-                const parsed = JSON.parse(savedModuleState);
-                jdText = parsed.job_description || (parsed.parsed_jd ? parsed.parsed_jd.raw_text : '');
-                targetRole = parsed.target_role || (parsed.parsed_jd ? parsed.parsed_jd.target_role : '');
-                targetCompany = parsed.target_company || (parsed.parsed_jd ? parsed.parsed_jd.target_company : '');
-            } catch(e) {
-                console.error(e);
-            }
-        }
-
-        if (!jdText && savedAnalysis) {
-            try {
-                const parsed = JSON.parse(savedAnalysis);
-                jdText = parsed.parsed_jd ? parsed.parsed_jd.raw_text : '';
-                targetRole = parsed.parsed_jd ? parsed.parsed_jd.target_role : '';
-            } catch(e) {
-                console.error(e);
-            }
-        }
-
+        const ctx = resolveTargetJdContext();
+        let jdText = ctx.jdText;
         if (!jdText) {
             jdText = prompt('Paste target Job Description:');
             if (!jdText) {
@@ -456,6 +461,8 @@
             }
         }
 
+        const targetRole = ctx.targetRole;
+        const targetCompany = ctx.targetCompany;
         const currentData = gatherFormData();
 
         try {

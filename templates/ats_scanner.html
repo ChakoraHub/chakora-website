@@ -12,6 +12,9 @@
         text-align: center;
         transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
         background: #f8fafc;
+        width: 100%;
+        display: block;
+        margin-bottom: 0;
     }
 
     .ats-engine-card:hover,
@@ -21,12 +24,19 @@
         outline: none;
     }
 
+    .btn-check:checked + .ats-engine-card,
     .ats-engine-card.selected {
         border-color: var(--primary-color);
         background: #e0f2fe;
         font-weight: 700;
         color: #0369a1;
         box-shadow: 0 0 0 3px rgba(0, 120, 215, 0.2);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .ats-engine-card {
+            transition: none !important;
+        }
     }
 
     .table-matrix td, .table-matrix th {
@@ -59,46 +69,53 @@
 
     <form id="atsScanForm">
         <!-- Step 1: Select ATS Engine -->
-        <span class="form-label fw-bold small text-muted text-uppercase mb-2 d-block" id="atsEngineGroupLabel">Step 1: Select Target ATS Engine</span>
-        <div class="row g-2 mb-4" role="radiogroup" aria-labelledby="atsEngineGroupLabel">
-            <div class="col-4 col-md-2">
-                <div class="ats-engine-card selected" data-engine="Workday" role="radio" aria-checked="true" tabindex="0" aria-label="Workday ATS Engine">
-                    <i class="bi bi-building fs-4 text-primary d-block mb-1"></i>
-                    <span class="small">Workday</span>
+        <fieldset class="mb-4 border-0 p-0 m-0">
+            <legend class="form-label fw-bold small text-muted text-uppercase mb-2 d-block p-0">Step 1: Select Target ATS Engine</legend>
+            <div class="row g-2">
+                <div class="col-4 col-md-2">
+                    <input type="radio" class="btn-check" name="ats_engine" id="engineWorkday" value="Workday" checked>
+                    <label class="ats-engine-card" for="engineWorkday">
+                        <i class="bi bi-building fs-4 text-primary d-block mb-1"></i>
+                        <span class="small">Workday</span>
+                    </label>
+                </div>
+                <div class="col-4 col-md-2">
+                    <input type="radio" class="btn-check" name="ats_engine" id="engineTaleo" value="Oracle Taleo">
+                    <label class="ats-engine-card" for="engineTaleo">
+                        <i class="bi bi-layers-fill fs-4 text-danger d-block mb-1"></i>
+                        <span class="small">Oracle Taleo</span>
+                    </label>
+                </div>
+                <div class="col-4 col-md-2">
+                    <input type="radio" class="btn-check" name="ats_engine" id="engineGreenhouse" value="Greenhouse">
+                    <label class="ats-engine-card" for="engineGreenhouse">
+                        <i class="bi bi-tree-fill fs-4 text-success d-block mb-1"></i>
+                        <span class="small">Greenhouse</span>
+                    </label>
+                </div>
+                <div class="col-4 col-md-2">
+                    <input type="radio" class="btn-check" name="ats_engine" id="engineLever" value="Lever">
+                    <label class="ats-engine-card" for="engineLever">
+                        <i class="bi bi-sliders fs-4 text-info d-block mb-1"></i>
+                        <span class="small">Lever</span>
+                    </label>
+                </div>
+                <div class="col-4 col-md-2">
+                    <input type="radio" class="btn-check" name="ats_engine" id="engineIcims" value="iCIMS">
+                    <label class="ats-engine-card" for="engineIcims">
+                        <i class="bi bi-diagram-3-fill fs-4 text-warning d-block mb-1"></i>
+                        <span class="small">iCIMS</span>
+                    </label>
+                </div>
+                <div class="col-4 col-md-2">
+                    <input type="radio" class="btn-check" name="ats_engine" id="engineGeneral" value="General ATS">
+                    <label class="ats-engine-card" for="engineGeneral">
+                        <i class="bi bi-shield-lock-fill fs-4 text-secondary d-block mb-1"></i>
+                        <span class="small">General ATS</span>
+                    </label>
                 </div>
             </div>
-            <div class="col-4 col-md-2">
-                <div class="ats-engine-card" data-engine="Oracle Taleo" role="radio" aria-checked="false" tabindex="0" aria-label="Oracle Taleo ATS Engine">
-                    <i class="bi bi-layers-fill fs-4 text-danger d-block mb-1"></i>
-                    <span class="small">Oracle Taleo</span>
-                </div>
-            </div>
-            <div class="col-4 col-md-2">
-                <div class="ats-engine-card" data-engine="Greenhouse" role="radio" aria-checked="false" tabindex="0" aria-label="Greenhouse ATS Engine">
-                    <i class="bi bi-tree-fill fs-4 text-success d-block mb-1"></i>
-                    <span class="small">Greenhouse</span>
-                </div>
-            </div>
-            <div class="col-4 col-md-2">
-                <div class="ats-engine-card" data-engine="Lever" role="radio" aria-checked="false" tabindex="0" aria-label="Lever ATS Engine">
-                    <i class="bi bi-sliders fs-4 text-info d-block mb-1"></i>
-                    <span class="small">Lever</span>
-                </div>
-            </div>
-            <div class="col-4 col-md-2">
-                <div class="ats-engine-card" data-engine="iCIMS" role="radio" aria-checked="false" tabindex="0" aria-label="iCIMS ATS Engine">
-                    <i class="bi bi-diagram-3-fill fs-4 text-warning d-block mb-1"></i>
-                    <span class="small">iCIMS</span>
-                </div>
-            </div>
-            <div class="col-4 col-md-2">
-                <div class="ats-engine-card" data-engine="General ATS" role="radio" aria-checked="false" tabindex="0" aria-label="General Corporate ATS Engine">
-                    <i class="bi bi-shield-lock-fill fs-4 text-secondary d-block mb-1"></i>
-                    <span class="small">General ATS</span>
-                </div>
-            </div>
-        </div>
-        <input type="hidden" name="ats_engine" id="selectedEngineInput" value="Workday">
+        </fieldset>
 
         <!-- Step 2: Upload Resume & Job Description -->
         <div class="row g-4 mb-4">
@@ -346,25 +363,7 @@
         }
     }
 
-    // Engine card selection
-    document.querySelectorAll('.ats-engine-card').forEach(card => {
-        const selectEngine = () => {
-            document.querySelectorAll('.ats-engine-card').forEach(c => {
-                c.classList.remove('selected');
-                c.setAttribute('aria-checked', 'false');
-            });
-            card.classList.add('selected');
-            card.setAttribute('aria-checked', 'true');
-            document.getElementById('selectedEngineInput').value = card.dataset.engine || 'Workday';
-        };
-        card.addEventListener('click', selectEngine);
-        card.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                selectEngine();
-            }
-        });
-    });
+    // Engine selection handled natively via input[name="ats_engine"]
 
     // File upload trigger
     dropZone.addEventListener('click', () => fileInput.click());

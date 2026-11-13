@@ -113,10 +113,11 @@
         }
 
         .nav-pill-btn.active {
-            background: linear-gradient(135deg, #0078D7 0%, #005a9e 100%);
+            background-color: #004578;
+            background: linear-gradient(135deg, #005a9e 0%, #004578 100%);
             color: #ffffff;
-            border-color: #0078D7;
-            box-shadow: 0 4px 12px rgba(0, 120, 215, 0.25);
+            border-color: #004578;
+            box-shadow: 0 4px 12px rgba(0, 69, 120, 0.25);
         }
 
         .page-container {
@@ -154,7 +155,8 @@
         }
 
         .btn-brand {
-            background: linear-gradient(135deg, #0078D7 0%, #005a9e 100%);
+            background-color: #004578;
+            background: linear-gradient(135deg, #005a9e 0%, #004578 100%);
             color: #ffffff;
             border: none;
             padding: 12px 30px;
@@ -168,7 +170,14 @@
         .btn-brand:focus {
             transform: translateY(-2px);
             color: #ffffff;
-            box-shadow: 0 8px 25px rgba(0, 120, 215, 0.35);
+            box-shadow: 0 8px 25px rgba(0, 69, 120, 0.35);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .btn-brand, .drop-zone, .nav-pill-btn {
+                transition: none !important;
+                transform: none !important;
+            }
         }
 
         .score-circle {
@@ -240,7 +249,7 @@
     <nav class="navbar navbar-expand-lg modern-header" aria-label="Main site navigation">
         <div class="container-fluid px-4">
             <a class="navbar-brand" href="/" aria-label="ChakoraHub Home">
-                <img src="/static/images/logo.png" alt="ChakoraHub Logo" class="logo-img" onerror="this.style.display='none'">
+                <img src="/static/images/logo.png" alt="ChakoraHub Logo" class="logo-img">
                 ChakoraHub
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"

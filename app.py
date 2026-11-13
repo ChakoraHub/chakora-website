@@ -65,7 +65,6 @@ DEFAULT_TIMEZONE_NAME = "Asia/Kolkata"
 OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL","http://172.31.26.176:8500")
 #WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL","http://172.31.26.176:2500").rstrip("/")
 FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
-RESUME_SERVICE_URL = os.getenv("RESUME_SERVICE_URL", "http://127.0.0.1:8200").rstrip("/")
 sf_client = None
 #APPLICATION_SERVICE_URL = os.getenv("https://mobqdeus63.execute-api.eu-north-1.amazonaws.com/Prod", "http://172.31.26.176:8020")
 LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
@@ -5846,6 +5845,7 @@ def proxy_onboarding_health():
 # ==========================================
 # ATS RESUME ANALYZER & GENERATOR ROUTES
 # ==========================================
+RESUME_SERVICE_URL = os.getenv("RESUME_SERVICE_URL", "http://127.0.0.1:8200").rstrip("/")
 RESUME_ALLOWED_STATIC_ROUTES = {
     "analyze": "/api/resume/analyze",
     "scan-ats": "/api/resume/scan-ats",
