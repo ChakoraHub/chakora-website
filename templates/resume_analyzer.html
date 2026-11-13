@@ -64,12 +64,12 @@
             <!-- Left: Resume Upload -->
             <div class="col-md-5">
                 <label for="resumeFileInput" class="form-label fw-bold small text-muted text-uppercase">1. Upload Candidate Resume</label>
-                <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Drop candidate resume or click to upload">
+                <button type="button" class="drop-zone w-100 text-center" id="dropZone" aria-label="Drop candidate resume or click to upload">
                     <i class="bi bi-file-earmark-arrow-up text-primary" style="font-size: 2.8rem;"></i>
-                    <h6 class="fw-bold mt-2 mb-1" id="fileNameLabel">Upload Resume (PDF or DOCX)</h6>
-                    <p class="text-secondary small mb-0">Click to select or drag & drop file here</p>
+                    <span class="h6 fw-bold mt-2 mb-1 d-block" id="fileNameLabel">Upload Resume (PDF or DOCX)</span>
+                    <span class="text-secondary small mb-0 d-block">Click to select or drag & drop file here</span>
                     <input type="file" id="resumeFileInput" name="resume" accept=".pdf,.docx" class="d-none" aria-label="Candidate Resume File">
-                </div>
+                </button>
             </div>
 
             <!-- Right: Job Description -->

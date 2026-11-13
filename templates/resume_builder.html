@@ -12,6 +12,11 @@
         transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
         background: #ffffff;
         height: 100%;
+        width: 100%;
+        text-align: left;
+        color: inherit;
+        display: block;
+        font-family: inherit;
     }
 
     .template-card:hover,
@@ -64,7 +69,7 @@
     <h5 class="fw-bold mb-3"><i class="bi bi-grid-1x2 me-2 text-primary"></i>Step 1: Choose Audited ATS Template</h5>
     <div class="row g-3 mb-4">
         <div class="col-md-4">
-            <div class="template-card" data-template-id="01_classic_professional" role="button" tabindex="0" aria-pressed="false" aria-label="Template 1 Classic Professional">
+            <button type="button" class="template-card" data-template-id="01_classic_professional" aria-pressed="false" aria-label="Template 1 Classic Professional">
                 <div class="d-flex justify-content-between align-items-start">
                     <h6 class="fw-bold text-dark mb-1">1. Classic Professional</h6>
                     <span class="badge bg-secondary">HARVARD</span>
@@ -72,10 +77,10 @@
                 <p class="small text-secondary mb-2">Traditional serif layout with uppercase headers, horizontal dividing rules, and right-aligned dates.</p>
                 <small class="text-primary fw-semibold d-block">Finance, Consulting, Operations</small>
                 <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 98 / 100 (Harvard Standard)</div>
-            </div>
+            </button>
         </div>
         <div class="col-md-4">
-            <div class="template-card" data-template-id="02_technical_skills_forward" role="button" tabindex="0" aria-pressed="false" aria-label="Template 2 Technical Skills Forward">
+            <button type="button" class="template-card" data-template-id="02_technical_skills_forward" aria-pressed="false" aria-label="Template 2 Technical Skills Forward">
                 <div class="d-flex justify-content-between align-items-start">
                     <h6 class="fw-bold text-dark mb-1">2. Technical Skills-Forward</h6>
                     <span class="badge bg-primary">TECH</span>
@@ -83,10 +88,10 @@
                 <p class="small text-secondary mb-2">Clean sans-serif layout putting skills categories and projects first to maximize keyword hits.</p>
                 <small class="text-primary fw-semibold d-block">Developers, Data Scientists, DevOps</small>
                 <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 99 / 100 (Tech Navy Standard)</div>
-            </div>
+            </button>
         </div>
         <div class="col-md-4">
-            <div class="template-card" data-template-id="03_experience_first" role="button" tabindex="0" aria-pressed="false" aria-label="Template 3 Experience First">
+            <button type="button" class="template-card" data-template-id="03_experience_first" aria-pressed="false" aria-label="Template 3 Experience First">
                 <div class="d-flex justify-content-between align-items-start">
                     <h6 class="fw-bold text-dark mb-1">3. Experience-First</h6>
                     <span class="badge bg-dark">EXECUTIVE</span>
@@ -94,10 +99,10 @@
                 <p class="small text-secondary mb-2">Prioritizes chronological work history and verified business impact metrics with compact margins.</p>
                 <small class="text-primary fw-semibold d-block">Senior Engineers, Leads, 5+ Years Exp</small>
                 <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 98 / 100 (Executive Obsidian)</div>
-            </div>
+            </button>
         </div>
         <div class="col-md-4">
-            <div class="template-card" data-template-id="04_early_career_projects" role="button" tabindex="0" aria-pressed="false" aria-label="Template 4 Early Career and Projects">
+            <button type="button" class="template-card" data-template-id="04_early_career_projects" aria-pressed="false" aria-label="Template 4 Early Career and Projects">
                 <div class="d-flex justify-content-between align-items-start">
                     <h6 class="fw-bold text-dark mb-1">4. Early Career & Projects</h6>
                     <span class="badge bg-info text-dark">ACADEMIC</span>
@@ -105,10 +110,10 @@
                 <p class="small text-secondary mb-2">Highlights coursework, academic background, and personal project evidence first.</p>
                 <small class="text-primary fw-semibold d-block">Graduates, Interns, Career Changers</small>
                 <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 97 / 100 (Academic Standard)</div>
-            </div>
+            </button>
         </div>
         <div class="col-md-4">
-            <div class="template-card" data-template-id="05_concise_two_page_ready" role="button" tabindex="0" aria-pressed="false" aria-label="Template 5 Concise Content Dense">
+            <button type="button" class="template-card" data-template-id="05_concise_two_page_ready" aria-pressed="false" aria-label="Template 5 Concise Content Dense">
                 <div class="d-flex justify-content-between align-items-start">
                     <h6 class="fw-bold text-dark mb-1">5. Concise Content-Dense</h6>
                     <span class="badge bg-warning text-dark">DENSE</span>
@@ -116,10 +121,10 @@
                 <p class="small text-secondary mb-2">Compact 0.5" margins and refined leading cleanly presenting dense achievements.</p>
                 <small class="text-primary fw-semibold d-block">Multi-project & Two-Page Ready</small>
                 <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 98 / 100 (Silicon Valley Density)</div>
-            </div>
+            </button>
         </div>
         <div class="col-md-4">
-            <div class="template-card selected" data-template-id="06_executive_modern" role="button" tabindex="0" aria-pressed="true" aria-label="Template 6 Executive Modern">
+            <button type="button" class="template-card selected" data-template-id="06_executive_modern" aria-pressed="true" aria-label="Template 6 Executive Modern">
                 <div class="d-flex justify-content-between align-items-start">
                     <h6 class="fw-bold text-dark mb-1">6. Executive Modern</h6>
                     <span class="badge bg-success">RECOMMENDED</span>
@@ -127,7 +132,7 @@
                 <p class="small text-secondary mb-2">Centered clean header, bold section titles with full-width divider rules, and pipe-separated job entries.</p>
                 <small class="text-primary fw-semibold d-block">Technical Specialists, Trainers, Architects</small>
                 <div class="mt-2 text-success small fw-bold"><i class="bi bi-shield-check me-1"></i>ATS Score: 98 / 100 (Mahesh Specialist Layout)</div>
-            </div>
+            </button>
         </div>
     </div>
 
@@ -319,7 +324,7 @@
     }
 
     document.querySelectorAll('.template-card').forEach(card => {
-        const chooseTemplate = () => {
+        card.addEventListener('click', () => {
             document.querySelectorAll('.template-card').forEach(c => {
                 c.classList.remove('selected');
                 c.setAttribute('aria-pressed', 'false');
@@ -327,13 +332,6 @@
             card.classList.add('selected');
             card.setAttribute('aria-pressed', 'true');
             selectedTemplateId = card.dataset.templateId || '06_executive_modern';
-        };
-        card.addEventListener('click', chooseTemplate);
-        card.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                chooseTemplate();
-            }
         });
     });
 

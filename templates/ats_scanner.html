@@ -104,12 +104,12 @@
         <div class="row g-4 mb-4">
             <div class="col-md-5">
                 <label for="scannerFileInput" class="form-label fw-bold small text-muted text-uppercase">Step 2: Upload Candidate Resume</label>
-                <div class="drop-zone" id="scannerDropZone" role="button" tabindex="0" aria-label="Drop candidate resume file or click to browse">
+                <button type="button" class="drop-zone w-100 text-center" id="scannerDropZone" aria-label="Drop candidate resume file or click to browse">
                     <i class="bi bi-file-earmark-arrow-up text-primary" style="font-size: 2.8rem;"></i>
-                    <h6 class="fw-bold mt-2 mb-1">Upload Resume (PDF or DOCX)</h6>
-                    <p class="text-secondary small mb-0" id="scannerFileName">Click to browse or drag and drop file here</p>
+                    <span class="h6 fw-bold mt-2 mb-1 d-block">Upload Resume (PDF or DOCX)</span>
+                    <span class="text-secondary small mb-0 d-block" id="scannerFileName">Click to browse or drag and drop file here</span>
                     <input type="file" id="scannerFileInput" name="resume" accept=".pdf,.docx,.doc" class="d-none" aria-label="Candidate Resume File">
-                </div>
+                </button>
             </div>
 
             <div class="col-md-7">
