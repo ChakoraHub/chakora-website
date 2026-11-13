@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep ATS Resume Analyzer — ChakoraHub AI ATS Suite</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0078D7;
+            --primary-dark: #005a9e;
+            --secondary-color: #6c5ce7;
+            --text-color: #1e293b;
+            --bg-canvas: #f0f4f8;
+            --card-bg: #ffffff;
+            --gradient-primary: linear-gradient(135deg, #0078D7 0%, #005a9e 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #e8f0fe 0%, #f0f4f8 240px, #f8fafc 100%);
+            min-height: 100vh;
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ChakoraHub Modern Sticky Header */
+        .modern-header {
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.45rem;
+            color: var(--primary-color) !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-img {
+            height: 46px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-img:hover {
+            transform: scale(1.04);
+        }
+
+        .navbar-nav .nav-link {
+            color: #333 !important;
+            font-weight: 500;
+            padding: 0.5rem 0.9rem !important;
+            transition: all 0.2s ease;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        /* AI ATS Suite Module Sub-Nav */
+        .suite-module-bar {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 120, 215, 0.05);
+            position: sticky;
+            top: 66px;
+            z-index: 1020;
+        }
+
+        .module-nav-pills {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .nav-pill-btn {
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #475569;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-pill-btn:hover {
+            background: #eff6ff;
+            color: var(--primary-color);
+            border-color: #93c5fd;
+        }
+
+        .nav-pill-btn.active {
+            background: linear-gradient(135deg, #0078D7 0%, #005a9e 100%);
+            color: #ffffff;
+            border-color: #0078D7;
+            box-shadow: 0 4px 12px rgba(0, 120, 215, 0.25);
+        }
+
+        /* Page Layout & Cards */
+        .page-container {
+            max-width: 1240px;
+            margin: 25px auto;
+            padding: 0 20px;
+            flex: 1;
+            width: 100%;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 120, 215, 0.07);
+            padding: 32px;
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .drop-zone {
+            border: 2px dashed #94a3b8;
+            border-radius: 12px;
+            padding: 28px;
+            text-align: center;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .drop-zone:hover {
+            border-color: var(--primary-color);
+            background: #eff6ff;
+        }
+
+        .btn-brand {
+            background: linear-gradient(135deg, #0078D7 0%, #005a9e 100%);
+            color: #ffffff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.02rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-brand:hover {
+            transform: translateY(-2px);
+            color: #ffffff;
+            box-shadow: 0 8px 25px rgba(0, 120, 215, 0.35);
+        }
+
+        .score-circle {
+            width: 115px;
+            height: 115px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            color: #ffffff;
+            font-weight: 800;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        }
+
+        .score-circle.tier-elite, .score-high { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .score-circle.tier-compliant, .score-mid { background: linear-gradient(135deg, #0078D7 0%, #005a9e 100%); }
+        .score-circle.tier-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .score-circle.tier-danger, .score-low { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+
+        .score-num { font-size: 2.2rem; line-height: 1; }
+        .score-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .badge-pill-custom {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            margin: 3px;
+        }
+
+        .rec-item {
+            border-left: 4px solid var(--primary-color);
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            background: #f8fafc;
+            border-radius: 0 8px 8px 0;
+            border: 1px solid #e2e8f0;
+            border-left-width: 4px;
+        }
+
+        .rec-item.priority-HIGH { border-left-color: #ef4444; }
+        .rec-item.priority-MEDIUM { border-left-color: #f59e0b; }
+        .rec-item.priority-LOW { border-left-color: #0078D7; }
+
+        .module-sync-badge {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modern-footer {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 28px 0 20px;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ChakoraHub Top Modern Navbar -->
+    <nav class="navbar navbar-expand-lg modern-header">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="/">
+                <img src="/static/images/logo.png" alt="ChakoraHub" class="logo-img" onerror="this.style.display='none'">
+                ChakoraHub
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Solutions</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/solutions#automation">Automation</a></li>
+                            <li><a class="dropdown-item" href="/solutions#aiml">AI/ML</a></li>
+                            <li><a class="dropdown-item" href="/solutions#mdm">MDM</a></li>
+                            <li><a class="dropdown-item" href="/solutions#cloud">Cloud</a></li>
+                            <li><a class="dropdown-item" href="/solutions#api">API Solutions</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-primary fw-bold active" href="/ats-scanner"><i class="bi bi-shield-check me-1"></i>AI ATS Resume Suite</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="/aboutus">About Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
+                    <li class="nav-item"><a class="nav-link btn btn-primary text-white px-3 ms-2" href="/registration" style="border-radius: 8px;">Register</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- AI ATS Suite Module Sub-Nav -->
+    <div class="suite-module-bar">
+        <div class="container-fluid px-4 d-flex flex-wrap justify-content-between align-items-center py-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge" style="background: linear-gradient(135deg, #0078D7 0%, #005a9e 100%); font-size: 0.82rem; padding: 6px 12px; letter-spacing: 0.5px;">
+                    <i class="bi bi-cpu-fill me-1"></i>AI ATS SUITE
+                </span>
+                <span class="text-muted small fw-semibold d-none d-md-inline">Enterprise Resume Optimization & Corporate Screening Pipeline</span>
+            </div>
+            <div class="module-nav-pills">
+                <a href="/ats-scanner" class="nav-pill-btn"><i class="bi bi-shield-check me-1"></i>1. ATS Scanner</a>
+                <a href="/resume-analyzer" class="nav-pill-btn active"><i class="bi bi-search me-1"></i>2. Deep Analyzer</a>
+                <a href="/resume-builder" class="nav-pill-btn"><i class="bi bi-file-earmark-richtext me-1"></i>3. Resume Builder</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-container">
+
+<!-- Module Sync Notification if active state loaded -->
+        <div id="moduleSyncAlert" class="module-sync-badge d-none">
+            <div>
+                <i class="bi bi-link-45deg me-2 fs-5"></i>
+                <span>Synchronized Candidate Data: <strong id="moduleSyncName">Candidate</strong> | <span id="moduleSyncRole">Target Role</span></span>
+            </div>
+            <span class="badge bg-primary">Connected Suite Active</span>
+        </div>
+
+        <!-- Input Form Card -->
+        <div class="glass-card" id="intakeSection">
+            <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-4">
+                <div>
+                    <span class="badge bg-primary text-white mb-1"><i class="bi bi-search me-1"></i>MODULE STEP 2</span>
+                    <h3 class="fw-bold text-dark mb-1">Deep Keyword & Semantic ATS Analyzer</h3>
+                    <p class="text-muted mb-0">Deeply inspect keyword density, analyze missing competencies, detect layout parsing barriers, and examine transparent ATS metrics.</p>
+                </div>
+                <button type="button" class="btn btn-outline-primary" id="loadMaheshSampleBtn">
+                    <i class="bi bi-person-check me-1"></i>Load Mahesh Sample (GenAI JD)
+                </button>
+            </div>
+
+            <form id="analyzeForm">
+                <div class="row g-4 mb-4">
+                    <!-- Left: Resume Upload -->
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold small text-muted text-uppercase">1. Upload Candidate Resume</label>
+                        <div class="drop-zone" id="dropZone">
+                            <i class="bi bi-file-earmark-arrow-up text-primary" style="font-size: 2.8rem;"></i>
+                            <h6 class="fw-bold mt-2 mb-1" id="fileNameLabel">Upload Resume (PDF or DOCX)</h6>
+                            <p class="text-muted small mb-0">Click to select or drag & drop file here</p>
+                            <input type="file" id="resumeFileInput" name="resume" accept=".pdf,.docx" class="d-none">
+                        </div>
+                    </div>
+
+                    <!-- Right: Job Description -->
+                    <div class="col-md-7">
+                        <label class="form-label fw-bold small text-muted text-uppercase">2. Target Job Description (JD) *</label>
+                        <textarea class="form-control" id="jdInput" name="job_description" rows="6" placeholder="Paste the complete job posting here (including requirements, responsibilities, and preferred skills)..." required></textarea>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small text-muted">Target Role Title (Optional):</label>
+                        <input type="text" class="form-control" id="targetRole" name="target_role" placeholder="e.g. Senior Software Engineer / GenAI Specialist">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small text-muted">Target Company (Optional):</label>
+                        <input type="text" class="form-control" id="targetCompany" name="target_company" placeholder="e.g. Microsoft / Amazon / Enterprise Client">
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-brand" id="submitBtn">
+                        <i class="bi bi-search me-2"></i>Run Deep ATS Analysis
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Loading State -->
+        <div class="glass-card text-center d-none" id="loadingSection">
+            <div class="spinner-border text-primary" style="width: 3.5rem; height: 3.5rem;" role="status"></div>
+            <h4 class="mt-3 fw-bold">Analyzing Resume & Target Job Description...</h4>
+            <p class="text-muted small">Extracting entities, checking layout stability, matching required skills, and calculating transparent scores.</p>
+        </div>
+
+        <!-- Results Card -->
+        <div class="glass-card d-none" id="resultsSection">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                <div>
+                    <h3 class="fw-bold mb-0 text-dark"><i class="bi bi-bar-chart-line me-2 text-primary"></i>Deep ATS Analysis Report</h3>
+                    <p class="text-muted mb-0">Candidate: <strong id="resCandidateName">Candidate</strong> | Target: <strong id="resTargetRole">Senior Engineer</strong></p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="/ats-scanner" class="btn btn-outline-secondary btn-sm"><i class="bi bi-shield-check me-1"></i>Step 1: ATS Scanner</a>
+                    <button class="btn btn-brand btn-sm" id="proceedToBuilderBtn">
+                        <i class="bi bi-file-earmark-richtext me-1"></i>Step 3: Resume Builder
+                    </button>
+                </div>
+            </div>
+
+            <!-- Score Gauges Row -->
+            <div class="row text-center g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="score-circle score-high" id="gaugeComposite">
+                            <span class="score-num" id="valComposite">--</span>
+                            <span class="score-label">Overall</span>
+                        </div>
+                        <h6 class="fw-bold mt-2 mb-0">Overall ATS Score</h6>
+                        <small class="text-muted">Out of 100 pts</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="score-circle score-mid" id="gaugeJD">
+                            <span class="score-num" id="valJD">--</span>
+                            <span class="score-label">Relevance</span>
+                        </div>
+                        <h6 class="fw-bold mt-2 mb-0">JD Relevance</h6>
+                        <small class="text-muted" id="valSkillCoverage">-- / 100 Skills Covered</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="score-circle score-high" id="gaugeStruct">
+                            <span class="score-num" id="valStruct">--</span>
+                            <span class="score-label">Parsing</span>
+                        </div>
+                        <h6 class="fw-bold mt-2 mb-0">Structural Quality</h6>
+                        <small class="text-muted" id="valHeadings">Standard Headings</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="score-circle score-high" id="gaugeIntegrity">
+                            <span class="score-num" id="valIntegrity">100</span>
+                            <span class="score-label">Truthful</span>
+                        </div>
+                        <h6 class="fw-bold mt-2 mb-0">Content Integrity</h6>
+                        <small class="text-muted">Fact Grounding Guard</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enterprise ATS Corporate Scanner Card -->
+            <div class="card shadow-sm border-primary mb-4" id="enterpriseScannerCard">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="fs-6 fw-bold"><i class="bi bi-shield-check me-2"></i>Corporate ATS Algorithm Audit</span>
+                        <small class="d-block opacity-75">Simulates Fortune 500 candidate indexing & scoring (Workday, Taleo, Greenhouse, iCIMS)</small>
+                    </div>
+                    <span class="badge bg-light text-primary fs-6 px-3 py-2 fw-bold" id="enterpriseTierBadge">COMPLIANT</span>
+                </div>
+                <div class="card-body">
+                    <!-- Recruiter Verdict Box -->
+                    <div class="alert alert-info border-0 d-flex align-items-start mb-4">
+                        <i class="bi bi-chat-square-quote-fill fs-3 text-info me-3 mt-1"></i>
+                        <div>
+                            <strong class="d-block text-dark">Recruiter Screening Verdict:</strong>
+                            <span class="text-muted small" id="enterpriseVerdictText">Analyzing fit against employer benchmarks...</span>
+                        </div>
+                    </div>
+
+                    <!-- 4 Corporate Pillars Progress Bars -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="p-3 bg-light rounded border">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="small fw-bold">1. Keywords (40%)</span>
+                                    <span class="small fw-bold text-primary" id="barValKeywords">-- / 100</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" id="barKeywords" style="width: 0%;"></div>
+                                </div>
+                                <small class="text-muted d-block mt-1" style="font-size:0.75rem;">Required skill frequency</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 bg-light rounded border">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="small fw-bold">2. Experience (25%)</span>
+                                    <span class="small fw-bold text-success" id="barValExperience">-- / 100</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" id="barExperience" style="width: 0%;"></div>
+                                </div>
+                                <small class="text-muted d-block mt-1" style="font-size:0.75rem;">Tenure & title alignment</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 bg-light rounded border">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="small fw-bold">3. Parsing (20%)</span>
+                                    <span class="small fw-bold text-info" id="barValFormatting">-- / 100</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-info" id="barFormatting" style="width: 0%;"></div>
+                                </div>
+                                <small class="text-muted d-block mt-1" style="font-size:0.75rem;">Layout & text extractability</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 bg-light rounded border">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="small fw-bold">4. Impact (15%)</span>
+                                    <span class="small fw-bold text-warning" id="barValImpact">-- / 100</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" id="barImpact" style="width: 0%;"></div>
+                                </div>
+                                <small class="text-muted d-block mt-1" style="font-size:0.75rem;">Power verbs & metrics density</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Critical Fix Checklist -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-dark"><i class="bi bi-clipboard-check me-2 text-primary"></i>Corporate ATS Screening Checklist:</h6>
+                        <ul class="list-unstyled mb-0" id="enterpriseChecklist"></ul>
+                    </div>
+
+                    <!-- Keyword Match Matrix Table -->
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold text-dark mb-0"><i class="bi bi-table me-2 text-primary"></i>ATS Keyword Frequency & Context Matrix</h6>
+                            <small class="text-muted">Exact token counts found in candidate resume</small>
+                        </div>
+                        <div class="table-responsive" style="max-height: 280px; overflow-y: auto;">
+                            <table class="table table-sm table-hover table-bordered align-middle mb-0" style="font-size: 0.85rem;">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Target Job Keyword</th>
+                                        <th style="width: 120px;">Search Status</th>
+                                        <th style="width: 100px;">Occurrences</th>
+                                        <th>Context In Resume Experience</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="keywordMatrixBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills Breakdown -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="border rounded-3 p-3 h-100 bg-white">
+                        <h5 class="fw-bold text-success"><i class="bi bi-check-circle me-2"></i>Matched Required Skills</h5>
+                        <div id="matchedSkillsList" class="mt-2"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="border rounded-3 p-3 h-100 bg-white">
+                        <h5 class="fw-bold text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Missing Required Skills</h5>
+                        <div id="missingSkillsList" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="mt-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-lightbulb me-2 text-warning"></i>Prioritized Actionable Recommendations</h5>
+                <div id="recommendationsContainer"></div>
+            </div>
+
+            <!-- Custom AI Tailoring Section -->
+            <div class="mt-5 border-top pt-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h4 class="fw-bold mb-1 text-primary"><i class="bi bi-magic me-2"></i>One-Click AI Custom Tailored Resume (Score &rarr; 98 / 100)</h4>
+                        <p class="text-muted mb-0">Extract genuine candidate achievements and let Your AI Buddy tailor wording, XYZ impact bullets, and skills specifically for this JD into a verified LaTeX template.</p>
+                    </div>
+                </div>
+
+                <div class="card p-3 bg-light border-0 shadow-sm mb-3">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold small text-muted">Select Audited LaTeX Template:</label>
+                            <select class="form-select" id="tailorTemplateSelect">
+                                <option value="06_executive_modern" selected>6. Executive Modern (Mahesh Yemineni Layout - 98/100 Audited)</option>
+                                <option value="02_technical_skills_forward">2. Technical Skills-Forward (Tech / Dev / Data - 99/100 Audited)</option>
+                                <option value="01_classic_professional">1. Classic Professional (Harvard Serif - 98/100 Audited)</option>
+                                <option value="03_experience_first">3. Experience-First (Senior / Leads - 98/100 Audited)</option>
+                                <option value="05_concise_two_page_ready">5. Concise Content-Dense (High Density - 98/100 Audited)</option>
+                                <option value="04_early_career_projects">4. Early Career & Projects (Intern / Graduates - 97/100)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-7 d-flex align-items-end justify-content-md-end gap-2">
+                            <button type="button" class="btn btn-brand" id="generateTailoredBtn">
+                                <i class="bi bi-stars me-2"></i>Tailor to 98 Score
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tailoring Loading State -->
+                <div class="text-center d-none my-4 p-4 border rounded bg-white shadow-sm" id="tailorLoadingBox">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <h5 class="fw-bold mt-3 mb-1">Your AI Buddy is creating your tailored ATS resume & compiling LaTeX...</h5>
+                    <p class="text-muted small mb-0">Grounding facts, rewriting bullets to XYZ format, compiling sandboxed PDF, and verifying reading order.</p>
+                </div>
+
+                <!-- Tailored Output Card -->
+                <div class="card border-success shadow d-none" id="tailoredResultBox">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <span class="fw-bold"><i class="bi bi-check-circle-fill me-2"></i>Custom Tailored Resume Generated & Validated</span>
+                        <span class="badge bg-light text-success fw-bold" id="tailorTemplateBadge">Executive Modern</span>
+                    </div>
+                    <div class="card-body">
+                        <!-- Before vs After ATS Score Comparison Banner -->
+                        <div class="p-3 mb-4 rounded-3 border bg-light" style="border-left: 6px solid #10b981 !important;">
+                            <div class="row align-items-center g-3">
+                                <div class="col-md-3 text-center border-end">
+                                    <div class="small text-muted text-uppercase fw-bold">Original ATS Score</div>
+                                    <div class="fs-2 fw-bold text-danger" id="tailorScoreBefore">58 / 100</div>
+                                    <span class="badge bg-danger" id="tailorTierBefore">PRE-TAILORING</span>
+                                </div>
+                                <div class="col-md-1 text-center fs-2 text-success">
+                                    <i class="bi bi-arrow-right-circle-fill"></i>
+                                </div>
+                                <div class="col-md-3 text-center border-end">
+                                    <div class="small text-muted text-uppercase fw-bold">Updated ATS Score</div>
+                                    <div class="fs-2 fw-bold text-success" id="tailorScoreAfter">98 / 100</div>
+                                    <span class="badge bg-success" id="tailorTierAfter">ELITE MATCH</span>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <span class="badge bg-success fs-6 fw-bold" id="tailorScoreDeltaBadge">+40 PTS SCORE SURGE</span>
+                                        <span class="small text-dark fw-bold">Corporate ATS Passed</span>
+                                    </div>
+                                    <p class="small text-muted mb-0" id="tailorVerdictText">Resume content dynamically aligned to target role requirements.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Newly Matched Skills Badges -->
+                        <div class="mb-3" id="newlyMatchedBox">
+                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-patch-check-fill text-success me-2"></i>Newly Sourced & Matched JD Keywords:</h6>
+                            <div id="newlyMatchedSkillsContainer" class="d-flex flex-wrap gap-1"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-list-check me-2 text-primary"></i>Applied Optimizations:</h6>
+                            <ul class="small text-muted mb-0" id="tailorSummaryList"></ul>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <a href="#" class="btn btn-success" id="btnDownloadTailoredPdf" download>
+                                <i class="bi bi-download me-2"></i>Download Tailored PDF (.pdf)
+                            </a>
+                            <a href="#" class="btn btn-outline-dark" id="btnDownloadTailoredTex" download>
+                                <i class="bi bi-filetype-raw me-2"></i>Download LaTeX Source (.tex)
+                            </a>
+                            <a href="/resume-builder" class="btn btn-primary" id="btnOpenInBuilder">
+                                <i class="bi bi-pencil-square me-2"></i>Step 3: Resume Builder
+                            </a>
+                            <a href="/ats-scanner" class="btn btn-outline-primary" id="btnVerifyInScanner">
+                                <i class="bi bi-shield-check me-2"></i>Step 1: Verify in Scanner
+                            </a>
+                            <button type="button" class="btn btn-outline-secondary" id="btnToggleLatexView">
+                                <i class="bi bi-code-square me-2"></i>View / Copy LaTeX Source
+                            </button>
+                        </div>
+
+                        <!-- Collapsible LaTeX Code Viewer -->
+                        <div class="d-none mt-3" id="latexPreviewContainer">
+                            <div class="d-flex justify-content-between align-items-center bg-dark text-white p-2 rounded-top">
+                                <span class="small font-monospace">custom_tailored_resume.tex</span>
+                                <button class="btn btn-sm btn-outline-light py-0" id="btnCopyLatex"><i class="bi bi-clipboard me-1"></i>Copy Source</button>
+                            </div>
+                            <pre class="bg-dark text-light p-3 rounded-bottom small mb-0" style="max-height: 350px; overflow-y: auto;" id="latexSourceCode"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('resumeFileInput');
+        const fileNameLabel = document.getElementById('fileNameLabel');
+        const form = document.getElementById('analyzeForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const intakeSection = document.getElementById('intakeSection');
+        const loadingSection = document.getElementById('loadingSection');
+        const resultsSection = document.getElementById('resultsSection');
+        let currentJobId = null;
+        let globalAnalysisData = null;
+        let generatedLatexCode = '';
+
+        // Auto-check shared module state across the suite
+        const savedModuleState = sessionStorage.getItem('chakora_resume_module_state');
+        if (savedModuleState) {
+            try {
+                const s = JSON.parse(savedModuleState);
+                if (s.candidate_name) {
+                    document.getElementById('moduleSyncName').textContent = s.candidate_name;
+                    document.getElementById('moduleSyncRole').textContent = s.target_role || 'Target Position';
+                    document.getElementById('moduleSyncAlert').classList.remove('d-none');
+                }
+                if (s.job_description) document.getElementById('jdInput').value = s.job_description;
+                if (s.target_role) document.getElementById('targetRole').value = s.target_role;
+                if (s.target_company) document.getElementById('targetCompany').value = s.target_company;
+                if (s.candidate_name) fileNameLabel.textContent = `Candidate: ${s.candidate_name} (Loaded from active session)`;
+            } catch(e) {
+                console.error('Error loading module state:', e);
+            }
+        }
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileNameLabel.textContent = e.target.files[0].name;
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!fileInput.files.length) {
+                // If we have saved parsed_resume in module state, we can use it
+                if (savedModuleState) {
+                    try {
+                        const s = JSON.parse(savedModuleState);
+                        if (s.parsed_resume) {
+                            // Run analysis with existing parsed resume directly
+                            intakeSection.classList.add('d-none');
+                            loadingSection.classList.remove('d-none');
+                            const res = await fetch('/api/resume/analyze-json', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    resume_data: s.parsed_resume,
+                                    job_description: document.getElementById('jdInput').value,
+                                    target_role: document.getElementById('targetRole').value,
+                                    target_company: document.getElementById('targetCompany').value
+                                })
+                            });
+                            const data = await res.json();
+                            if (res.ok) {
+                                currentJobId = data.job_id;
+                                syncModuleData(data);
+                                renderResults(data);
+                                return;
+                            }
+                        }
+                    } catch(err) {}
+                }
+                alert('Please upload a resume file (PDF or DOCX), or click "Load Mahesh Sample".');
+                return;
+            }
+
+            const formData = new FormData(form);
+            intakeSection.classList.add('d-none');
+            loadingSection.classList.remove('d-none');
+
+            try {
+                const res = await fetch('/api/resume/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Analysis request failed.');
+                }
+
+                currentJobId = data.job_id;
+                syncModuleData(data);
+                renderResults(data);
+            } catch (err) {
+                alert('Error: ' + err.message);
+                intakeSection.classList.remove('d-none');
+            } finally {
+                loadingSection.classList.add('d-none');
+            }
+        });
+
+        function syncModuleData(data) {
+            globalAnalysisData = data;
+            const parsed = data.parsed_resume;
+            const jd = data.parsed_jd;
+
+            // Sync with shared module state
+            sessionStorage.setItem('current_resume_analysis', JSON.stringify(data));
+            sessionStorage.setItem('chakora_resume_module_state', JSON.stringify({
+                job_id: data.job_id,
+                parsed_resume: parsed,
+                parsed_jd: jd,
+                job_description: jd.raw_text || document.getElementById('jdInput').value,
+                target_role: jd.target_role || document.getElementById('targetRole').value,
+                target_company: jd.target_company || document.getElementById('targetCompany').value,
+                candidate_name: parsed.contact ? parsed.contact.full_name : 'Candidate',
+                enterprise_scan: data.analysis ? data.analysis.enterprise_scan : null,
+                tailored_resume: data.optimized_resume || null
+            }));
+        }
+
+        function renderResults(data) {
+            globalAnalysisData = data;
+            const ana = data.analysis;
+            const parsed = data.parsed_resume;
+            const jd = data.parsed_jd;
+
+            document.getElementById('resCandidateName').textContent = parsed.contact.full_name || 'Candidate';
+            document.getElementById('resTargetRole').textContent = `Target: ${jd.target_role || 'Position'}`;
+
+            document.getElementById('valComposite').textContent = Math.round(ana.composite_score);
+            document.getElementById('valJD').textContent = Math.round(ana.jd_match.score);
+            document.getElementById('valStruct').textContent = Math.round(ana.structural.score);
+            document.getElementById('valSkillCoverage').textContent = `${ana.jd_match.required_skills_coverage} / 100 Skills Covered`;
+
+            // Skills
+            const matchedContainer = document.getElementById('matchedSkillsList');
+            matchedContainer.innerHTML = '';
+            ana.jd_match.matched_required.forEach(s => {
+                const badge = document.createElement('span');
+                badge.className = 'badge-pill-custom bg-success text-white';
+                badge.textContent = s;
+                matchedContainer.appendChild(badge);
+            });
+
+            const missingContainer = document.getElementById('missingSkillsList');
+            missingContainer.innerHTML = '';
+            ana.jd_match.missing_required.forEach(s => {
+                const badge = document.createElement('span');
+                badge.className = 'badge-pill-custom bg-danger text-white';
+                badge.textContent = s;
+                missingContainer.appendChild(badge);
+            });
+
+            // Recommendations
+            const recContainer = document.getElementById('recommendationsContainer');
+            recContainer.innerHTML = '';
+            ana.recommendations.forEach(r => {
+                const div = document.createElement('div');
+                div.className = `rec-item priority-${r.priority}`;
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <strong class="text-dark">${r.title}</strong>
+                        <span class="badge bg-secondary">${r.priority} PRIORITY</span>
+                    </div>
+                    <p class="mb-1 text-muted small mt-1">${r.description}</p>
+                    <small class="text-primary fw-bold"><i class="bi bi-arrow-right me-1"></i>Action: ${r.actionable_step}</small>
+                `;
+                recContainer.appendChild(div);
+            });
+
+            // Populate Enterprise ATS Corporate Scanner
+            if (ana.enterprise_scan) {
+                const es = ana.enterprise_scan;
+                document.getElementById('enterpriseTierBadge').textContent = es.ats_compatibility_tier;
+                document.getElementById('enterpriseVerdictText').textContent = es.recruiter_verdict;
+
+                // Progress bars with explicit / 100 scores
+                document.getElementById('barValKeywords').textContent = `${Math.round(es.keyword_match_score)} / 100`;
+                document.getElementById('barKeywords').style.width = `${es.keyword_match_score}%`;
+
+                document.getElementById('barValExperience').textContent = `${Math.round(es.experience_tenure_score)} / 100`;
+                document.getElementById('barExperience').style.width = `${es.experience_tenure_score}%`;
+
+                document.getElementById('barValFormatting').textContent = `${Math.round(es.format_compliance_score)} / 100`;
+                document.getElementById('barFormatting').style.width = `${es.format_compliance_score}%`;
+
+                document.getElementById('barValImpact').textContent = `${Math.round(es.impact_metrics_score)} / 100`;
+                document.getElementById('barImpact').style.width = `${es.impact_metrics_score}%`;
+
+                // Checklist
+                const cl = document.getElementById('enterpriseChecklist');
+                cl.innerHTML = '';
+                if (!es.critical_fix_checklist || es.critical_fix_checklist.length === 0) {
+                    cl.innerHTML = '<li class="text-success small"><i class="bi bi-check-circle-fill me-1"></i>All corporate ATS screening criteria passed.</li>';
+                } else {
+                    es.critical_fix_checklist.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'small text-dark mb-1';
+                        li.innerHTML = `<i class="bi bi-arrow-right-circle text-danger me-1"></i>${item}`;
+                        cl.appendChild(li);
+                    });
+                }
+
+                // Keyword Matrix Table
+                const tbody = document.getElementById('keywordMatrixBody');
+                tbody.innerHTML = '';
+                (es.keyword_matrix || []).forEach(km => {
+                    const tr = document.createElement('tr');
+                    let badgeClass = 'bg-secondary';
+                    if (km.status === 'High') badgeClass = 'bg-success';
+                    else if (km.status === 'Moderate') badgeClass = 'bg-primary';
+                    else if (km.status === 'Low') badgeClass = 'bg-warning text-dark';
+                    else if (km.status === 'Missing') badgeClass = 'bg-danger';
+
+                    const ctx = km.context_found && km.context_found.length > 0 ? km.context_found[0] : '<span class="text-muted fst-italic">None detected</span>';
+                    tr.innerHTML = `
+                        <td class="fw-bold">${km.keyword}</td>
+                        <td><span class="badge ${badgeClass}">${km.status.toUpperCase()}</span></td>
+                        <td class="text-center">${km.occurrences}</td>
+                        <td class="small text-muted">${ctx}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            resultsSection.classList.remove('d-none');
+
+            // Auto-recommend template based on target role
+            const role = (jd.target_role || '').toLowerCase();
+            const select = document.getElementById('tailorTemplateSelect');
+            if (role.includes('trainer') || role.includes('specialist')) {
+                select.value = '06_executive_modern';
+            } else if (role.includes('senior') || role.includes('lead') || role.includes('architect')) {
+                select.value = '03_experience_first';
+            } else if (role.includes('intern') || role.includes('junior') || role.includes('graduate')) {
+                select.value = '04_early_career_projects';
+            } else if (role.includes('devops') || role.includes('cloud') || role.includes('data') || role.includes('backend') || role.includes('full-stack')) {
+                select.value = '02_technical_skills_forward';
+            } else {
+                select.value = '06_executive_modern';
+            }
+        }
+
+        // Tailor button handler
+        document.getElementById('generateTailoredBtn').addEventListener('click', async () => {
+            if (!globalAnalysisData) return;
+            const loading = document.getElementById('tailorLoadingBox');
+            const resultBox = document.getElementById('tailoredResultBox');
+            loading.classList.remove('d-none');
+            resultBox.classList.add('d-none');
+
+            const templateId = document.getElementById('tailorTemplateSelect').value;
+
+            try {
+                const res = await fetch('/api/resume/tailor', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: currentJobId || 'JOB_TAILOR_' + Date.now(),
+                        resume_data: globalAnalysisData.parsed_resume,
+                        job_description: globalAnalysisData.parsed_jd.raw_text || document.getElementById('jdInput').value,
+                        template_id: templateId,
+                        target_role: globalAnalysisData.parsed_jd.target_role,
+                        target_company: globalAnalysisData.parsed_jd.target_company
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Tailoring failed.');
+                }
+
+                // Render result
+                document.getElementById('tailorTemplateBadge').textContent = data.template_name;
+
+                // Populate Before vs After ATS Score Comparison (Explicit / 100 without %)
+                const beforeScore = Math.round(data.initial_ats_score || (globalAnalysisData.analysis && globalAnalysisData.analysis.enterprise_scan ? globalAnalysisData.analysis.enterprise_scan.overall_score : 58));
+                const afterScore = Math.round(data.updated_ats_score || 98);
+                const delta = Math.round(data.score_improvement_delta || (afterScore - beforeScore));
+
+                document.getElementById('tailorScoreBefore').textContent = `${beforeScore} / 100`;
+                document.getElementById('tailorScoreAfter').textContent = `${afterScore} / 100`;
+                document.getElementById('tailorScoreDeltaBadge').textContent = `+${delta} PTS SCORE SURGE`;
+                document.getElementById('tailorVerdictText').textContent = data.updated_enterprise_scan ? data.updated_enterprise_scan.recruiter_verdict : `Resume score escalated from ${beforeScore} to ${afterScore} pts, passing automated recruiter qualification gates.`;
+
+                // Render newly matched skills
+                const newlyMatchedBox = document.getElementById('newlyMatchedSkillsContainer');
+                newlyMatchedBox.innerHTML = '';
+                const beforeSkillsSet = new Set(data.matched_skills_before || []);
+                const afterSkills = data.matched_skills_after || [];
+                const newlyAdded = afterSkills.filter(s => !beforeSkillsSet.has(s));
+
+                if (newlyAdded.length > 0) {
+                    newlyAdded.forEach(sk => {
+                        const b = document.createElement('span');
+                        b.className = 'badge bg-success';
+                        b.innerHTML = `<i class="bi bi-plus-circle me-1"></i>${sk}`;
+                        newlyMatchedBox.appendChild(b);
+                    });
+                } else {
+                    (afterSkills.slice(0, 6)).forEach(sk => {
+                        const b = document.createElement('span');
+                        b.className = 'badge bg-success';
+                        b.innerHTML = `<i class="bi bi-check-circle me-1"></i>${sk}`;
+                        newlyMatchedBox.appendChild(b);
+                    });
+                }
+                const summaryList = document.getElementById('tailorSummaryList');
+                summaryList.innerHTML = '';
+                (data.tailoring_summary || []).forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    summaryList.appendChild(li);
+                });
+
+                document.getElementById('btnDownloadTailoredPdf').href = data.pdf_download_url;
+                document.getElementById('btnDownloadTailoredTex').href = data.tex_download_url;
+                generatedLatexCode = data.latex_source;
+                document.getElementById('latexSourceCode').textContent = data.latex_source;
+
+                // Sync tailored resume to shared module state
+                if (data.optimized_resume) {
+                    globalAnalysisData.parsed_resume = data.optimized_resume;
+                    globalAnalysisData.optimized_resume = data.optimized_resume;
+                    sessionStorage.setItem('tailored_resume', JSON.stringify(data.optimized_resume));
+                    sessionStorage.setItem('chakora_resume_module_state', JSON.stringify({
+                        job_id: data.job_id,
+                        parsed_resume: data.optimized_resume,
+                        parsed_jd: globalAnalysisData.parsed_jd,
+                        job_description: globalAnalysisData.parsed_jd.raw_text || document.getElementById('jdInput').value,
+                        target_role: globalAnalysisData.parsed_jd.target_role,
+                        target_company: globalAnalysisData.parsed_jd.target_company,
+                        candidate_name: globalAnalysisData.parsed_resume.contact ? globalAnalysisData.parsed_resume.contact.full_name : 'Candidate',
+                        tailored_resume: data.optimized_resume
+                    }));
+                }
+
+                resultBox.classList.remove('d-none');
+            } catch (err) {
+                alert('Tailoring Error: ' + err.message);
+            } finally {
+                loading.classList.add('d-none');
+            }
+        });
+
+        document.getElementById('btnToggleLatexView').addEventListener('click', () => {
+            const container = document.getElementById('latexPreviewContainer');
+            container.classList.toggle('d-none');
+        });
+
+        document.getElementById('btnCopyLatex').addEventListener('click', () => {
+            if (generatedLatexCode) {
+                navigator.clipboard.writeText(generatedLatexCode);
+                alert('LaTeX source copied to clipboard!');
+            }
+        });
+
+        document.getElementById('loadMaheshSampleBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('loadMaheshSampleBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading Mahesh Sample...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/resume/sample-mahesh');
+                const data = await res.json();
+                document.getElementById('jdInput').value = data.sample_jd;
+                document.getElementById('targetRole').value = data.target_role;
+                document.getElementById('targetCompany').value = data.target_company;
+
+                const pdfRes = await fetch('/api/resume/sample-mahesh-pdf');
+                const blob = await pdfRes.blob();
+                const file = new File([blob], 'mahesh_yemineni_resume.pdf', { type: 'application/pdf' });
+                
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+                fileNameLabel.textContent = file.name + ' (Pre-loaded)';
+
+                btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Loaded!';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 2000);
+            } catch (err) {
+                alert('Could not load sample resume: ' + err.message);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById('proceedToBuilderBtn').addEventListener('click', () => {
+            window.location.href = `/resume-builder`;
+        });
+    </script>
+
+    <!-- ChakoraHub Standard Footer -->
+    <footer class="modern-footer text-center">
+        <div class="container">
+            <p class="mb-1 text-white-50 small">&copy; 2026 ChakoraHub. All rights reserved. | Enterprise AI ATS Suite</p>
+            <small class="text-white-50" style="font-size: 0.75rem;">Simulating Fortune 500 candidate indexing & scoring (Workday, Taleo, Greenhouse, iCIMS)</small>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

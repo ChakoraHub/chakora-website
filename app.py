@@ -26,7 +26,7 @@ from datetime import datetime, timedelta, date
 from zoneinfo import ZoneInfo
 import html
 from threading import Lock, Thread
-from flask import Flask, render_template, render_template_string, request, redirect, url_for, session, flash, send_from_directory, make_response, jsonify, send_file, current_app, abort
+from flask import Flask, render_template, render_template_string, request, redirect, url_for, session, flash, send_from_directory, make_response, jsonify, send_file, current_app, abort, Response
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from werkzeug.utils import safe_join   # NEW
@@ -65,6 +65,7 @@ DEFAULT_TIMEZONE_NAME = "Asia/Kolkata"
 OPE_SERVICE_URL = os.getenv("OPE_SERVICE_URL","http://172.31.26.176:8500")
 #WABA_SERVICE_URL = os.getenv("WABA_SERVICE_URL","http://172.31.26.176:2500").rstrip("/")
 FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", OPE_SERVICE_URL).rstrip("/")
+RESUME_SERVICE_URL = os.getenv("RESUME_SERVICE_URL", "http://127.0.0.1:8200").rstrip("/")
 sf_client = None
 #APPLICATION_SERVICE_URL = os.getenv("https://mobqdeus63.execute-api.eu-north-1.amazonaws.com/Prod", "http://172.31.26.176:8020")
 LAMBDA_URL = 'https://lwug4xhfz27whiuu3acjfwsgtm0ttwja.lambda-url.eu-north-1.on.aws/'
@@ -5840,6 +5841,58 @@ def proxy_onboarding_health():
             "service": "onboarding-service",
             "error": str(e)
         }), 503
+
+
+# ==========================================
+# ATS RESUME ANALYZER & GENERATOR ROUTES
+# ==========================================
+@app.route('/resume-analyzer')
+def resume_analyzer_page():
+    return render_template('resume_analyzer.html')
+
+
+@app.route('/ats-scanner')
+def ats_scanner_page():
+    return render_template('ats_scanner.html')
+
+
+@app.route('/resume-builder')
+def resume_builder_page():
+    return render_template('resume_builder.html')
+
+
+@app.route('/api/resume/<path:subpath>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def proxy_resume_service(subpath):
+    target_url = f"{RESUME_SERVICE_URL}/api/resume/{subpath}"
+    try:
+        req_headers = {k: v for k, v in request.headers if k.lower() not in ['host', 'content-length']}
+        if request.method == 'GET':
+            resp = requests.get(target_url, params=request.args, headers=req_headers, timeout=30, stream=True)
+        elif request.files:
+            files = {name: (f.filename, f.read(), f.mimetype) for name, f in request.files.items()}
+            file_headers = {k: v for k, v in req_headers.items() if k.lower() != 'content-type'}
+            resp = requests.post(target_url, data=request.form, files=files, headers=file_headers, timeout=60)
+        else:
+            json_body = request.get_json(silent=True)
+            resp = requests.request(
+                request.method,
+                target_url,
+                json=json_body,
+                params=request.args,
+                headers=req_headers,
+                timeout=60,
+                stream=True
+            )
+
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
+        return Response(resp.content, resp.status_code, headers)
+
+    except requests.exceptions.ConnectionError:
+        return jsonify({"success": False, "detail": "Resume microservice is unavailable. Ensure chakora-resume-service is running on port 8200."}), 503
+    except Exception as e:
+        return jsonify({"success": False, "detail": f"Resume proxy error: {str(e)}"}), 500
+
 
 # ────────────────────────────────────────────────────────
 #  ROUTE 1 — /register  (GET + POST combined)
