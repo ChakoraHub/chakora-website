@@ -443,6 +443,30 @@
         return { jdText: '', targetRole: '', targetCompany: '' };
     }
 
+    function handleTailoredResumeSuccess(data, jdText, targetRole, targetCompany) {
+        if (data.optimized_resume) {
+            populateForm(data.optimized_resume);
+            sessionStorage.setItem('tailored_resume', JSON.stringify(data.optimized_resume));
+            sessionStorage.setItem('chakora_resume_module_state', JSON.stringify({
+                job_id: data.job_id,
+                parsed_resume: data.optimized_resume,
+                job_description: jdText,
+                target_role: targetRole,
+                target_company: targetCompany,
+                candidate_name: data.optimized_resume.contact ? data.optimized_resume.contact.full_name : 'Candidate',
+                tailored_resume: data.optimized_resume
+            }));
+        }
+
+        document.getElementById('btnDownloadPdf').href = data.pdf_download_url;
+        document.getElementById('btnDownloadTex').href = data.tex_download_url;
+        document.getElementById('downloadTitle').textContent = `AI-Tailored Resume Compiled (${data.template_name || selectedTemplateId})`;
+        document.getElementById('downloadSubtitle').textContent = 'Grounded in original resume facts; XYZ bullets and prioritized skills generated.';
+        document.getElementById('builderScoreBadge').textContent = 'ATS Score: 98 / 100';
+        document.getElementById('downloadPanel').classList.remove('d-none');
+        alert('Success! Your AI Buddy created your tailored resume (ATS Score: 98 / 100). Form updated with tailored bullet points.');
+    }
+
     document.getElementById('aiTailorBuilderBtn').addEventListener('click', async () => {
         const loading = document.getElementById('builderLoading');
         const loadingText = document.getElementById('builderLoadingText');
@@ -485,27 +509,7 @@
                 throw new Error(data.detail || 'AI tailoring failed.');
             }
 
-            if (data.optimized_resume) {
-                populateForm(data.optimized_resume);
-                sessionStorage.setItem('tailored_resume', JSON.stringify(data.optimized_resume));
-                sessionStorage.setItem('chakora_resume_module_state', JSON.stringify({
-                    job_id: data.job_id,
-                    parsed_resume: data.optimized_resume,
-                    job_description: jdText,
-                    target_role: targetRole,
-                    target_company: targetCompany,
-                    candidate_name: data.optimized_resume.contact ? data.optimized_resume.contact.full_name : 'Candidate',
-                    tailored_resume: data.optimized_resume
-                }));
-            }
-
-            document.getElementById('btnDownloadPdf').href = data.pdf_download_url;
-            document.getElementById('btnDownloadTex').href = data.tex_download_url;
-            document.getElementById('downloadTitle').textContent = `AI-Tailored Resume Compiled (${data.template_name || selectedTemplateId})`;
-            document.getElementById('downloadSubtitle').textContent = `Grounded in original resume facts; XYZ bullets and prioritized skills generated.`;
-            document.getElementById('builderScoreBadge').textContent = `ATS Score: 98 / 100`;
-            downloadPanel.classList.remove('d-none');
-            alert('Success! Your AI Buddy created your tailored resume (ATS Score: 98 / 100). Form updated with tailored bullet points.');
+            handleTailoredResumeSuccess(data, jdText, targetRole, targetCompany);
         } catch (err) {
             console.error('AI tailoring error:', err);
             alert('AI Tailoring Error: ' + err.message);
